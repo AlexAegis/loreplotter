@@ -15,9 +15,6 @@ cache:
 
 addons:
     chrome: stable
-    code_climate:
-        repo_token:
-            secure: 'gcLU2+ii0RhZDA8P7kePw1R+qit2hNrVrgnQyateW+RUCf6ST6z6qVc5QptVF7LKtCn+rAQC6fTH02OXgWA1Y6SxstpbHBSA+3Gp0s6sxlqVfYDFXyVmkk6JV1fCxKGV0yOxSq6Qovnf8ZAu7xFho9gKvSnM7otDCneekEQ99Lco0DKDaF3G4z/RkqLsbhlXfQ2zVwHCtCcrLiNed+eabLEvUEr7XRtsOsB2o7aMuLMYblcqW3333SyqQrDvdQPsvA2jXuaQlSM5JVYh1ag2cR+43A3A3lRrtDhIXR//5IWU1WzCIbAlWfn2e1vo12vMe9lgfr0uxd7KgIgHr96knDRqcQDMGDpOlXFL8FFwF979i/kyc4c0F/UQBf17+0rzGPwmXUW5Z9oh/Zv2vprxAcjpNswTsVZp9gZJjF+SalCzwfLk47fjWRLYzn+ViyCLnhZP2xZPT9AD9P+Skbx59E1MI9sSXVqo93IxOdF4A8KnSDs1UH/F9UYAEJnMrfSr7wR3nyqS9B5XrjxsDKOHL97rrbl05eYO9izOyfnZzPhnkWdYqUFsY95Ah1cuH+ObQIqem6bg4D4urs5/11JExd4hMd+MUCYKsPEo+ETzBVlHZHRaXu36Vvnw2HFqFVnLoAKxbNfNntlbI052s7DcprQjQPADPrb+lgDSJ5OzPNI='
 
 script:
     - npm run lint
@@ -30,4 +27,4 @@ after_script:
 
 env:
     global:
-        - CC_TEST_REPORTER_ID=gcLU2+ii0RhZDA8P7kePw1R+qit2hNrVrgnQyateW+RUCf6ST6z6qVc5QptVF7LKtCn+rAQC6fTH02OXgWA1Y6SxstpbHBSA+3Gp0s6sxlqVfYDFXyVmkk6JV1fCxKGV0yOxSq6Qovnf8ZAu7xFho9gKvSnM7otDCneekEQ99Lco0DKDaF3G4z/RkqLsbhlXfQ2zVwHCtCcrLiNed+eabLEvUEr7XRtsOsB2o7aMuLMYblcqW3333SyqQrDvdQPsvA2jXuaQlSM5JVYh1ag2cR+43A3A3lRrtDhIXR//5IWU1WzCIbAlWfn2e1vo12vMe9lgfr0uxd7KgIgHr96knDRqcQDMGDpOlXFL8FFwF979i/kyc4c0F/UQBf17+0rzGPwmXUW5Z9oh/Zv2vprxAcjpNswTsVZp9gZJjF+SalCzwfLk47fjWRLYzn+ViyCLnhZP2xZPT9AD9P+Skbx59E1MI9sSXVqo93IxOdF4A8KnSDs1UH/F9UYAEJnMrfSr7wR3nyqS9B5XrjxsDKOHL97rrbl05eYO9izOyfnZzPhnkWdYqUFsY95Ah1cuH+ObQIqem6bg4D4urs5/11JExd4hMd+MUCYKsPEo+ETzBVlHZHRaXu36Vvnw2HFqFVnLoAKxbNfNntlbI052s7DcprQjQPADPrb+lgDSJ5OzPNI=
+        - CC_TEST_REPORTER_ID=a4744593ad5018b15bca45ab4cea95eccbec2bc106e6ce1b47d3be3924ebaf27
