@@ -1,4 +1,6 @@
-# Loreplotter
+# LorePlotter
+
+[![Build Status](https://travis-ci.com/AlexAegis/loreplotter.svg?branch=master)](https://travis-ci.com/AlexAegis/loreplotter)
 
 3D visualization tool
 
