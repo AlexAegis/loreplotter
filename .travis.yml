@@ -23,10 +23,6 @@ script:
 after_script:
     - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
-env:
-    global:
-        - CC_TEST_REPORTER_ID=$CODE_CLIMATE_TEST_REPORTER_ID
-
 deploy:
     provider: pages
     skip_cleanup: true
