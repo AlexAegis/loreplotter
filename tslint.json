@@ -1,5 +1,5 @@
 {
-	"rulesDirectory": ["codelyzer"],
+	"rulesDirectory": ["node_modules/codelyzer"],
 	"rules": {
 		"arrow-return-shorthand": true,
 		"callable-types": true,
@@ -13,7 +13,7 @@
 		"forin": true,
 		"import-blacklist": [true, "rxjs/Rx"],
 		"import-spacing": true,
-		"indent": [true, "spaces"],
+		"indent": [true, "tabs"],
 		"interface-over-type-literal": true,
 		"label-position": true,
 		"max-line-length": [true, 140],
