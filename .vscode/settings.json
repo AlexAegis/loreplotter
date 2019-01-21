@@ -24,5 +24,11 @@
 	},
 	"material-icon-theme.files.associations": {
 		"*.animation.ts": "purescript"
+	},
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"node_modules": true,
+		"coverage": true
 	}
 }
