@@ -11,7 +11,7 @@
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve",
-		"build": "ng build --prod --base-href \"./loreplotter/\"",
+		"build": "ng build --prod --base-href \"/loreplotter/\"",
 		"test": "ng test",
 		"test:headless": "ng test --watch=false --browsers=ChromeHeadless",
 		"lint": "ng lint",
