@@ -17,8 +17,6 @@ addons:
     chrome: stable
 
 script:
-    - npm run lint
-    - npm run test:headless
     - npm run build
     - xvfb-run npm run e2e
 
@@ -28,3 +26,11 @@ after_script:
 env:
     global:
         - CC_TEST_REPORTER_ID=a4744593ad5018b15bca45ab4cea95eccbec2bc106e6ce1b47d3be3924ebaf27
+
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: dist/my-awesome-project
+    on:
+        branch: master
