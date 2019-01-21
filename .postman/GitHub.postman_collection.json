@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "ef9025f0-5ab1-4085-ab49-97cdffcd120b",
+		"name": "GitHub",
+		"description": "GitHub APIv3 requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Rebuild Pages",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/vnd.github.mister-fantastic-preview+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://api.github.com/repos/{{user_name}}/{{repo_name}}/pages/builds",
+					"protocol": "https",
+					"host": ["api", "github", "com"],
+					"path": ["repos", "{{user_name}}", "{{repo_name}}", "pages", "builds"]
+				},
+				"description": "Forces a GitHub Pages rebuild on a specific repository"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9ca31e04-7412-4f04-977a-69b320e0f6b5",
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "41bdff9f-0f3a-40c3-8467-a343365d72c3",
+				"type": "text/javascript",
+				"exec": [""]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "e592e9c6-28f2-458c-85c9-356747dc860f",
+			"key": "user_name",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "fe6cfb9b-c7bf-4939-97d7-0e99c734f2f9",
+			"key": "repo_name",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
