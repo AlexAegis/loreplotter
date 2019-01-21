@@ -1,0 +1,18 @@
+engines:
+    duplication:
+        enabled: true
+        config:
+            languages:
+                - javascript
+                - typescipt
+    eslint:
+        enabled: true
+    tslint:
+        enabled: true
+    fixme:
+        enabled: true
+ratings:
+    paths:
+        - 'src/**.js'
+exclude_paths:
+    - dist/**/*
