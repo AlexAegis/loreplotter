@@ -1,2 +1,0 @@
-# loreplotter
-Visualization
