@@ -25,7 +25,7 @@ after_script:
 
 env:
     global:
-        - CC_TEST_REPORTER_ID=a4744593ad5018b15bca45ab4cea95eccbec2bc106e6ce1b47d3be3924ebaf27
+        - CC_TEST_REPORTER_ID=$CODE_CLIMATE_TEST_REPORTER_ID
 
 deploy:
     provider: pages
