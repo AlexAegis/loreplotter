@@ -8,14 +8,6 @@
 			"webRoot": "${workspaceFolder}",
 			"cwd": "${workspaceFolder}",
 			"preLaunchTask": "start"
-		},
-		{
-			"type": "chrome",
-			"request": "attach",
-			"port": 4200,
-			"name": "Attach",
-			"url": "http://localhost:4200",
-			"webRoot": "${workspaceFolder}"
 		}
 	]
 }
