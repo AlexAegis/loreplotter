@@ -1,3 +1,4 @@
+import { EngineComponent } from './engine.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
@@ -5,7 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 @NgModule({
-	declarations: [AppComponent],
+	declarations: [AppComponent, AppComponent, EngineComponent],
 	imports: [BrowserModule, AppRoutingModule],
 	providers: [],
 	bootstrap: [AppComponent]
