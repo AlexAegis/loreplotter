@@ -54,6 +54,10 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		this.engine.rotate($event.velocityX * 4, $event.velocityY * 4, $event.isFinal);
 	}
 
+	public turnRight() {
+		this.engine.turnAngleOnX(90);
+	}
+
 	ngOnDestroy(): void {
 		//this.mouse$sub.unsubscribe();
 	}
