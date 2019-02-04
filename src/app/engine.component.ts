@@ -49,9 +49,11 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		this.engine.turnAngleOnX(90);
 	}
 
-	public wheel($event: any) {
-		console.log($event);
+	public wheel($event: WheelEvent) {
+		//console.log($event);
+		this.engine.zoom($event.deltaY);
 	}
+
 	ngOnDestroy(): void {
 		//this.mouse$sub.unsubscribe();
 	}

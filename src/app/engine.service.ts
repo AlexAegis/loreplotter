@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Injectable } from '@angular/core';
 import { Vector3, Euler, Matrix4, Quaternion } from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject, ReplaySubject } from 'rxjs';
 import { debounce, debounceTime, throttleTime } from 'rxjs/operators';
 @Injectable({
 	providedIn: 'root'
@@ -19,9 +19,12 @@ export class EngineService {
 	public from: any;
 	public to: any;
 
-	public throttledLogger: Subject<string> = new Subject();
-
 	private radius = 1.5;
+
+	minZoom = 2;
+	maxZoom = 20;
+
+	zoomTargetSubj: Subject<number> = new Subject();
 
 	createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
@@ -34,10 +37,10 @@ export class EngineService {
 		// create the scene
 		this.scene = new THREE.Scene();
 
-		this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.position.z = 6;
+		this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+		this.camera.position.z = 10;
 		this.scene.add(this.camera);
-
+		this.camera.matrixAutoUpdate = true;
 		// soft white light
 		this.light = new THREE.AmbientLight(0x404040);
 		this.light.position.z = 6;
@@ -45,7 +48,6 @@ export class EngineService {
 		this.scene.fog = new THREE.Fog(0x2040aa, 2, 100);
 
 		const geometry = new THREE.SphereGeometry(this.radius, 100, 100);
-		// let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 
 		const material = new THREE.ShaderMaterial({
 			uniforms: globeShader.uniforms,
@@ -56,13 +58,33 @@ export class EngineService {
 		this.sphere = new THREE.Mesh(geometry, material);
 		this.scene.add(this.sphere);
 
-		const axesHelper = new THREE.AxesHelper(5);
-		this.scene.add(axesHelper);
+		/*const axesHelper = new THREE.AxesHelper(5);
+		this.scene.add(axesHelper);*/
 
-		this.throttledLogger
+		let tw;
+		this.zoomTargetSubj
 			.asObservable()
-			.pipe(throttleTime(200))
-			.subscribe(s => console.log(s));
+			.pipe(throttleTime(100))
+			.subscribe(target => {
+				if (tw) {
+					tw.stop();
+				}
+				tw = new TWEEN.Tween(this.camera.position)
+					.to({ z: target }, 160)
+					.easing(TWEEN.Easing.Linear.None)
+					.onUpdate(o => {
+						if (this.camera.position.z === NaN) {
+							this.camera.position.z = this.minZoom;
+						}
+						this.camera.updateProjectionMatrix();
+					})
+					.start(Date.now());
+			});
+	}
+
+	zoom(amount: number) {
+		let norm = amount / Math.abs(amount);
+		this.zoomTargetSubj.next(THREE.Math.clamp(this.camera.position.z - norm, this.minZoom, this.maxZoom));
 	}
 
 	animate(): void {
@@ -98,9 +120,6 @@ export class EngineService {
 		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * x);
 		this.sphere.rotateOnWorldAxis(new Vector3(1, 0, 0), THREE.Math.DEG2RAD * y);
 
-		let logt: string = `x: ${THREE.Math.RAD2DEG * this.sphere.rotation.x} y: ${THREE.Math.RAD2DEG *
-			this.sphere.rotation.y} z: ${THREE.Math.RAD2DEG * this.sphere.rotation.z}`;
-
 		if (THREE.Math.RAD2DEG * this.sphere.rotation.z < 90 && THREE.Math.RAD2DEG * this.sphere.rotation.z > -90) {
 			this.sphere.rotation.x = THREE.Math.clamp(
 				this.sphere.rotation.x,
@@ -119,7 +138,6 @@ export class EngineService {
 			this.rotationEase = this.rotatween(x * 3, y * 3);
 		}
 
-		this.throttledLogger.next(logt);
 		return this.sphere.rotation;
 	}
 
