@@ -101,7 +101,6 @@ export class EngineService {
 		let logt: string = `x: ${THREE.Math.RAD2DEG * this.sphere.rotation.x} y: ${THREE.Math.RAD2DEG *
 			this.sphere.rotation.y} z: ${THREE.Math.RAD2DEG * this.sphere.rotation.z}`;
 
-		/*
 		if (THREE.Math.RAD2DEG * this.sphere.rotation.z < 90 && THREE.Math.RAD2DEG * this.sphere.rotation.z > -90) {
 			this.sphere.rotation.x = THREE.Math.clamp(
 				this.sphere.rotation.x,
@@ -114,81 +113,40 @@ export class EngineService {
 			} else {
 				this.sphere.rotation.x = Math.min(this.sphere.rotation.x, THREE.Math.DEG2RAD * -90);
 			}
-		}*/
+		}
 
 		if (isFinal) {
-			this.rotatween(x, y);
+			this.rotationEase = this.rotatween(x, y);
 		}
 
 		this.throttledLogger.next(logt);
 		return this.sphere.rotation;
 	}
 
-	angle: any = {
-		value: 0
-	};
-	angleEnd: any = {
-		value: 0
-	};
-	lookAt = new THREE.Vector3();
 	rotatween(x: number, y: number) {
-		let from = this.sphere.rotation;
-
-		let fromVec = from.toVector3();
-		let fromQuat = new Quaternion().setFromEuler(from);
-		console.log(
-			`from x: ${THREE.Math.RAD2DEG * from.x} y: ${THREE.Math.RAD2DEG * from.y} z: ${THREE.Math.RAD2DEG * from.z}`
-		);
+		let fromQuat = new Quaternion().copy(this.sphere.quaternion);
 
 		let to = this.rotate(x * 10, y * 10);
-		let toVec = to.toVector3();
-		let toQuat = new Quaternion().setFromEuler(to);
-
-		let sphericalStart = new THREE.Spherical().setFromVector3(fromVec);
-		let sphericalEnd = new THREE.Spherical().setFromVector3(toVec);
-		let vectorStart = new THREE.Vector3().setFromSpherical(sphericalStart);
-		let vectorEnd = new THREE.Vector3().setFromSpherical(sphericalEnd);
-
-		let normal = new THREE.Vector3()
-			.copy(vectorStart)
-			.cross(vectorEnd)
-			.normalize();
-
-		this.angle.value = 0;
-		this.angleEnd.value = vectorStart.angleTo(vectorEnd);
-
-		console.log(
-			`to x: ${THREE.Math.RAD2DEG * to.x} y: ${THREE.Math.RAD2DEG * to.y} z: ${THREE.Math.RAD2DEG * to.z}`
-		);
-
-		let q = new THREE.Quaternion().setFromUnitVectors(fromVec.normalize(), toVec.normalize());
-
+		let toQuat = new Quaternion().copy(this.sphere.quaternion);
 		this.rotate(-x * 10, -y * 10);
-		return new TWEEN.Tween(fromQuat)
-			.to(q, 1200)
-			.easing(TWEEN.Easing.Exponential.Out)
+
+		let val = { v: 0 };
+		let target = { v: 1 };
+		return new TWEEN.Tween(val)
+			.to(target, 1200)
+			.easing(TWEEN.Easing.Elastic.Out)
 			.onUpdate(o => {
-				this.sphere.rotation.setFromQuaternion(o);
-			}) // this.rotate(x / 10, y / 10)
+				Quaternion.slerp(fromQuat, toQuat, this.sphere.quaternion, o.v);
+			})
 			.start(Date.now());
 	}
 
-	/*
-Euler.RotationOrders = [ 'XYZ', 'YZX', 'ZXY', 'XZY', 'YXZ', 'ZYX' ];
-
-Euler.DefaultOrder = 'XYZ';
-*/
 	turnAngleOnX(angle: number) {
-		let fromVec = this.sphere.rotation.toVector3();
-		let fromEul = new THREE.Euler().copy(this.sphere.rotation).reorder('YXZ');
-		let fromQuat = new Quaternion().copy(this.sphere.quaternion); //new Quaternion().setFromEuler(this.sphere.rotation);
+		let fromQuat = new Quaternion().copy(this.sphere.quaternion);
 		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * angle);
-		let toVec = this.sphere.rotation.toVector3();
-		let toEul = new THREE.Euler().copy(this.sphere.rotation).reorder('YXZ');
-		let toQuat = new Quaternion().copy(this.sphere.quaternion); //new Quaternion().setFromEuler(this.sphere.rotation);
+
+		let toQuat = new Quaternion().copy(this.sphere.quaternion);
 		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), -THREE.Math.DEG2RAD * angle);
-		console.log('turn');
-		// o.x, o.y, o.z
 
 		let val = { v: 0 };
 		let target = { v: 1 };
