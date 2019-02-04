@@ -1,0 +1,12 @@
+:host {
+	canvas {
+		position: absolute;
+		width: 100vw;
+		height: 100vh;
+		right: 0;
+		left: 0;
+		bottom: 0;
+		top: 0;
+		z-index: -1000;
+	}
+}

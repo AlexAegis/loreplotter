@@ -116,7 +116,7 @@ export class EngineService {
 		}
 
 		if (isFinal) {
-			this.rotationEase = this.rotatween(x, y);
+			this.rotationEase = this.rotatween(x * 3, y * 3);
 		}
 
 		this.throttledLogger.next(logt);
@@ -126,9 +126,9 @@ export class EngineService {
 	rotatween(x: number, y: number) {
 		let fromQuat = new Quaternion().copy(this.sphere.quaternion);
 
-		let to = this.rotate(x * 10, y * 10);
+		let to = this.rotate(x, y);
 		let toQuat = new Quaternion().copy(this.sphere.quaternion);
-		this.rotate(-x * 10, -y * 10);
+		this.sphere.setRotationFromQuaternion(fromQuat);
 
 		let val = { v: 0 };
 		let target = { v: 1 };

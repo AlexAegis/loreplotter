@@ -22,7 +22,7 @@ import { Tween, Easing, update } from '@tweenjs/tween.js';
 @Component({
 	selector: 'app-engine',
 	templateUrl: './engine.component.html',
-	styleUrls: []
+	styleUrls: ['./engine.component.scss']
 })
 export class EngineComponent implements AfterViewInit, OnDestroy {
 	@ViewChild('canvas')
@@ -34,15 +34,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	t: Tween;
 	constructor(private engine: EngineService) {
 		this.mouse$ = this.mouse.asObservable();
-		/*this.mouse$sub = this.mouse$
-			.pipe(
-				throttleTime(150),
-				pairwise()
-			)
-			.subscribe((e: Array<any>) => {
-				new Tween(e[0]).to(e[1], 150)
-				this.engine.rotate(e[0].velocityX, e[0].velocityY);
-			});*/
 	}
 
 	ngAfterViewInit(): void {
@@ -58,6 +49,9 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		this.engine.turnAngleOnX(90);
 	}
 
+	public wheel($event: any) {
+		console.log($event);
+	}
 	ngOnDestroy(): void {
 		//this.mouse$sub.unsubscribe();
 	}
