@@ -1,3 +1,4 @@
+import { ClickEvent } from './../event/click-event.type';
 import { Point } from './point.class';
 import { Shader, Vector3, Quaternion, Euler, Spherical } from 'three';
 import { globeShader } from '../shader/globe.shader';
@@ -6,6 +7,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
 import { interval, timer } from 'rxjs';
 import { take, delay } from 'rxjs/operators';
+import { Interactive } from '../interfaces/interactive.interface';
 
 export class Globe extends THREE.Mesh {
 	private rotationEase: TWEEN.Tween;
@@ -20,7 +22,12 @@ export class Globe extends THREE.Mesh {
 			})
 		);
 		this.geometry.computeBoundingSphere();
-
+		this.addEventListener('click', (point: ClickEvent) => {
+			console.log(`me got click! @${point.point.toArray()}`);
+			if (this.userData['selected']) {
+				(<Interactive>this.userData['selected']).deselect();
+			}
+		});
 		// playground
 		const point = new Point();
 
@@ -29,7 +36,7 @@ export class Globe extends THREE.Mesh {
 		this.put(point, sph);
 
 		timer(100, 500)
-			.pipe(take(35))
+			.pipe(take(0))
 			.subscribe(i => {
 				new TWEEN.Tween(sph)
 					.to({ theta: sph.theta - THREE.Math.DEG2RAD * 10 }, 500)

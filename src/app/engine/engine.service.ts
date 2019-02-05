@@ -16,7 +16,7 @@ export class EngineService {
 	private camera: THREE.PerspectiveCamera;
 	private scene: THREE.Scene;
 	private light: THREE.AmbientLight;
-
+	private raycaster: THREE.Raycaster = new THREE.Raycaster();
 	public globe: Globe;
 
 	minZoom = 2;
@@ -32,13 +32,12 @@ export class EngineService {
 		});
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-		// create the scene
 		this.scene = new THREE.Scene();
 
 		this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 		this.camera.position.z = 6;
 		this.scene.add(this.camera);
-		this.camera.matrixAutoUpdate = true;
+
 		// soft white light
 		this.light = new THREE.AmbientLight(0x404040);
 		this.light.position.z = 6;
@@ -75,6 +74,23 @@ export class EngineService {
 	zoom(amount: number) {
 		const norm = amount / Math.abs(amount);
 		this.zoomTargetSubj.next(THREE.Math.clamp(this.camera.position.z - norm, this.minZoom, this.maxZoom));
+	}
+
+	click(x: number, y: number) {
+		this.raycaster.setFromCamera(new THREE.Vector3(x, y, 0.5), this.camera);
+
+		this.raycaster
+			.intersectObjects(this.globe.children, false)
+			.splice(0, 1)
+			.forEach(obj => {
+				obj.object.dispatchEvent({ type: 'select', message: 'You have been clicked!' });
+			});
+		this.raycaster
+			.intersectObject(this.globe, false)
+			.splice(0, 1)
+			.forEach(obj => {
+				obj.object.dispatchEvent({ type: 'click', point: obj.point });
+			});
 	}
 
 	animate(): void {

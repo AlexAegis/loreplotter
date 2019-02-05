@@ -29,5 +29,12 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		this.engine.zoom($event.deltaY);
 	}
 
+	public click($event: any) {
+		this.engine.click(
+			($event.center.x / window.innerWidth) * 2 - 1,
+			-($event.center.y / window.innerHeight) * 2 + 1
+		);
+	}
+
 	ngOnDestroy(): void {}
 }
