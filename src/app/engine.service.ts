@@ -142,14 +142,14 @@ export class EngineService {
 	}
 
 	rotatween(x: number, y: number) {
-		let fromQuat = new Quaternion().copy(this.sphere.quaternion);
+		const fromQuat = new Quaternion().copy(this.sphere.quaternion);
 
-		let to = this.rotate(x, y);
-		let toQuat = new Quaternion().copy(this.sphere.quaternion);
+		const to = this.rotate(x, y);
+		const toQuat = new Quaternion().copy(this.sphere.quaternion);
 		this.sphere.setRotationFromQuaternion(fromQuat);
 
-		let val = { v: 0 };
-		let target = { v: 1 };
+		const val = { v: 0 };
+		const target = { v: 1 };
 		return new TWEEN.Tween(val)
 			.to(target, 1200)
 			.easing(TWEEN.Easing.Elastic.Out)
@@ -160,14 +160,14 @@ export class EngineService {
 	}
 
 	turnAngleOnX(angle: number) {
-		let fromQuat = new Quaternion().copy(this.sphere.quaternion);
+		const fromQuat = new Quaternion().copy(this.sphere.quaternion);
 		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * angle);
 
-		let toQuat = new Quaternion().copy(this.sphere.quaternion);
+		const toQuat = new Quaternion().copy(this.sphere.quaternion);
 		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), -THREE.Math.DEG2RAD * angle);
 
-		let val = { v: 0 };
-		let target = { v: 1 };
+		const val = { v: 0 };
+		const target = { v: 1 };
 		new TWEEN.Tween(val)
 			.to(target, 1200)
 			.easing(TWEEN.Easing.Exponential.Out)

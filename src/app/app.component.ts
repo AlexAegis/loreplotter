@@ -1,4 +1,3 @@
-import { Globe } from './globe/globe.class';
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 @Component({
