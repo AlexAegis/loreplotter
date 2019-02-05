@@ -1,8 +1,11 @@
-import { Shader, Vector3, Quaternion, Euler } from 'three';
+import { Point } from './point.class';
+import { Shader, Vector3, Quaternion, Euler, Spherical } from 'three';
 import { globeShader } from '../shader/globe.shader';
 
 import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
+import { interval, timer } from 'rxjs';
+import { take, delay } from 'rxjs/operators';
 
 export class Globe extends THREE.Mesh {
 	private rotationEase: TWEEN.Tween;
@@ -16,6 +19,40 @@ export class Globe extends THREE.Mesh {
 				fragmentShader: shader.fragmentShader
 			})
 		);
+		this.geometry.computeBoundingSphere();
+
+		// playground
+		const point = new Point();
+
+		let sph = new Spherical().setFromVector3(new Vector3(0, 0, this.radius));
+
+		this.put(point, sph);
+
+		timer(100, 500)
+			.pipe(take(35))
+			.subscribe(i => {
+				new TWEEN.Tween(sph)
+					.to({ theta: sph.theta - THREE.Math.DEG2RAD * 10 }, 500)
+					.easing(TWEEN.Easing.Exponential.InOut)
+					.onUpdate(sph => {
+						point.position.setFromSpherical(sph);
+
+						point.lookAt(0, 0, 0);
+					})
+					.start(Date.now());
+			});
+	}
+
+	/**
+	 * Put an object onto the surface of the Globe
+	 *
+	 * @param object
+	 */
+	put(object: THREE.Mesh, position: Spherical, height: number = 0): void {
+		position.radius = this.radius + height + object.geometry.boundingBox.max.y;
+		object.position.setFromSpherical(position);
+		object.lookAt(this.position);
+		this.add(object);
 	}
 
 	rotate(x: number, y: number, isFinal?: boolean): Euler {
