@@ -6,6 +6,7 @@ import { throttleTime } from 'rxjs/operators';
 
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import { Globe } from './object/globe.class';
 
 @Injectable({
 	providedIn: 'root'
@@ -16,12 +17,7 @@ export class EngineService {
 	private scene: THREE.Scene;
 	private light: THREE.AmbientLight;
 
-	private sphere: THREE.Mesh;
-	private rotationEase: TWEEN.Tween;
-	public from: any;
-	public to: any;
-
-	private radius = 1.5;
+	public globe: Globe;
 
 	minZoom = 2;
 	maxZoom = 20;
@@ -49,21 +45,13 @@ export class EngineService {
 		this.scene.add(this.light);
 		this.scene.fog = new THREE.Fog(0x2040aa, 2, 100);
 
-		const geometry = new THREE.SphereGeometry(this.radius, 100, 100);
-
-		const material = new THREE.ShaderMaterial({
-			uniforms: globeShader.uniforms,
-			vertexShader: globeShader.vertexShader,
-			fragmentShader: globeShader.fragmentShader
-		});
-
-		this.sphere = new THREE.Mesh(geometry, material);
-		this.scene.add(this.sphere);
+		this.globe = new Globe();
+		this.scene.add(this.globe);
 
 		/*const axesHelper = new THREE.AxesHelper(5);
 		this.scene.add(axesHelper);*/
 
-		let tw;
+		let tw: TWEEN.Tween;
 		this.zoomTargetSubj
 			.asObservable()
 			.pipe(throttleTime(100))
@@ -85,7 +73,7 @@ export class EngineService {
 	}
 
 	zoom(amount: number) {
-		let norm = amount / Math.abs(amount);
+		const norm = amount / Math.abs(amount);
 		this.zoomTargetSubj.next(THREE.Math.clamp(this.camera.position.z - norm, this.minZoom, this.maxZoom));
 	}
 
@@ -106,76 +94,9 @@ export class EngineService {
 	}
 
 	resize() {
-		let width = window.innerWidth;
-		let height = window.innerHeight;
-
-		this.camera.aspect = width / height;
+		this.camera.aspect = window.innerWidth / window.innerHeight;
 		this.camera.updateProjectionMatrix();
 
-		this.renderer.setSize(width, height);
-	}
-
-	rotate(x: number, y: number, isFinal?: boolean): Euler {
-		if (this.rotationEase) {
-			this.rotationEase.stop();
-		}
-		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * x);
-		this.sphere.rotateOnWorldAxis(new Vector3(1, 0, 0), THREE.Math.DEG2RAD * y);
-
-		if (THREE.Math.RAD2DEG * this.sphere.rotation.z < 90 && THREE.Math.RAD2DEG * this.sphere.rotation.z > -90) {
-			this.sphere.rotation.x = THREE.Math.clamp(
-				this.sphere.rotation.x,
-				THREE.Math.DEG2RAD * -90,
-				THREE.Math.DEG2RAD * 90
-			);
-		} else {
-			if (this.sphere.rotation.x > 0) {
-				this.sphere.rotation.x = Math.max(this.sphere.rotation.x, THREE.Math.DEG2RAD * 90);
-			} else {
-				this.sphere.rotation.x = Math.min(this.sphere.rotation.x, THREE.Math.DEG2RAD * -90);
-			}
-		}
-
-		if (isFinal) {
-			this.rotationEase = this.rotatween(x * 3, y * 3);
-		}
-
-		return this.sphere.rotation;
-	}
-
-	rotatween(x: number, y: number) {
-		const fromQuat = new Quaternion().copy(this.sphere.quaternion);
-
-		const to = this.rotate(x, y);
-		const toQuat = new Quaternion().copy(this.sphere.quaternion);
-		this.sphere.setRotationFromQuaternion(fromQuat);
-
-		const val = { v: 0 };
-		const target = { v: 1 };
-		return new TWEEN.Tween(val)
-			.to(target, 1200)
-			.easing(TWEEN.Easing.Elastic.Out)
-			.onUpdate(o => {
-				Quaternion.slerp(fromQuat, toQuat, this.sphere.quaternion, o.v);
-			})
-			.start(Date.now());
-	}
-
-	turnAngleOnX(angle: number) {
-		const fromQuat = new Quaternion().copy(this.sphere.quaternion);
-		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * angle);
-
-		const toQuat = new Quaternion().copy(this.sphere.quaternion);
-		this.sphere.rotateOnAxis(new Vector3(0, 1, 0), -THREE.Math.DEG2RAD * angle);
-
-		const val = { v: 0 };
-		const target = { v: 1 };
-		new TWEEN.Tween(val)
-			.to(target, 1200)
-			.easing(TWEEN.Easing.Exponential.Out)
-			.onUpdate(o => {
-				Quaternion.slerp(fromQuat, toQuat, this.sphere.quaternion, o.v);
-			})
-			.start(Date.now());
+		this.renderer.setSize(window.innerWidth, window.innerHeight);
 	}
 }

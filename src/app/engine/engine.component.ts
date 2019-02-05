@@ -18,11 +18,11 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public pan($event: any): void {
-		this.engine.rotate($event.velocityX * 4, $event.velocityY * 4, $event.isFinal);
+		this.engine.globe.rotate($event.velocityX * 4, $event.velocityY * 4, $event.isFinal);
 	}
 
 	public turnRight() {
-		this.engine.turnAngleOnX(90);
+		this.engine.globe.turnAngleOnX(90);
 	}
 
 	public wheel($event: WheelEvent) {
