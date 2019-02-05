@@ -1,12 +1,13 @@
 import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
+import { EngineComponent } from './engine/engine.component';
 
 describe('AppComponent', () => {
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
 			imports: [RouterTestingModule],
-			declarations: [AppComponent]
+			declarations: [AppComponent, EngineComponent]
 		}).compileComponents();
 	}));
 
@@ -16,16 +17,10 @@ describe('AppComponent', () => {
 		expect(app).toBeTruthy();
 	});
 
-	it(`should have as title 'loreplotter'`, () => {
-		const fixture = TestBed.createComponent(AppComponent);
-		const app = fixture.debugElement.componentInstance;
-		expect(app.title).toEqual('loreplotter');
-	});
-
-	it('should render title in a h1 tag', () => {
+	it('should render an engine', () => {
 		const fixture = TestBed.createComponent(AppComponent);
 		fixture.detectChanges();
 		const compiled = fixture.debugElement.nativeElement;
-		expect(compiled.querySelector('h1').textContent).toContain('Welcome to loreplotter!');
+		expect(compiled.querySelector('app-engine')).toBeTruthy();
 	});
 });
