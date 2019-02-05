@@ -1,5 +1,4 @@
-import { Globe } from './globe/globe.class';
-import { EngineComponent } from './engine.component';
+import { EngineComponent } from './engine/engine.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 

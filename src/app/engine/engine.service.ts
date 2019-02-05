@@ -1,10 +1,12 @@
 import { globeShader } from './shader/globe.shader';
-import * as THREE from 'three';
 import { Injectable } from '@angular/core';
-import { Vector3, Euler, Matrix4, Quaternion } from 'three';
+import { Vector3, Euler, Quaternion } from 'three';
+import { Subject } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
+
+import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
-import { Subject, BehaviorSubject, ReplaySubject } from 'rxjs';
-import { debounce, debounceTime, throttleTime } from 'rxjs/operators';
+
 @Injectable({
 	providedIn: 'root'
 })
