@@ -30,9 +30,11 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public click($event: any) {
+		console.log($event);
 		this.engine.click(
 			($event.center.x / window.innerWidth) * 2 - 1,
-			-($event.center.y / window.innerHeight) * 2 + 1
+			-($event.center.y / window.innerHeight) * 2 + 1,
+			$event.srcEvent.shiftKey
 		);
 	}
 

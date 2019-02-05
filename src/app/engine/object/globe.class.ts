@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { interval, timer } from 'rxjs';
 import { take, delay } from 'rxjs/operators';
 import { Interactive } from '../interfaces/interactive.interface';
+import { invert } from '../helper/invert.function';
 
 export class Globe extends THREE.Mesh {
 	private rotationEase: TWEEN.Tween;
@@ -22,11 +23,17 @@ export class Globe extends THREE.Mesh {
 			})
 		);
 		this.geometry.computeBoundingSphere();
-		this.addEventListener('click', (point: ClickEvent) => {
-			console.log(`me got click! @${point.point.toArray()}`);
+		this.addEventListener('click', (event: ClickEvent) => {
+			console.log(`me got click! @${event.point.toArray()}`);
 			if (this.userData['selected']) {
 				(<Interactive>this.userData['selected']).deselect();
 			}
+		});
+
+		this.addEventListener('create', (event: ClickEvent) => {
+			console.log('create');
+
+			this.put(new Point(), new Spherical().setFromVector3(event.point.applyEuler(invert(this.rotation))));
 		});
 		// playground
 		const point = new Point();
