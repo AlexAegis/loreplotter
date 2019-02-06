@@ -27,11 +27,11 @@ export class Globe extends Basic {
 		);
 		this.geometry.computeBoundingSphere();
 		this.addEventListener('click', (event: ClickEvent) => {
-			console.log(`me got click! @${event.point.toArray()}`);
-			if (this.userData['selected']) {
-				(<Interactive>this.userData['selected']).deselect();
-				this.userData['selected'] = undefined;
+			if (this.scene.userData['selected']) {
+				(<Interactive>this.scene.userData['selected']).deselect();
+				this.scene.userData['selected'] = undefined;
 			}
+			this.changed();
 		});
 
 		this.addEventListener('create', (event: ClickEvent) => {
@@ -97,12 +97,6 @@ export class Globe extends Basic {
 		}
 
 		this.changed();
-		/*
-		if (this.userData['selected']) {
-			this.positionChange.emit(
-				denormalize((<Point>this.userData['selected']).getWorldPosition(this.center).project(this.camera))
-			);
-		}*/
 
 		return this.rotation;
 	}
@@ -121,6 +115,7 @@ export class Globe extends Basic {
 			.easing(TWEEN.Easing.Elastic.Out)
 			.onUpdate(o => {
 				Quaternion.slerp(fromQuat, toQuat, this.quaternion, o.v);
+				this.changed();
 			})
 			.start(Date.now());
 	}
@@ -139,6 +134,7 @@ export class Globe extends Basic {
 			.easing(TWEEN.Easing.Exponential.Out)
 			.onUpdate(o => {
 				Quaternion.slerp(fromQuat, toQuat, this.quaternion, o.v);
+				this.changed();
 			})
 			.start(Date.now());
 	}

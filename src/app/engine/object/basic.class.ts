@@ -9,7 +9,7 @@ import { interval, timer } from 'rxjs';
 import { take, delay } from 'rxjs/operators';
 import { Interactive } from '../interfaces/interactive.interface';
 import { invert } from '../helper/invert.function';
-import { EventEmitter, Output, OnChanges, SimpleChanges, Input, DoCheck, Inject } from '@angular/core';
+import { EventEmitter, Output, OnChanges, SimpleChanges, Input, DoCheck, Inject, Injectable } from '@angular/core';
 import { denormalize } from '../helper/denormalize.function';
 import { EngineService } from '../engine.service';
 
@@ -30,6 +30,7 @@ export class Basic extends THREE.Mesh {
 	}
 
 	changed() {
+		//console.log(this.engineStore);
 		const scene = this.scene;
 		if (scene) {
 			const camera: THREE.Camera = <THREE.Camera>scene.getObjectByName('camera');

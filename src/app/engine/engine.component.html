@@ -1,2 +1,15 @@
-<canvas #canvas (pan)="pan($event)" (mousewheel)="wheel($event)" (tap)="click($event)"></canvas>
-<app-popup #indicator [pos]="engine?.globe?.positionChange | async">{{ globerot | json }}</app-popup>
+<canvas
+	#canvas
+	(pan)="pan($event)"
+	(mousewheel)="wheel($event)"
+	(tap)="click($event)"
+	(mousemove)="hover($event)"
+></canvas>
+
+<app-popup
+	#indicator
+	[pos]="engine?.globe?.positionChange | async"
+	[hidden]="!engine?.scene || !engine.scene.userData['selected']"
+	>{{ indicator.pos | json }}
+	asd
+</app-popup>

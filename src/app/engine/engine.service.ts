@@ -9,6 +9,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { Globe } from './object/globe.class';
 import { denormalize } from './helper/denormalize.function';
 import { Point } from './object/point.class';
+import { PopupComponent } from '../component/popup/popup.component';
 
 @Injectable({
 	providedIn: 'root'
@@ -16,10 +17,11 @@ import { Point } from './object/point.class';
 export class EngineService {
 	private renderer: THREE.WebGLRenderer;
 	public camera: THREE.PerspectiveCamera;
-	private scene: THREE.Scene;
+	public scene: THREE.Scene;
 	private light: THREE.AmbientLight;
 	private raycaster: THREE.Raycaster = new THREE.Raycaster();
 	public globe: Globe;
+	public indicator: PopupComponent;
 
 	minZoom = 2;
 	maxZoom = 20;
@@ -27,6 +29,8 @@ export class EngineService {
 	public center = new Vector3(0, 0, 0);
 
 	zoomTargetSubj: Subject<number> = new Subject();
+
+	constructor() {}
 
 	createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
@@ -50,6 +54,7 @@ export class EngineService {
 		this.scene.fog = new THREE.Fog(0x2040aa, 2, 100);
 
 		this.globe = new Globe(this.camera);
+		// this.globe.engineStore = this.engineStore;
 		this.scene.add(this.globe);
 		/*const axesHelper = new THREE.AxesHelper(5);
 		this.scene.add(axesHelper);*/
@@ -81,8 +86,8 @@ export class EngineService {
 	}
 
 	click(coord: Vector3, shift: boolean) {
-		this.raycaster.setFromCamera(new THREE.Vector3(coord.x, coord.y, 0.5), this.camera);
-		console.log(shift);
+		this.raycaster.setFromCamera(coord, this.camera);
+
 		this.raycaster
 			.intersectObjects(this.globe.children)
 			.splice(0, 1)
@@ -98,6 +103,19 @@ export class EngineService {
 					intersection.object.dispatchEvent({ type: 'create', point: intersection.point });
 				} else {
 					intersection.object.dispatchEvent({ type: 'click', point: intersection.point });
+				}
+			});
+	}
+
+	hover(coord: Vector3) {
+		this.raycaster.setFromCamera(coord, this.camera);
+		this.raycaster
+			.intersectObject(this.globe, true)
+			.splice(0, 1)
+			.forEach(intersection => {
+				intersection.object.children.forEach(child => child.dispatchEvent({ type: 'unhover' }));
+				if (intersection.object.type === 'Point') {
+					intersection.object.dispatchEvent({ type: 'hover' });
 				}
 			});
 	}
@@ -123,5 +141,6 @@ export class EngineService {
 		this.camera.updateProjectionMatrix();
 
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
+		this.globe.changed();
 	}
 }

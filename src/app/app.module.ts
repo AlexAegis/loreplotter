@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import * as Hammer from 'hammerjs';
 import { PopupComponent } from './component/popup/popup.component';
+import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -17,7 +18,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 
 @NgModule({
 	declarations: [AppComponent, AppComponent, EngineComponent, PopupComponent],
-	imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule],
+	imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, AkitaNgDevtools.forRoot()],
 	providers: [
 		{
 			provide: HAMMER_GESTURE_CONFIG,

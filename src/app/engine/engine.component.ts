@@ -27,6 +27,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	ngAfterViewInit(): void {
 		this.engine.createScene(this.canvas.nativeElement);
 		this.engine.animate();
+		this.engine.indicator = this.indicator;
 	}
 
 	public pan($event: any): void {
@@ -51,9 +52,12 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public click($event: any) {
-		console.log($event);
+		//
 		this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
 	}
 
+	public hover($event: any) {
+		this.engine.hover(normalize($event.clientX, $event.clientY));
+	}
 	ngOnDestroy(): void {}
 }

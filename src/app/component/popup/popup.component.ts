@@ -34,6 +34,10 @@ export class PopupComponent implements OnInit {
 		this.top = vector ? vector.y : 0;
 	}
 
+	get pos(): Vector3 {
+		return new Vector3(this.left, this.top);
+	}
+
 	@Input()
 	set open(open: boolean) {
 		this._open = open;

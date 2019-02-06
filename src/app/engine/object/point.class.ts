@@ -5,6 +5,7 @@ import { globeShader } from '../shader/globe.shader';
 import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
 import { Interactive } from '../interfaces/interactive.interface';
+import { Globe } from './globe.class';
 
 export class Point extends Basic implements Interactive {
 	private defaultMaterial = new THREE.MeshBasicMaterial({
@@ -16,14 +17,21 @@ export class Point extends Basic implements Interactive {
 
 	private selectedMaterial = new THREE.MeshBasicMaterial({
 		wireframe: true,
-		opacity: 0.4,
+		opacity: 0.9,
 		transparent: true,
 		color: 0xaa4444
 	});
 
+	private highlightMaterial = new THREE.MeshBasicMaterial({
+		wireframe: false,
+		opacity: 0.6,
+		transparent: true,
+		color: 0xaa8888
+	});
+
 	constructor() {
 		super(new THREE.BoxGeometry(0.1, 0.1, 0.1, 1, 1, 1), undefined);
-
+		this.type = 'Point';
 		this.material = this.defaultMaterial;
 		this.geometry.computeBoundingBox();
 
@@ -34,7 +42,12 @@ export class Point extends Basic implements Interactive {
 			}
 			this.scene.userData['selected'] = this;
 			this.select();
+			(<Globe>this.parent).changed();
 		});
+
+		this.addEventListener('hover', this.hover);
+
+		this.addEventListener('unhover', this.unhover);
 	}
 
 	select() {
@@ -45,5 +58,15 @@ export class Point extends Basic implements Interactive {
 		this.material = this.defaultMaterial;
 	}
 
-	highlight() {}
+	hover() {
+		this.material = this.highlightMaterial;
+	}
+
+	unhover() {
+		if (this.scene.userData['selected'] === this) {
+			this.select();
+		} else {
+			this.deselect();
+		}
+	}
 }
