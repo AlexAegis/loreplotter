@@ -10,7 +10,7 @@ import { take, delay } from 'rxjs/operators';
 import { Interactive } from '../interfaces/interactive.interface';
 import { invert } from '../helper/invert.function';
 import { EventEmitter, Output } from '@angular/core';
-import { EngineComponent } from '../engine.component';
+import { denormalize } from '../helper/denormalize.function';
 
 export class Globe extends THREE.Mesh {
 	private rotationEase: TWEEN.Tween;
@@ -100,9 +100,7 @@ export class Globe extends THREE.Mesh {
 
 		if (this.userData['selected']) {
 			this.rotationChange.emit(
-				EngineComponent.denormalize(
-					(<Point>this.userData['selected']).getWorldPosition(this.center).project(this.camera)
-				)
+				denormalize((<Point>this.userData['selected']).getWorldPosition(this.center).project(this.camera))
 			);
 		}
 
