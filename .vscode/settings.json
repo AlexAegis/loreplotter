@@ -31,5 +31,8 @@
 		"node_modules": true,
 		"coverage": true
 	},
-	"travis.repository": "loreplotter"
+	"travis.repository": "loreplotter",
+	"docthis.authorName": "AlexAegis",
+	"docthis.includeTypes": false,
+	"docthis.includeMemberOfOnClassMembers": false
 }

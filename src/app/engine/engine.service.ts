@@ -76,14 +76,13 @@ export class EngineService {
 		this.zoomTargetSubj.next(THREE.Math.clamp(this.camera.position.z - norm, this.minZoom, this.maxZoom));
 	}
 
-	click(x: number, y: number, shift: boolean) {
-		this.raycaster.setFromCamera(new THREE.Vector3(x, y, 0.5), this.camera);
+	click(coord: Vector3, shift: boolean) {
+		this.raycaster.setFromCamera(new THREE.Vector3(coord.x, coord.y, 0.5), this.camera);
 		console.log(shift);
 		this.raycaster
 			.intersectObjects(this.globe.children)
 			.splice(0, 1)
 			.forEach(intersection => {
-				intersection.uv;
 				intersection.object.dispatchEvent({ type: 'select', message: 'You have been clicked!' });
 			});
 

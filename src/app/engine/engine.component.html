@@ -1,2 +1,2 @@
 <canvas #canvas (pan)="pan($event)" (mousewheel)="wheel($event)" (tap)="click($event)"></canvas>
-<app-popup #indicator>{{ globerot | json }}</app-popup>
+<app-popup #indicator [ngStyle]="{ top: topPos, left: leftPos }">{{ globerot | json }}</app-popup>
