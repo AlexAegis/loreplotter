@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { PopupComponent } from './popup.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('PopupComponent', () => {
 	let component: PopupComponent;
@@ -8,6 +9,7 @@ describe('PopupComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
+			imports: [BrowserAnimationsModule],
 			declarations: [PopupComponent]
 		}).compileComponents();
 	}));
