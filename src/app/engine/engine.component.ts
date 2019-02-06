@@ -45,7 +45,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	@HostListener('document:keypress', ['$event'])
 	handleKeyboardEvent(event: KeyboardEvent) {
 		// space
-		if (event.charCode === 32) {
+		if (event.key === 'space') {
 			// refresh indicator, for now we're doing this
 			this.indicator.open = !this.indicator.open;
 		}

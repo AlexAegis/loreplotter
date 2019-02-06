@@ -30,7 +30,7 @@ export class Basic extends THREE.Mesh {
 	}
 
 	changed() {
-		//console.log(this.engineStore);
+		// console.log(this.engineStore);
 		const scene = this.scene;
 		if (scene) {
 			const camera: THREE.Camera = <THREE.Camera>scene.getObjectByName('camera');
