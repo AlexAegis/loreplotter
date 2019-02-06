@@ -28,6 +28,9 @@ export class Point extends THREE.Mesh implements Interactive {
 
 		this.addEventListener('select', attachment => {
 			console.log('I have been selected!' + attachment);
+			if (this.parent.userData['selected']) {
+				(<Interactive>this.parent.userData['selected']).deselect();
+			}
 			this.parent.userData['selected'] = this;
 			this.select();
 		});
