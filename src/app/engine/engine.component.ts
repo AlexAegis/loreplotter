@@ -4,6 +4,8 @@ import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, HostListene
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Vector3, Euler } from 'three';
 import { normalize } from './helper/normalize.function';
+import { Point } from './object/point.class';
+import { denormalize } from './helper/denormalize.function';
 @Component({
 	selector: 'app-engine',
 	templateUrl: './engine.component.html',
@@ -25,11 +27,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	ngAfterViewInit(): void {
 		this.engine.createScene(this.canvas.nativeElement);
 		this.engine.animate();
-		this.engine.globe.rotationChange.subscribe((next: Vector3) => {
-			this.globerot = next;
-			this.leftPos = `${next.x}px`;
-			this.topPos = `${next.y}px`;
-		});
 	}
 
 	public pan($event: any): void {

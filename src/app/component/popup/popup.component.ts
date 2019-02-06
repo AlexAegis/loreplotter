@@ -1,6 +1,7 @@
-import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, HostBinding, HostListener } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { EventListener } from '@angular/core/src/debug/debug_node';
+import { Vector3 } from 'three';
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',
@@ -18,6 +19,20 @@ export class PopupComponent implements OnInit {
 	openChange = new EventEmitter<boolean>();
 
 	_open = true;
+
+	@Input()
+	@HostBinding('style.top.px')
+	top: number;
+
+	@Input()
+	@HostBinding('style.left.px')
+	left: number;
+
+	@Input()
+	set pos(vector: Vector3) {
+		this.left = vector ? vector.x : 0;
+		this.top = vector ? vector.y : 0;
+	}
 
 	@Input()
 	set open(open: boolean) {

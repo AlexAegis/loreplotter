@@ -1,3 +1,4 @@
+import { Basic } from './basic.class';
 import { ClickEvent } from './../event/click-event.type';
 import { Point } from './point.class';
 import { Shader, Vector3, Quaternion, Euler, Spherical } from 'three';
@@ -12,11 +13,8 @@ import { invert } from '../helper/invert.function';
 import { EventEmitter, Output } from '@angular/core';
 import { denormalize } from '../helper/denormalize.function';
 
-export class Globe extends THREE.Mesh {
+export class Globe extends Basic {
 	private rotationEase: TWEEN.Tween;
-	private center = new Vector3(0, 0, 0);
-	@Output()
-	rotationChange = new EventEmitter<Vector3>();
 
 	constructor(private camera: THREE.Camera, private radius: number = 1.5, shader: Shader = globeShader) {
 		super(
@@ -98,11 +96,13 @@ export class Globe extends THREE.Mesh {
 			this.rotationEase = this.rotatween(x * 3, y * 3);
 		}
 
+		this.changed();
+		/*
 		if (this.userData['selected']) {
-			this.rotationChange.emit(
+			this.positionChange.emit(
 				denormalize((<Point>this.userData['selected']).getWorldPosition(this.center).project(this.camera))
 			);
-		}
+		}*/
 
 		return this.rotation;
 	}

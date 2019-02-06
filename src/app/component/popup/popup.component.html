@@ -1,1 +1,3 @@
-<div #indicator @open [@open]="open ? 'visible' : 'hidden'"><ng-content></ng-content></div>
+<div #indicator @open [@open]="open ? 'visible' : 'hidden'" [ngStyle]="{ top: _top, left: _left }">
+	<ng-content></ng-content>
+</div>

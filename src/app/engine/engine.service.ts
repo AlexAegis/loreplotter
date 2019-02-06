@@ -7,13 +7,15 @@ import { throttleTime } from 'rxjs/operators';
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import { Globe } from './object/globe.class';
+import { denormalize } from './helper/denormalize.function';
+import { Point } from './object/point.class';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EngineService {
 	private renderer: THREE.WebGLRenderer;
-	private camera: THREE.PerspectiveCamera;
+	public camera: THREE.PerspectiveCamera;
 	private scene: THREE.Scene;
 	private light: THREE.AmbientLight;
 	private raycaster: THREE.Raycaster = new THREE.Raycaster();
@@ -21,6 +23,8 @@ export class EngineService {
 
 	minZoom = 2;
 	maxZoom = 20;
+
+	public center = new Vector3(0, 0, 0);
 
 	zoomTargetSubj: Subject<number> = new Subject();
 
@@ -33,7 +37,7 @@ export class EngineService {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 		this.scene = new THREE.Scene();
-
+		this.scene.name = 'scene';
 		this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 		this.camera.name = 'camera';
 		this.camera.position.z = 6;
