@@ -38,7 +38,7 @@ export class Globe extends THREE.Mesh {
 		// playground
 		const point = new Point();
 
-		let sph = new Spherical().setFromVector3(new Vector3(0, 0, this.radius));
+		const sph = new Spherical().setFromVector3(new Vector3(0, 0, this.radius));
 
 		this.put(point, sph);
 
@@ -48,8 +48,8 @@ export class Globe extends THREE.Mesh {
 				new TWEEN.Tween(sph)
 					.to({ theta: sph.theta - THREE.Math.DEG2RAD * 10 }, 500)
 					.easing(TWEEN.Easing.Exponential.InOut)
-					.onUpdate(sph => {
-						point.position.setFromSpherical(sph);
+					.onUpdate(s => {
+						point.position.setFromSpherical(s);
 
 						point.lookAt(0, 0, 0);
 					})
@@ -60,7 +60,9 @@ export class Globe extends THREE.Mesh {
 	/**
 	 * Put an object onto the surface of the Globe
 	 *
-	 * @param object
+	 * @param object to be played on the globe
+	 * @param position where it will be placed, not that the radius will be overriden and as such, is skippable
+	 * @param height by default 0, bottom of the bounding box will touch the surface of the globe. This value will offset it
 	 */
 	put(object: THREE.Mesh, position: Spherical, height: number = 0): void {
 		position.radius = this.radius + height + object.geometry.boundingBox.max.y;

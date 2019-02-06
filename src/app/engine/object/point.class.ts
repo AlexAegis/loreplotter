@@ -21,7 +21,7 @@ export class Point extends THREE.Mesh implements Interactive {
 	});
 
 	constructor() {
-		super(new THREE.CubeGeometry(0.1, 0.1, 0.1, 1, 1, 1));
+		super(new THREE.BoxGeometry(0.1, 0.1, 0.1, 1, 1, 1));
 
 		this.material = this.defaultMaterial;
 		this.geometry.computeBoundingBox();
