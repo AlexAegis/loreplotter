@@ -35,6 +35,7 @@ export class EngineService {
 		this.scene = new THREE.Scene();
 
 		this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+		this.camera.name = 'camera';
 		this.camera.position.z = 6;
 		this.scene.add(this.camera);
 
@@ -44,9 +45,8 @@ export class EngineService {
 		this.scene.add(this.light);
 		this.scene.fog = new THREE.Fog(0x2040aa, 2, 100);
 
-		this.globe = new Globe();
+		this.globe = new Globe(this.camera);
 		this.scene.add(this.globe);
-
 		/*const axesHelper = new THREE.AxesHelper(5);
 		this.scene.add(axesHelper);*/
 
@@ -83,6 +83,7 @@ export class EngineService {
 			.intersectObjects(this.globe.children)
 			.splice(0, 1)
 			.forEach(intersection => {
+				intersection.uv;
 				intersection.object.dispatchEvent({ type: 'select', message: 'You have been clicked!' });
 			});
 

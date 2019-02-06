@@ -9,11 +9,15 @@ import { interval, timer } from 'rxjs';
 import { take, delay } from 'rxjs/operators';
 import { Interactive } from '../interfaces/interactive.interface';
 import { invert } from '../helper/invert.function';
+import { EventEmitter, Output } from '@angular/core';
 
 export class Globe extends THREE.Mesh {
 	private rotationEase: TWEEN.Tween;
+	private center = new Vector3(0, 0, 0);
+	@Output()
+	rotationChange = new EventEmitter<Vector3>();
 
-	constructor(private radius: number = 1.5, shader: Shader = globeShader) {
+	constructor(private camera: THREE.Camera, private radius: number = 1.5, shader: Shader = globeShader) {
 		super(
 			new THREE.SphereGeometry(radius, 100, 100),
 			new THREE.ShaderMaterial({
@@ -27,6 +31,7 @@ export class Globe extends THREE.Mesh {
 			console.log(`me got click! @${event.point.toArray()}`);
 			if (this.userData['selected']) {
 				(<Interactive>this.userData['selected']).deselect();
+				this.userData['selected'] = undefined;
 			}
 		});
 
@@ -90,6 +95,12 @@ export class Globe extends THREE.Mesh {
 
 		if (isFinal) {
 			this.rotationEase = this.rotatween(x * 3, y * 3);
+		}
+
+		if (this.userData['selected']) {
+			this.rotationChange.emit(
+				(<Point>this.userData['selected']).getWorldPosition(this.center).project(this.camera)
+			);
 		}
 
 		return this.rotation;
