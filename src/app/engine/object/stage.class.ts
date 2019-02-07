@@ -1,8 +1,9 @@
 import { Point } from './point.class';
-import * as THREE from 'three';
 import { EngineService } from '../engine.service';
 import { throttleTime } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 
 export class Stage extends THREE.Scene {
 	public camera: THREE.PerspectiveCamera;
