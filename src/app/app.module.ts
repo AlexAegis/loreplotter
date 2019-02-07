@@ -39,7 +39,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 		AgGridModule,
 		AkitaNgDevtools.forRoot(),
 		MomentModule,
-		AvatarModule
+		AvatarModule,
+		MaterialModule
 	],
 	providers: [
 		{
