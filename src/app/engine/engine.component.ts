@@ -23,7 +23,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	ngAfterViewInit(): void {
 		this.engine.createScene(this.canvas.nativeElement);
 		this.engine.animate();
-		this.engine.indicator = this.indicator;
 	}
 
 	public pan($event: any): void {

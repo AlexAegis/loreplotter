@@ -36,7 +36,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 		BrowserAnimationsModule,
 		NgScrollbarModule,
 		SmoothScrollModule,
-		MaterialModule,
 		AgGridModule,
 		AkitaNgDevtools.forRoot(),
 		MomentModule,
