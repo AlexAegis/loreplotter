@@ -1,11 +1,15 @@
-import { AppComponent } from './app.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [];
 
 @NgModule({
-	imports: [RouterModule.forRoot(routes)],
+	imports: [
+		RouterModule.forRoot(routes, {
+			onSameUrlNavigation: 'reload',
+			enableTracing: true
+		})
+	],
 	exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class RoutingModule {}

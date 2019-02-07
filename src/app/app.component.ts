@@ -5,7 +5,7 @@ import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 	styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-	title = 'asd';
+	title = 'Lore';
 
 	@ViewChild('container')
 	container: ElementRef;

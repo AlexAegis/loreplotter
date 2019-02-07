@@ -1,0 +1,148 @@
+// For further details, check: https://www.ag-grid.com/javascript-grid-styling/
+
+@import './palette.scss';
+
+$ag-icons-path: '~ag-grid-community/src/styles/ag-theme-material/icons/';
+
+$primary-color: mat-color($client-primary, 50) !important;
+
+$accent-color: mat-color($client-accent, 400) !important;
+
+$selected-color: mat-color($client-primary, 300);
+
+// The color for the checked checkboxes.
+
+$ag-range-selected-color-1: rgba(32, 182, 27, 0.4) !important;
+// The selection background color.
+
+$background-color: mat-color($client-primary, 50);
+// The default background color.
+
+$border-color: darkgrey !important;
+// The color used for all borders.
+
+$card-background-color: #ff4646 !important;
+// The background color for the context menu and the column menu.
+
+// $cell-data-changed-color: white;
+// The background color used when the cell flashes when data is changed.
+
+$cell-highlight-border: 2px solid darkgreen !important;
+// The border used to mark cells as being copied.
+
+$cell-horizontal-border: 1px dotted silver !important;
+// The border delimiter between cells.
+
+// $cell-horizontal-padding: $grid-size * 3;
+// The cell horizontal padding.
+
+$chip-background-color: #6fcae0 !important;
+// The background color of the column labels used in the grouping / pivoting.
+
+// $disabled-foreground-color-opacity: 0.5;
+// The opacity of the disabled / empty text elements.
+
+// $disabled-foreground-color: rgba(black, $disabled-foreground-color-opacity);
+// The color of the disabled / empty text elements.
+
+// $focused-cell-border-color: rgb(82, 114, 255) !important;
+// The border color of the focused cell.
+
+// $font-family: 'Helvetica Neue', sans-serif;
+// The grid font family.
+
+// $font-size: 14px;
+// The grid font size.
+
+// $font-weight: 400;
+// The grid font weight (400 equals 'normal').
+
+$foreground-opacity: 1;
+// The foreground opacity.
+
+$foreground-color: rgba(240, 248, 250, $foreground-opacity) !important;
+// The default color of the text.
+
+// $grid-size: 4px
+// The basic unit used for the grid spacing and dimensions. Changing this makes the grid UI more / less compact.
+
+// $header-background-color: $primary-color !important;
+// The header background color.
+
+$header-background-image: linear-gradient(white, rgb(22, 31, 170)) !important;
+// The header background gradient - you can also refer to an an image with `url(...)`.
+
+// $header-height: $grid-size * 6 + 1;
+// The header row height - if you change this, you also have to change the value of the `headerHeight` in the grid options. We are looking into removing this redundant step in the future.
+
+// $header-icon-size: 14px;
+// The header icon height.
+
+$hover-color: mat-color($client-primary, A200);
+// The background color of the row when hovered.
+
+$icon-color: mat-color($client-primary, A700);
+// The icon color.
+
+// $icon-size: 12px;
+// The icon width and height (icons are square).
+
+// $icons-path: './icons/';
+// The path to the icon svg files. If you are to change that, make sure that the directory you point to contains the complete set of icons.
+
+$menu-option-active-color: #bde2e5;
+// The background color of the context / column menu items when hovered.
+
+$odd-row-background-color: #f6f6f6;
+// The odd row background color.
+
+$panel-background-color: #ff9090;
+// The background color of the column menu.
+
+$range-selection-background-color: rgba(157, 72, 255, 0.4);
+// The background color of the selected cells.
+
+$range-selection-highlight-color: rgba(149, 43, 170, 0.4);
+// The background color for the copied cells.
+
+// $row-height: ($grid-size * 6 + 1);
+// The row height - if you change this, you also have to change the value of the `rowHeight` in the grid options. We are looking into removing this redundant step in the future.
+
+// $secondary-font-family: $font-family;
+// The font family used in the header.
+
+$secondary-font-size: 1.6em;
+// The header font size.
+
+// $secondary-font-weight: 400;
+// The header font weight.
+
+$secondary-foreground-color-opacity: 1;
+// The header font color opacity.
+
+$secondary-foreground-color: rgba(white, $secondary-foreground-color-opacity);
+// The header font color.
+
+$tab-background-color: #ff6e6e;
+// The background color of the tab in the column menu
+
+$tool-panel-background-color: #2daa21;
+// The tool panel background color
+
+// $value-change-delta-down-color: darkred;
+// The color used when the cell value decreases.
+
+// $value-change-delta-up-color: darkgreen;
+// The color used when the cell value increases.
+
+$value-change-value-highlight-background-color: rgb(168, 168, 168);
+// The background color used when the cell value changes.
+
+// $row-group-indent-size: $grid-size * 3 + $icon-size;
+// The indent used for the row groups.
+
+// $toolpanel-indent-size: $grid-size + $icon-size;
+// The indent used for the tool panel hierarchy.
+
+@import '~ag-grid-community/src/styles/ag-grid.scss';
+@import '~ag-grid-community/src/styles/ag-theme-material/sass/ag-theme-material.scss';

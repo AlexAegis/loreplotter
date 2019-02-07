@@ -1,0 +1,108 @@
+/* You can add global styles to this file, and also import other style files */
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
+$ph-bg: rgba(255, 255, 255, 0.356) !default;
+
+// @import 'node_modules/placeholder-loading/src/scss/placeholder-loading';
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+@import './palette.scss';
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($client-theme);
+
+@import './datagrid.scss';
+/* You can add global styles to this file, and also import other style files */
+
+body {
+	font-family: Roboto, 'Helvetica Neue', sans-serif;
+	color: #fafafa;
+	overflow: hidden;
+	/*background-image: linear-gradient(-10deg, map-get($client-back, 800), map-get($client-back, 800));*/
+}
+
+@for $i from 1 through 100 {
+	.width-#{$i} {
+		width: #{percentage($i/100)};
+	}
+
+	.height-#{$i} {
+		height: #{percentage($i/100)};
+	}
+}
+
+.fixed-bottom {
+	bottom: 0;
+	position: absolute;
+}
+.fixed-right {
+	right: 0;
+	position: absolute;
+}
+
+.hidden {
+	display: none;
+}
+
+.lit:before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 0.2rem solid #6dabff; //  #6dabff
+	border-radius: 0.2rem;
+}
+
+.flashlit:before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	animation: selectFlash 2.5s;
+	transition-timing-function: ease-in-out;
+}
+
+@keyframes selectFlash {
+	from {
+		border: 0.2rem solid #6dabff; //  #6dabff
+		background-color: #6dabff33;
+	}
+	to {
+		border: 0.2rem solid #6dabff00; //  #6dabff
+		background-color: #6dabff00;
+	}
+}
+
+.scroll-bar {
+	background-color: rgba(0, 0, 0, 0.4) !important;
+	border-radius: 4px;
+}
+.scroll-thumbs {
+	background-color: rgba(0, 0, 0, 0.219) !important;
+	&:hover,
+	&:active {
+		background-color: rgba(36, 36, 36, 0.7) !important;
+	}
+}
+
+.window {
+	position: fixed;
+	top: 4rem;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: calc(100vh - 4rem);
+}

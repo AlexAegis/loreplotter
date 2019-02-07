@@ -40,6 +40,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 
 	@HostListener('document:keypress', ['$event'])
 	handleKeyboardEvent(event: KeyboardEvent) {
+		console.log('key');
 		// space
 		if (event.key === 'space') {
 			// refresh indicator, for now we're doing this
@@ -55,4 +56,8 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		this.engine.hover(normalize($event.clientX, $event.clientY));
 	}
 	ngOnDestroy(): void {}
+
+	hello() {
+		console.log('asd');
+	}
 }
