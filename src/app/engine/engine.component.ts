@@ -18,10 +18,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	@ViewChild('indicator')
 	indicator: PopupComponent;
 
-	globerot: Vector3 = new Vector3(0, 1, 1);
-	topPos: string;
-	leftPos: string;
-
 	constructor(public engine: EngineService) {}
 
 	ngAfterViewInit(): void {
@@ -39,7 +35,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public wheel($event: WheelEvent) {
-		this.engine.zoom($event.deltaY);
+		this.engine.stage.zoom($event.deltaY);
 	}
 
 	@HostListener('document:keypress', ['$event'])
@@ -52,7 +48,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public click($event: any) {
-		//
 		this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
 	}
 

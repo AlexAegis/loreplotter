@@ -12,6 +12,7 @@ import { invert } from '../helper/invert.function';
 import { EventEmitter, Output, OnChanges, SimpleChanges, Input, DoCheck, Inject, Injectable } from '@angular/core';
 import { denormalize } from '../helper/denormalize.function';
 import { EngineService } from '../engine.service';
+import { Stage } from './stage.class';
 
 export class Basic extends THREE.Mesh {
 	@Output()
@@ -21,23 +22,21 @@ export class Basic extends THREE.Mesh {
 		super(geometry, material);
 	}
 
-	get scene(): THREE.Scene {
+	get stage(): Stage {
 		let o: THREE.Object3D = this;
 		while (o && o.type !== 'Scene') {
 			o = o.parent;
 		}
-		return <THREE.Scene>o;
+		return <Stage>o;
 	}
 
 	changed() {
-		// console.log(this.engineStore);
-		const scene = this.scene;
-		if (scene) {
-			const camera: THREE.Camera = <THREE.Camera>scene.getObjectByName('camera');
-
-			const point: Point = <Point>scene.userData['selected'];
+		const stage = this.stage;
+		if (stage) {
+			const camera: THREE.Camera = <THREE.Camera>stage.getObjectByName('camera');
+			const point: Point = <Point>stage.engineService.selected;
 			if (point) {
-				this.positionChange.emit(denormalize(point.getWorldPosition(scene.position).project(camera)));
+				this.positionChange.emit(denormalize(point.getWorldPosition(new Vector3()).project(camera)));
 			}
 		}
 	}

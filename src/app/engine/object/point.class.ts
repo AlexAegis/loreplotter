@@ -32,15 +32,17 @@ export class Point extends Basic implements Interactive {
 	constructor() {
 		super(new THREE.BoxGeometry(0.1, 0.1, 0.1, 1, 1, 1), undefined);
 		this.type = 'Point';
+		this.name = 'point';
 		this.material = this.defaultMaterial;
 		this.geometry.computeBoundingBox();
 
 		this.addEventListener('select', attachment => {
+			const stage = this.stage;
 			console.log('I have been selected!' + attachment);
-			if (this.scene.userData['selected']) {
-				(<Interactive>this.scene.userData['selected']).deselect();
+			if (stage.engineService.selected) {
+				(<Interactive>stage.engineService.selected).deselect();
 			}
-			this.scene.userData['selected'] = this;
+			stage.engineService.selected = this;
 			this.select();
 			(<Globe>this.parent).changed();
 		});
@@ -63,7 +65,7 @@ export class Point extends Basic implements Interactive {
 	}
 
 	unhover() {
-		if (this.scene.userData['selected'] === this) {
+		if (this.stage.engineService.selected === this) {
 			this.select();
 		} else {
 			this.deselect();

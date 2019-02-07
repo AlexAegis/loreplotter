@@ -1,3 +1,4 @@
+import { Stage } from './object/stage.class';
 import { globeShader } from './shader/globe.shader';
 import { Injectable } from '@angular/core';
 import { Vector3, Euler, Quaternion } from 'three';
@@ -10,25 +11,23 @@ import { Globe } from './object/globe.class';
 import { denormalize } from './helper/denormalize.function';
 import { Point } from './object/point.class';
 import { PopupComponent } from '../component/popup/popup.component';
+import { Interactive } from './interfaces/interactive.interface';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class EngineService {
 	private renderer: THREE.WebGLRenderer;
-	public camera: THREE.PerspectiveCamera;
-	public scene: THREE.Scene;
-	private light: THREE.AmbientLight;
+
+	public stage: Stage;
+
 	private raycaster: THREE.Raycaster = new THREE.Raycaster();
 	public globe: Globe;
 	public indicator: PopupComponent;
 
-	minZoom = 2;
-	maxZoom = 20;
-
 	public center = new Vector3(0, 0, 0);
 
-	zoomTargetSubj: Subject<number> = new Subject();
+	public selected: Point;
 
 	constructor() {}
 
@@ -40,75 +39,39 @@ export class EngineService {
 		});
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-		this.scene = new THREE.Scene();
-		this.scene.name = 'scene';
-		this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera.name = 'camera';
-		this.camera.position.z = 6;
-		this.scene.add(this.camera);
+		this.stage = new Stage(this);
 
-		// soft white light
-		this.light = new THREE.AmbientLight(0x404040);
-		this.light.position.z = 6;
-		this.scene.add(this.light);
-		this.scene.fog = new THREE.Fog(0x2040aa, 2, 100);
-
-		this.globe = new Globe(this.camera);
-		// this.globe.engineStore = this.engineStore;
-		this.scene.add(this.globe);
-		/*const axesHelper = new THREE.AxesHelper(5);
-		this.scene.add(axesHelper);*/
-
-		let tw: TWEEN.Tween;
-		this.zoomTargetSubj
-			.asObservable()
-			.pipe(throttleTime(100))
-			.subscribe(target => {
-				if (tw) {
-					tw.stop();
-				}
-				tw = new TWEEN.Tween(this.camera.position)
-					.to({ z: target }, 160)
-					.easing(TWEEN.Easing.Linear.None)
-					.onUpdate(o => {
-						if (this.camera.position.z === NaN) {
-							this.camera.position.z = this.minZoom;
-						}
-						this.camera.updateProjectionMatrix();
-					})
-					.start(Date.now());
-			});
-	}
-
-	zoom(amount: number) {
-		const norm = amount / Math.abs(amount);
-		this.zoomTargetSubj.next(THREE.Math.clamp(this.camera.position.z - norm, this.minZoom, this.maxZoom));
+		this.globe = new Globe();
+		this.stage.add(this.globe);
 	}
 
 	click(coord: Vector3, shift: boolean) {
-		this.raycaster.setFromCamera(coord, this.camera);
-
-		this.raycaster
-			.intersectObjects(this.globe.children)
-			.splice(0, 1)
-			.forEach(intersection => {
-				intersection.object.dispatchEvent({ type: 'select', message: 'You have been clicked!' });
-			});
+		console.log('click');
+		this.raycaster.setFromCamera(coord, this.stage.camera);
 
 		this.raycaster
 			.intersectObject(this.globe, true)
 			.splice(0, 1)
 			.forEach(intersection => {
-				if (shift) {
-					intersection.object.dispatchEvent({ type: 'create', point: intersection.point });
-				} else {
-					intersection.object.dispatchEvent({ type: 'click', point: intersection.point });
+				console.log('intersect');
+				console.log(intersection.point);
+				if (intersection.object.name === 'globe') {
+					if (shift) {
+						intersection.object.dispatchEvent({
+							type: 'create',
+							point: intersection.point
+						});
+					} else {
+						intersection.object.dispatchEvent({ type: 'click', point: intersection.point });
+					}
+				} else if (intersection.object.name === 'point') {
+					intersection.object.dispatchEvent({ type: 'select' });
 				}
 			});
 	}
 
 	hover(coord: Vector3) {
-		this.raycaster.setFromCamera(coord, this.camera);
+		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
 			.splice(0, 1)
@@ -133,13 +96,12 @@ export class EngineService {
 	render() {
 		requestAnimationFrame(() => this.render());
 		TWEEN.update(Date.now());
-		this.renderer.render(this.scene, this.camera);
+		this.renderer.render(this.stage, this.stage.camera);
 	}
 
 	resize() {
-		this.camera.aspect = window.innerWidth / window.innerHeight;
-		this.camera.updateProjectionMatrix();
-
+		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
+		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.globe.changed();
 	}

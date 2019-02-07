@@ -34,5 +34,10 @@
 	"travis.repository": "loreplotter",
 	"docthis.authorName": "AlexAegis",
 	"docthis.includeTypes": false,
-	"docthis.includeMemberOfOnClassMembers": false
+	"docthis.includeMemberOfOnClassMembers": false,
+	"search.usePCRE2": true,
+	"terminal.integrated.windowsEnableConpty": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true
+	}
 }

@@ -16,7 +16,7 @@ import { denormalize } from '../helper/denormalize.function';
 export class Globe extends Basic {
 	private rotationEase: TWEEN.Tween;
 
-	constructor(private camera: THREE.Camera, private radius: number = 1.5, shader: Shader = globeShader) {
+	constructor(private radius: number = 1.5, shader: Shader = globeShader) {
 		super(
 			new THREE.SphereGeometry(radius, 100, 100),
 			new THREE.ShaderMaterial({
@@ -25,18 +25,17 @@ export class Globe extends Basic {
 				fragmentShader: shader.fragmentShader
 			})
 		);
+		this.name = 'globe';
 		this.geometry.computeBoundingSphere();
 		this.addEventListener('click', (event: ClickEvent) => {
-			if (this.scene.userData['selected']) {
-				(<Interactive>this.scene.userData['selected']).deselect();
-				this.scene.userData['selected'] = undefined;
+			if (this.stage.engineService.selected) {
+				(<Interactive>this.stage.engineService.selected).deselect();
+				this.stage.engineService.selected = undefined;
 			}
 			this.changed();
 		});
 
 		this.addEventListener('create', (event: ClickEvent) => {
-			console.log('create');
-
 			this.put(new Point(), new Spherical().setFromVector3(event.point.applyEuler(invert(this.rotation))));
 		});
 		// playground
@@ -47,15 +46,15 @@ export class Globe extends Basic {
 		this.put(point, sph);
 
 		timer(100, 500)
-			.pipe(take(0))
+			.pipe(take(64))
 			.subscribe(i => {
 				new TWEEN.Tween(sph)
-					.to({ theta: sph.theta - THREE.Math.DEG2RAD * 10 }, 500)
+					.to({ theta: sph.theta - THREE.Math.DEG2RAD * 12 }, 500)
 					.easing(TWEEN.Easing.Exponential.InOut)
 					.onUpdate(s => {
 						point.position.setFromSpherical(s);
-
 						point.lookAt(0, 0, 0);
+						this.changed();
 					})
 					.start(Date.now());
 			});
@@ -106,7 +105,7 @@ export class Globe extends Basic {
 
 		const to = this.rotate(x, y);
 		const toQuat = new Quaternion().copy(this.quaternion);
-		this.setRotationFromQuaternion(fromQuat);
+		// this.setRotationFromQuaternion(fromQuat);
 
 		const val = { v: 0 };
 		const target = { v: 1 };
