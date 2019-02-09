@@ -1,3 +1,15 @@
-<button (click)="engine.turnRight()">Turn Right</button>
-
 <app-engine #engine></app-engine>
+
+<mat-toolbar color="primary">
+	<mat-toolbar-row id="mainBar">
+		<app-hamburger *ngIf="!mediaLarge" @leave [(open)]="sidebar.opened"></app-hamburger>
+
+		<button class="title" mat-button [routerLink]="['']" matRipple disableRipple [matRippleRadius]="800">
+			{{ title }}
+		</button>
+	</mat-toolbar-row>
+</mat-toolbar>
+
+<app-sidebar #sidebar>
+	<button (click)="engine.turnRight()">Turn Right</button>
+</app-sidebar>

@@ -1,0 +1,64 @@
+:host {
+	.spacer {
+		flex: 1 1 auto;
+	}
+
+	.container {
+		background-color: rgba(0, 0, 0, 0);
+		pointer-events: none;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+
+	.mat-drawer {
+		background-color: rgba(255, 255, 255, 0.8);
+	}
+
+	mat-sidenav {
+		width: 20rem;
+		pointer-events: auto;
+		margin-top: 4rem;
+		background-image: linear-gradient(to left, rgba(0, 0, 0, 0.103), rgba(0, 0, 0, 0));
+	}
+
+	.circle {
+		border-radius: 50%;
+	}
+
+	.with-bg {
+		overflow: hidden;
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		z-index: -1;
+		max-height: 130px;
+	}
+
+	.no-shadow {
+		box-shadow: none !important;
+	}
+
+	::ng-deep .mat-expansion-panel-body {
+		padding: 0px !important;
+		padding-left: 10px !important;
+	}
+
+	.header-box-shadow {
+		//box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14),
+		//	0 1px 18px 0 rgba(0, 0, 0, 0.12);
+	}
+
+	.bottom-to-top {
+		border: 0px;
+	}
+
+	::ng-deep .mat-drawer-backdrop.mat-drawer-shown {
+		pointer-events: auto;
+		background-color: rgba(31, 31, 31, 0.7);
+	}
+}

@@ -6,7 +6,6 @@ import { MomentModule } from 'ngx-moment';
 import { AvatarModule } from 'ngx-avatar';
 import { AgGridModule } from 'ag-grid-angular';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import * as Hammer from 'hammerjs';
@@ -21,6 +20,9 @@ import { NgScrollbarModule } from 'ngx-scrollbar';
 import { SmoothScrollModule } from 'ngx-scrollbar';
 import { RoutingModule } from './module/routing.module';
 import { MaterialModule } from './module/material.module';
+import { SidebarComponent } from './component/sidebar/sidebar.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HamburgerComponent } from './component/hamburger/hamburger.component';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -29,10 +31,9 @@ export class MyHammerConfig extends HammerGestureConfig {
 }
 
 @NgModule({
-	declarations: [AppComponent, AppComponent, EngineComponent, PopupComponent],
+	declarations: [AppComponent, AppComponent, EngineComponent, PopupComponent, SidebarComponent, HamburgerComponent],
 	imports: [
 		BrowserModule,
-		AppRoutingModule,
 		BrowserAnimationsModule,
 		NgScrollbarModule,
 		SmoothScrollModule,
@@ -40,6 +41,9 @@ export class MyHammerConfig extends HammerGestureConfig {
 		AkitaNgDevtools.forRoot(),
 		MomentModule,
 		AvatarModule,
+		RoutingModule,
+		FormsModule,
+		ReactiveFormsModule,
 		MaterialModule
 	],
 	providers: [
@@ -48,7 +52,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 			useClass: MyHammerConfig
 		}
 	],
-	bootstrap: [AppComponent]
+	bootstrap: [AppComponent],
+	entryComponents: [SidebarComponent]
 })
 export class AppModule {
 	constructor() {
