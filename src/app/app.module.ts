@@ -23,6 +23,7 @@ import { MaterialModule } from './module/material.module';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HamburgerComponent } from './component/hamburger/hamburger.component';
+import { TimelineComponent } from './component/timeline/timeline.component';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -31,7 +32,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 }
 
 @NgModule({
-	declarations: [AppComponent, AppComponent, EngineComponent, PopupComponent, SidebarComponent, HamburgerComponent],
+	declarations: [AppComponent, AppComponent, EngineComponent, PopupComponent, SidebarComponent, HamburgerComponent, TimelineComponent],
 	imports: [
 		BrowserModule,
 		BrowserAnimationsModule,

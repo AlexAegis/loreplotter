@@ -24,6 +24,8 @@ body {
 	font-family: Roboto, 'Helvetica Neue', sans-serif;
 	color: #fafafa;
 	overflow: hidden;
+	margin: 0;
+	user-select: none;
 	/*background-image: linear-gradient(-10deg, map-get($client-back, 800), map-get($client-back, 800));*/
 }
 
