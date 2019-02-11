@@ -21,6 +21,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	frame: Moment;
 	unitsBetween: number;
 	distanceBetweenUnits: number;
+	distanceBetweenUnitsStyle: string;
 	width: number;
 	ngAfterViewInit(): void {
 		// ResizeObserver is not really supportod outside of chrome.
@@ -28,7 +29,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		const resize$ = new ResizeObserver(e => {
 			e.forEach(change => {
 				this.width = change.contentRect.width;
-				this.distanceBetweenUnits = this.width / this.unitsBetween;
+				this.calcUnitsBetween();
 			});
 		});
 		resize$.observe(this.el.nativeElement);
@@ -52,7 +53,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	calcUnitsBetween(): void {
 		this.unitsBetween = this.frame.diff(this.beginning, 'day');
-		this.distanceBetweenUnits = this.width / this.unitsBetween;
+		this.distanceBetweenUnits = (this.width - this.unitsBetween * 4) / this.unitsBetween;
+		this.distanceBetweenUnitsStyle = this.distanceBetweenUnits + 'px';
 	}
 
 	ngOnInit() {}

@@ -1,7 +1,9 @@
 <div id="ruler">
-	<div *appRepeat="unitsBetween" class="divisor"></div>
+	<div *appRepeat="unitsBetween" class="divisor" [ngStyle]="{ 'margin-left': distanceBetweenUnitsStyle }"></div>
 </div>
-<div class="channel">channel (actors representation) resizebserver width {{ width }}</div>
+<div class="channel" [ngStyle]="{ 'margin-left': distanceBetweenUnitsStyle }">
+	channel (actors representation) resizebserver width {{ width }}
+</div>
 <div class="channel">
 	diff: {{ unitsBetween }} distanceBetweenUnits:
 	{{ distanceBetweenUnits }}
