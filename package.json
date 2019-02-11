@@ -6,8 +6,14 @@
 		"email": "alexaegis@gmail.com",
 		"url": "https://github.com/AlexAegis"
 	},
-	"bugs": "https://github.com/AlexAegis/loreplotter/issues",
-	"repository": "https://github.com/AlexAegis/loreplotter/",
+	"bugs": {
+		"email": "alexaegis@gmail.com",
+		"url": "https://github.com/AlexAegis/loreplotter/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/AlexAegis/loreplotter/"
+	},
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve --sourceMap=true",

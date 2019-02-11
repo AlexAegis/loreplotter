@@ -16,6 +16,7 @@
 		"eamodio.gitlens",
 		"npxms.hide-gitignored",
 		"cyrilletuzi.angular-schematics",
-		"msjsdiag.debugger-for-chrome"
+		"msjsdiag.debugger-for-chrome",
+		"mikael.angular-beastcode"
 	]
 }
