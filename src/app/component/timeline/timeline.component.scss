@@ -15,9 +15,11 @@
 			height: 80%;
 			background-color: black;
 			align-self: center;
-			margin-left: auto;
-			margin-right: auto;
-			transition: all 0.5s ease;
+			//margin-left: calc(50% - 4px);
+			//	margin-right: auto;
+			margin-left: 20%;
+			transform: translateX(80%);
+			//transition: margin 0.5s ease;
 		}
 	}
 	.channel {
