@@ -1,4 +1,6 @@
-<div id="ruler">time segments</div>
+<div id="ruler">
+	<div *appRepeat="unitsBetween" class="divisor"></div>
+</div>
 <div class="channel">channel (actors representation)</div>
 <div class="channel">diff: {{ unitsBetween }}</div>
 <div class="channel">beg: {{ beginning | json }} frame: {{ frame | json }}</div>

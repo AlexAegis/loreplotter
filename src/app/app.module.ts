@@ -1,3 +1,4 @@
+import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -32,7 +33,16 @@ export class MyHammerConfig extends HammerGestureConfig {
 }
 
 @NgModule({
-	declarations: [AppComponent, AppComponent, EngineComponent, PopupComponent, SidebarComponent, HamburgerComponent, TimelineComponent],
+	declarations: [
+		AppComponent,
+		AppComponent,
+		EngineComponent,
+		PopupComponent,
+		SidebarComponent,
+		HamburgerComponent,
+		TimelineComponent,
+		RepeatDirective
+	],
 	imports: [
 		BrowserModule,
 		BrowserAnimationsModule,

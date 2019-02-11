@@ -19,6 +19,12 @@ export class TimelineComponent implements OnInit {
 		this.unitsBetween = this.calcUnitsBetween();
 	}
 
+	/**
+	 * Idea is to when reach the bottom border, then scale down, and when reaching
+	 * the upper boundary, raise the scale
+	 * (Cant go up of days? go weeks, then months etc)
+	 * @param $event mouseEvent
+	 */
 	@HostListener('mousewheel', ['$event'])
 	scrollHandler($event: WheelEvent) {
 		console.log($event);

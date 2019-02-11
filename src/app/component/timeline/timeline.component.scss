@@ -7,11 +7,19 @@
 
 	#ruler {
 		background-color: cornsilk;
-
+		display: flex;
 		width: 100%;
 		height: 20%;
+		.divisor {
+			width: 4px;
+			height: 80%;
+			background-color: black;
+			align-self: center;
+			margin-left: auto;
+			margin-right: auto;
+			transition: all 0.5s ease;
+		}
 	}
-
 	.channel {
 		background-color: coral;
 
