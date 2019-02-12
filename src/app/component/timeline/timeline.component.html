@@ -1,4 +1,4 @@
-<div id="ruler">
+<div id="ruler" (pan)="shift($event)">
 	<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
 		{{ c }}
 	</div>

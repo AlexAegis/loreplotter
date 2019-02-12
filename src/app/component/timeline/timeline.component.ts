@@ -23,9 +23,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	distanceBetweenUnits: number;
 	distanceBetweenUnitsStyle: string;
 	width: number;
+	unit: moment.unitOfTime.DurationConstructor = 'day';
+	offset = 0;
 
 	dist(i: number) {
-		return this.distanceBetweenUnits * (i + 1) + 'px';
+		return this.offset + this.distanceBetweenUnits * (i + 1) + 'px';
 	}
 	ngAfterViewInit(): void {
 		// ResizeObserver is not really supportod outside of chrome.
@@ -49,16 +51,37 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	scrollHandler($event: WheelEvent) {
 		console.log($event);
 		if ((this.unitsBetween > 5 && $event.deltaY < 0) || ($event.deltaY > 0 && this.unitsBetween < 31)) {
-			this.frame.add(this.normalize($event.deltaY), 'day');
-			this.beginning.subtract(this.normalize($event.deltaY), 'day');
+			this.frame.add(this.normalize($event.deltaY), this.unit);
+			this.beginning.subtract(this.normalize($event.deltaY), this.unit);
 			this.calcUnitsBetween();
 		}
 	}
 
 	calcUnitsBetween(): void {
-		this.unitsBetween = this.frame.diff(this.beginning, 'day');
+		this.unitsBetween = this.frame.diff(this.beginning, this.unit);
 		this.distanceBetweenUnits = (this.width - this.unitsBetween * 4) / (this.unitsBetween + 1);
 		this.distanceBetweenUnitsStyle = this.distanceBetweenUnits + 'px';
+	}
+
+	shift($event: any) {
+		const sum = this.offset + $event.velocityX * 10;
+		const whole = sum / this.distanceBetweenUnits;
+		this.offset = sum;
+		console.log(`pos: ${this.offset} sum: ${sum}, whole: ${whole}`);
+
+		if (whole > 1) {
+			this.beginning.add(1, this.unit);
+			console.log(`FRAMESHIFT +1`);
+			this.offset = sum - this.distanceBetweenUnits;
+		}
+
+		if (whole < 0) {
+			this.beginning.add(-1, this.unit);
+			console.log(`FRAMESHIFT -1`);
+			this.offset = sum + this.distanceBetweenUnits;
+		}
+
+		// this.pos = sum % this.distanceBetweenUnits;
 	}
 
 	ngOnInit() {}
