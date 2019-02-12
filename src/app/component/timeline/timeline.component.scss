@@ -12,13 +12,24 @@
 		height: 20%;
 		.divisor {
 			position: relative;
-			width: 8px;
+			width: 4px;
 			height: 80%;
 			background-color: rgb(141, 141, 141);
 			align-self: center;
 			transition: left 0.2s ease;
+			animation: flyin 0.2s ease-in-out;
+			transform: translateX(0);
+			opacity: 1;
+		}
+
+		@keyframes flyin {
+			from {
+				transform: translateX(10vw);
+				opacity: 0;
+			}
 		}
 	}
+
 	.channel {
 		background-color: coral;
 

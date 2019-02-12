@@ -57,7 +57,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	calcUnitsBetween(): void {
 		this.unitsBetween = this.frame.diff(this.beginning, 'day');
-		this.distanceBetweenUnits = (this.width - this.unitsBetween * 4) / this.unitsBetween;
+		this.distanceBetweenUnits = (this.width - this.unitsBetween * 4) / (this.unitsBetween + 1);
 		this.distanceBetweenUnitsStyle = this.distanceBetweenUnits + 'px';
 	}
 

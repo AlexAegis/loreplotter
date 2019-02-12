@@ -1,4 +1,4 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, Renderer2 } from '@angular/core';
 
 @Directive({ selector: '[appRepeat]' })
 export class RepeatDirective {
@@ -11,9 +11,13 @@ export class RepeatDirective {
 			if (c < this.c) {
 				this.viewContainer.detach();
 			} else if (c > this.c) {
-				this.viewContainer.createEmbeddedView(this.templateRef, {
-					$implicit: i
-				});
+				this.viewContainer.createEmbeddedView(
+					this.templateRef,
+					{
+						$implicit: i
+					},
+					i
+				);
 			}
 		}
 
