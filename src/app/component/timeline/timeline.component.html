@@ -1,5 +1,7 @@
 <div id="ruler">
-	<div *appRepeat="unitsBetween" class="divisor" [ngStyle]="{ 'margin-left': distanceBetweenUnitsStyle }"></div>
+	<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
+		{{ c }}
+	</div>
 </div>
 <div class="channel" [ngStyle]="{ 'margin-left': distanceBetweenUnitsStyle }">
 	channel (actors representation) resizebserver width {{ width }}

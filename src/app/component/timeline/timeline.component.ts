@@ -23,6 +23,10 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	distanceBetweenUnits: number;
 	distanceBetweenUnitsStyle: string;
 	width: number;
+
+	dist(i: number) {
+		return this.distanceBetweenUnits * (i + 1) + 'px';
+	}
 	ngAfterViewInit(): void {
 		// ResizeObserver is not really supportod outside of chrome.
 		// It can also make the app crash on MacOS https://github.com/que-etc/resize-observer-polyfill/issues/36
