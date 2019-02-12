@@ -1,4 +1,7 @@
 <div id="ruler" (pan)="shift($event)">
+	<div class="header">
+		{{ beginning.format('YYYY-MM-DD') }}
+	</div>
 	<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
 		{{ c }}
 	</div>
@@ -10,4 +13,4 @@
 	diff: {{ unitsBetween }} distanceBetweenUnits:
 	{{ distanceBetweenUnits }}
 </div>
-<div class="channel">beg: {{ beginning | json }} frame: {{ frame | json }}</div>
+<div class="channel">frame: {{ frame | json }}</div>

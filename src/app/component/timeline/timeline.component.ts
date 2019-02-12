@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { Moment } from 'moment';
 import { mixinTabIndex } from '@angular/material';
 import ResizeObserver from 'resize-observer-polyfill';
+import * as THREE from 'three';
 
 @Component({
 	selector: 'app-timeline',
@@ -27,7 +28,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	offset = 0;
 
 	dist(i: number) {
-		return this.offset + this.distanceBetweenUnits * (i + 1) + 'px';
+		return this.offset + this.distanceBetweenUnits * i + 'px';
 	}
 	ngAfterViewInit(): void {
 		// ResizeObserver is not really supportod outside of chrome.
@@ -64,20 +65,20 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	shift($event: any) {
-		const sum = this.offset + $event.velocityX * 10;
+		const sum = this.offset + THREE.Math.clamp($event.velocityX, -3, 3) * 10;
 		const whole = sum / this.distanceBetweenUnits;
 		this.offset = sum;
 		console.log(`pos: ${this.offset} sum: ${sum}, whole: ${whole}`);
 
 		if (whole > 1) {
 			this.beginning.add(1, this.unit);
-			console.log(`FRAMESHIFT +1`);
+			// console.log(`FRAMESHIFT +1`);
 			this.offset = sum - this.distanceBetweenUnits;
 		}
 
 		if (whole < 0) {
 			this.beginning.add(-1, this.unit);
-			console.log(`FRAMESHIFT -1`);
+			// console.log(`FRAMESHIFT -1`);
 			this.offset = sum + this.distanceBetweenUnits;
 		}
 
