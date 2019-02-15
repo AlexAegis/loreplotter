@@ -7,7 +7,7 @@ const routes: Routes = [];
 	imports: [
 		RouterModule.forRoot(routes, {
 			onSameUrlNavigation: 'reload',
-			enableTracing: true
+			enableTracing: false
 		})
 	],
 	exports: [RouterModule]
