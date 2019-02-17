@@ -88,10 +88,6 @@
 
 > **Code review** tool for maintainability
 
-### [Shields.io](https://shields.io/#/)
-
-> **Badges** to look cool
-
 ### [Snyk](https://snyk.io/)
 
 > **Vulnerability** detection
@@ -99,3 +95,7 @@
 ### [Libraries.io](https://libraries.io/)
 
 > **Dependency** watcher
+
+### [Shields.io](https://shields.io/#/)
+
+> **Badges** to look cool
