@@ -1,22 +1,24 @@
 # [LorePlotter](https://alexaegis.github.io/loreplotter/)
 
-[![Build Status](https://travis-ci.com/AlexAegis/loreplotter.svg?branch=master)](https://travis-ci.com/AlexAegis/loreplotter) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9b155010806741a897cc8420898f4e84)](https://www.codacy.com/app/AlexAegis/loreplotter?utm_source=github.com&utm_medium=referral&utm_content=AlexAegis/loreplotter&utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/maintainability)](https://codeclimate.com/github/AlexAegis/loreplotter/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/test_coverage)](https://codeclimate.com/github/AlexAegis/loreplotter/test_coverage) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![Build Status](https://travis-ci.com/AlexAegis/loreplotter.svg?branch=master)](https://travis-ci.com/AlexAegis/loreplotter) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9b155010806741a897cc8420898f4e84)](https://www.codacy.com/app/AlexAegis/loreplotter?utm_source=github.com&utm_medium=referral&utm_content=AlexAegis/loreplotter&utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/maintainability)](https://codeclimate.com/github/AlexAegis/loreplotter/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/test_coverage)](https://codeclimate.com/github/AlexAegis/loreplotter/test_coverage) [![librariesio: dependencies](https://img.shields.io/librariesio/github/AlexAegis/loreplotter.svg?style=popout)](https://libraries.io/github/AlexAegis/loreplotter) [![snyk: vulnerabilities](https://img.shields.io/snyk/vulnerabilities/github/AlexAegis/loreplotter.svg?style=popout)](https://app.snyk.io/org/alexaegis/project/a711c21c-0846-46be-92e1-c238a7d8a4fe) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 3D Visualization Tool
 
+---
+
 ## Technologies
 
-### [Angular](https://angular.io/)
+### [Angular 7](https://angular.io/)
 
 > **Frontend** framework
+
+### [Node 10](https://nodejs.org/en/)
+
+> **JavaScript** runtime
 
 ### [NPM](https://www.npmjs.com/)
 
 > **Package manager** for JS projects
-
-### [Node](https://nodejs.org/en/)
-
-> **JavaScript** runtime
 
 ### [Sass](https://sass-lang.com/)
 
@@ -86,6 +88,14 @@
 
 > **Code review** tool for maintainability
 
-### [Shields](https://shields.io/#/)
+### [Shields.io](https://shields.io/#/)
 
 > **Badges** to look cool
+
+### [Snyk](https://snyk.io/)
+
+> **Vulnerability** detection
+
+### [Libraries.io](https://libraries.io/)
+
+> **Dependency** watcher
