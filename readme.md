@@ -26,15 +26,7 @@
 
 The software is built with the Angular framework and many other JavaScript modules and works as a [PWA](https://en.wikipedia.org/wiki/Progressive_web_applications). Persistence is achieved with a [service worker](https://developers.google.com/web/fundamentals/primers/service-workers/)'s local storage.
 
-```mermaid
-
-graph TD;
-    a-->a;
-    A-->asfsdfasdf;
-    B-->D;
-    C-->D;
-
-```
+![Class Diagram](https://i.imgur.com/p6F3bjp.png)
 
 ---
 
@@ -79,6 +71,10 @@ graph TD;
 ### (Not Yet Introduced) [FontAwesome](https://fontawesome.com/)
 
 > **Icons**, awesome ones
+
+### [PlantUML](http://plantuml.com)
+
+> **Diagram** tool. On windows, install with `choco plantuml`
 
 ## Recommendations
 

@@ -8,9 +8,6 @@
 	"prettier.tabWidth": 4,
 	"prettier.singleQuote": true,
 	"prettier.eslintIntegration": true,
-	"bracket-pair-colorizer-2.excludedLanguages": [""],
-	"bracket-pair-colorizer-2.showBracketsInGutter": true,
-	"bracket-pair-colorizer-2.colors": ["#CB3", "#C64", "#C42"],
 	"material-icon-theme.folders.associations": {
 		"module": "font",
 		"component": "components",
@@ -39,5 +36,7 @@
 	"terminal.integrated.windowsEnableConpty": true,
 	"editor.codeActionsOnSave": {
 		"source.fixAll": true
-	}
+	},
+	"plantuml.diagramsRoot": "docs/",
+	"plantuml.exportOutDir": "dist/"
 }

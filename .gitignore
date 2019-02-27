@@ -101,3 +101,6 @@ typings/
 
 # next.js build output
 .next
+
+# PlantUML renders
+docs/**/*.png

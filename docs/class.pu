@@ -1,0 +1,42 @@
+@startuml class-footer
+skinparam classAttributeIconSize 8
+class Actor {
+	#history: Map<Moment, ActorData>
+	~baseData(): ActorData
+	~data(moment: Moment): ActorData
+}
+
+class ActorData {
+	#name: string
+	#route: Path
+	#position: PathNode
+	...
+}
+
+class Path extends Graph {
+
+}
+
+class PathNode implements Node {
+	position: Spherical
+}
+
+note top of Graph : @alexaegis/graph
+
+class Graph {
+	#nodes: Array<? implements Node>
+}
+
+note top of Node : @alexaegis/graph
+
+interface Node {
+}
+
+note top of AStar : @alexaegis/astar\nused for calculating a route between two nodes
+
+class AStar<Path> {
+	constructor(path: Path)
+	route(a: PathNode, b: PathNode): Array<PathNode>
+}
+@enduml
+
