@@ -22,6 +22,10 @@
   The timeline is infinite, the only loaded parts are the one you're seeing.\
   By panning the `cursor` on the timeline you can change the displayed context on the map, and ultimately see whats happening at that point of time on the map.
 
+## User Stories
+
+[Here](docs/stories.md)
+
 ## Architecture
 
 The software is built with the Angular framework and many other JavaScript modules and works as a [PWA](https://en.wikipedia.org/wiki/Progressive_web_applications). Persistence is achieved with a [service worker](https://developers.google.com/web/fundamentals/primers/service-workers/)'s local storage.
