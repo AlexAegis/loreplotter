@@ -19,21 +19,15 @@
 		}
 		.divisor {
 			position: relative;
-			width: 4px;
+			width: 2px;
+			box-shadow: 0 0 3px #0000008a;
+
 			height: 80%;
-			background-color: rgb(141, 141, 141);
+			background-color: rgba(0, 0, 0, 0.37);
 			align-self: center;
 
-			animation: flyin 0.2s ease-in-out;
 			transform: translateX(0);
 			opacity: 1;
-		}
-
-		@keyframes flyin {
-			from {
-				transform: translateX(10vw);
-				opacity: 0;
-			}
 		}
 	}
 

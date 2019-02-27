@@ -80,7 +80,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 	mediaLarge = true;
 
-	constructor(private media: MediaObserver) {}
+	constructor(public media: MediaObserver) {}
 
 	ngAfterViewInit(): void {}
 

@@ -13,6 +13,7 @@ export class SidebarComponent implements OnInit {
 	collapseHeight = '42px';
 	displayMode = 'flat';
 
+
 	@Input()
 	disabled = false;
 

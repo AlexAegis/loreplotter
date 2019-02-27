@@ -20,11 +20,12 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { SmoothScrollModule } from 'ngx-scrollbar';
 import { RoutingModule } from './module/routing.module';
-import { MaterialModule } from './module/material.module';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HamburgerComponent } from './component/hamburger/hamburger.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
+import { MaterialModule } from './module/material.module';
+import { ListComponent } from './component/list/list.component';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -41,7 +42,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 		SidebarComponent,
 		HamburgerComponent,
 		TimelineComponent,
-		RepeatDirective
+		RepeatDirective,
+		ListComponent
 	],
 	imports: [
 		BrowserModule,
