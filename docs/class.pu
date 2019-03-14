@@ -38,5 +38,7 @@ class AStar<Path> {
 	constructor(path: Path)
 	route(a: PathNode, b: PathNode): Array<PathNode>
 }
+
+
 @enduml
 
