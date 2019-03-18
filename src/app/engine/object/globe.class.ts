@@ -1,22 +1,48 @@
+import { AirCurve } from './air-curve.class';
+import { Moment } from 'moment';
 import { Basic } from './basic.class';
 import { ClickEvent } from './../event/click-event.type';
 import { Point } from './point.class';
-import { Shader, Vector3, Quaternion, Euler, Spherical } from 'three';
+import { Shader, Vector3, Quaternion, Euler, Spherical, ArcCurve, BufferAttribute } from 'three';
 import { globeShader } from '../shader/globe.shader';
 
 import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
-import { interval, timer } from 'rxjs';
-import { take, delay } from 'rxjs/operators';
+import { interval, timer, BehaviorSubject } from 'rxjs';
+import { take, delay, window, windowCount, pairwise, map } from 'rxjs/operators';
 import { Interactive } from '../interfaces/interactive.interface';
 import { invert } from '../helper/invert.function';
 import { EventEmitter, Output } from '@angular/core';
 import { denormalize } from '../helper/denormalize.function';
+import { Axis } from '../helper/axis.class';
+import { Group } from 'three';
 
 export class Globe extends Basic {
 	private rotationEase: TWEEN.Tween;
 
-	constructor(private radius: number = 1.5, shader: Shader = globeShader) {
+	private target = new BehaviorSubject<Vector3>(Axis.x);
+
+	/**+
+	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
+	 * Later change it so it puts down some meshes rather than a line
+	 * @param from
+	 * @param to
+	 */
+	putCurve(from: Vector3, to: Vector3): void {
+		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
+		// const curve = new THREE.LineCurve3(from, to);
+		const points = airCurve.getPoints(50);
+		const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+
+		// Create the final object to add to the scene
+		const curveObject = new THREE.Line(geometry, material);
+
+		this.add(curveObject);
+	}
+
+	constructor(private radius: number = 1, shader: Shader = globeShader) {
 		super(
 			new THREE.SphereGeometry(radius, 100, 100),
 			new THREE.ShaderMaterial({
@@ -28,36 +54,110 @@ export class Globe extends Basic {
 		this.name = 'globe';
 		this.geometry.computeBoundingSphere();
 		this.addEventListener('click', (event: ClickEvent) => {
+			console.log('SENDIn STUFF1');
 			if (this.stage.engineService.selected) {
 				(<Interactive>this.stage.engineService.selected).deselect();
 				this.stage.engineService.selected = undefined;
 			}
 			this.changed();
+			event.point.applyEuler(invert(this.rotation));
+			console.log('SENDIn STUFF');
+			this.target.next(event.point);
 		});
 
 		this.addEventListener('create', (event: ClickEvent) => {
-			this.put(new Point(), new Spherical().setFromVector3(event.point.applyEuler(invert(this.rotation))));
+			// this.put(new Point(), new Spherical().setFromVector3(event.point.applyEuler(invert(this.rotation))));
+			event.point.applyEuler(invert(this.rotation));
+
+			this.putAlt(new Point(), event.point);
 		});
 		// playground
 		const point = new Point();
+		const group = new Group();
 
-		const sph = new Spherical().setFromVector3(new Vector3(0, 0, this.radius));
+		point.position.set(0, 0, 1);
 
-		this.put(point, sph);
+		group.add(point);
+		this.add(group);
+		// this.put(point, sph);
 
-		timer(100, 500)
-			.pipe(take(64))
-			.subscribe(i => {
-				new TWEEN.Tween(sph)
-					.to({ theta: sph.theta - THREE.Math.DEG2RAD * 12 }, 500)
-					.easing(TWEEN.Easing.Exponential.InOut)
-					.onUpdate(s => {
-						point.position.setFromSpherical(s);
-						point.lookAt(0, 0, 0);
-						this.changed();
-					})
-					.start(Date.now());
-			});
+		const waypoints = [
+			new Vector3(-0.3757916966063185, -0.281843772454739, 0.8827749608149299),
+			new Vector3(0.09669254683261017, -0.497612862967823, 0.8617354361375862),
+			new Vector3(0.39117893980613805, 0.386437376899397, 0.8346608718892985),
+			new Vector3(-0.605726277152065, 0.5558722625716483, 0.5690292996108239)
+		];
+
+		this.putCurve(waypoints[0], waypoints[1]);
+
+		const wp1 = new Point();
+		wp1.position.set(waypoints[0].x, waypoints[0].y, waypoints[0].z);
+		const wp2 = new Point();
+		wp2.position.set(waypoints[1].x, waypoints[1].y, waypoints[1].z);
+		wp1.lookAt(this.position);
+		wp2.lookAt(this.position);
+		this.add(wp1);
+		this.add(wp2);
+
+		this.putCurve(waypoints[2], waypoints[3]);
+
+		const wp3 = new Point();
+		wp3.position.set(waypoints[2].x, waypoints[2].y, waypoints[2].z);
+		const wp4 = new Point();
+		wp4.position.set(waypoints[3].x, waypoints[3].y, waypoints[3].z);
+		wp3.lookAt(this.position);
+		wp4.lookAt(this.position);
+		this.add(wp3);
+		this.add(wp4);
+		// Curve's length is set by the Math.PI * 2 arg
+		const curve = new ArcCurve(0, 0, 1.05, 0, Math.PI, true);
+		const points = curve.getPoints(360);
+		const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+		// Create the final object to add to the scene
+		const ellipse = new THREE.Line(geometry, material);
+		ellipse.name = 'ellipse';
+		const moon = new Point();
+		moon.name = 'moon';
+		moon.position.set(0.6, 1, -0.8);
+		this.add(moon);
+		this.add(ellipse);
+
+		// this.put(geometry, sph);
+		this.target.pipe(pairwise()).subscribe(([prev, next]) => {
+			console.log('GOT STUFF');
+			const grp = new Group();
+			grp.lookAt(prev);
+			const fromQ = grp.quaternion.clone();
+			grp.lookAt(next);
+			const toQ = grp.quaternion.clone();
+
+			new TWEEN.Tween({ v: 0 })
+				.to({ v: 1 }, 500)
+				.easing(TWEEN.Easing.Exponential.InOut)
+				.onUpdate((s: { v: number }) => {
+					Quaternion.slerp(fromQ, toQ, group.quaternion, s.v);
+
+					ellipse.lookAt(point.getWorldPosition(new Vector3()));
+					ellipse.rotateOnAxis(Axis.y, THREE.Math.DEG2RAD * 90);
+					moon.lookAt(point.getWorldPosition(new Vector3()));
+					// 	moon.lookAt(group.getWorldPosition(Axis.center));
+					moon.changed();
+
+					// 	console.log('ASd');
+
+					// Quaternion.slerp(fromQ, toQ, moon.quaternion, s.v);
+
+					// ellipse.setRotationFromAxisAngle(Axis.y, s.theta);
+					// point.position.setFromSpherical(s);
+					// point.lookAt(0, 0, 0);
+					this.changed();
+				})
+				.start(Date.now());
+		});
+
+		waypoints.forEach(w => this.target.next(w));
 	}
 
 	/**
@@ -72,6 +172,18 @@ export class Globe extends Basic {
 		object.position.setFromSpherical(position);
 		object.lookAt(this.position);
 		this.add(object);
+	}
+
+	putAlt(object: THREE.Mesh, cartesian: Vector3): void {
+		const group = new Group();
+
+		group.lookAt(cartesian);
+		object.position.set(0, 0, this.radius);
+		object.lookAt(group.position);
+		group.add(object);
+		this.add(group);
+
+		this.add(group);
 	}
 
 	rotate(x: number, y: number, isFinal?: boolean): Euler {
@@ -103,7 +215,7 @@ export class Globe extends Basic {
 	rotatween(x: number, y: number) {
 		const fromQuat = new Quaternion().copy(this.quaternion);
 
-		const to = this.rotate(x, y);
+		this.rotate(x, y);
 		const toQuat = new Quaternion().copy(this.quaternion);
 		// this.setRotationFromQuaternion(fromQuat);
 

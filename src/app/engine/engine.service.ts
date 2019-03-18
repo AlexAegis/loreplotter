@@ -40,6 +40,8 @@ export class EngineService {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 		this.stage = new Stage(this);
+		const axesHelper = new THREE.AxesHelper(1.5);
+		this.stage.add(axesHelper);
 
 		this.globe = new Globe();
 		this.stage.add(this.globe);
@@ -51,10 +53,13 @@ export class EngineService {
 
 		this.raycaster
 			.intersectObject(this.globe, true)
+			.filter(intersection => intersection.object.name === 'globe' || intersection.object.name === 'point') // Ignoring arcs
 			.splice(0, 1)
 			.forEach(intersection => {
 				console.log('intersect');
-				console.log(intersection.point);
+				// console.log(intersection.point);
+				// console.log(intersection.object.name);
+				// console.log(intersection.object);
 				if (intersection.object.name === 'globe') {
 					if (shift) {
 						intersection.object.dispatchEvent({
