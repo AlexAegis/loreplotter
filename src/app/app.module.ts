@@ -2,7 +2,7 @@ import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { MomentModule } from 'ngx-moment';
 import { AvatarModule } from 'ngx-avatar';
 import { AgGridModule } from 'ag-grid-angular';
@@ -26,6 +26,9 @@ import { HamburgerComponent } from './component/hamburger/hamburger.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
 import { MaterialModule } from './module/material.module';
 import { ListComponent } from './component/list/list.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
+import { DatabaseService } from './service/database.service';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -57,9 +60,16 @@ export class MyHammerConfig extends HammerGestureConfig {
 		RoutingModule,
 		FormsModule,
 		ReactiveFormsModule,
-		MaterialModule
+		MaterialModule,
+		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
 	],
 	providers: [
+		/*{
+			provide: APP_INITIALIZER,
+			useFactory: () => DatabaseService.init,
+			multi: true,
+
+},*/
 		{
 			provide: HAMMER_GESTURE_CONFIG,
 			useClass: MyHammerConfig

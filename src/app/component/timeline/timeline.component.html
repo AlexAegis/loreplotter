@@ -10,7 +10,9 @@
 	channel (actors representation) resizebserver width {{ width }}
 </div>
 <div class="channel">
-	diff: {{ unitsBetween }} distanceBetweenUnits:
+	diff: {{ unitsBetween }} distanceBetweenUnits::
 	{{ distanceBetweenUnits }}
+	DOCC COUNT
+	{{ countRef | async }}
 </div>
 <div class="channel">frame: {{ frame | json }} unit: {{ currentUnit }}</div>

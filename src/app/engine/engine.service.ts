@@ -48,7 +48,7 @@ export class EngineService {
 	}
 
 	click(coord: Vector3, shift: boolean) {
-		console.log('click');
+		console.log('clicsk');
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 
 		this.raycaster
