@@ -11,8 +11,9 @@ import * as moment from 'moment';
 import { Moment } from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
 import * as THREE from 'three';
-import { DatabaseService } from 'src/app/service/database.service';
+import { DatabaseService } from 'src/app/database/database.service';
 import { switchMap, tap } from 'rxjs/operators';
+import { Actor } from 'src/app/model/actor.class';
 
 @Component({
 	selector: 'app-timeline',
@@ -47,7 +48,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.unit > 0 ? this.units[this.unit - 1].frame : 12;
 	}
 
-	countRef;
+	public countRef;
 
 	constructor(public el: ElementRef, public db: DatabaseService, private cd: ChangeDetectorRef) {
 		this.frame = moment(0);
@@ -55,8 +56,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.beginning = moment(0);
 		this.calcUnitsBetween();
 
-		this.countRef = db.docCount$;
-		// this.testAdd();
+		this.countRef = db.actorCount$('TestProject2');
 	}
 
 	dist(i: number) {
@@ -141,20 +141,5 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	normalize(value: number) {
 		return value / Math.abs(value);
-	}
-
-	testAdd() {
-		this.db.connection
-			.pipe(
-				switchMap(conn =>
-					conn.heroes.insert({
-						passportId: 'myId',
-						firstName: 'piotr',
-						lastName: 'potter',
-						age: 5
-					})
-				)
-			)
-			.subscribe();
 	}
 }

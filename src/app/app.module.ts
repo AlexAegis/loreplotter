@@ -28,7 +28,7 @@ import { MaterialModule } from './module/material.module';
 import { ListComponent } from './component/list/list.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { DatabaseService } from './service/database.service';
+import { DatabaseService } from './database/database.service';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },

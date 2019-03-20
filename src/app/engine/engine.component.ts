@@ -1,4 +1,4 @@
-import { DatabaseService } from './../service/database.service';
+import { DatabaseService } from '../database/database.service';
 import { PopupComponent } from './../component/popup/popup.component';
 import { EngineService } from './engine.service';
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
