@@ -11,6 +11,8 @@ import { delay } from 'q';
 import { Database, LoreCollectionMethods, LoreDocumentMethods, LoreCollection, DatabaseCollections } from './database';
 import { Lore, loreSchema } from '../model/lore.class';
 import { initDomAdapter } from '@angular/platform-browser/src/browser';
+import { ActorDelta } from '../model/actor-delta.class';
+import * as moment from 'moment';
 
 @Injectable({
 	providedIn: 'root'
@@ -36,6 +38,25 @@ export class DatabaseService {
 					).pipe(map(coll => db))
 				),
 				map(db => {
+					db.lore.postInsert(async function postCreateHook(this: LoreCollection, lore) {
+						console.log(`Post Insert ${lore.name}`);
+					}, true);
+					db.lore.postCreate(async function postCreateHook(this: LoreCollection, lore) {
+						console.log(`Post Create ${lore.name}`);
+					});
+					db.lore.preSave(async function preSaveHook(this: LoreCollection, lore) {
+						console.log(`Pre Save ${lore.name}`);
+						if (lore !== undefined && lore !== null) {
+							for (const actor of lore.actors) {
+								console.log(`Pre Save actors ${actor.id}`);
+								actor.statesString = actor.states.stringify();
+								actor.states = undefined;
+							}
+						}
+					}, true);
+					db.lore.preInsert(async function preInsertHook(this: LoreCollection, lore) {
+						console.log(`Before inserting ${lore.name}`);
+					}, true);
 					db.lore.postInsert(
 						function myPostInsertHook(
 							this: LoreCollection,
@@ -64,7 +85,8 @@ export class DatabaseService {
 
 	private loreDocumentMethods: LoreDocumentMethods = {
 		actorCount: function(what: string) {
-			return this.actors.length;
+			console.log(`actors length: ${this.actors}`);
+			return this.actors === undefined || this.actors === null ? 0 : this.actors.length;
 		}
 	};
 
@@ -80,7 +102,7 @@ export class DatabaseService {
 				switchMap(conn =>
 					conn.lore.upsert({
 						name: 'TestProject2',
-						actors: [new Actor(0), new Actor(1)],
+						actors: [new Actor(2).setState(moment('2019-01-02').unix(), new ActorDelta()), new Actor(1)],
 						locations: ['City17', 'City14']
 					})
 				)
@@ -91,6 +113,7 @@ export class DatabaseService {
 	public loreCount$(): Observable<number> {
 		return this.connection.pipe(
 			switchMap(conn => conn.lore.find().exec()),
+			filter(res => res !== undefined && res !== null),
 			map(next => next.length)
 		);
 	}
@@ -98,6 +121,7 @@ export class DatabaseService {
 	public actorCount$(name: string): Observable<number> {
 		return this.connection.pipe(
 			switchMap(conn => conn.lore.findOne({ name: name }).exec()),
+			filter(res => res !== undefined && res !== null),
 			map(res => res.actors.length)
 		);
 	}

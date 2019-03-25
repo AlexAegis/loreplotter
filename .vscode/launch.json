@@ -1,6 +1,16 @@
 {
 	"configurations": [
 		{
+			"name": "Current TS File",
+			"type": "node",
+			"request": "launch",
+			"args": ["${relativeFile}"],
+			"runtimeArgs": ["-r", "ts-node/register"],
+			"cwd": "${workspaceRoot}",
+			"protocol": "inspector",
+			"internalConsoleOptions": "openOnSessionStart"
+		},
+		{
 			"type": "chrome",
 			"request": "launch",
 			"name": "Launch",
