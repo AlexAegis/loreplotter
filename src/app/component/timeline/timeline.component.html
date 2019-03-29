@@ -14,5 +14,9 @@
 	{{ distanceBetweenUnits }}
 	DOCC COUNT
 	{{ countRef | async }}
+
+	ACtorrrss {{ actors$ | async }}
 </div>
 <div class="channel">frame: {{ frame | json }} unit: {{ currentUnit }}</div>
+
+<button (click)="logActors()">LogActors</button>

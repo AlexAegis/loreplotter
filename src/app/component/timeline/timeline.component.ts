@@ -12,7 +12,7 @@ import { Moment } from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
 import * as THREE from 'three';
 import { DatabaseService } from 'src/app/database/database.service';
-import { switchMap, tap } from 'rxjs/operators';
+import { switchMap, tap, take } from 'rxjs/operators';
 import { Actor } from 'src/app/model/actor.class';
 
 @Component({
@@ -49,6 +49,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	public countRef;
+	public actors$;
 
 	constructor(public el: ElementRef, public db: DatabaseService, private cd: ChangeDetectorRef) {
 		this.frame = moment(0);
@@ -56,11 +57,17 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.beginning = moment(0);
 		this.calcUnitsBetween();
 
-		this.countRef = db.actorCount$('TestProject2');
+		this.countRef = db.loreCount$();
+		this.actors$ = db.actors$('TestProject');
 	}
 
 	dist(i: number) {
 		return (i === 0 ? 0 : 0) + this.offset + this.distanceBetweenUnits * i + 'px';
+	}
+
+	logActors() {
+		console.log('Logging actors:');
+		this.actors$.pipe(take(1)).subscribe(console.log);
 	}
 
 	ngAfterViewInit(): void {

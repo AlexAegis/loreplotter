@@ -28,7 +28,7 @@ export class Globe extends Basic {
 	 * @param from
 	 * @param to
 	 */
-	putCurve(from: Vector3, to: Vector3): void {
+	putCurve(from: Vector3, to: Vector3): AirCurve {
 		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
 		// const curve = new THREE.LineCurve3(from, to);
 		const points = airCurve.getPoints(50);
@@ -38,8 +38,10 @@ export class Globe extends Basic {
 
 		// Create the final object to add to the scene
 		const curveObject = new THREE.Line(geometry, material);
+		// TODO Shader that from an uniform variable can change its length (0 to 1)
 
 		this.add(curveObject);
+		return airCurve;
 	}
 
 	constructor(private radius: number = 1, shader: Shader = globeShader) {
@@ -54,14 +56,14 @@ export class Globe extends Basic {
 		this.name = 'globe';
 		this.geometry.computeBoundingSphere();
 		this.addEventListener('click', (event: ClickEvent) => {
-			console.log('SENDIn STUFF1');
+			// console.log('SENDIn STUFF1');
 			if (this.stage.engineService.selected) {
 				(<Interactive>this.stage.engineService.selected).deselect();
 				this.stage.engineService.selected = undefined;
 			}
 			this.changed();
 			event.point.applyEuler(invert(this.rotation));
-			console.log('SENDIn STUFF');
+			// console.log('SENDIn STUFF');
 			this.target.next(event.point);
 		});
 
@@ -69,10 +71,10 @@ export class Globe extends Basic {
 			// this.put(new Point(), new Spherical().setFromVector3(event.point.applyEuler(invert(this.rotation))));
 			event.point.applyEuler(invert(this.rotation));
 
-			this.putAlt(new Point(), event.point);
+			this.putAlt(new Point('16'), event.point);
 		});
 		// playground
-		const point = new Point();
+		const point = new Point('15');
 		const group = new Group();
 
 		point.position.set(0, 0, 1);
@@ -80,7 +82,7 @@ export class Globe extends Basic {
 		group.add(point);
 		this.add(group);
 		// this.put(point, sph);
-
+		/*
 		const waypoints = [
 			new Vector3(-0.3757916966063185, -0.281843772454739, 0.8827749608149299),
 			new Vector3(0.09669254683261017, -0.497612862967823, 0.8617354361375862),
@@ -90,9 +92,9 @@ export class Globe extends Basic {
 
 		this.putCurve(waypoints[0], waypoints[1]);
 
-		const wp1 = new Point();
+		const wp1 = new Point('14');
 		wp1.position.set(waypoints[0].x, waypoints[0].y, waypoints[0].z);
-		const wp2 = new Point();
+		const wp2 = new Point('13');
 		wp2.position.set(waypoints[1].x, waypoints[1].y, waypoints[1].z);
 		wp1.lookAt(this.position);
 		wp2.lookAt(this.position);
@@ -101,9 +103,9 @@ export class Globe extends Basic {
 
 		this.putCurve(waypoints[2], waypoints[3]);
 
-		const wp3 = new Point();
+		const wp3 = new Point('12');
 		wp3.position.set(waypoints[2].x, waypoints[2].y, waypoints[2].z);
-		const wp4 = new Point();
+		const wp4 = new Point('11');
 		wp4.position.set(waypoints[3].x, waypoints[3].y, waypoints[3].z);
 		wp3.lookAt(this.position);
 		wp4.lookAt(this.position);
@@ -118,15 +120,15 @@ export class Globe extends Basic {
 		// Create the final object to add to the scene
 		const ellipse = new THREE.Line(geometry, material);
 		ellipse.name = 'ellipse';
-		const moon = new Point();
+		const moon = new Point('10');
 		moon.name = 'moon';
 		moon.position.set(0.6, 1, -0.8);
 		this.add(moon);
 		this.add(ellipse);
-
+*/
 		// this.put(geometry, sph);
 		this.target.pipe(pairwise()).subscribe(([prev, next]) => {
-			console.log('GOT STUFF');
+			// console.log('GOT STUFF');
 			const grp = new Group();
 			grp.lookAt(prev);
 			const fromQ = grp.quaternion.clone();
@@ -138,13 +140,13 @@ export class Globe extends Basic {
 				.easing(TWEEN.Easing.Exponential.InOut)
 				.onUpdate((s: { v: number }) => {
 					Quaternion.slerp(fromQ, toQ, group.quaternion, s.v);
-
+					/*
 					ellipse.lookAt(point.getWorldPosition(new Vector3()));
 					ellipse.rotateOnAxis(Axis.y, THREE.Math.DEG2RAD * 90);
 					moon.lookAt(point.getWorldPosition(new Vector3()));
 					// 	moon.lookAt(group.getWorldPosition(Axis.center));
 					moon.changed();
-
+*/
 					// 	console.log('ASd');
 
 					// Quaternion.slerp(fromQ, toQ, moon.quaternion, s.v);
@@ -157,7 +159,7 @@ export class Globe extends Basic {
 				.start(Date.now());
 		});
 
-		waypoints.forEach(w => this.target.next(w));
+		// waypoints.forEach(w => this.target.next(w));
 	}
 
 	/**

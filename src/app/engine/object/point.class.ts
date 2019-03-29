@@ -29,16 +29,16 @@ export class Point extends Basic implements Interactive {
 		color: 0xaa8888
 	});
 
-	constructor() {
+	constructor(public name: string) {
 		super(new THREE.BoxGeometry(0.1, 0.1, 0.1, 1, 1, 1), undefined);
+		this.position.set(0, 0, 1);
 		this.type = 'Point';
-		this.name = 'point';
 		this.material = this.defaultMaterial;
 		this.geometry.computeBoundingBox();
 
 		this.addEventListener('select', attachment => {
 			const stage = this.stage;
-			console.log('I have been selected!' + attachment);
+			// console.log('I have been selected!' + attachment);
 			if (stage.engineService.selected) {
 				(<Interactive>stage.engineService.selected).deselect();
 			}

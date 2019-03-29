@@ -25,7 +25,7 @@
 	"files.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,
-		"node_modules": true,
+		"node_modules": false,
 		"coverage": true
 	},
 	"travis.repository": "loreplotter",
@@ -43,7 +43,7 @@
 		"activityBar.background": "#00000000",
 		"sideBar.background": "#00000000",
 		"workbench.background": "#00000000",
-		"titleBar.activeBackground": "#00000000",
+		"titleBar.activeBackground": "#00000000"
 	},
 	"window.enableVibrancy": "ultra-dark",
 	"window.transparent": true

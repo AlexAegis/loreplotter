@@ -75,6 +75,10 @@ export class EngineService {
 			});
 	}
 
+	putCurve(from: Vector3, to: Vector3): void {
+		this.globe.putCurve(from, to);
+	}
+
 	hover(coord: Vector3) {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
