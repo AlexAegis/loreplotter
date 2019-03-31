@@ -29,6 +29,7 @@ import { ListComponent } from './component/list/list.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { DatabaseService } from './database/database.service';
+import { CursorComponent } from './component/cursor/cursor.component';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -46,7 +47,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 		HamburgerComponent,
 		TimelineComponent,
 		RepeatDirective,
-		ListComponent
+		ListComponent,
+		CursorComponent
 	],
 	imports: [
 		BrowserModule,

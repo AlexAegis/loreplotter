@@ -1,3 +1,4 @@
+import { CursorComponent } from './../cursor/cursor.component';
 import {
 	Component,
 	OnInit,
@@ -5,7 +6,8 @@ import {
 	AfterViewInit,
 	ElementRef,
 	ChangeDetectionStrategy,
-	ChangeDetectorRef
+	ChangeDetectorRef,
+	ViewChild
 } from '@angular/core';
 import * as moment from 'moment';
 import { Moment } from 'moment';
@@ -26,7 +28,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	frame: Moment;
 	unitsBetween: number;
 	distanceBetweenUnits: number;
-	distanceBetweenUnitsStyle: string;
 	width: number;
 	unit = 0;
 	offset = 0;
@@ -35,6 +36,10 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		{ unit: 'week', frame: 4 },
 		{ unit: 'month', frame: 12 }
 	];
+
+	@ViewChild('divisorContainer') divisorContainer: ElementRef;
+
+	@ViewChild('cursor') cursor: CursorComponent;
 
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
 		return this.units[this.unit].unit;
@@ -61,10 +66,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.actors$ = db.actors$('TestProject');
 	}
 
-	dist(i: number) {
-		return (i === 0 ? 0 : 0) + this.offset + this.distanceBetweenUnits * i + 'px';
-	}
-
 	logActors() {
 		console.log('Logging actors:');
 		this.actors$.pipe(take(1)).subscribe(console.log);
@@ -76,10 +77,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		const resize$ = new ResizeObserver(e => {
 			e.forEach(change => {
 				this.width = change.contentRect.width;
+				console.log(this.width);
 				this.calcUnitsBetween();
 			});
 		});
-		resize$.observe(this.el.nativeElement);
+		resize$.observe(this.divisorContainer.nativeElement);
 	}
 
 	/**
@@ -120,8 +122,12 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	calcUnitsBetween(): void {
 		this.unitsBetween = this.frame.diff(this.beginning, this.currentUnit);
-		this.distanceBetweenUnits = (this.width - this.unitsBetween * 4) / (this.unitsBetween + 1);
-		this.distanceBetweenUnitsStyle = this.distanceBetweenUnits + 'px';
+		console.log(this.width);
+		this.distanceBetweenUnits = this.width / this.unitsBetween;
+	}
+
+	dist(i: number) {
+		return `${(i === 0 ? 0 : 0) + this.offset + this.distanceBetweenUnits * i - i * 2}px`;
 	}
 
 	shift($event: any) {

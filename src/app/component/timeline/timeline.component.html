@@ -1,22 +1,13 @@
-<div id="ruler" (pan)="shift($event)">
-	<div class="header">
-		{{ beginning.format('YYYY-MM-DD') }}
+<div id="ruler">
+	<app-cursor #cursor id="cursor" (click)="logActors()" [containerWidth]="width"></app-cursor>
+	<div #divisorContainer class="divisorContainer" (pan)="shift($event)">
+		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
+			{{ c }}
+		</div>
 	</div>
-	<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
-		{{ c }}
-	</div>
 </div>
-<div class="channel" [ngStyle]="{ 'margin-left': distanceBetweenUnitsStyle }">
-	channel (actors representation) resizebserver width {{ width }}
-</div>
-<div class="channel">
-	diff: {{ unitsBetween }} distanceBetweenUnits::
-	{{ distanceBetweenUnits }}
-	DOCC COUNT
-	{{ countRef | async }}
-
-	ACtorrrss {{ actors$ | async }}
-</div>
+<div class="channel">channel (actors representation) resizebserver width {{ width }}</div>
+<div class="channel">cursor: {{ cursor.totalPosition }}</div>
 <div class="channel">frame: {{ frame | json }} unit: {{ currentUnit }}</div>
 
 <button (click)="logActors()">LogActors</button>
