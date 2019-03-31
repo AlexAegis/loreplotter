@@ -1,5 +1,12 @@
 <div id="ruler">
-	<app-cursor #cursor id="cursor" (click)="logActors()" [containerWidth]="width"></app-cursor>
+	<app-cursor
+		#cursor
+		id="cursor"
+		(click)="logActors()"
+		[containerWidth]="width"
+		[timeFrame]="currentUnit"
+		[timeBeginning]="beginning"
+	></app-cursor>
 	<div #divisorContainer class="divisorContainer" (pan)="shift($event)">
 		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
 			{{ c }}

@@ -1,4 +1,6 @@
-import { Component, OnInit, HostListener, HostBinding, Input } from '@angular/core';
+import { Moment } from 'moment';
+import * as moment from 'moment';
+import { Component, OnInit, HostListener, HostBinding, Input, Output, EventEmitter } from '@angular/core';
 import { normalize } from 'src/app/misc/normalize.function';
 
 @Component({
@@ -14,15 +16,36 @@ export class CursorComponent implements OnInit {
 
 	@Input('containerWidth')
 	public set containerWidth(width: number) {
-		if (this._containerWidth) {
-			this.position = normalize(this._position, 0, this._containerWidth, 0, width);
-		}
+		const prevWidth = this._containerWidth;
 		this._containerWidth = width;
+		this.position = normalize(this._position, 0, prevWidth, 0, this._containerWidth);
 	}
+
+	private _timeFrame: moment.unitOfTime.DurationConstructor;
+
+	@Input('timeFrame')
+	public set timeFrame(timeFrame: moment.unitOfTime.DurationConstructor) {
+		this._timeFrame = timeFrame;
+	}
+
+	private _timeBeginning: Moment;
+
+	@Input('timeBeginning')
+	public set timeBeginning(timeBeginning: Moment) {
+		this._timeBeginning = timeBeginning;
+		this.changed();
+	}
+
+	@Output()
+	public timeChange = new EventEmitter<Moment>();
 
 	private set position(position: number) {
 		this._position = position;
 		this.changed();
+	}
+
+	private get position(): number {
+		return this._position || 0;
 	}
 
 	private set deltaPosition(deltaPosition: number) {
@@ -30,21 +53,29 @@ export class CursorComponent implements OnInit {
 		this.changed();
 	}
 
+	private get deltaPosition(): number {
+		return this._deltaPosition || 0;
+	}
+
 	constructor() {}
 
 	ngOnInit() {}
 
 	changed() {
-		console.log(`position changed: ${this.totalPosition}`);
+		//console.log(`position changed: ${this.totalPosition}`);
+		// this.timeChange.emit();
 	}
 
 	@HostListener('pan', ['$event'])
 	panHandler($event: any) {
-		if (this._position + $event.deltaX >= 0 && this._position + $event.deltaX <= this._containerWidth) {
+		if (this.position + $event.deltaX >= 0 && this.position + $event.deltaX <= this._containerWidth) {
 			this.deltaPosition = $event.deltaX;
 		}
 		if ($event.isFinal) {
-			this._position += this._deltaPosition; // To avoid double call of this.changed();
+			if (!this._position) {
+				this._position = 0;
+			}
+			this._position += this.deltaPosition; // To avoid double call of this.changed();
 			this.deltaPosition = 0;
 		}
 	}
@@ -54,6 +85,6 @@ export class CursorComponent implements OnInit {
 	}
 
 	get totalPosition(): number {
-		return this._deltaPosition + this._position;
+		return this.deltaPosition + this.position;
 	}
 }

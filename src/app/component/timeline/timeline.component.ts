@@ -24,23 +24,6 @@ import { Actor } from 'src/app/model/actor.class';
 	// changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, AfterViewInit {
-	beginning: Moment;
-	frame: Moment;
-	unitsBetween: number;
-	distanceBetweenUnits: number;
-	width: number;
-	unit = 0;
-	offset = 0;
-	units: Array<{ unit: moment.unitOfTime.DurationConstructor; frame: number }> = [
-		{ unit: 'day', frame: 7 },
-		{ unit: 'week', frame: 4 },
-		{ unit: 'month', frame: 12 }
-	];
-
-	@ViewChild('divisorContainer') divisorContainer: ElementRef;
-
-	@ViewChild('cursor') cursor: CursorComponent;
-
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
 		return this.units[this.unit].unit;
 	}
@@ -53,9 +36,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.unit > 0 ? this.units[this.unit - 1].frame : 12;
 	}
 
-	public countRef;
-	public actors$;
-
 	constructor(public el: ElementRef, public db: DatabaseService, private cd: ChangeDetectorRef) {
 		this.frame = moment(0);
 		this.frame.set('months', 1);
@@ -64,6 +44,30 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 		this.countRef = db.loreCount$();
 		this.actors$ = db.actors$('TestProject');
+	}
+	beginning: Moment;
+	frame: Moment;
+	unitsBetween: number;
+	distanceBetweenUnits: number;
+	width: number;
+	unit = 0;
+	private _offset = 0;
+	private _deltaOffset = 0;
+	units: Array<{ unit: moment.unitOfTime.DurationConstructor; frame: number }> = [
+		{ unit: 'day', frame: 7 },
+		{ unit: 'week', frame: 4 },
+		{ unit: 'month', frame: 12 }
+	];
+
+	@ViewChild('divisorContainer') divisorContainer: ElementRef;
+
+	@ViewChild('cursor') cursor: CursorComponent;
+
+	public countRef;
+	public actors$;
+
+	get totalOffset(): number {
+		return this._offset + this._deltaOffset;
 	}
 
 	logActors() {
@@ -127,27 +131,26 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	dist(i: number) {
-		return `${(i === 0 ? 0 : 0) + this.offset + this.distanceBetweenUnits * i - i * 2}px`;
+		return `${(i === 0 ? 0 : 0) + this.totalOffset + this.distanceBetweenUnits * i - i * 2}px`;
 	}
 
 	shift($event: any) {
-		const sum = this.offset + THREE.Math.clamp($event.velocityX, -3, 3) * 10;
-		const whole = sum / this.distanceBetweenUnits;
-		this.offset = sum;
-		// console.log(`pos: ${this.offset} sum: ${sum}, whole: ${whole}`);
+		this._deltaOffset = $event.deltaX;
+		const whole = this.totalOffset / this.distanceBetweenUnits;
 		if (whole > 1) {
 			this.beginning.add(1, this.currentUnit);
-			// console.log(`FRAMESHIFT +1`);
-			this.offset = sum - this.distanceBetweenUnits;
+			this._offset -= this.distanceBetweenUnits;
 		}
 
 		if (whole < 0) {
 			this.beginning.add(-1, this.currentUnit);
-			// console.log(`FRAMESHIFT -1`);
-			this.offset = sum + this.distanceBetweenUnits;
+			this._offset += this.distanceBetweenUnits;
 		}
 
-		// this.pos = sum % this.distanceBetweenUnits;
+		if ($event.isFinal) {
+			this._offset = this.totalOffset;
+			this._deltaOffset = 0;
+		}
 	}
 
 	ngOnInit() {}
