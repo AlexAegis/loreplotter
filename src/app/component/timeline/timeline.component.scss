@@ -22,12 +22,12 @@
 			width: 100%;
 			height: 100%;
 			.divisor {
-				display: inline-block;
-				position: relative;
+				display: inline-table;
+				position: absolute;
 				width: 2px;
 				box-shadow: 0 0 3px #0000008a;
 				margin: 0;
-				height: 100%;
+				height: 20%;
 				background-color: rgba(0, 0, 0, 0.37);
 				align-self: center;
 

@@ -1,3 +1,4 @@
+import { LoreService } from './../../service/lore.service';
 import { Moment } from 'moment';
 import * as moment from 'moment';
 import { Component, OnInit, HostListener, HostBinding, Input, Output, EventEmitter } from '@angular/core';
@@ -16,16 +17,18 @@ export class CursorComponent implements OnInit {
 
 	@Input('containerWidth')
 	public set containerWidth(width: number) {
-		const prevWidth = this._containerWidth;
+		const prevWidth = this._containerWidth || width;
 		this._containerWidth = width;
 		this.position = normalize(this._position, 0, prevWidth, 0, this._containerWidth);
+		this.contextChange();
 	}
 
-	private _timeFrame: moment.unitOfTime.DurationConstructor;
+	private _frame: Moment;
 
-	@Input('timeFrame')
-	public set timeFrame(timeFrame: moment.unitOfTime.DurationConstructor) {
-		this._timeFrame = timeFrame;
+	@Input('frame')
+	public set frame(frame: Moment) {
+		this._frame = frame;
+		this.contextChange();
 	}
 
 	private _timeBeginning: Moment;
@@ -33,18 +36,23 @@ export class CursorComponent implements OnInit {
 	@Input('timeBeginning')
 	public set timeBeginning(timeBeginning: Moment) {
 		this._timeBeginning = timeBeginning;
-		this.changed();
+		this.contextChange();
 	}
 
-	@Output()
-	public timeChange = new EventEmitter<Moment>();
+	private _offset: number;
 
-	private set position(position: number) {
+	@Input('offset')
+	public set offset(offset: number) {
+		this._offset = offset;
+		this.contextChange();
+	}
+
+	public set position(position: number) {
 		this._position = position;
-		this.changed();
+		// this.changed();
 	}
 
-	private get position(): number {
+	public get position(): number {
 		return this._position || 0;
 	}
 
@@ -57,13 +65,37 @@ export class CursorComponent implements OnInit {
 		return this._deltaPosition || 0;
 	}
 
-	constructor() {}
+	constructor(private loreService: LoreService) {}
 
 	ngOnInit() {}
 
-	changed() {
-		//console.log(`position changed: ${this.totalPosition}`);
-		// this.timeChange.emit();
+	/**
+	 * This function calculates the date the cursor is pointing at
+	 */
+	changed(): void {
+		if (this._timeBeginning && this._frame) {
+			const momentFromUnix = moment.unix(
+				normalize(this.totalPosition, 0, this._containerWidth, this._timeBeginning.unix(), this._frame.unix())
+			);
+			this.loreService.cursor$.next(momentFromUnix);
+		}
+	}
+
+	/**
+	 * This function updates the cursor's position based on the environment
+	 */
+	contextChange(): void {
+		if (this._timeBeginning && this._frame) {
+			// console.log(`_timeBeginning : ${this._timeBeginning.format('YYYY-MM-DD HH:mm')}`);
+			// console.log(`_frame : ${this._frame.format('YYYY-MM-DD HH:mm')}`);
+			this.position = normalize(
+				this.loreService.cursor$.value.unix(),
+				this._timeBeginning.unix(),
+				this._frame.unix(),
+				0,
+				this._containerWidth
+			);
+		}
 	}
 
 	@HostListener('pan', ['$event'])
@@ -75,7 +107,7 @@ export class CursorComponent implements OnInit {
 			if (!this._position) {
 				this._position = 0;
 			}
-			this._position += this.deltaPosition; // To avoid double call of this.changed();
+			this._position += this.deltaPosition;
 			this.deltaPosition = 0;
 		}
 	}
@@ -85,6 +117,6 @@ export class CursorComponent implements OnInit {
 	}
 
 	get totalPosition(): number {
-		return this.deltaPosition + this.position;
+		return this.deltaPosition + this.position + this._offset;
 	}
 }

@@ -4,17 +4,23 @@
 		id="cursor"
 		(click)="logActors()"
 		[containerWidth]="width"
-		[timeFrame]="currentUnit"
+		[frame]="frame"
 		[timeBeginning]="beginning"
+		[offset]="totalOffset"
+		(time)="(cursorTime)"
 	></app-cursor>
-	<div #divisorContainer class="divisorContainer" (pan)="shift($event)">
-		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }">
-			{{ c }}
-		</div>
+	<div #divisorContainer class="divisorContainer" (pan)="shift($event)" (tap)="tap($event)">
+		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }"></div>
 	</div>
 </div>
 <div class="channel">channel (actors representation) resizebserver width {{ width }}</div>
-<div class="channel">cursor: {{ cursor.totalPosition }}</div>
+<div class="channel">
+	beginningtime: {{ beginning }} frameTime:
+	{{ frame | amLocal | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+
+	cursor: {{ cursor.totalPosition }} date of cursor:
+	{{ loreService.cursor$ | async | amLocal | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+</div>
 <div class="channel">frame: {{ frame | json }} unit: {{ currentUnit }}</div>
 
 <button (click)="logActors()">LogActors</button>

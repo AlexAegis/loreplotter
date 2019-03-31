@@ -16,6 +16,8 @@ import * as THREE from 'three';
 import { DatabaseService } from 'src/app/database/database.service';
 import { switchMap, tap, take } from 'rxjs/operators';
 import { Actor } from 'src/app/model/actor.class';
+import { LoreService } from 'src/app/service/lore.service';
+import * as TWEEN from '@tweenjs/tween.js';
 
 @Component({
 	selector: 'app-timeline',
@@ -36,10 +38,19 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.unit > 0 ? this.units[this.unit - 1].frame : 12;
 	}
 
-	constructor(public el: ElementRef, public db: DatabaseService, private cd: ChangeDetectorRef) {
-		this.frame = moment(0);
-		this.frame.set('months', 1);
-		this.beginning = moment(0);
+	constructor(
+		public el: ElementRef,
+		public db: DatabaseService,
+		private cd: ChangeDetectorRef,
+		public loreService: LoreService
+	) {
+		this.beginning = loreService.cursor$.value.clone();
+		console.log(`beg unix before add: ${this.beginning.unix()}`);
+		this.frame = this.beginning.clone();
+		this.frame = this.frame.add(1, 'months');
+		console.log(`beg unix after add: ${this.beginning.unix()}`);
+		console.log(`frame: ${this.frame.unix()}`);
+
 		this.calcUnitsBetween();
 
 		this.countRef = db.loreCount$();
@@ -47,6 +58,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 	beginning: Moment;
 	frame: Moment;
+	cursorTime: Moment;
 	unitsBetween: number;
 	distanceBetweenUnits: number;
 	width: number;
@@ -86,6 +98,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			});
 		});
 		resize$.observe(this.divisorContainer.nativeElement);
+		this.width = this.divisorContainer.nativeElement.offsetWidth;
+		console.log(this.width);
 	}
 
 	/**
@@ -126,24 +140,29 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	calcUnitsBetween(): void {
 		this.unitsBetween = this.frame.diff(this.beginning, this.currentUnit);
-		console.log(this.width);
+		console.log(this.unitsBetween);
 		this.distanceBetweenUnits = this.width / this.unitsBetween;
 	}
 
+	/**
+	 * distance from the left for the `i`th bar
+	 */
 	dist(i: number) {
-		return `${(i === 0 ? 0 : 0) + this.totalOffset + this.distanceBetweenUnits * i - i * 2}px`;
+		return `${Math.round(this.totalOffset + this.distanceBetweenUnits * i)}px`;
 	}
 
 	shift($event: any) {
 		this._deltaOffset = $event.deltaX;
 		const whole = this.totalOffset / this.distanceBetweenUnits;
 		if (whole > 1) {
-			this.beginning.add(1, this.currentUnit);
+			this.beginning = this.beginning.add(-1, this.currentUnit);
+			this.frame = this.frame.add(-1, this.currentUnit);
 			this._offset -= this.distanceBetweenUnits;
 		}
 
 		if (whole < 0) {
-			this.beginning.add(-1, this.currentUnit);
+			this.beginning = this.beginning.add(1, this.currentUnit);
+			this.frame = this.frame.add(1, this.currentUnit);
 			this._offset += this.distanceBetweenUnits;
 		}
 
@@ -151,6 +170,19 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			this._offset = this.totalOffset;
 			this._deltaOffset = 0;
 		}
+	}
+
+	/**
+	 * On click, jump with the cursor
+	 */
+	tap($event: any) {
+		new TWEEN.Tween(this.cursor)
+			.to({ position: $event.center.x - this.totalOffset }, 220)
+			.easing(TWEEN.Easing.Exponential.Out)
+			.onUpdate(a => {
+				this.cursor.changed();
+			})
+			.start(Date.now());
 	}
 
 	ngOnInit() {}
