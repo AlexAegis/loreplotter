@@ -60,7 +60,7 @@ The software is built with the Angular framework and many other JavaScript modul
 
 > **Animation** easing
 
-### [Akita](https://github.com/datorama/akita)
+### (Not used) [Akita](https://github.com/datorama/akita)
 
 > **State** management
 

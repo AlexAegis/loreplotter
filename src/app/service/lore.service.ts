@@ -40,9 +40,11 @@ export class LoreService {
 						group.add(new Point(actor.id));
 						engineService.globe.add(group);
 					}
-					group.lookAt(enclosure.last.v.position.applyEuler(invert(engineService.globe.rotation)));
+					group.lookAt(enclosure.last.v.position);
+					group.applyQuaternion(engineService.globe.quaternion);
 					const fromQ = group.quaternion.clone();
-					group.lookAt(enclosure.first.v.position.applyEuler(invert(engineService.globe.rotation)));
+					group.lookAt(enclosure.first.v.position);
+					group.applyQuaternion(engineService.globe.quaternion);
 					const toQ = group.quaternion.clone();
 					Quaternion.slerp(fromQ, toQ, group.quaternion, t);
 				}

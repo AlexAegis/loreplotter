@@ -11,8 +11,6 @@ import { AppComponent } from './app.component';
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import * as Hammer from 'hammerjs';
 import { PopupComponent } from './component/popup/popup.component';
-import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
-
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
@@ -56,7 +54,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 		NgScrollbarModule,
 		SmoothScrollModule,
 		AgGridModule,
-		AkitaNgDevtools.forRoot(),
 		MomentModule,
 		AvatarModule,
 		RoutingModule,
@@ -66,12 +63,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
 	],
 	providers: [
-		/*{
-			provide: APP_INITIALIZER,
-			useFactory: () => DatabaseService.init,
-			multi: true,
-
-},*/
 		{
 			provide: HAMMER_GESTURE_CONFIG,
 			useClass: MyHammerConfig
