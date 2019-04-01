@@ -81,6 +81,7 @@ import 'zone.js/dist/zone'; // Included with Angular CLI.
 import 'hammerjs/hammer';
 import 'babel-polyfill';
 import 'reflect-metadata';
+(window as any).global = window;
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */

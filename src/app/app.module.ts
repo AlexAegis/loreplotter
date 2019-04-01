@@ -1,3 +1,4 @@
+import { DragulaModule } from 'ng2-dragula';
 import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
 import { BrowserModule } from '@angular/platform-browser';
@@ -26,6 +27,9 @@ import { environment } from '../environments/environment';
 import { CursorComponent } from './component/cursor/cursor.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { SkyhookDndModule } from '@angular-skyhook/core';
+import { SkyhookMultiBackendModule, createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
+
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -60,6 +64,9 @@ export class MyHammerConfig extends HammerGestureConfig {
 		ReactiveFormsModule,
 		MaterialModule,
 		DragDropModule,
+		DragulaModule.forRoot(),
+		SkyhookMultiBackendModule,
+		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
 		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
 	],
 	providers: [

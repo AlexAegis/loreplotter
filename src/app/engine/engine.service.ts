@@ -47,9 +47,27 @@ export class EngineService {
 		this.stage.add(this.globe);
 	}
 
-	click(coord: Vector3, shift: boolean) {
-		console.log('clicsk');
+	spawnActor(coord: Vector3): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
+		this.raycaster
+			.intersectObject(this.globe, true)
+			.filter(intersection => intersection.object.name === 'globe' || intersection.object.name === 'point') // Ignoring arcs
+			.splice(0, 1)
+			.forEach(intersection => {
+				if (intersection.object.name === 'globe') {
+					intersection.object.dispatchEvent({
+						type: 'create',
+						point: intersection.point
+					});
+				} else if (intersection.object.name === 'point') {
+					intersection.object.dispatchEvent({ type: 'select' });
+				}
+			});
+	}
+
+	click(coord: Vector3, shift: boolean) {
+		console.log('click');
+		/*this.raycaster.setFromCamera(coord, this.stage.camera);
 
 		this.raycaster
 			.intersectObject(this.globe, true)
@@ -72,7 +90,7 @@ export class EngineService {
 				} else if (intersection.object.name === 'point') {
 					intersection.object.dispatchEvent({ type: 'select' });
 				}
-			});
+			});*/
 	}
 
 	putCurve(from: Vector3, to: Vector3): void {

@@ -14,14 +14,9 @@
 		</div>
 		<h2>Objects</h2>
 		<div class="spawnables">
-			<button mat-raised-button cdkDragHandle>
-				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
+			<button mat-raised-button [dragSource]="actorSource" [dragPreview]="maleIcon">
+				<fa-icon #famale [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
-			<button mat-raised-button><fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor</button>
-			<button mat-raised-button><fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor</button>
-			<button mat-raised-button><fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor</button>
-			<button mat-raised-button><fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor</button>
-			<button mat-raised-button><fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor</button>
 		</div>
 	</mat-sidenav>
 	<mat-sidenav-content> <ng-content id="content"> </ng-content> </mat-sidenav-content>

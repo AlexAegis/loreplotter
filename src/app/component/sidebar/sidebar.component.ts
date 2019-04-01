@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, ViewEncapsulation } from '@angular/core';
-
+import { Component, OnInit, Input, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { SkyhookDndService } from '@angular-skyhook/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { flatMap, filter } from 'rxjs/operators';
@@ -8,7 +8,7 @@ import { flatMap, filter } from 'rxjs/operators';
 	templateUrl: './sidebar.component.html',
 	styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
 	over = 'side';
 	expandHeight = '42px';
 	collapseHeight = '42px';
@@ -20,7 +20,16 @@ export class SidebarComponent implements OnInit {
 
 	opened = false;
 
-	constructor(private media: MediaObserver) {
+	actorSource = this.dnd.dragSource('Actor', {
+		beginDrag: () => ({})
+	});
+
+	constructor(private media: MediaObserver, private dnd: SkyhookDndService) {
+		this.actorSource
+			.listen(a => a)
+			.subscribe(a => {
+				console.log(`dragging ${a.isDragging()}`);
+			});
 		this.media
 			.asObservable()
 			.pipe(filter(a => a && a.length > 0))
@@ -45,6 +54,10 @@ export class SidebarComponent implements OnInit {
 			this.opened = change.mqAlias === 'xl';
 			this.over = change.mqAlias === 'xl' ? 'side' : 'over';
 		});*/
+	}
+
+	ngOnDestroy() {
+		this.actorSource.unsubscribe();
 	}
 
 	onCloseStart(): void {

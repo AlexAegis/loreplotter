@@ -8,6 +8,7 @@ import { normalize } from './helper/normalize.function';
 import { Point } from './object/point.class';
 import { denormalize } from './helper/denormalize.function';
 import { LoreService } from '../service/lore.service';
+import { SkyhookDndService } from '@angular-skyhook/core';
 @Component({
 	selector: 'app-engine',
 	templateUrl: './engine.component.html',
@@ -20,7 +21,18 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	@ViewChild('indicator')
 	indicator: PopupComponent;
 
-	constructor(public engine: EngineService, public db: DatabaseService, public loreService: LoreService) {}
+	drop = this.dnd.dropTarget('Actor', {
+		drop: monitor => {
+			this.engine.spawnActor(normalize(monitor.getClientOffset().x, monitor.getClientOffset().y));
+		}
+	});
+
+	constructor(
+		public engine: EngineService,
+		public db: DatabaseService,
+		public loreService: LoreService,
+		private dnd: SkyhookDndService
+	) {}
 
 	ngAfterViewInit(): void {
 		this.engine.createScene(this.canvas.nativeElement);

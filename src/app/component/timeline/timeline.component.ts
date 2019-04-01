@@ -94,7 +94,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		const resize$ = new ResizeObserver(e => {
 			e.forEach(change => {
 				this.width = change.contentRect.width;
-				console.log(this.width);
 				this.calcUnitsBetween();
 			});
 		});
@@ -141,7 +140,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	calcUnitsBetween(): void {
 		this.unitsBetween = this.frame.diff(this.beginning, this.currentUnit);
-		console.log(this.unitsBetween);
 		this.distanceBetweenUnits = this.width / this.unitsBetween;
 	}
 
