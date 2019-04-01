@@ -21,6 +21,17 @@
 		height: 100vh;
 		margin-top: 4rem;
 		background-image: linear-gradient(to left, rgba(0, 0, 0, 0.103), rgba(0, 0, 0, 0));
+
+		h2 {
+			margin-left: 5px;
+		}
+
+		.spawnables {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			grid-gap: 1rem;
+			margin: 1rem;
+		}
 	}
 
 	mat-sidenav-container {

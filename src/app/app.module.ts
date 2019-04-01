@@ -11,9 +11,6 @@ import { AppComponent } from './app.component';
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import * as Hammer from 'hammerjs';
 import { PopupComponent } from './component/popup/popup.component';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { far } from '@fortawesome/free-regular-svg-icons';
 
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { SmoothScrollModule } from 'ngx-scrollbar';
@@ -26,8 +23,9 @@ import { MaterialModule } from './module/material.module';
 import { ListComponent } from './component/list/list.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
-import { DatabaseService } from './database/database.service';
 import { CursorComponent } from './component/cursor/cursor.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: { direction: Hammer.DIRECTION_ALL },
@@ -58,8 +56,10 @@ export class MyHammerConfig extends HammerGestureConfig {
 		AvatarModule,
 		RoutingModule,
 		FormsModule,
+		FontAwesomeModule,
 		ReactiveFormsModule,
 		MaterialModule,
+		DragDropModule,
 		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
 	],
 	providers: [
@@ -70,8 +70,4 @@ export class MyHammerConfig extends HammerGestureConfig {
 	],
 	bootstrap: [AppComponent]
 })
-export class AppModule {
-	constructor() {
-		library.add(fas, far);
-	}
-}
+export class AppModule {}

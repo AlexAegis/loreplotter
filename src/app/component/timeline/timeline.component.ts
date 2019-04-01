@@ -7,7 +7,8 @@ import {
 	ElementRef,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
-	ViewChild
+	ViewChild,
+	HostBinding
 } from '@angular/core';
 import * as moment from 'moment';
 import { Moment } from 'moment';
@@ -177,7 +178,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 */
 	tap($event: any) {
 		new TWEEN.Tween(this.cursor)
-			.to({ position: $event.center.x - this.totalOffset }, 220)
+			.to({ position: $event.center.x - this.totalOffset - this.el.nativeElement.offsetLeft }, 220)
 			.easing(TWEEN.Easing.Exponential.Out)
 			.onUpdate(a => {
 				this.cursor.changed();
@@ -186,6 +187,10 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	ngOnInit() {}
+
+	@HostBinding('style.width') get widthCalc(): string {
+		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
+	}
 
 	normalize(value: number) {
 		return value / Math.abs(value);
