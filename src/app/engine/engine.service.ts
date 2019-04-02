@@ -12,6 +12,7 @@ import { denormalize } from './helper/denormalize.function';
 import { Point } from './object/point.class';
 import { PopupComponent } from '../component/popup/popup.component';
 import { Interactive } from './interfaces/interactive.interface';
+import { Vector2 } from 'three';
 
 @Injectable({
 	providedIn: 'root'
@@ -47,7 +48,7 @@ export class EngineService {
 		this.stage.add(this.globe);
 	}
 
-	spawnActor(coord: Vector3): void {
+	spawnActor(coord: Vector2): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
@@ -65,7 +66,13 @@ export class EngineService {
 			});
 	}
 
-	click(coord: Vector3, shift: boolean) {
+	public intersection(normalizedPosition: Vector2): Vector3 {
+		this.raycaster.setFromCamera(normalizedPosition, this.stage.camera);
+		const intersection = this.raycaster.intersectObject(this.globe, true).filter(i => i.object.name === 'globe')[0];
+		return intersection && intersection.point;
+	}
+
+	click(coord: Vector2, shift: boolean) {
 		console.log('click');
 		/*this.raycaster.setFromCamera(coord, this.stage.camera);
 
@@ -97,7 +104,7 @@ export class EngineService {
 		this.globe.putCurve(from, to);
 	}
 
-	hover(coord: Vector3) {
+	hover(coord: Vector2) {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)

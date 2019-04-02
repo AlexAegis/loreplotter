@@ -1,8 +1,11 @@
+import { DatabaseService } from 'src/app/database/database.service';
+import { LoreService } from 'src/app/service/lore.service';
 import { Component, OnInit, Input, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { flatMap, filter } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',
@@ -21,10 +24,23 @@ export class SidebarComponent implements OnInit, OnDestroy {
 	opened = false;
 
 	actorSource = this.dnd.dragSource('Actor', {
-		beginDrag: () => ({})
+		beginDrag: () => {
+			this.opened = this.mediaQueryAlias === 'xl';
+			return {};
+		}
 	});
 
-	constructor(private media: MediaObserver, private dnd: SkyhookDndService) {
+	actorCount$ = this.db.actorCount$();
+	actors$ = this.db.actors$();
+
+	mediaQueryAlias: string;
+
+	constructor(
+		private media: MediaObserver,
+		private dnd: SkyhookDndService,
+		public lore: LoreService,
+		public db: DatabaseService
+	) {
 		this.actorSource
 			.listen(a => a)
 			.subscribe(a => {
@@ -34,6 +50,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
 			.asObservable()
 			.pipe(filter(a => a && a.length > 0))
 			.subscribe((changes: MediaChange[]) => {
+				console.log('change');
+				this.mediaQueryAlias = changes[0].mqAlias;
 				this.opened = changes[0].mqAlias === 'xl';
 				this.over = changes[0].mqAlias === 'xl' ? 'side' : 'over';
 			});

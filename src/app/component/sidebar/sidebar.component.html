@@ -18,6 +18,12 @@
 				<fa-icon #famale [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
 		</div>
+		<h2>Actors {{ actorCount$ | async }}</h2>
+		<div class="spawnables">
+			<button mat-raised-button *ngFor="let actor of (actors$ | async)">
+				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> {{ actor.id }} ({{ actor.states.length }})
+			</button>
+		</div>
 	</mat-sidenav>
 	<mat-sidenav-content> <ng-content id="content"> </ng-content> </mat-sidenav-content>
 </mat-sidenav-container>

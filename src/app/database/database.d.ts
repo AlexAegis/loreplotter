@@ -10,7 +10,7 @@ export interface LoreCollectionMethods {
 }
 
 export interface LoreDocumentMethods {
-	[actorCount: string]: (this: Lore, name: string) => number;
+	[methodName: string]: (this: Lore) => any;
 }
 
 export interface DatabaseCollections {

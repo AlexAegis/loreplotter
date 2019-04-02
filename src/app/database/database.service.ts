@@ -3,7 +3,7 @@ import { Actor } from './../model/actor.class';
 import { Injectable } from '@angular/core';
 
 import RxDB, { RxDatabase, RxCollection, RxJsonSchema, RxDocument } from 'rxdb';
-import { Observable, from, BehaviorSubject, merge, zip, of } from 'rxjs';
+import { Observable, from, BehaviorSubject, merge, zip, of, combineLatest } from 'rxjs';
 import { map, tap, mergeMap, switchMap, filter } from 'rxjs/operators';
 import * as idb from 'pouchdb-adapter-idb';
 import { Database, LoreCollectionMethods, LoreDocumentMethods, LoreCollection, DatabaseCollections } from './database';
@@ -33,8 +33,9 @@ export class DatabaseService {
 						db.collection<LoreCollection>({
 							name: 'lore',
 							schema: loreSchema,
-							methods: this.loreCollectionMethods,
-							statics: this.loreDocumentMethods
+							statics: this.loreCollectionMethods,
+
+							methods: this.loreDocumentMethods
 						})
 					).pipe(map(coll => db))
 				),
@@ -83,13 +84,17 @@ export class DatabaseService {
 	public get connection() {
 		return this.db.pipe(filter(next => next !== undefined));
 	}
+	public currentDocument = new BehaviorSubject<string>('TestProject');
 
 	private db: BehaviorSubject<Database> = new BehaviorSubject(undefined);
 
 	private loreDocumentMethods: LoreDocumentMethods = {
-		actorCount: function(what: string) {
+		actorCount: function() {
 			// console.log(`actors length: ${this.actors}`);
 			return this.actors === undefined || this.actors === null ? 0 : this.actors.length;
+		},
+		nextId: function(): string {
+			return `${this.actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`;
 		}
 	};
 
@@ -98,6 +103,11 @@ export class DatabaseService {
 			return (await this.find().exec()).length;
 		}
 	};
+
+	public currentLore = combineLatest(this.currentDocument, this.connection).pipe(
+		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
+		filter(res => res !== undefined && res !== null)
+	);
 
 	private initData() {
 		const testActor1 = new Actor('1');
@@ -139,7 +149,7 @@ export class DatabaseService {
 			.pipe(
 				switchMap(conn =>
 					conn.lore.upsert({
-						name: 'TestProject',
+						name: this.currentDocument.value,
 						actors: [testActor1],
 						locations: ['City17', 'City14']
 					})
@@ -156,25 +166,22 @@ export class DatabaseService {
 		);
 	}
 
-	public actorCount$(name: string): Observable<number> {
-		return this.connection.pipe(
-			switchMap(conn => conn.lore.findOne({ name: name }).$),
-			filter(res => res !== undefined && res !== null),
-			map(res => res.actors.length)
-		);
+	public actorCount$(): Observable<number> {
+		return this.currentLore.pipe(map(res => res.actors.length));
 	}
 
-	public actors$(name: string): Observable<Array<Actor>> {
-		return this.connection.pipe(
-			switchMap(conn => conn.lore.findOne({ name: name }).$),
-			filter(res => res !== undefined && res !== null),
-			map(lore =>
-				lore.actors.map(actor => {
-					actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
-					actor.statesString = undefined;
+	public actors$(): Observable<Array<Actor>> {
+		return this.currentLore.pipe(
+			map(lore => {
+				console.log('shite');
+				return lore.actors.map(actor => {
+					if (actor.statesString) {
+						actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
+						actor.statesString = undefined;
+					}
 					return actor;
-				})
-			)
+				});
+			})
 		);
 	}
 }

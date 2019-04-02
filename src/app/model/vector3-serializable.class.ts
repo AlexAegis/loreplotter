@@ -10,4 +10,8 @@ export class Vector3Serializable extends Vector3 {
 	public y: number;
 	@jsonMember
 	public z: number;
+
+	static copy(other: Vector3): Vector3Serializable {
+		return new Vector3Serializable(other.x, other.y, other.z);
+	}
 }

@@ -55,7 +55,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.calcUnitsBetween();
 
 		this.countRef = db.loreCount$();
-		this.actors$ = db.actors$('TestProject');
+		this.actors$ = db.actors$();
 	}
 	beginning: Moment;
 	frame: Moment;
