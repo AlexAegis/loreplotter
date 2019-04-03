@@ -1,3 +1,4 @@
+import { AppModule } from 'src/app/app.module';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CursorComponent } from './cursor.component';
@@ -8,7 +9,7 @@ describe('CursorComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [CursorComponent]
+			imports: [AppModule]
 		}).compileComponents();
 	}));
 

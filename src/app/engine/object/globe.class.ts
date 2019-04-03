@@ -20,7 +20,10 @@ import { Group } from 'three';
 export class Globe extends Basic {
 	private rotationEase: TWEEN.Tween;
 
-	private target = new BehaviorSubject<Vector3>(Axis.x);
+	public target = new BehaviorSubject<Vector3>(Axis.x);
+	public type = 'Globe';
+
+	private selected: Vector3; // De-rotated positon of selection
 
 	/**+
 	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
@@ -54,110 +57,11 @@ export class Globe extends Basic {
 		this.name = 'globe';
 		this.geometry.computeBoundingSphere();
 		this.addEventListener('click', (event: ClickEvent) => {
-			// console.log('SENDIn STUFF1');
-			if (this.stage.engineService.selected) {
-				(<Interactive>this.stage.engineService.selected).deselect();
-				this.stage.engineService.selected = undefined;
-			}
-			this.changed();
-			event.point.applyEuler(invert(this.rotation));
-			// console.log('SENDIn STUFF');
-			this.target.next(event.point);
+			this.stage.engineService.selected.next(undefined);
 		});
-
-		this.addEventListener('create', (event: ClickEvent) => {
-			// this.put(new Point(), new Spherical().setFromVector3(event.point.applyEuler(invert(this.rotation))));
-			event.point.applyEuler(invert(this.rotation));
-
-			this.putAlt(new Point('16'), event.point);
+		this.addEventListener('hover', (event: ClickEvent) => {
+			this.stage.engineService.hovered.next(undefined);
 		});
-		// playground
-		const point = new Point('15');
-		const group = new Group();
-
-		point.position.set(0, 0, 1);
-
-		group.add(point);
-		this.add(group);
-		// this.put(point, sph);
-		/*
-		const waypoints = [
-			new Vector3(-0.3757916966063185, -0.281843772454739, 0.8827749608149299),
-			new Vector3(0.09669254683261017, -0.497612862967823, 0.8617354361375862),
-			new Vector3(0.39117893980613805, 0.386437376899397, 0.8346608718892985),
-			new Vector3(-0.605726277152065, 0.5558722625716483, 0.5690292996108239)
-		];
-
-		this.putCurve(waypoints[0], waypoints[1]);
-
-		const wp1 = new Point('14');
-		wp1.position.set(waypoints[0].x, waypoints[0].y, waypoints[0].z);
-		const wp2 = new Point('13');
-		wp2.position.set(waypoints[1].x, waypoints[1].y, waypoints[1].z);
-		wp1.lookAt(this.position);
-		wp2.lookAt(this.position);
-		this.add(wp1);
-		this.add(wp2);
-
-		this.putCurve(waypoints[2], waypoints[3]);
-
-		const wp3 = new Point('12');
-		wp3.position.set(waypoints[2].x, waypoints[2].y, waypoints[2].z);
-		const wp4 = new Point('11');
-		wp4.position.set(waypoints[3].x, waypoints[3].y, waypoints[3].z);
-		wp3.lookAt(this.position);
-		wp4.lookAt(this.position);
-		this.add(wp3);
-		this.add(wp4);
-		// Curve's length is set by the Math.PI * 2 arg
-		const curve = new ArcCurve(0, 0, 1.05, 0, Math.PI, true);
-		const points = curve.getPoints(360);
-		const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
-		// Create the final object to add to the scene
-		const ellipse = new THREE.Line(geometry, material);
-		ellipse.name = 'ellipse';
-		const moon = new Point('10');
-		moon.name = 'moon';
-		moon.position.set(0.6, 1, -0.8);
-		this.add(moon);
-		this.add(ellipse);
-*/
-		// this.put(geometry, sph);
-		this.target.pipe(pairwise()).subscribe(([prev, next]) => {
-			// console.log('GOT STUFF');
-			const grp = new Group();
-			grp.lookAt(prev);
-			const fromQ = grp.quaternion.clone();
-			grp.lookAt(next);
-			const toQ = grp.quaternion.clone();
-
-			new TWEEN.Tween({ v: 0 })
-				.to({ v: 1 }, 500)
-				.easing(TWEEN.Easing.Exponential.InOut)
-				.onUpdate((s: { v: number }) => {
-					Quaternion.slerp(fromQ, toQ, group.quaternion, s.v);
-					/*
-					ellipse.lookAt(point.getWorldPosition(new Vector3()));
-					ellipse.rotateOnAxis(Axis.y, THREE.Math.DEG2RAD * 90);
-					moon.lookAt(point.getWorldPosition(new Vector3()));
-					// 	moon.lookAt(group.getWorldPosition(Axis.center));
-					moon.changed();
-*/
-					// 	console.log('ASd');
-
-					// Quaternion.slerp(fromQ, toQ, moon.quaternion, s.v);
-
-					// ellipse.setRotationFromAxisAngle(Axis.y, s.theta);
-					// point.position.setFromSpherical(s);
-					// point.lookAt(0, 0, 0);
-					this.changed();
-				})
-				.start(Date.now());
-		});
-
-		// waypoints.forEach(w => this.target.next(w));
 	}
 
 	/**

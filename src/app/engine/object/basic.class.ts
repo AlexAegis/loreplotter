@@ -1,6 +1,6 @@
 import { ClickEvent } from '../event/click-event.type';
 import { Point } from './point.class';
-import { Shader, Vector3, Quaternion, Euler, Spherical, Object3D } from 'three';
+import { Shader, Vector3, Quaternion, Euler, Spherical, Object3D, Vector2 } from 'three';
 import { globeShader } from '../shader/globe.shader';
 
 import * as TWEEN from '@tweenjs/tween.js';
@@ -16,7 +16,7 @@ import { Stage } from './stage.class';
 
 export class Basic extends THREE.Mesh {
 	@Output()
-	positionChange = new EventEmitter<Vector3>();
+	positionChange = new EventEmitter<Vector2>();
 
 	constructor(geometry?: THREE.Geometry, material?: THREE.Material) {
 		super(geometry, material);
@@ -34,7 +34,7 @@ export class Basic extends THREE.Mesh {
 		const stage = this.stage;
 		if (stage) {
 			const camera: THREE.Camera = <THREE.Camera>stage.getObjectByName('camera');
-			const point: Point = <Point>stage.engineService.selected;
+			const point: Point = stage.engineService.selected.value;
 			if (point) {
 				this.positionChange.emit(denormalize(point.getWorldPosition(new Vector3()).project(camera)));
 			}

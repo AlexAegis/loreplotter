@@ -1,3 +1,4 @@
+import { AppModule } from './../../app.module';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ListComponent } from './list.component';
@@ -8,7 +9,7 @@ describe('ListComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ListComponent]
+			imports: [AppModule]
 		}).compileComponents();
 	}));
 

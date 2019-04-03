@@ -4,10 +4,7 @@
 	(mousewheel)="wheel($event)"
 	(tap)="click($event)"
 	(mousemove)="hover($event)"
-	(click)="hello()"
 	[dropTarget]="drop"
 ></canvas>
 
-<app-popup #indicator [pos]="engine?.globe?.positionChange | async" [hidden]="!engine?.selected"
-	>{{ indicator.pos | json }}
-</app-popup>
+<app-popup #indicator [pos]="engine?.globe?.target | async">asd </app-popup>

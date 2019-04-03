@@ -73,9 +73,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	public hover($event: any) {
 		this.engine.hover(normalize($event.clientX, $event.clientY));
 	}
-	ngOnDestroy(): void {}
 
-	hello() {
-		console.log('asd');
-	}
+	ngOnDestroy(): void {}
 }

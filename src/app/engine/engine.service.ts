@@ -1,17 +1,14 @@
 import { Stage } from './object/stage.class';
-import { globeShader } from './shader/globe.shader';
 import { Injectable } from '@angular/core';
-import { Vector3, Euler, Quaternion } from 'three';
-import { Subject } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
+import { Vector3 } from 'three';
+import { BehaviorSubject, of, EMPTY, merge, NEVER } from 'rxjs';
+import { switchMap, tap, share, finalize, distinctUntilChanged } from 'rxjs/operators';
 
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
 import { Globe } from './object/globe.class';
-import { denormalize } from './helper/denormalize.function';
 import { Point } from './object/point.class';
 import { PopupComponent } from '../component/popup/popup.component';
-import { Interactive } from './interfaces/interactive.interface';
 import { Vector2 } from 'three';
 
 @Injectable({
@@ -28,9 +25,33 @@ export class EngineService {
 
 	public center = new Vector3(0, 0, 0);
 
-	public selected: Point;
+	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
 
-	constructor() {}
+	public selection$ = this.selected.pipe(
+		distinctUntilChanged(),
+		switchMap(item => (!item ? EMPTY : merge(of(item), NEVER).pipe(finalize(() => item.deselect())))),
+		tap(item => item.select()),
+		tap(() => this.globe.changed()),
+		share()
+	);
+
+	public hovered: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
+
+	public hover$ = this.hovered.pipe(
+		distinctUntilChanged(),
+		switchMap(item => (!item ? EMPTY : merge(of(item), NEVER).pipe(finalize(() => item.unhover())))),
+		tap(item => item.hover()),
+		tap(() => this.globe.changed()),
+		share()
+	);
+
+	// public testDot = new BehaviorSubject<Vector3>(undefined);
+	// public testDot$ = this.testDot.pipe(filter(a => a !== undefined));
+	constructor() {
+		console.log('subsciptions were made');
+		this.selection$.pipe(tap(s => console.log(`now selecting ${s}`))).subscribe();
+		this.hover$.pipe(tap(s => console.log(`now hovering ${s}`))).subscribe();
+	}
 
 	createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
@@ -46,21 +67,31 @@ export class EngineService {
 
 		this.globe = new Globe();
 		this.stage.add(this.globe);
+		/*
+		this.testDot.next(
+			denormalize(
+				new Vector3(-0.605726277152065, 0.5558722625716483, 0.5690292996108239).project(this.stage.camera)
+			)
+		);
+		this.testDot.subscribe(hello => console.log(hello));*/
+		this.globe.target.subscribe(tar => {
+			console.log(`Target on click:  ${JSON.stringify(tar)}`);
+		});
 	}
 
 	spawnActor(coord: Vector2): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
-			.filter(intersection => intersection.object.name === 'globe' || intersection.object.name === 'point') // Ignoring arcs
+			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
 			.splice(0, 1)
 			.forEach(intersection => {
-				if (intersection.object.name === 'globe') {
+				if (intersection.object.type === 'Globe') {
 					intersection.object.dispatchEvent({
 						type: 'create',
 						point: intersection.point
 					});
-				} else if (intersection.object.name === 'point') {
+				} else if (intersection.object.type === 'Point') {
 					intersection.object.dispatchEvent({ type: 'select' });
 				}
 			});
@@ -68,36 +99,20 @@ export class EngineService {
 
 	public intersection(normalizedPosition: Vector2): Vector3 {
 		this.raycaster.setFromCamera(normalizedPosition, this.stage.camera);
-		const intersection = this.raycaster.intersectObject(this.globe, true).filter(i => i.object.name === 'globe')[0];
+		const intersection = this.raycaster.intersectObject(this.globe, true).filter(i => i.object.type === 'Globe')[0];
 		return intersection && intersection.point;
 	}
 
 	click(coord: Vector2, shift: boolean) {
-		console.log('click');
-		/*this.raycaster.setFromCamera(coord, this.stage.camera);
-
+		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
-			.filter(intersection => intersection.object.name === 'globe' || intersection.object.name === 'point') // Ignoring arcs
-			.splice(0, 1)
+			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
+			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
-				console.log('intersect');
-				// console.log(intersection.point);
-				// console.log(intersection.object.name);
-				// console.log(intersection.object);
-				if (intersection.object.name === 'globe') {
-					if (shift) {
-						intersection.object.dispatchEvent({
-							type: 'create',
-							point: intersection.point
-						});
-					} else {
-						intersection.object.dispatchEvent({ type: 'click', point: intersection.point });
-					}
-				} else if (intersection.object.name === 'point') {
-					intersection.object.dispatchEvent({ type: 'select' });
-				}
-			});*/
+				console.log(`intersection.object: ${intersection.object.type}`);
+				intersection.object.dispatchEvent({ type: 'click', point: intersection.point, shift: shift });
+			});
 	}
 
 	putCurve(from: Vector3, to: Vector3): void {
@@ -110,10 +125,7 @@ export class EngineService {
 			.intersectObject(this.globe, true)
 			.splice(0, 1)
 			.forEach(intersection => {
-				intersection.object.children.forEach(child => child.dispatchEvent({ type: 'unhover' }));
-				if (intersection.object.type === 'Point') {
-					intersection.object.dispatchEvent({ type: 'hover' });
-				}
+				intersection.object.dispatchEvent({ type: 'hover' });
 			});
 	}
 

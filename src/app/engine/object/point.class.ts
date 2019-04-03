@@ -8,6 +8,8 @@ import { Interactive } from '../interfaces/interactive.interface';
 import { Globe } from './globe.class';
 
 export class Point extends Basic implements Interactive {
+	type = 'Point';
+
 	private defaultMaterial = new THREE.MeshBasicMaterial({
 		wireframe: false,
 		opacity: 0.8,
@@ -32,24 +34,18 @@ export class Point extends Basic implements Interactive {
 	constructor(public name: string) {
 		super(new THREE.BoxGeometry(0.1, 0.1, 0.1, 1, 1, 1), undefined);
 		this.position.set(0, 0, 1);
-		this.type = 'Point';
+
 		this.material = this.defaultMaterial;
 		this.geometry.computeBoundingBox();
 
-		this.addEventListener('select', attachment => {
-			const stage = this.stage;
-			// console.log('I have been selected!' + attachment);
-			if (stage.engineService.selected) {
-				(<Interactive>stage.engineService.selected).deselect();
-			}
-			stage.engineService.selected = this;
-			this.select();
-			(<Globe>this.parent).changed();
+		this.addEventListener('click', attachment => {
+			console.log(`point got clicked`);
+			this.stage.engineService.selected.next(this);
 		});
 
-		this.addEventListener('hover', this.hover);
-
-		this.addEventListener('unhover', this.unhover);
+		this.addEventListener('hover', attachment => {
+			this.stage.engineService.hovered.next(this);
+		});
 	}
 
 	select() {
@@ -65,7 +61,7 @@ export class Point extends Basic implements Interactive {
 	}
 
 	unhover() {
-		if (this.stage.engineService.selected === this) {
+		if (this.stage.engineService.selected.value === this) {
 			this.select();
 		} else {
 			this.deselect();
