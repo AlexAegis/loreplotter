@@ -43,7 +43,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		public el: ElementRef,
 		public db: DatabaseService,
 		private cd: ChangeDetectorRef,
-		public loreService: LoreService
+		public loreService: LoreService,
+		private changeDetectorRef: ChangeDetectorRef
 	) {
 		this.beginning = loreService.cursor$.value.clone();
 		console.log(`beg unix before add: ${this.beginning.unix()}`);
@@ -95,6 +96,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			e.forEach(change => {
 				this.width = change.contentRect.width;
 				this.calcUnitsBetween();
+				this.changeDetectorRef.detectChanges();
 			});
 		});
 		resize$.observe(this.divisorContainer.nativeElement);

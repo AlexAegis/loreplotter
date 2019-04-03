@@ -2,7 +2,7 @@ import { LoreService } from './../../service/lore.service';
 import { Moment } from 'moment';
 import * as moment from 'moment';
 import { Component, OnInit, HostListener, HostBinding, Input, Output, EventEmitter } from '@angular/core';
-import { normalize } from 'src/app/misc/normalize.function';
+import { rescale } from 'src/app/misc/rescale.function';
 
 @Component({
 	selector: 'app-cursor',
@@ -19,7 +19,7 @@ export class CursorComponent implements OnInit {
 	public set containerWidth(width: number) {
 		const prevWidth = this._containerWidth || width;
 		this._containerWidth = width;
-		this.position = normalize(this._position, 0, prevWidth, 0, this._containerWidth);
+		this.position = rescale(this._position, 0, prevWidth, 0, this._containerWidth);
 		this.contextChange();
 	}
 
@@ -75,7 +75,7 @@ export class CursorComponent implements OnInit {
 	changed(): void {
 		if (this._timeBeginning && this._frame) {
 			const momentFromUnix = moment.unix(
-				normalize(this.totalPosition, 0, this._containerWidth, this._timeBeginning.unix(), this._frame.unix())
+				rescale(this.totalPosition, 0, this._containerWidth, this._timeBeginning.unix(), this._frame.unix())
 			);
 			this.loreService.cursor$.next(momentFromUnix);
 		}
@@ -88,7 +88,7 @@ export class CursorComponent implements OnInit {
 		if (this._timeBeginning && this._frame) {
 			// console.log(`_timeBeginning : ${this._timeBeginning.format('YYYY-MM-DD HH:mm')}`);
 			// console.log(`_frame : ${this._frame.format('YYYY-MM-DD HH:mm')}`);
-			this.position = normalize(
+			this.position = rescale(
 				this.loreService.cursor$.value.unix(),
 				this._timeBeginning.unix(),
 				this._frame.unix(),

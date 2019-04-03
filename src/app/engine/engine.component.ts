@@ -12,9 +12,9 @@ import { SkyhookDndService } from '@angular-skyhook/core';
 import { Actor } from '../model/actor.class';
 import { combineLatest, from, of } from 'rxjs';
 import * as moment from 'moment';
+
 import { UnixWrapper } from '../model/unix-wrapper.class';
 import { ActorDelta } from '../model/actor-delta.class';
-import { Vector3Serializable } from '../model/vector3-serializable.class';
 import { take } from 'rxjs/operators';
 @Component({
 	selector: 'app-engine',
@@ -29,30 +29,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	indicator: PopupComponent;
 
 	drop = this.dnd.dropTarget('Actor', {
-		drop: monitor => {
-			combineLatest(this.db.currentLore, this.loreService.cursor$, of(monitor.getClientOffset()))
-				.pipe(take(1))
-				.subscribe(([lore, cursor, offset]) => {
-					// lore.nextId();
-					console.log('getClientOffset' + offset);
-					console.log(offset);
-					const dropVector = this.engine.intersection(normalize(offset.x, offset.y));
-
-					if (dropVector) {
-						dropVector.applyQuaternion(this.engine.globe.quaternion.clone().inverse());
-						const actor = new Actor(lore.nextId());
-						actor.states.set(
-							new UnixWrapper(cursor.unix()),
-							new ActorDelta(undefined, Vector3Serializable.copy(dropVector))
-						);
-						lore.atomicUpdate(l => {
-							l.actors.push(actor);
-							return l;
-						});
-					}
-				});
-			// this.engine.spawnActor(normalize(monitor.getClientOffset().x, monitor.getClientOffset().y));
-		}
+		drop: monitor => this.loreService.monitor$.next(monitor.getClientOffset())
 	});
 
 	constructor(

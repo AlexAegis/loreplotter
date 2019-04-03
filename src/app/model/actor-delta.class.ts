@@ -1,6 +1,6 @@
 import { Spherical, Vector3 } from 'three';
 import { jsonObject, jsonMember, toJson } from 'typedjson';
-import { Vector3Serializable } from './vector3-serializable.class';
+import { Vector3Serializable } from './vector3-serializable.interface';
 
 @jsonObject
 @toJson
@@ -11,7 +11,7 @@ export class ActorDelta {
 	public position: Vector3Serializable;
 	@jsonMember
 	public knowledge: string;
-	constructor(name?: string, position?: Vector3, knowledge?: string) {
+	constructor(name?: string, position?: Vector3Serializable, knowledge?: string) {
 		this.name = name;
 		this.position = position;
 		this.knowledge = knowledge;

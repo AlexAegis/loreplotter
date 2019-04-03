@@ -1,4 +1,3 @@
-import { Vector3Serializable } from './../model/vector3-serializable.class';
 import { Actor } from './../model/actor.class';
 import { Injectable } from '@angular/core';
 
@@ -113,36 +112,22 @@ export class DatabaseService {
 		const testActor1 = new Actor('1');
 		testActor1.states.set(
 			new UnixWrapper(moment('2019-01-02').unix()),
-			new ActorDelta(
-				'a',
-				new Vector3Serializable(-0.3757916966063185, -0.281843772454739, 0.8827749608149299),
-				'know1'
-			)
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
 		);
 		console.log(`size of his: ${testActor1.states.length}`);
 		testActor1.states.set(
 			new UnixWrapper(moment('2019-01-03').unix()),
-			new ActorDelta(
-				undefined,
-				new Vector3Serializable(0.09669254683261017, -0.497612862967823, 0.8617354361375862)
-			)
+			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
 		);
 		console.log(`size of his: ${testActor1.states.length}`);
 		testActor1.states.set(
 			new UnixWrapper(moment('2019-01-04').unix()),
-			new ActorDelta(
-				undefined,
-				new Vector3Serializable(0.39117893980613805, 0.386437376899397, 0.8346608718892985)
-			)
+			new ActorDelta(undefined, { x: 0.39117893980613805, y: 0.386437376899397, z: 0.8346608718892985 })
 		);
 		console.log(`size of his: ${testActor1.states.length}`);
 		testActor1.states.set(
 			new UnixWrapper(moment('2019-01-05').unix()),
-			new ActorDelta(
-				undefined,
-				new Vector3Serializable(-0.605726277152065, 0.5558722625716483, 0.5690292996108239),
-				'know2'
-			)
+			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
 		console.log(`size of his: ${testActor1.states.length}`);
 		this.connection

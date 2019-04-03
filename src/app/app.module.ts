@@ -1,4 +1,3 @@
-import { DragulaModule } from 'ng2-dragula';
 import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
 import { BrowserModule } from '@angular/platform-browser';
@@ -64,7 +63,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 		ReactiveFormsModule,
 		MaterialModule,
 		DragDropModule,
-		DragulaModule.forRoot(),
 		SkyhookMultiBackendModule,
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
 		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
