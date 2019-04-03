@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import { trigger, transition, style, animate, animateChild, state, group, query } from '@angular/animations';
 import { MediaObserver, MediaChange } from '@angular/flex-layout';
+import { filter } from 'rxjs/operators';
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
@@ -85,8 +86,11 @@ export class AppComponent implements AfterViewInit, OnInit {
 	ngAfterViewInit(): void {}
 
 	ngOnInit(): void {
-		this.media.media$.subscribe((change: MediaChange) => {
-			this.mediaLarge = change.mqAlias === 'xl';
-		});
+		this.media
+			.asObservable()
+			.pipe(filter(a => a && a.length > 0))
+			.subscribe((changes: MediaChange[]) => {
+				this.mediaLarge = changes[0].mqAlias === 'xl';
+			});
 	}
 }

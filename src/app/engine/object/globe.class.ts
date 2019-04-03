@@ -25,8 +25,6 @@ export class Globe extends Basic {
 	/**+
 	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
 	 * Later change it so it puts down some meshes rather than a line
-	 * @param from
-	 * @param to
 	 */
 	putCurve(from: Vector3, to: Vector3): AirCurve {
 		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
