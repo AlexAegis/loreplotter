@@ -90,5 +90,12 @@
 		"ts-node": "^8.0.3",
 		"tslint": "~5.15.0",
 		"typescript": "~3.2.4"
+	},
+	"greenkeeper": {
+		"ignore": [
+			"core-js",
+			"zone.js",
+			"typescript"
+		]
 	}
 }
