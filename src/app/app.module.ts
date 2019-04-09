@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { MomentModule } from 'ngx-moment';
-import { AvatarModule } from 'ngx-avatar';
 import { AgGridModule } from 'ag-grid-angular';
 
 import { AppComponent } from './app.component';
@@ -56,7 +55,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 		SmoothScrollModule,
 		AgGridModule,
 		MomentModule,
-		AvatarModule,
 		RoutingModule,
 		FormsModule,
 		FontAwesomeModule,
