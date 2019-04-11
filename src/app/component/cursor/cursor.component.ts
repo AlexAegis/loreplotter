@@ -70,13 +70,9 @@ export class CursorComponent implements OnInit {
 	}
 
 	get totalPosition(): number {
-		/*console.log(
-			`totalPosition: this.deltaPosition ${this.deltaPosition} this.position: ${this.position} this._offset: ${
-				this._offset
-			}`
-		);*/
 		return this.deltaPosition + this.position + this._offset;
 	}
+
 	private _position = 0;
 	private _deltaPosition = 0;
 
@@ -115,8 +111,6 @@ export class CursorComponent implements OnInit {
 	 */
 	contextChange(): void {
 		if (this._timeBeginning && this._frame) {
-			console.log(`_timeBeginning : ${this._timeBeginning.format('YYYY-MM-DD HH:mm')}`);
-			// console.log(`_frame : ${this._frame.format('YYYY-MM-DD HH:mm')}`);
 			this.position = rescale(
 				this.loreService.cursor$.value.unix(),
 				this._timeBeginning.unix(),
