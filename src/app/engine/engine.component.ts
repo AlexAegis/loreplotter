@@ -57,17 +57,18 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	@HostListener('document:keypress', ['$event'])
-	handleKeyboardEvent(event: KeyboardEvent) {
-		console.log('key');
-		// space
-		if (event.key === 'space') {
-			// refresh indicator, for now we're doing this
-			this.indicator.open = !this.indicator.open;
-		}
+	handleKeyboardEvent(event: KeyboardEvent) {}
+
+	public contextmenu($event: any): boolean {
+		console.log($event);
+		this.engine.context(normalize($event.clientX, $event.clientY));
+		return false;
 	}
 
 	public click($event: any) {
+		console.log($event);
 		this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
+		this.engine.globe.changed();
 	}
 
 	public hover($event: any) {

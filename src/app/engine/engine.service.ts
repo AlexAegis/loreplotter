@@ -105,6 +105,17 @@ export class EngineService {
 			});
 	}
 
+	context(coord: Vector2) {
+		this.raycaster.setFromCamera(coord, this.stage.camera);
+		this.raycaster
+			.intersectObject(this.globe, true)
+			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
+			.splice(0, 1) // only the first hit
+			.forEach(intersection => {
+				intersection.object.dispatchEvent({ type: 'context', point: intersection.point });
+			});
+	}
+
 	putCurve(from: Vector3, to: Vector3): void {
 		this.globe.putCurve(from, to);
 	}

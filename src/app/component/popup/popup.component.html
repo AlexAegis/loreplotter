@@ -1,3 +1,7 @@
-<div #indicator @open [@open]="open ? 'visible' : 'hidden'">
+<div [@visibility]="visibility">
 	<ng-content></ng-content>
+	<hr class="divider" />
+	<button mat-flat-button>Set as master</button>
+	<button mat-flat-button>Set as slave</button>
+	<button mat-flat-button>Set as gordon</button>
 </div>

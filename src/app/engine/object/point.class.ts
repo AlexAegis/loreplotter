@@ -39,7 +39,10 @@ export class Point extends Basic implements Interactive {
 		this.geometry.computeBoundingBox();
 
 		this.addEventListener('click', attachment => {
-			console.log(`point got clicked`);
+			// this.stage.engineService.selected.next(this);
+		});
+
+		this.addEventListener('context', attachment => {
 			this.stage.engineService.selected.next(this);
 		});
 

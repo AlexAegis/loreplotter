@@ -7,19 +7,15 @@ import { Vector3, Vector2 } from 'three';
 	templateUrl: './popup.component.html',
 	styleUrls: ['./popup.component.scss'],
 	animations: [
-		trigger('open', [
-			state('hidden', style({ backgroundColor: '#FFFFFA' })),
-			state('visible', style({ backgroundColor: '#FFFF13' })),
-			transition('* <=> open', [animate('0.15s ease-in')])
+		trigger('visibility', [
+			state('hidden', style({ transform: 'scale(0)', transformOrigin: '0% 20%', opacity: '0.4' })),
+			state('visible', style({ transform: 'scale(1)', transformOrigin: '0% 20%', opacity: '1' })),
+			transition('hidden => visible', [animate('0.3s cubic-bezier(.56,2.05,.11,.61)')]),
+			transition('visible => hidden', [animate('0.3s cubic-bezier(.11,1.07,0,1.01)')])
 		])
 	]
 })
 export class PopupComponent implements OnInit {
-	@Output()
-	openChange = new EventEmitter<boolean>();
-
-	_open = true;
-
 	@Input()
 	@HostBinding('style.top.px')
 	top: number;
@@ -28,14 +24,14 @@ export class PopupComponent implements OnInit {
 	@HostBinding('style.left.px')
 	left: number;
 
-	@Input()
-	@HostBinding('style.visibility')
+	// @Input()
+	// @HostBinding('style.visibility')
 	visibility = 'hidden';
 
 	@Input()
 	set pos(vector: Vector2) {
-		this.left = vector ? vector.x : 0;
-		this.top = vector ? vector.y : 0;
+		this.left = vector ? vector.x : this.left;
+		this.top = vector ? vector.y : this.top;
 		if (vector) {
 			this.visibility = 'visible';
 		} else {
@@ -47,15 +43,6 @@ export class PopupComponent implements OnInit {
 		return new Vector2(this.left, this.top);
 	}
 
-	@Input()
-	set open(open: boolean) {
-		this._open = open;
-		this.openChange.emit(this.open);
-	}
-
-	get open(): boolean {
-		return this._open;
-	}
 	constructor() {}
 
 	ngOnInit() {}

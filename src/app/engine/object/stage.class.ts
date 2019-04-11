@@ -15,11 +15,12 @@ export class Stage extends THREE.Scene {
 	minZoom = 2;
 	maxZoom = 20;
 
-	// Target of the popup
-	public popupTarget = new BehaviorSubject<Vector2>(undefined);
+	// Target of the popup TODO: Change this back to undefined after experimenting
+	public popupTarget = new BehaviorSubject<Vector2>(new Vector2(452.8560858898145, 721.5907832069611));
 
 	constructor(public engineService: EngineService) {
 		super();
+
 		this.name = 'stage';
 		this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
 		this.camera.name = 'camera';

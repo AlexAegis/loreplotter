@@ -4,7 +4,8 @@
 	(mousewheel)="wheel($event)"
 	(tap)="click($event)"
 	(mousemove)="hover($event)"
+	(contextmenu)="contextmenu($event)"
 	[dropTarget]="drop"
 ></canvas>
 
-<app-popup #indicator [pos]="engine?.stage?.popupTarget | async">asd </app-popup>
+<app-popup #indicator [pos]="engine?.stage?.popupTarget | async">Actor</app-popup>
