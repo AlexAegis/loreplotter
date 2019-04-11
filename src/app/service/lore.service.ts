@@ -25,6 +25,8 @@ export class LoreService {
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
 		combineLatest(databaseService.actors$().pipe(flatMap(actors => actors)), this.cursor$).subscribe(
 			([actor, cursor]) => {
+				engineService.selected.next(undefined);
+				engineService.globe.changed();
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor.unix())) as Enclosing<
 					Node<UnixWrapper, ActorDelta>
 				>;

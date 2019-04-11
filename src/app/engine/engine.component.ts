@@ -60,8 +60,15 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	handleKeyboardEvent(event: KeyboardEvent) {}
 
 	public contextmenu($event: any): boolean {
-		console.log($event);
-		this.engine.context(normalize($event.clientX, $event.clientY));
+		let pos;
+		if ($event.type === 'press') {
+			// Hammer press event
+			pos = $event.center;
+		} else if ($event.type === 'contextmenu') {
+			// Right click
+			pos = { x: $event.clientX, y: $event.clientY };
+		}
+		this.engine.context(normalize(pos.x, pos.y));
 		return false;
 	}
 
