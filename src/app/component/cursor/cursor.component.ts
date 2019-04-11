@@ -1,20 +1,25 @@
 import { LoreService } from './../../service/lore.service';
 import { Moment } from 'moment';
 import * as moment from 'moment';
-import { Component, OnInit, HostListener, HostBinding, Input, Output, EventEmitter } from '@angular/core';
+import {
+	Component,
+	OnInit,
+	HostListener,
+	HostBinding,
+	Input,
+	Output,
+	EventEmitter,
+	ChangeDetectionStrategy
+} from '@angular/core';
 import { rescale } from 'src/app/misc/rescale.function';
 
 @Component({
 	selector: 'app-cursor',
 	templateUrl: './cursor.component.html',
-	styleUrls: ['./cursor.component.scss']
+	styleUrls: ['./cursor.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CursorComponent implements OnInit {
-	private _position = 0;
-	private _deltaPosition = 0;
-
-	private _containerWidth: number;
-
 	@Input('containerWidth')
 	public set containerWidth(width: number) {
 		const prevWidth = this._containerWidth || width;
@@ -23,23 +28,17 @@ export class CursorComponent implements OnInit {
 		this.contextChange();
 	}
 
-	private _frame: Moment;
-
 	@Input('frame')
 	public set frame(frame: Moment) {
 		this._frame = frame;
 		this.contextChange();
 	}
 
-	private _timeBeginning: Moment;
-
 	@Input('timeBeginning')
 	public set timeBeginning(timeBeginning: Moment) {
 		this._timeBeginning = timeBeginning;
 		this.contextChange();
 	}
-
-	private _offset: number;
 
 	@Input('offset')
 	public set offset(offset: number) {
@@ -66,6 +65,30 @@ export class CursorComponent implements OnInit {
 	}
 
 	constructor(private loreService: LoreService) {}
+	@HostBinding('style.left') get positionPx(): string {
+		return `${this.totalPosition}px`;
+	}
+
+	get totalPosition(): number {
+		/*console.log(
+			`totalPosition: this.deltaPosition ${this.deltaPosition} this.position: ${this.position} this._offset: ${
+				this._offset
+			}`
+		);*/
+		return this.deltaPosition + this.position + this._offset;
+	}
+	private _position = 0;
+	private _deltaPosition = 0;
+
+	private _containerWidth: number;
+
+	private _frame: Moment;
+
+	private _timeBeginning: Moment;
+
+	private _offset: number;
+
+	public _totalPosition = 0;
 
 	ngOnInit() {}
 
@@ -75,7 +98,13 @@ export class CursorComponent implements OnInit {
 	changed(): void {
 		if (this._timeBeginning && this._frame) {
 			const momentFromUnix = moment.unix(
-				rescale(this.totalPosition, 0, this._containerWidth, this._timeBeginning.unix(), this._frame.unix())
+				rescale(
+					this.totalPosition,
+					0 + this._offset,
+					this._containerWidth + this._offset,
+					this._timeBeginning.unix(),
+					this._frame.unix()
+				)
 			);
 			this.loreService.cursor$.next(momentFromUnix);
 		}
@@ -86,7 +115,7 @@ export class CursorComponent implements OnInit {
 	 */
 	contextChange(): void {
 		if (this._timeBeginning && this._frame) {
-			// console.log(`_timeBeginning : ${this._timeBeginning.format('YYYY-MM-DD HH:mm')}`);
+			console.log(`_timeBeginning : ${this._timeBeginning.format('YYYY-MM-DD HH:mm')}`);
 			// console.log(`_frame : ${this._frame.format('YYYY-MM-DD HH:mm')}`);
 			this.position = rescale(
 				this.loreService.cursor$.value.unix(),
@@ -100,7 +129,10 @@ export class CursorComponent implements OnInit {
 
 	@HostListener('pan', ['$event'])
 	panHandler($event: any) {
-		if (this.position + $event.deltaX >= 0 && this.position + $event.deltaX <= this._containerWidth) {
+		if (
+			this.position + this._offset + $event.deltaX >= 0 &&
+			this.position + this._offset + $event.deltaX <= this._containerWidth
+		) {
 			this.deltaPosition = $event.deltaX;
 		}
 		if ($event.isFinal) {
@@ -110,13 +142,5 @@ export class CursorComponent implements OnInit {
 			this._position += this.deltaPosition;
 			this.deltaPosition = 0;
 		}
-	}
-
-	@HostBinding('style.left') get positionPx(): string {
-		return `${this.totalPosition}px`;
-	}
-
-	get totalPosition(): number {
-		return this.deltaPosition + this.position + this._offset;
 	}
 }

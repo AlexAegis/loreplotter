@@ -16,7 +16,7 @@ export class Stage extends THREE.Scene {
 	maxZoom = 20;
 
 	// Target of the popup TODO: Change this back to undefined after experimenting
-	public popupTarget = new BehaviorSubject<Vector2>(new Vector2(452.8560858898145, 721.5907832069611));
+	public popupTarget = new BehaviorSubject<Vector2>(undefined);
 
 	constructor(public engineService: EngineService) {
 		super();

@@ -36,11 +36,11 @@ export class LoreService {
 					enclosure.first = enclosure.last;
 				}
 				if (enclosure.first && enclosure.last) {
-					console.log(
+					/*console.log(
 						`cursor.unix(): ${cursor.unix()} enclosure.last.k ${enclosure.last.k.unix} enclosure.first.k: ${
 							enclosure.first.k.unix
 						}`
-					);
+					);*/
 					const t = rescale(cursor.unix(), enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 					const actorObject = engineService.globe.getObjectByName(actor.id);
 					let group: Group;

@@ -63,8 +63,6 @@ export class EngineService {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 		this.stage = new Stage(this);
-		const axesHelper = new THREE.AxesHelper(1.5);
-		this.stage.add(axesHelper);
 
 		this.globe = new Globe();
 		this.stage.add(this.globe);
