@@ -20,10 +20,7 @@ import { Group } from 'three';
 export class Globe extends Basic {
 	private rotationEase: TWEEN.Tween;
 
-	public target = new BehaviorSubject<Vector3>(Axis.x);
 	public type = 'Globe';
-
-	private selected: Vector3; // De-rotated positon of selection
 
 	/**+
 	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html

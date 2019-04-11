@@ -36,7 +36,9 @@ export class Basic extends THREE.Mesh {
 			const camera: THREE.Camera = <THREE.Camera>stage.getObjectByName('camera');
 			const point: Point = stage.engineService.selected.value;
 			if (point) {
-				this.positionChange.emit(denormalize(point.getWorldPosition(new Vector3()).project(camera)));
+				this.stage.popupTarget.next(denormalize(point.getWorldPosition(new Vector3()).project(camera)));
+			} else {
+				this.stage.popupTarget.next(undefined);
 			}
 		}
 	}

@@ -45,12 +45,13 @@ export class EngineService {
 		share()
 	);
 
-	// public testDot = new BehaviorSubject<Vector3>(undefined);
-	// public testDot$ = this.testDot.pipe(filter(a => a !== undefined));
+	/**
+	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
+	 * (Since they are shared, side effects will only happen once)
+	 */
 	constructor() {
-		console.log('subsciptions were made');
-		this.selection$.pipe(tap(s => console.log(`now selecting ${s}`))).subscribe();
-		this.hover$.pipe(tap(s => console.log(`now hovering ${s}`))).subscribe();
+		this.selection$.subscribe();
+		this.hover$.subscribe();
 	}
 
 	createScene(canvas: HTMLCanvasElement): void {
@@ -67,16 +68,6 @@ export class EngineService {
 
 		this.globe = new Globe();
 		this.stage.add(this.globe);
-		/*
-		this.testDot.next(
-			denormalize(
-				new Vector3(-0.605726277152065, 0.5558722625716483, 0.5690292996108239).project(this.stage.camera)
-			)
-		);
-		this.testDot.subscribe(hello => console.log(hello));*/
-		this.globe.target.subscribe(tar => {
-			console.log(`Target on click:  ${JSON.stringify(tar)}`);
-		});
 	}
 
 	spawnActor(coord: Vector2): void {
@@ -110,7 +101,6 @@ export class EngineService {
 			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
 			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
-				console.log(`intersection.object: ${intersection.object.type}`);
 				intersection.object.dispatchEvent({ type: 'click', point: intersection.point, shift: shift });
 			});
 	}

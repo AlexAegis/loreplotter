@@ -1,9 +1,11 @@
 import { Point } from './point.class';
 import { EngineService } from '../engine.service';
 import { throttleTime } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import { Vector3, Vector2 } from 'three';
+import { Axis } from '../helper/axis.class';
 
 export class Stage extends THREE.Scene {
 	public camera: THREE.PerspectiveCamera;
@@ -12,6 +14,9 @@ export class Stage extends THREE.Scene {
 	zoomTargetSubj: Subject<number> = new Subject();
 	minZoom = 2;
 	maxZoom = 20;
+
+	// Target of the popup
+	public popupTarget = new BehaviorSubject<Vector2>(undefined);
 
 	constructor(public engineService: EngineService) {
 		super();

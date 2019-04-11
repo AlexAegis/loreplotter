@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, Output, Input, HostBinding, HostListener } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { EventListener } from '@angular/core/src/debug/debug_node';
-import { Vector3 } from 'three';
+import { Vector3, Vector2 } from 'three';
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',
@@ -29,13 +29,22 @@ export class PopupComponent implements OnInit {
 	left: number;
 
 	@Input()
-	set pos(vector: Vector3) {
+	@HostBinding('style.visibility')
+	visibility = 'hidden';
+
+	@Input()
+	set pos(vector: Vector2) {
 		this.left = vector ? vector.x : 0;
 		this.top = vector ? vector.y : 0;
+		if (vector) {
+			this.visibility = 'visible';
+		} else {
+			this.visibility = 'hidden';
+		}
 	}
 
-	get pos(): Vector3 {
-		return new Vector3(this.left, this.top);
+	get pos(): Vector2 {
+		return new Vector2(this.left, this.top);
 	}
 
 	@Input()
