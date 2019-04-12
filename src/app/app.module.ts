@@ -27,6 +27,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { SkyhookMultiBackendModule, createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
+import { BlockComponent } from './component/block/block.component';
 
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
@@ -46,7 +47,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 		TimelineComponent,
 		RepeatDirective,
 		ListComponent,
-		CursorComponent
+		CursorComponent,
+		BlockComponent
 	],
 	imports: [
 		BrowserModule,

@@ -1,11 +1,11 @@
 :host {
-	background-color: aqua;
+	background-color: rgba(0, 0, 0, 0.1);
 	height: 200px;
 	position: fixed;
 	bottom: 0;
 
 	#ruler {
-		background-color: cornsilk;
+		background-color: rgba(0, 0, 0, 0.05);
 		display: flex;
 		width: 100%;
 		height: 20%;

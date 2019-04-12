@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 
 import RxDB, { RxDatabase, RxCollection, RxJsonSchema, RxDocument } from 'rxdb';
 import { Observable, from, BehaviorSubject, merge, zip, of, combineLatest } from 'rxjs';
-import { map, tap, mergeMap, switchMap, filter } from 'rxjs/operators';
+import { map, tap, mergeMap, switchMap, filter, share } from 'rxjs/operators';
 import * as idb from 'pouchdb-adapter-idb';
 import { Database, LoreCollectionMethods, LoreDocumentMethods, LoreCollection, DatabaseCollections } from './database';
 import { Lore, loreSchema } from '../model/lore.class';
@@ -103,7 +103,8 @@ export class DatabaseService {
 
 	public currentLore = combineLatest(this.currentDocument, this.connection).pipe(
 		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
-		filter(res => res !== undefined && res !== null)
+		filter(res => res !== undefined && res !== null),
+		share()
 	);
 
 	private initData() {

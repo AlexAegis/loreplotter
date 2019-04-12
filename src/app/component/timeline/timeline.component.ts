@@ -44,22 +44,23 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		public db: DatabaseService,
 		private cd: ChangeDetectorRef,
 		public loreService: LoreService,
+		public databaseService: DatabaseService,
 		private changeDetectorRef: ChangeDetectorRef
 	) {
-		this.beginning = loreService.cursor$.value.clone();
-		console.log(`beg unix before add: ${this.beginning.unix()}`);
-		this.frame = this.beginning.clone();
-		this.frame = this.frame.add(1, 'months');
-		console.log(`beg unix after add: ${this.beginning.unix()}`);
-		console.log(`frame: ${this.frame.unix()}`);
+		this.frameStart = loreService.cursor$.value.clone();
+		console.log(`beg unix before add: ${this.frameStart.unix()}`);
+		this.frameEnd = this.frameStart.clone();
+		this.frameEnd = this.frameEnd.add(1, 'months');
+		console.log(`beg unix after add: ${this.frameStart.unix()}`);
+		console.log(`frame: ${this.frameEnd.unix()}`);
 
 		this.calcUnitsBetween();
 
 		this.countRef = db.loreCount$();
 		this.actors$ = db.actors$();
 	}
-	beginning: Moment;
-	frame: Moment;
+	frameStart: Moment;
+	frameEnd: Moment;
 	cursorTime: Moment;
 	unitsBetween: number;
 	distanceBetweenUnits: number;
@@ -108,40 +109,41 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * Idea is to when reach the bottom border, then scale down, and when reaching
 	 * the upper boundary, raise the scale
 	 * (Cant go up of days? go weeks, then months etc)
+	 *
+	 * Dynamic zoom. The change both effects frameStart and End based on cursor position
+	 * TODO: Hammer pinch support
 	 * @param $event mouseEvent
 	 */
 	@HostListener('mousewheel', ['$event'])
 	scrollHandler($event: WheelEvent) {
 		console.log($event);
 		console.log(`this.unitsBetween ${this.unitsBetween}`);
+		console.log('norm: ' + this.normalize($event.deltaY));
+		console.log($event.deltaY);
 
-		if (
-			$event.deltaY > 0 &&
-			this.unitsBetween === this.currentUnitUpperlimit &&
-			this.unit < this.units.length - 1
-		) {
+		const direction = this.normalize($event.deltaY); // -1 or 1
+		const prog = this.cursor.progress; // [0-1]
+		console.log('prog' + prog);
+		/*
+		if (direction > 0 && this.unitsBetween === this.currentUnitUpperlimit && this.unit < this.units.length - 1) {
 			this.unit++;
 			console.log('upshift');
 			// upshift
-		} else if ($event.deltaY < 0 && this.unitsBetween === 1 && this.unit > 0) {
+		} else if (direction < 0 && this.unitsBetween === 1 && this.unit > 0) {
 			this.unit--;
 			console.log('downshift');
 			// downshift
-		}
+		}*/
 
-		if (
-			(this.unitsBetween > 1 && $event.deltaY < 0) ||
-			($event.deltaY > 0 && this.unitsBetween < this.currentUnitUpperlimit)
-		) {
-			this.frame.add(this.normalize($event.deltaY), this.currentUnit);
-			// this.beginning.subtract(this.normalize($event.deltaY), this.unit);
-		}
+		this.frameStart.subtract(direction * prog, this.currentUnit);
+		this.frameEnd.add(direction * (1 - prog), this.currentUnit);
 
 		this.calcUnitsBetween();
+		this.cursor.changed();
 	}
 
 	calcUnitsBetween(): void {
-		this.unitsBetween = this.frame.diff(this.beginning, this.currentUnit);
+		this.unitsBetween = this.frameEnd.diff(this.frameStart, this.currentUnit);
 		this.distanceBetweenUnits = this.containerWidth / this.unitsBetween;
 	}
 
@@ -156,14 +158,14 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this._deltaOffset = $event.deltaX;
 		const whole = this.totalOffset / this.distanceBetweenUnits;
 		if (whole > 1) {
-			this.beginning = this.beginning.add(-1, this.currentUnit);
-			this.frame = this.frame.add(-1, this.currentUnit);
+			this.frameStart = this.frameStart.add(-1, this.currentUnit);
+			this.frameEnd = this.frameEnd.add(-1, this.currentUnit);
 			this._offset -= this.distanceBetweenUnits;
 		}
 
 		if (whole < 0) {
-			this.beginning = this.beginning.add(1, this.currentUnit);
-			this.frame = this.frame.add(1, this.currentUnit);
+			this.frameStart = this.frameStart.add(1, this.currentUnit);
+			this.frameEnd = this.frameEnd.add(1, this.currentUnit);
 			this._offset += this.distanceBetweenUnits;
 		}
 

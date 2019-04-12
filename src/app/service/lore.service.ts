@@ -41,11 +41,6 @@ export class LoreService {
 				} else if (enclosure.first === undefined && enclosure.last !== undefined) {
 					enclosure.first = enclosure.last;
 				}
-				console.log(
-					`actor: ${actor.id} cursor.unix(): ${cursor.unix()} enclosure.last.k ${
-						enclosure.last.k.unix
-					} enclosure.first.k: ${enclosure.first.k.unix}`
-				);
 				const t = rescale(cursor.unix(), enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 				const actorObject = engineService.globe.getObjectByName(actor.id);
 				let group: Group;

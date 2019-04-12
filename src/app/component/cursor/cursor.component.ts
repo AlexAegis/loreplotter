@@ -32,15 +32,16 @@ export class CursorComponent implements OnInit {
 		return this._containerWidth;
 	}
 
-	@Input('frame')
-	public set frame(frame: Moment) {
-		this._frame = frame;
+	@Input()
+	public set frameEnd(frameEnd: Moment) {
+		console.log('FrameEnd changed in cursor!!');
+		this._frameEnd = frameEnd;
 		this.contextChange();
 	}
 
-	@Input('timeBeginning')
-	public set timeBeginning(timeBeginning: Moment) {
-		this._timeBeginning = timeBeginning;
+	@Input()
+	public set frameStart(frameStart: Moment) {
+		this._frameStart = frameStart;
 		this.contextChange();
 	}
 
@@ -82,9 +83,9 @@ export class CursorComponent implements OnInit {
 
 	private _containerWidth: number;
 
-	private _frame: Moment;
+	private _frameEnd: Moment;
 
-	private _timeBeginning: Moment;
+	private _frameStart: Moment;
 
 	private _offset: number;
 
@@ -96,14 +97,14 @@ export class CursorComponent implements OnInit {
 	 * This function calculates the date the cursor is pointing at
 	 */
 	changed(): void {
-		if (this._timeBeginning && this._frame) {
+		if (this._frameStart && this._frameEnd) {
 			const momentFromUnix = moment.unix(
 				rescale(
 					this.totalPosition,
 					0 + this._offset,
 					this._containerWidth + this._offset,
-					this._timeBeginning.unix(),
-					this._frame.unix()
+					this._frameStart.unix(),
+					this._frameEnd.unix()
 				)
 			);
 			this.loreService.cursor$.next(momentFromUnix);
@@ -114,11 +115,11 @@ export class CursorComponent implements OnInit {
 	 * This function updates the cursor's position based on the environment
 	 */
 	contextChange(): void {
-		if (this._timeBeginning && this._frame) {
+		if (this._frameStart && this._frameEnd) {
 			this.position = rescale(
 				this.loreService.cursor$.value.unix(),
-				this._timeBeginning.unix(),
-				this._frame.unix(),
+				this._frameStart.unix(),
+				this._frameEnd.unix(),
 				0,
 				this._containerWidth
 			);
@@ -140,5 +141,9 @@ export class CursorComponent implements OnInit {
 			this._position += this.deltaPosition;
 			this.deltaPosition = 0;
 		}
+	}
+
+	get progress(): number {
+		return rescale(this.position, 0, this._containerWidth, 0, 1);
 	}
 }
