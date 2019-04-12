@@ -3,7 +3,7 @@ import { PopupComponent } from './../component/popup/popup.component';
 import { EngineService } from './engine.service';
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { Vector3, Euler } from 'three';
+import { Vector3, Euler, Vector2 } from 'three';
 import { normalize } from './helper/normalize.function';
 import { Point } from './object/point.class';
 import { denormalize } from './helper/denormalize.function';
@@ -45,7 +45,15 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public pan($event: any): void {
-		this.engine.globe.rotate($event.velocityX * 2, $event.velocityY * 2, $event.isFinal);
+		console.log($event);
+		this.engine.pan(
+			normalize($event.center.x, $event.center.y),
+			new Vector2($event.velocityX * 2, $event.velocityY * 2),
+			$event.type === 'panstart',
+			$event.type === 'panend'
+		);
+
+		// this.engine.globe.rotate($event.velocityX * 2, $event.velocityY * 2, $event.isFinal);
 	}
 
 	public turnRight() {

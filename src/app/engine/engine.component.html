@@ -1,6 +1,8 @@
 <canvas
 	#canvas
 	(pan)="pan($event)"
+	(panstart)="pan($event)"
+	(panend)="pan($event)"
 	(mousewheel)="wheel($event)"
 	(tap)="click($event)"
 	(mousemove)="hover($event)"

@@ -26,6 +26,7 @@ export class EngineService {
 	public center = new Vector3(0, 0, 0);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
+	public drag: BehaviorSubject<Point | Globe> = new BehaviorSubject<Point | Globe>(undefined);
 
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
@@ -111,6 +112,34 @@ export class EngineService {
 			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
 				intersection.object.dispatchEvent({ type: 'context', point: intersection.point });
+			});
+	}
+
+	pan(coord: Vector2, velocity: Vector2, start: boolean, end: boolean) {
+		this.raycaster.setFromCamera(coord, this.stage.camera);
+		this.raycaster
+			.intersectObject(this.globe, true)
+			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
+			.splice(0, 1) // only the first hit
+			.forEach(intersection => {
+				console.log(`isFirst ${start} isFinal ${end}`);
+				if (start) {
+					console.log('isFirst');
+					this.drag.next(<Globe | Point>intersection.object);
+				}
+
+				if (this.drag.value !== undefined) {
+					this.drag.value.dispatchEvent({
+						type: 'pan',
+						point: intersection.point,
+						velocity: velocity,
+						final: end
+					});
+				}
+
+				if (end) {
+					this.drag.next(undefined);
+				}
 			});
 	}
 

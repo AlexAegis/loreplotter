@@ -6,6 +6,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
 import { Interactive } from '../interfaces/interactive.interface';
 import { Globe } from './globe.class';
+import { ClickEvent } from '../event/click-event.type';
 
 export class Point extends Basic implements Interactive {
 	type = 'Point';
@@ -48,6 +49,11 @@ export class Point extends Basic implements Interactive {
 
 		this.addEventListener('hover', attachment => {
 			this.stage.engineService.hovered.next(this);
+		});
+		this.addEventListener('pan', (event: ClickEvent) => {
+			console.log(`hello pan! in point!`);
+			console.log(event);
+			this.parent.lookAt(event.point);
 		});
 	}
 

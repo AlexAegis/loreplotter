@@ -59,6 +59,11 @@ export class Globe extends Basic {
 		this.addEventListener('hover', (event: ClickEvent) => {
 			this.stage.engineService.hovered.next(undefined);
 		});
+		this.addEventListener('pan', event => {
+			console.log(`hello pan! in globe!`);
+			console.log(event);
+			this.rotate(event.velocity.x, event.velocity.y, event.final);
+		});
 	}
 
 	/**
