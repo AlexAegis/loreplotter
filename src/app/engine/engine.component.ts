@@ -29,7 +29,10 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	indicator: PopupComponent;
 
 	drop = this.dnd.dropTarget('Actor', {
-		drop: monitor => this.loreService.monitor$.next(monitor.getClientOffset())
+		drop: monitor => {
+			console.log(monitor.getClientOffset());
+			this.loreService.spawnOnClientOffset$.next(monitor.getClientOffset());
+		}
 	});
 
 	constructor(

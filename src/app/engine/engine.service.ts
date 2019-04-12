@@ -1,3 +1,5 @@
+import { LoreService } from 'src/app/service/lore.service';
+import { DatabaseService } from './../database/database.service';
 import { Stage } from './object/stage.class';
 import { Injectable } from '@angular/core';
 import { Vector3 } from 'three';
@@ -26,7 +28,6 @@ export class EngineService {
 	public center = new Vector3(0, 0, 0);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
-	public drag: BehaviorSubject<Point | Globe> = new BehaviorSubject<Point | Globe>(undefined);
 
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
@@ -46,11 +47,14 @@ export class EngineService {
 		share()
 	);
 
+	public drag: BehaviorSubject<Point | Globe> = new BehaviorSubject<Point | Globe>(undefined);
+
+	public spawnOnWorld$ = new BehaviorSubject<{ object: Point; point: Vector3 }>(undefined);
 	/**
 	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
-	constructor() {
+	constructor(private databaseService: DatabaseService) {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 	}
@@ -122,9 +126,7 @@ export class EngineService {
 			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
 			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
-				console.log(`isFirst ${start} isFinal ${end}`);
 				if (start) {
-					console.log('isFirst');
 					this.drag.next(<Globe | Point>intersection.object);
 				}
 
@@ -138,6 +140,10 @@ export class EngineService {
 				}
 
 				if (end) {
+					if (intersection.object.type === 'Point') {
+						this.spawnOnWorld$.next({ object: <Point>intersection.object, point: intersection.point });
+					}
+
 					this.drag.next(undefined);
 				}
 			});

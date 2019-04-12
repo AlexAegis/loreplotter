@@ -28,6 +28,10 @@ export class CursorComponent implements OnInit {
 		this.contextChange();
 	}
 
+	public get containerWidth(): number {
+		return this._containerWidth;
+	}
+
 	@Input('frame')
 	public set frame(frame: Moment) {
 		this._frame = frame;

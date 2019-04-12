@@ -149,16 +149,18 @@ export class DatabaseService {
 		return this.currentLore.pipe(map(res => res.actors.length));
 	}
 
+	public actorStateMapper(actor: Actor) {
+		if (actor.statesString) {
+			actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
+			actor.statesString = undefined;
+		}
+		return actor;
+	}
+
 	public actors$(): Observable<Array<Actor>> {
 		return this.currentLore.pipe(
 			map(lore => {
-				return lore.actors.map(actor => {
-					if (actor.statesString) {
-						actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
-						actor.statesString = undefined;
-					}
-					return actor;
-				});
+				return lore.actors.map(this.actorStateMapper);
 			})
 		);
 	}

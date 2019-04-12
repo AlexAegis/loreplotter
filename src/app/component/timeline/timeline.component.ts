@@ -63,7 +63,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	cursorTime: Moment;
 	unitsBetween: number;
 	distanceBetweenUnits: number;
-	width: number;
+	containerWidth: number;
 	unit = 0;
 	private _offset = 0;
 	private _deltaOffset = 0;
@@ -94,14 +94,14 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		// It can also make the app crash on MacOS https://github.com/que-etc/resize-observer-polyfill/issues/36
 		const resize$ = new ResizeObserver(e => {
 			e.forEach(change => {
-				this.width = change.contentRect.width;
+				this.containerWidth = change.contentRect.width;
 				this.calcUnitsBetween();
 				this.changeDetectorRef.detectChanges();
 			});
 		});
 		resize$.observe(this.divisorContainer.nativeElement);
-		this.width = this.divisorContainer.nativeElement.offsetWidth;
-		console.log(this.width);
+		this.containerWidth = this.divisorContainer.nativeElement.offsetWidth;
+		console.log(this.containerWidth);
 	}
 
 	/**
@@ -142,7 +142,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	calcUnitsBetween(): void {
 		this.unitsBetween = this.frame.diff(this.beginning, this.currentUnit);
-		this.distanceBetweenUnits = this.width / this.unitsBetween;
+		this.distanceBetweenUnits = this.containerWidth / this.unitsBetween;
 	}
 
 	/**
