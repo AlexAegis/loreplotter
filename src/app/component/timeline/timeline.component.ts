@@ -194,26 +194,14 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * Offset tracking:
 	 * 1. map the offset directly modulo distance unit
 	 * 2. On restarting it would mean that the offset always starts from 0. it should start where the previous ended
-	 * 3. for this reason when the pan ends, we switch this delta into the base value.
-	 * 		(Baking would add the delta into the base value which would accumulate it,)
+	 * 3. for this reason when the pan ends, we bake this delta back into the base value.
 	 */
 	public shift($event: any) {
-		console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$event.type: ' + $event.type);
-		if ($event.type === 'panstart') {
-			// this.offset.delta = this.offset.base;
-		}
 		this.offset.delta = $event.deltaX;
-
 		const delta = this.offset.total % this.distanceBetweenUnits;
 		// When panning back, calculate the offset from the other side
 		this.offset.delta = this.offset.total <= 0 ? this.distanceBetweenUnits + delta : delta;
 		this.offset.delta -= this.offset.base;
-		// this.offset.base = $event.deltaX % this.distanceBetweenUnits;
-		console.log(
-			`this.offset.base: ${this.offset.base} $event.deltaX: ${$event.deltaX} this.distanceBetweenUnits: ${
-				this.distanceBetweenUnits
-			}`
-		);
 		console.log(this.offset);
 		console.log(`this.offset.total: ${this.offset.total}`);
 		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
@@ -221,19 +209,13 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			this.frameStart.bake();
 			this.frameEnd.bake();
 			this.offset.bake();
-			// this.offset.switch();
-			console.log(this.offset);
-			console.log(`this.offset.total on panend : ${this.offset.total}`);
-			console.log(
-				`this.offset.total: ${this.offset.total} this.distanceBetweenUnits: ${this.distanceBetweenUnits}`
-			);
 		}
 	}
 
 	/**
 	 * On click, jump with the cursor
 	 */
-	tap($event: any) {
+	public tap($event: any) {
 		new TWEEN.Tween(this.cursor)
 			.to({ position: $event.center.x - this.el.nativeElement.offsetLeft }, 220)
 			.easing(TWEEN.Easing.Exponential.Out)

@@ -6,14 +6,7 @@
 		[frameStart]="frameStart.total"
 		[frameEnd]="frameEnd.total"
 	></app-cursor>
-	<div
-		#divisorContainer
-		class="divisorContainer"
-		(pan)="shift($event)"
-		(panstart)="shift($event)"
-		(panend)="shift($event)"
-		(tap)="tap($event)"
-	>
+	<div #divisorContainer class="divisorContainer" (pan)="shift($event)" (panend)="shift($event)" (tap)="tap($event)">
 		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }"></div>
 	</div>
 </div>

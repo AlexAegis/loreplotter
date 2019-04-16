@@ -33,9 +33,9 @@ export class Point extends Basic implements Interactive {
 	});
 
 	constructor(public name: string) {
-		super(new THREE.BoxGeometry(0.1, 0.1, 0.1, 1, 1, 1), undefined);
+		super(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 40), undefined);
 		this.position.set(0, 0, 1);
-
+		this.rotateX(90 * THREE.Math.DEG2RAD);
 		this.material = this.defaultMaterial;
 		this.geometry.computeBoundingBox();
 
