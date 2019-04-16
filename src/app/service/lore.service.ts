@@ -23,7 +23,7 @@ import { normalize } from '../engine/helper/normalize.function';
 	providedIn: 'root'
 })
 export class LoreService {
-	public cursor$ = new BehaviorSubject<Moment>(moment('2019-01-03T01:10:00'));
+	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
 	public spawnOnClientOffset$ = new BehaviorSubject<Offset>(undefined);
 
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
@@ -33,7 +33,7 @@ export class LoreService {
 			.subscribe(({ actor, cursor }) => {
 				engineService.selected.next(undefined);
 				engineService.globe.changed();
-				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor.unix())) as Enclosing<
+				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 					Node<UnixWrapper, ActorDelta>
 				>;
 				if (enclosure.last === undefined && enclosure.first !== undefined) {
@@ -41,7 +41,7 @@ export class LoreService {
 				} else if (enclosure.first === undefined && enclosure.last !== undefined) {
 					enclosure.first = enclosure.last;
 				}
-				const t = rescale(cursor.unix(), enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
+				const t = rescale(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 				const actorObject = engineService.globe.getObjectByName(actor.id);
 				let group: Group;
 				if (actorObject) {
@@ -82,7 +82,7 @@ export class LoreService {
 				dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 				const actor = new Actor(lore.nextId());
 				actor.states.set(
-					new UnixWrapper(cursor.unix()),
+					new UnixWrapper(cursor),
 					new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
 				);
 				lore.atomicUpdate(l => {
@@ -106,7 +106,7 @@ export class LoreService {
 							console.log(actor);
 							console.log(object);
 							actor.states.set(
-								new UnixWrapper(cursor.unix()),
+								new UnixWrapper(cursor),
 								new ActorDelta(undefined, {
 									x: point.x,
 									y: point.y,

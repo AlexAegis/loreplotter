@@ -3,15 +3,22 @@
 		#cursor
 		id="cursor"
 		[containerWidth]="containerWidth"
-		[frameEnd]="frameEnd"
-		[frameStart]="frameStart"
-		[offset]="totalOffset"
-		(time)="(cursorTime)"
+		[frameStart]="frameStart.total"
+		[frameEnd]="frameEnd.total"
 	></app-cursor>
-	<div #divisorContainer class="divisorContainer" (pan)="shift($event)" (tap)="tap($event)">
+	<div
+		#divisorContainer
+		class="divisorContainer"
+		(pan)="shift($event)"
+		(panstart)="shift($event)"
+		(panend)="shift($event)"
+		(tap)="tap($event)"
+	>
 		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }"></div>
 	</div>
 </div>
 <div class="channel" *ngFor="let actor of (actors$ | async) as actors">
-	<app-block [actor]="actor"></app-block>
+	<app-block [actor]="actor">
+		frameStart: {{ frameStart.total }} frameEnd: {{ frameEnd.total }} cursor: {{ loreService.cursor$ | async }}
+	</app-block>
 </div>

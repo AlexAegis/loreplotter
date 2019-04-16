@@ -33,21 +33,15 @@ export class CursorComponent implements OnInit {
 	}
 
 	@Input()
-	public set frameEnd(frameEnd: Moment) {
+	public set frameEnd(frameEnd: number) {
 		console.log('FrameEnd changed in cursor!!');
 		this._frameEnd = frameEnd;
 		this.contextChange();
 	}
 
 	@Input()
-	public set frameStart(frameStart: Moment) {
+	public set frameStart(frameStart: number) {
 		this._frameStart = frameStart;
-		this.contextChange();
-	}
-
-	@Input('offset')
-	public set offset(offset: number) {
-		this._offset = offset;
 		this.contextChange();
 	}
 
@@ -75,7 +69,7 @@ export class CursorComponent implements OnInit {
 	}
 
 	get totalPosition(): number {
-		return this.deltaPosition + this.position + this._offset;
+		return this.deltaPosition + this.position;
 	}
 
 	private _position = 0;
@@ -83,11 +77,9 @@ export class CursorComponent implements OnInit {
 
 	private _containerWidth: number;
 
-	private _frameEnd: Moment;
+	private _frameEnd: number;
 
-	private _frameStart: Moment;
-
-	private _offset: number;
+	private _frameStart: number;
 
 	public _totalPosition = 0;
 
@@ -98,16 +90,9 @@ export class CursorComponent implements OnInit {
 	 */
 	changed(): void {
 		if (this._frameStart && this._frameEnd) {
-			const momentFromUnix = moment.unix(
-				rescale(
-					this.totalPosition,
-					0 + this._offset,
-					this._containerWidth + this._offset,
-					this._frameStart.unix(),
-					this._frameEnd.unix()
-				)
+			this.loreService.cursor$.next(
+				rescale(this.totalPosition, 0, this._containerWidth, this._frameStart, this._frameEnd)
 			);
-			this.loreService.cursor$.next(momentFromUnix);
 		}
 	}
 
@@ -115,26 +100,23 @@ export class CursorComponent implements OnInit {
 	 * This function updates the cursor's position based on the environment
 	 */
 	contextChange(): void {
-		if (this._frameStart && this._frameEnd) {
-			this.position = rescale(
-				this.loreService.cursor$.value.unix(),
-				this._frameStart.unix(),
-				this._frameEnd.unix(),
-				0,
-				this._containerWidth
-			);
-		}
+		this.position = rescale(
+			this.loreService.cursor$.value,
+			this._frameStart,
+			this._frameEnd,
+			0,
+			this._containerWidth
+		);
 	}
 
 	@HostListener('pan', ['$event'])
+	@HostListener('panend', ['$event'])
 	panHandler($event: any) {
-		if (
-			this.position + this._offset + $event.deltaX >= 0 &&
-			this.position + this._offset + $event.deltaX <= this._containerWidth
-		) {
+		console.log(`cursosr panevent: ${$event.type}`);
+		if (this.position + $event.deltaX >= 0 && this.position + $event.deltaX <= this._containerWidth) {
 			this.deltaPosition = $event.deltaX;
 		}
-		if ($event.isFinal) {
+		if ($event.type === 'panend') {
 			if (!this._position) {
 				this._position = 0;
 			}
