@@ -34,7 +34,6 @@ export class CursorComponent implements OnInit {
 
 	@Input()
 	public set frameEnd(frameEnd: number) {
-		console.log('FrameEnd changed in cursor!!');
 		this._frameEnd = frameEnd;
 		this.contextChange();
 	}
@@ -112,7 +111,6 @@ export class CursorComponent implements OnInit {
 	@HostListener('pan', ['$event'])
 	@HostListener('panend', ['$event'])
 	panHandler($event: any) {
-		console.log(`cursosr panevent: ${$event.type}`);
 		if (this.position + $event.deltaX >= 0 && this.position + $event.deltaX <= this._containerWidth) {
 			this.deltaPosition = $event.deltaX;
 		}

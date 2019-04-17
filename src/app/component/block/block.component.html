@@ -1,1 +1,6 @@
 <!--<ng-content></ng-content>-->
+<div
+	class="node"
+	*ngFor="let node of actor?.states?.nodes()"
+	[ngStyle]="{ 'left.px': nodePosition(node.key.unix) }"
+></div>

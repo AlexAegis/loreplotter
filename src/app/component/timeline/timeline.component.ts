@@ -66,8 +66,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.calcUnitsBetween();
 	}
 
-	frameStart: DeltaProperty = new DeltaProperty(); // The frames starting point as unix
-	frameEnd: DeltaProperty = new DeltaProperty();
+	public frameStart: DeltaProperty = new DeltaProperty(); // The frames starting point as unix
+	public frameEnd: DeltaProperty = new DeltaProperty();
 
 	/**
 	 * Returns the frames length in unix

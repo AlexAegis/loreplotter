@@ -65,7 +65,6 @@ export class LoreService {
 				);
 				group.applyQuaternion(engineService.globe.quaternion);
 				const toQ = group.quaternion.clone();
-				console.log(t);
 				if (t && Math.abs(t) !== Infinity) {
 					Quaternion.slerp(fromQ, toQ, group.quaternion, t);
 				}
