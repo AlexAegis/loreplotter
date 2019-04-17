@@ -15,7 +15,7 @@ import { Moment } from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
 import * as THREE from 'three';
 import { DatabaseService } from 'src/app/database/database.service';
-import { switchMap, tap, take } from 'rxjs/operators';
+import { switchMap, tap, take, filter } from 'rxjs/operators';
 import { Actor } from 'src/app/model/actor.class';
 import { LoreService } from 'src/app/service/lore.service';
 import * as TWEEN from '@tweenjs/tween.js';
@@ -94,7 +94,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	@ViewChild('cursor') cursor: CursorComponent;
 
-	public actors$ = this.db.actors$(); // reference of the actor query pipeline
+	// TODO: Only those whose block is in range
+	public actors$ = this.db.actors$().pipe(filter(actor => true)); // reference of the actor query pipeline
 
 	logActors() {
 		console.log('Logging actors:');

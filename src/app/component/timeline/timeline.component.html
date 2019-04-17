@@ -18,7 +18,7 @@
 	</div>
 </div>
 <div class="channel" *ngFor="let actor of (actors$ | async) as actors">
-	<app-block [actor]="actor">
+	<app-block [actor]="actor" [frameStart]="frameStart.total" [frameEnd]="frameEnd.total">
 		frameStart: {{ frameStart.total }} frameEnd: {{ frameEnd.total }} cursor:
 		{{ loreService.cursor$ | async }} dist(1) {{ dist(1) }}
 	</app-block>

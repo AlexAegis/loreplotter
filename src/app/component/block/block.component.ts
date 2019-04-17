@@ -8,9 +8,17 @@ import { Actor } from 'src/app/model/actor.class';
 })
 export class BlockComponent implements OnInit {
 	@Input()
-	actor: Actor;
+	public actor: Actor;
+
+	@Input()
+	public frameStart: number;
+
+	@Input()
+	public frameEnd: number;
 
 	constructor() {}
 
-	ngOnInit() {}
+	ngOnInit() {
+		this.actor.states.min(); // node
+	}
 }
