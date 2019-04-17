@@ -6,12 +6,20 @@
 		[frameStart]="frameStart.total"
 		[frameEnd]="frameEnd.total"
 	></app-cursor>
-	<div #divisorContainer class="divisorContainer" (pan)="shift($event)" (panend)="shift($event)" (tap)="tap($event)">
+	<div
+		#divisorContainer
+		class="divisorContainer"
+		(pan)="shift($event)"
+		(panend)="shift($event)"
+		(pinch)="scrollHandler($event)"
+		(tap)="tap($event)"
+	>
 		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }"></div>
 	</div>
 </div>
 <div class="channel" *ngFor="let actor of (actors$ | async) as actors">
 	<app-block [actor]="actor">
-		frameStart: {{ frameStart.total }} frameEnd: {{ frameEnd.total }} cursor: {{ loreService.cursor$ | async }}
+		frameStart: {{ frameStart.total }} frameEnd: {{ frameEnd.total }} cursor:
+		{{ loreService.cursor$ | async }} dist(1) {{ dist(1) }}
 	</app-block>
 </div>

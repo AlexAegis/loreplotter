@@ -83,11 +83,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	distanceBetweenUnits: number;
 	// The resizeObserver keeps this property updated and call the change calculation
 	public containerWidth: number;
-	unit = 0;
-	units: Array<{ unit: moment.unitOfTime.DurationConstructor; frame: number }> = [
-		{ unit: 'day', frame: 7 },
-		{ unit: 'week', frame: 4 },
-		{ unit: 'month', frame: 12 }
+	currentUnitIndex = 0;
+	units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
+		{ unitName: 'day', frame: 7, seconds: moment.duration(1, 'day').asSeconds() },
+		{ unitName: 'week', frame: 4, seconds: moment.duration(1, 'week').asSeconds() },
+		{ unitName: 'month', frame: 12, seconds: moment.duration(1, 'month').asSeconds() }
 	];
 
 	@ViewChild('divisorContainer') divisorContainer: ElementRef;
@@ -101,15 +101,19 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.actors$.pipe(take(1)).subscribe(console.log);
 	}
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
-		return this.units[this.unit].unit;
+		return this.units[this.currentUnitIndex].unitName;
+	}
+
+	get currentUnitSeconds(): number {
+		return this.units[this.currentUnitIndex].seconds;
 	}
 
 	get currentUnitUpperlimit(): number {
-		return this.units[this.unit].frame;
+		return this.units[this.currentUnitIndex].frame;
 	}
 
 	get getCurrentUnitInnerDivision(): number {
-		return this.unit > 0 ? this.units[this.unit - 1].frame : 12;
+		return this.currentUnitIndex > 0 ? this.units[this.currentUnitIndex - 1].frame : 12;
 	}
 
 	ngAfterViewInit(): void {
@@ -136,15 +140,18 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * @param $event mouseEvent
 	 */
 	@HostListener('mousewheel', ['$event'])
-	scrollHandler($event: WheelEvent) {
+	scrollHandler($event: any) {
 		console.log($event);
 		console.log(`this.unitsBetween ${this.unitsBetween}`);
 		console.log('norm: ' + this.normalize($event.deltaY));
 		console.log($event.deltaY);
 
 		const direction = this.normalize($event.deltaY); // -1 or 1
-		const prog = this.cursor.progress; // [0-1]
-		console.log('prog' + prog);
+		let prog = this.cursor.progress; // [0-1]
+
+		prog = rescale($event.clientX, 0, window.innerWidth, 0, 1);
+		// This will be the cursor positon or the center of the pinch, right now it's just the cursors position
+
 		/*
 		if (direction > 0 && this.unitsBetween === this.currentUnitUpperlimit && this.unit < this.units.length - 1) {
 			this.unit++;
@@ -155,12 +162,44 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			console.log('downshift');
 			// downshift
 		}*/
+		console.log(`direction: ${direction}`);
+		console.log('prog: ' + prog);
+		console.log(`currentUnitSeconds: ${this.currentUnitSeconds}`);
+		console.log(`this.frameStart.base bef: ${this.frameStart.base}`);
+		console.log(`this.frameEnd.base bef: ${this.frameEnd.base}`);
+		this.frameStart.base -= direction * prog * this.currentUnitSeconds;
+		this.frameEnd.base += direction * (1 - prog) * this.currentUnitSeconds;
 
-		// this.frameStart.subtract(direction * prog, this.currentUnit);
-		// this.frameEnd.add(direction * (1 - prog), this.currentUnit);
+		const previousDistanceBetweenUnits = this.distanceBetweenUnits; // previous unit
 
+		// this.offset.base = direction >= 0 ? this.offset.base * prog : this.offset.base / prog;
+
+		console.log(`this.frameStart.base aft: ${this.frameStart.base}`);
+		console.log(`this.frameEnd.base aft: ${this.frameEnd.base}`);
 		this.calcUnitsBetween();
+
+		// this.offset.base = rescale(this.offset.base, 0, previousDistanceBetweenUnits, 0, this.distanceBetweenUnits); // rescale previous offset
+		// adjust offset. it's not enough to readjust the offsets size.
+		// It also needs to be shifted to the correct position
+		// The left side changed  prog * this.currentUnitSeconds much. This has to be scaled down to the distanceBetweenUnits
+		// subbed6added to the current one then recale it again with modulo
+		// this.offset.base -= (prog * this.currentUnitSeconds) / this.distanceBetweenUnits;
+		// this.offset.base %= this.distanceBetweenUnits;
+		console.log(`this.nextWholeUnit(): ${this.nextWholeUnit()}`);
+		this.offset.base = this.firstDivisor();
 		this.cursor.changed();
+	}
+
+	/**
+	 * This method return the first point in time where a divisor should be placed
+	 * This can be used to correct the offset
+	 */
+	private nextWholeUnit(): number {
+		return this.frameStart.total + this.currentUnitSeconds - (this.frameStart.total % this.currentUnitSeconds);
+	}
+
+	private firstDivisor(): number {
+		return rescale(this.nextWholeUnit(), this.frameStart.total, this.frameEnd.total, 0, this.containerWidth);
 	}
 
 	/**
@@ -168,9 +207,12 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * It calculates how many units there are in the frame, and the distance between them
 	 */
 	public calcUnitsBetween(): void {
-		this.unitsBetween = moment.unix(this.frameEnd.total).diff(moment.unix(this.frameStart.total), this.currentUnit);
-		console.log('this.unitsBetween' + this.unitsBetween);
+		console.log('this.frame: ' + this.frame);
+		console.log('this.currentUnitSeconds: ' + this.currentUnitSeconds);
+		this.unitsBetween = this.frame / this.currentUnitSeconds;
+		console.log('this.unitsBetween: ' + this.unitsBetween);
 		this.distanceBetweenUnits = this.containerWidth / this.unitsBetween;
+		console.log('this.distanceBetweenUnits: ' + this.distanceBetweenUnits);
 	}
 
 	/**
@@ -202,8 +244,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		// When panning back, calculate the offset from the other side
 		this.offset.delta = this.offset.total <= 0 ? this.distanceBetweenUnits + delta : delta;
 		this.offset.delta -= this.offset.base;
-		console.log(this.offset);
-		console.log(`this.offset.total: ${this.offset.total}`);
 		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
 		if ($event.type === 'panend') {
 			this.frameStart.bake();
@@ -232,6 +272,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	normalize(value: number) {
-		return value / Math.abs(value);
+		return value === 0 ? 0 : value / Math.abs(value);
 	}
 }
