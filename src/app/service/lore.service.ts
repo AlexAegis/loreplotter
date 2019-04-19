@@ -5,7 +5,7 @@ import { EngineService } from './../engine/engine.service';
 import { Injectable } from '@angular/core';
 import { Moment } from 'moment';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, merge } from 'rxjs';
+import { BehaviorSubject, combineLatest, merge, Subject } from 'rxjs';
 import { rescale } from '../misc/rescale.function';
 import { UnixWrapper } from '../model/unix-wrapper.class';
 import { Point } from '../engine/object/point.class';
@@ -25,12 +25,18 @@ import { normalize } from '../engine/helper/normalize.function';
 export class LoreService {
 	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
 	public spawnOnClientOffset$ = new BehaviorSubject<Offset>(undefined);
+	public overrideNodePosition$ = new BehaviorSubject<{ old: number; new: number }>(undefined);
 
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
 		// This subscriber's job is to map each actors state to the map based on the current cursor
-		combineLatest(databaseService.actors$(), this.cursor$)
-			.pipe(flatMap(([actors, cursor]) => actors.map(actor => ({ actor: actor, cursor: cursor }))))
-			.subscribe(({ actor, cursor }) => {
+		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
+			.pipe(
+				flatMap(([actors, cursor, overrideNodePosition]) =>
+					actors.map(actor => ({ actor: actor, cursor: cursor, overrideNodePosition: overrideNodePosition }))
+				)
+			)
+			.subscribe(({ actor, cursor, overrideNodePosition }) => {
+				console.log(overrideNodePosition);
 				engineService.selected.next(undefined);
 				engineService.globe.changed();
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
@@ -41,6 +47,19 @@ export class LoreService {
 				} else if (enclosure.first === undefined && enclosure.last !== undefined) {
 					enclosure.first = enclosure.last;
 				}
+
+				/*if (forcedUpdate !== undefined) {
+					// When overriding, the enclosing method is not trustable
+					console.log('enclosure.first.k.unix: ' + enclosure.first.k.unix);
+					console.log('enclosure.last.k.unix: ' + enclosure.last.k.unix);
+					if (enclosure.first.k.unix === forcedUpdate.old) {
+						enclosure.first.k.unix = forcedUpdate.new;
+					}
+					if (enclosure.last.k.unix === forcedUpdate.old) {
+						enclosure.last.k.unix = forcedUpdate.new;
+					}
+				}*/
+
 				const t = rescale(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 				const actorObject = engineService.globe.getObjectByName(actor.id);
 				let group: Group;

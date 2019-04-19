@@ -14,15 +14,17 @@
 		(pinch)="scrollHandler($event)"
 		(tap)="tap($event)"
 	>
-		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ left: dist(c) }"></div>
+		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ 'left.px': dist(c) }"></div>
 	</div>
 </div>
 <div class="channel" *ngFor="let actor of (actors$ | async) as actors">
 	<app-block
+		[actors]="actors"
 		[actor]="actor"
 		[frameStart]="frameStart.total"
 		[frameEnd]="frameEnd.total"
 		[containerWidth]="containerWidth"
+		(jump)="easeCursorTo($event)"
 	>
 		frameStart: {{ frameStart.total }} frameEnd: {{ frameEnd.total }} cursor:
 		{{ loreService.cursor$ | async }} dist(1) {{ dist(1) }}

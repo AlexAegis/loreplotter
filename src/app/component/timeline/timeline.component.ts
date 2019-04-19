@@ -22,6 +22,7 @@ import * as TWEEN from '@tweenjs/tween.js';
 import { DeltaProperty } from 'src/app/model/delta-property.class';
 import { normalize } from 'src/app/engine/helper/normalize.function';
 import { rescale } from 'src/app/misc/rescale.function';
+import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
 
 /**
  * Timeline
@@ -76,8 +77,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.frameEnd.total - this.frameStart.total;
 	}
 
-	offset: DeltaProperty = new DeltaProperty();
-
 	unitsBetween: number; // This property holds how many main divisions there is on the timeline,
 	// eg.: how many of the current scale's unit, fits into it.
 	distanceBetweenUnits: number;
@@ -94,8 +93,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	@ViewChild('cursor') cursor: CursorComponent;
 
-	// TODO: Only those whose block is in range
-	public actors$ = this.db.actors$().pipe(filter(actor => true)); // reference of the actor query pipeline
+	public actors$ = this.databaseService.actors$; // reference of the actor query pipeline
 
 	logActors() {
 		console.log('Logging actors:');
@@ -142,11 +140,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 */
 	@HostListener('mousewheel', ['$event'])
 	scrollHandler($event: any) {
-		console.log($event);
-		console.log(`this.unitsBetween ${this.unitsBetween}`);
-		console.log('norm: ' + this.normalize($event.deltaY));
-		console.log($event.deltaY);
-
 		const direction = this.normalize($event.deltaY); // -1 or 1
 		let prog = this.cursor.progress; // [0-1]
 
@@ -163,44 +156,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			console.log('downshift');
 			// downshift
 		}*/
-		console.log(`direction: ${direction}`);
-		console.log('prog: ' + prog);
-		console.log(`currentUnitSeconds: ${this.currentUnitSeconds}`);
-		console.log(`this.frameStart.base bef: ${this.frameStart.base}`);
-		console.log(`this.frameEnd.base bef: ${this.frameEnd.base}`);
 		this.frameStart.base -= direction * prog * this.currentUnitSeconds;
 		this.frameEnd.base += direction * (1 - prog) * this.currentUnitSeconds;
 
-		const previousDistanceBetweenUnits = this.distanceBetweenUnits; // previous unit
-
-		// this.offset.base = direction >= 0 ? this.offset.base * prog : this.offset.base / prog;
-
-		console.log(`this.frameStart.base aft: ${this.frameStart.base}`);
-		console.log(`this.frameEnd.base aft: ${this.frameEnd.base}`);
 		this.calcUnitsBetween();
-
-		// this.offset.base = rescale(this.offset.base, 0, previousDistanceBetweenUnits, 0, this.distanceBetweenUnits); // rescale previous offset
-		// adjust offset. it's not enough to readjust the offsets size.
-		// It also needs to be shifted to the correct position
-		// The left side changed  prog * this.currentUnitSeconds much. This has to be scaled down to the distanceBetweenUnits
-		// subbed6added to the current one then recale it again with modulo
-		// this.offset.base -= (prog * this.currentUnitSeconds) / this.distanceBetweenUnits;
-		// this.offset.base %= this.distanceBetweenUnits;
-		console.log(`this.nextWholeUnit(): ${this.nextWholeUnit()}`);
-		this.offset.base = this.firstDivisor();
 		this.cursor.changed();
-	}
-
-	/**
-	 * This method return the first point in time where a divisor should be placed
-	 * This can be used to correct the offset
-	 */
-	private nextWholeUnit(): number {
-		return this.frameStart.total + this.currentUnitSeconds - (this.frameStart.total % this.currentUnitSeconds);
-	}
-
-	private firstDivisor(): number {
-		return rescale(this.nextWholeUnit(), this.frameStart.total, this.frameEnd.total, 0, this.containerWidth);
 	}
 
 	/**
@@ -208,19 +168,16 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * It calculates how many units there are in the frame, and the distance between them
 	 */
 	public calcUnitsBetween(): void {
-		console.log('this.frame: ' + this.frame);
-		console.log('this.currentUnitSeconds: ' + this.currentUnitSeconds);
 		this.unitsBetween = this.frame / this.currentUnitSeconds;
-		console.log('this.unitsBetween: ' + this.unitsBetween);
 		this.distanceBetweenUnits = this.containerWidth / this.unitsBetween;
-		console.log('this.distanceBetweenUnits: ' + this.distanceBetweenUnits);
 	}
 
 	/**
 	 * distance from the left to the `i`th bar
 	 */
-	public dist(i: number) {
-		return `${Math.round(this.offset.total + this.distanceBetweenUnits * i)}px`;
+	public dist(i: number): number {
+		const time = nextWhole(this.frameStart.total, this.currentUnitSeconds, i + 1);
+		return rescale(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth);
 	}
 
 	/**
@@ -234,22 +191,12 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 *
 	 * When the translation finishes, the values are baked (Moved from the delta to the base value, total value doesn't change)
 	 *
-	 * Offset tracking:
-	 * 1. map the offset directly modulo distance unit
-	 * 2. On restarting it would mean that the offset always starts from 0. it should start where the previous ended
-	 * 3. for this reason when the pan ends, we bake this delta back into the base value.
 	 */
 	public shift($event: any) {
-		this.offset.delta = $event.deltaX;
-		const delta = this.offset.total % this.distanceBetweenUnits;
-		// When panning back, calculate the offset from the other side
-		this.offset.delta = this.offset.total <= 0 ? this.distanceBetweenUnits + delta : delta;
-		this.offset.delta -= this.offset.base;
 		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
 		if ($event.type === 'panend') {
 			this.frameStart.bake();
 			this.frameEnd.bake();
-			this.offset.bake();
 		}
 	}
 
@@ -257,8 +204,12 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * On click, jump with the cursor
 	 */
 	public tap($event: any) {
+		this.easeCursorTo($event.center.x - this.el.nativeElement.offsetLeft);
+	}
+
+	public easeCursorTo(position: number) {
 		new TWEEN.Tween(this.cursor)
-			.to({ position: $event.center.x - this.el.nativeElement.offsetLeft }, 220)
+			.to({ position: position }, 220)
 			.easing(TWEEN.Easing.Exponential.Out)
 			.onUpdate(a => {
 				this.cursor.changed();

@@ -3,6 +3,7 @@
 	height: 200px;
 	position: fixed;
 	bottom: 0;
+	overflow: hidden; // Hides the blocks and the cursor when the sidebar is expanded
 
 	#ruler {
 		background-color: rgba(0, 0, 0, 0.05);
@@ -37,9 +38,8 @@
 	}
 
 	.channel {
-		background-color: coral;
-
 		width: 100%;
 		height: 20%;
+		box-shadow: inset 0px 0px 16px 16px rgba(70, 70, 70, 0.1);
 	}
 }
