@@ -11,6 +11,7 @@ export class UnixWrapper implements Comparable<UnixWrapper> {
 	}
 
 	public compareTo(other: UnixWrapper): number {
+		console.log(`this.unix: ${this.unix} other.unix: ${other.unix}`);
 		return this.unix - other.unix;
 	}
 }

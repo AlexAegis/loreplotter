@@ -36,7 +36,7 @@ export class LoreService {
 				)
 			)
 			.subscribe(({ actor, cursor, overrideNodePosition }) => {
-				console.log(overrideNodePosition);
+				// console.log(overrideNodePosition);
 				engineService.selected.next(undefined);
 				engineService.globe.changed();
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
@@ -48,17 +48,43 @@ export class LoreService {
 					enclosure.first = enclosure.last;
 				}
 
-				/*if (forcedUpdate !== undefined) {
-					// When overriding, the enclosing method is not trustable
-					console.log('enclosure.first.k.unix: ' + enclosure.first.k.unix);
-					console.log('enclosure.last.k.unix: ' + enclosure.last.k.unix);
-					if (enclosure.first.k.unix === forcedUpdate.old) {
-						enclosure.first.k.unix = forcedUpdate.new;
+				if (overrideNodePosition !== undefined) {
+					// might not needed
+					if (enclosure.last.key.unix === overrideNodePosition.old) {
+						enclosure.last.key.unix = overrideNodePosition.new;
 					}
-					if (enclosure.last.k.unix === forcedUpdate.old) {
-						enclosure.last.k.unix = forcedUpdate.new;
+					// might not needed
+					if (enclosure.first.key.unix === overrideNodePosition.old) {
+						enclosure.first.key.unix = overrideNodePosition.new;
 					}
-				}*/
+					// When overriding, only that interval is
+
+					// console.log(`Cursor: ${cursor}`);
+					// console.log('bef enclosure.first.k.unix: ' + enclosure.first.k.unix);
+					// console.log('bef enclosure.last.k.unix: ' + enclosure.last.k.unix);
+					for (const node of actor.states.nodes()) {
+						if (node.key.unix === overrideNodePosition.old) {
+							node.key.unix = overrideNodePosition.new;
+						}
+						// console.log(`Node: ${node.key.unix}`);
+						if (
+							node.key.unix >= enclosure.first.key.unix &&
+							node.key.unix <= cursor /*overrideNodePosition.new*/
+						) {
+							// console.log('HAPPEND CHJANGED LEFT');
+							enclosure.first = node;
+						}
+						if (
+							node.key.unix <= enclosure.last.key.unix &&
+							node.key.unix >= cursor /*overrideNodePosition.new*/
+						) {
+							// console.log('HAPPEND CHJANGED RIGHT');
+							enclosure.last = node;
+						}
+					}
+					// console.log('aft enclosure.first.k.unix: ' + enclosure.first.k.unix);
+					// console.log('aft enclosure.last.k.unix: ' + enclosure.last.k.unix);
+				}
 
 				const t = rescale(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 				const actorObject = engineService.globe.getObjectByName(actor.id);

@@ -103,6 +103,7 @@ export class BlockComponent implements OnInit {
 	@HostBinding('style.width.px')
 	public width: number;
 
+	// Used when moving the node in the database as the overrides 'previous' field is getting constantly updated
 	private _originalUnixForPan: number;
 
 	private update(): void {
@@ -136,47 +137,28 @@ export class BlockComponent implements OnInit {
 			this._originalUnixForPan = node.key.unix;
 		} else {
 			const previous = node.key.unix;
-			const val = node.value;
-			// console.log(val);
 			const pos = this.nodePosition(this._originalUnixForPan) + this.left;
 			const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
-			// const result = this._actor.states.moveNode(node.key, new UnixWrapper(rescaledUnix));
-			this.loreService.overrideNodePosition$.next({ old: previous, new: rescaledUnix }); // {
-			// const result = this._actor.states.remove(node.key);
-			// node.key.unix = rescaledUnix;
-			// this._actor.states.set(new UnixWrapper(rescaledUnix), node.value);
+			this.loreService.overrideNodePosition$.next({ old: previous, new: rescaledUnix });
+			node.key.unix = rescaledUnix;
 		}
-		this.update();
+
 		if ($event.type === 'panend') {
-			this.loreService.overrideNodePosition$.next(undefined); // Clear the Subject
-			// this._originalKeyForPan = undefined;
-			// TODO: persist
-			/*
+			// node.key.unix = this.loreService.overrideNodePosition$.value.old;
 			this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
-				console.log('subbed');
 				lore.atomicUpdate(l => {
-					console.log('atomu');
 					l.actors
-						// .filter(actor => actor.id === this._actor.id)
+						.filter(actor => actor.id === this._actor.id)
 						.map(this.databaseService.actorStateMapper)
 						.forEach(actor => {
-							actor.states.remove(previous);
-
-							const pos = this.nodePosition(this._originalUnixForPan) + this.left;
-							const rescaledUnix = rescale(
-								pos + $event.deltaX,
-								0,
-								this.containerWidth,
-								this.frameStart,
-								this.frameEnd
-							);
-							console.log('happened');
-							actor.states.set(new UnixWrapper(rescaledUnix), val);
+							const val = actor.states.remove(new UnixWrapper(this._originalUnixForPan));
+							actor.states.set(new UnixWrapper(this.loreService.overrideNodePosition$.value.new), val);
 						});
 					return l;
 				});
-			});*/
+			});
 		}
+		this.update();
 	}
 
 	ngOnInit() {}
