@@ -36,7 +36,7 @@ export class LoreService {
 				)
 			)
 			.subscribe(({ actor, cursor, overrideNodePosition }) => {
-				// console.log(overrideNodePosition);
+				console.log(overrideNodePosition);
 				engineService.selected.next(undefined);
 				engineService.globe.changed();
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
@@ -49,6 +49,7 @@ export class LoreService {
 				}
 
 				if (overrideNodePosition !== undefined) {
+					/*
 					// might not needed
 					if (enclosure.last.key.unix === overrideNodePosition.old) {
 						enclosure.last.key.unix = overrideNodePosition.new;
@@ -56,7 +57,7 @@ export class LoreService {
 					// might not needed
 					if (enclosure.first.key.unix === overrideNodePosition.old) {
 						enclosure.first.key.unix = overrideNodePosition.new;
-					}
+					}*/
 					// When overriding, only that interval is
 
 					// console.log(`Cursor: ${cursor}`);

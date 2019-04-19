@@ -16,6 +16,7 @@ import { LoreService } from 'src/app/service/lore.service';
 import { Node } from '@alexaegis/avl';
 import { DatabaseService } from 'src/app/database/database.service';
 import { take } from 'rxjs/operators';
+import { OverridableProperty } from 'src/app/model/overridable-property.class';
 
 @Component({
 	selector: 'app-block',
@@ -34,8 +35,6 @@ export class BlockComponent implements OnInit {
 		return this._containerWidth;
 	}
 
-	private _actors: Array<Actor>;
-
 	@Input()
 	public set actors(actors: Array<Actor>) {
 		this._actors = actors;
@@ -49,8 +48,8 @@ export class BlockComponent implements OnInit {
 	@Input()
 	public set actor(actor: Actor) {
 		this._actor = actor;
-		this.blockStart = this._actor.states.first().key.unix;
-		this.blockEnd = this._actor.states.last().key.unix;
+		this.blockStart.original = this._actor.states.first().key.unix;
+		this.blockEnd.original = this._actor.states.last().key.unix;
 		this.update();
 	}
 
@@ -84,14 +83,16 @@ export class BlockComponent implements OnInit {
 		private cd: ChangeDetectorRef
 	) {}
 
+	private _actors: Array<Actor>;
+
 	@Output()
 	public jump = new EventEmitter<number>();
 
 	public _containerWidth: number;
 
 	private _actor: Actor;
-	private blockStart: number;
-	private blockEnd: number;
+	private blockStart = new OverridableProperty<number>(undefined);
+	private blockEnd = new OverridableProperty<number>(undefined);
 
 	public _frameStart: number;
 
@@ -105,6 +106,10 @@ export class BlockComponent implements OnInit {
 
 	// Used when moving the node in the database as the overrides 'previous' field is getting constantly updated
 	private _originalUnixForPan: number;
+	// These field will hold the values for the boundaries of the block override while moving the last or the first node
+	// So the block will never be smaller then it should
+	private _afterFirstUnix: number;
+	private _beforeLastUnix: number;
 
 	private update(): void {
 		if (
@@ -114,19 +119,16 @@ export class BlockComponent implements OnInit {
 			this.frameEnd !== undefined &&
 			this.containerWidth !== undefined
 		) {
-			this.left = rescale(this.blockStart, this.frameStart, this.frameEnd, 0, this.containerWidth);
-			const right = rescale(this.blockEnd, this.frameStart, this.frameEnd, 0, this.containerWidth);
+			this.left = rescale(this.blockStart.value, this.frameStart, this.frameEnd, 0, this.containerWidth);
+			const right = rescale(this.blockEnd.value, this.frameStart, this.frameEnd, 0, this.containerWidth);
 			this.width = right - this.left;
 		}
 		this.cd.detectChanges();
 	}
 
 	public nodePosition(unix: number): number {
-		return rescale(unix, this.blockStart, this.blockEnd, 0, this.width);
+		return rescale(unix, this.blockStart.value, this.blockEnd.value, 0, this.width);
 	}
-
-	public panstart($event: any): void {}
-
 	/**
 	 * This method is for moving the nodes in a block to change the time of an event.
 	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
@@ -135,16 +137,70 @@ export class BlockComponent implements OnInit {
 	public pan($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		if ($event.type === 'panstart') {
 			this._originalUnixForPan = node.key.unix;
+
+			const nodeIterator = this._actor.states.nodes();
+			const first = nodeIterator.next();
+			const second = nodeIterator.next();
+			if (second) {
+				this._afterFirstUnix = second.value.key.unix;
+			} else {
+				this._afterFirstUnix = first.value.key.unix;
+			}
+
+			const reverseNodeIterator = this._actor.states.reverseNodes();
+			const last = reverseNodeIterator.next();
+			const secondLast = reverseNodeIterator.next();
+			if (secondLast) {
+				this._beforeLastUnix = secondLast.value.key.unix;
+			} else {
+				this._beforeLastUnix = last.value.key.unix;
+			}
+
+			// this._afterFirstUnix = this._actor.states.firstNodeFrom(this._actor.states.first().key).key.unix;
+			// this._beforeLastUnix = this._actor.states.lastNodeBefore(this._actor.states.last().key).key.unix;
+			console.log(`this._afterFirstUnix: ${this._afterFirstUnix} this._beforeLastUnix: ${this._beforeLastUnix}`);
 		} else {
 			const previous = node.key.unix;
 			const pos = this.nodePosition(this._originalUnixForPan) + this.left;
 			const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
-			this.loreService.overrideNodePosition$.next({ old: previous, new: rescaledUnix });
-			node.key.unix = rescaledUnix;
+
+			let firstLimit: number;
+
+			if (this._originalUnixForPan === this.blockStart.original) {
+				firstLimit = this._afterFirstUnix;
+			} else {
+				firstLimit = this.blockStart.original;
+			}
+
+			let lastLimit: number;
+
+			if (this._originalUnixForPan === this.blockEnd.original) {
+				lastLimit = this._beforeLastUnix;
+			} else {
+				lastLimit = this.blockEnd.original;
+			}
+
+			if (rescaledUnix <= firstLimit) {
+				this.blockStart.override = rescaledUnix;
+			} else {
+				this.blockStart.override = firstLimit;
+			}
+
+			if (rescaledUnix >= lastLimit) {
+				this.blockEnd.override = rescaledUnix;
+			} else {
+				this.blockEnd.override = lastLimit;
+			}
+
+			this.update();
+
+			if (previous !== NaN && rescaledUnix !== NaN) {
+				this.loreService.overrideNodePosition$.next({ old: previous, new: rescaledUnix });
+				node.key.unix = rescaledUnix;
+			}
 		}
 
 		if ($event.type === 'panend') {
-			// node.key.unix = this.loreService.overrideNodePosition$.value.old;
 			this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
 				lore.atomicUpdate(l => {
 					l.actors
@@ -155,6 +211,11 @@ export class BlockComponent implements OnInit {
 							actor.states.set(new UnixWrapper(this.loreService.overrideNodePosition$.value.new), val);
 						});
 					return l;
+				}).finally(() => {
+					this.blockStart.clear();
+					this.blockEnd.clear();
+					this.loreService.overrideNodePosition$.next(undefined);
+					this._originalUnixForPan = undefined;
 				});
 			});
 		}
