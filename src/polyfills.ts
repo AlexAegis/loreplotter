@@ -79,6 +79,8 @@
  */
 import 'zone.js/dist/zone'; // Included with Angular CLI.
 import 'hammerjs/hammer';
+import * as propagating from 'propagating-hammerjs';
+Hammer = propagating(Hammer);
 import 'babel-polyfill';
 import 'reflect-metadata';
 (window as any).global = window;

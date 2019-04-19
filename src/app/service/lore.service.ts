@@ -15,6 +15,7 @@ import { flatMap, filter, mergeAll, withLatestFrom, map, tap } from 'rxjs/operat
 import { Offset } from '@angular-skyhook/core';
 import { Actor } from '../model/actor.class';
 import { normalize } from '../engine/helper/normalize.function';
+import { clamp } from '../engine/helper/clamp.function';
 
 /**
  * This service's goal is to consume the data comint from the database and the engine and then update both
@@ -25,18 +26,24 @@ import { normalize } from '../engine/helper/normalize.function';
 export class LoreService {
 	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
 	public spawnOnClientOffset$ = new BehaviorSubject<Offset>(undefined);
-	public overrideNodePosition$ = new BehaviorSubject<{ old: number; new: number }>(undefined);
+	public overrideNodePosition$ = new BehaviorSubject<{
+		actorId: string;
+		overrides: Array<{ original: number; previous: number; new: number }>;
+	}>(undefined);
 
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
 		// This subscriber's job is to map each actors state to the map based on the current cursor
 		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
 			.pipe(
-				flatMap(([actors, cursor, overrideNodePosition]) =>
-					actors.map(actor => ({ actor: actor, cursor: cursor, overrideNodePosition: overrideNodePosition }))
+				flatMap(([actors, cursor, overrideNodePositions]) =>
+					actors.map(actor => ({
+						actor: actor,
+						cursor: cursor,
+						overrideNodePositions: overrideNodePositions
+					}))
 				)
 			)
-			.subscribe(({ actor, cursor, overrideNodePosition }) => {
-				console.log(overrideNodePosition);
+			.subscribe(({ actor, cursor, overrideNodePositions }) => {
 				engineService.selected.next(undefined);
 				engineService.globe.changed();
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
@@ -48,46 +55,22 @@ export class LoreService {
 					enclosure.first = enclosure.last;
 				}
 
-				if (overrideNodePosition !== undefined) {
-					/*
-					// might not needed
-					if (enclosure.last.key.unix === overrideNodePosition.old) {
-						enclosure.last.key.unix = overrideNodePosition.new;
-					}
-					// might not needed
-					if (enclosure.first.key.unix === overrideNodePosition.old) {
-						enclosure.first.key.unix = overrideNodePosition.new;
-					}*/
-					// When overriding, only that interval is
-
-					// console.log(`Cursor: ${cursor}`);
-					// console.log('bef enclosure.first.k.unix: ' + enclosure.first.k.unix);
-					// console.log('bef enclosure.last.k.unix: ' + enclosure.last.k.unix);
+				if (overrideNodePositions !== undefined && overrideNodePositions.actorId === actor.id) {
 					for (const node of actor.states.nodes()) {
-						if (node.key.unix === overrideNodePosition.old) {
-							node.key.unix = overrideNodePosition.new;
-						}
-						// console.log(`Node: ${node.key.unix}`);
-						if (
-							node.key.unix >= enclosure.first.key.unix &&
-							node.key.unix <= cursor /*overrideNodePosition.new*/
-						) {
-							// console.log('HAPPEND CHJANGED LEFT');
+						overrideNodePositions.overrides
+							.filter(ov => ov.previous === node.key.unix)
+							.forEach(ov => {
+								node.key.unix = ov.new;
+							});
+						if (node.key.unix >= enclosure.first.key.unix && node.key.unix <= cursor) {
 							enclosure.first = node;
 						}
-						if (
-							node.key.unix <= enclosure.last.key.unix &&
-							node.key.unix >= cursor /*overrideNodePosition.new*/
-						) {
-							// console.log('HAPPEND CHJANGED RIGHT');
+						if (node.key.unix <= enclosure.last.key.unix && node.key.unix >= cursor) {
 							enclosure.last = node;
 						}
 					}
-					// console.log('aft enclosure.first.k.unix: ' + enclosure.first.k.unix);
-					// console.log('aft enclosure.last.k.unix: ' + enclosure.last.k.unix);
 				}
-
-				const t = rescale(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
+				const t = clamp(rescale(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1), 0, 1);
 				const actorObject = engineService.globe.getObjectByName(actor.id);
 				let group: Group;
 				if (actorObject) {
@@ -148,8 +131,6 @@ export class LoreService {
 						.filter(a => a.id === object.name)
 						.map(this.databaseService.actorStateMapper)
 						.forEach(actor => {
-							console.log(actor);
-							console.log(object);
 							actor.states.set(
 								new UnixWrapper(cursor),
 								new ActorDelta(undefined, {

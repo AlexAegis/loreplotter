@@ -48,15 +48,12 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public pan($event: any): void {
-		console.log($event);
 		this.engine.pan(
 			normalize($event.center.x, $event.center.y),
 			new Vector2($event.velocityX * 2, $event.velocityY * 2),
 			$event.type === 'panstart',
 			$event.type === 'panend'
 		);
-
-		// this.engine.globe.rotate($event.velocityX * 2, $event.velocityY * 2, $event.isFinal);
 	}
 
 	public turnRight() {
@@ -83,8 +80,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		return false;
 	}
 
-	public click($event: any) {
-		console.log($event);
+	public tap($event: any) {
 		this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
 		this.engine.globe.changed();
 	}

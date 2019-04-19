@@ -51,8 +51,6 @@ export class Point extends Basic implements Interactive {
 			this.stage.engineService.hovered.next(this);
 		});
 		this.addEventListener('pan', (event: ClickEvent) => {
-			console.log(`hello pan! in point!`);
-			console.log(event);
 			this.parent.lookAt(event.point);
 		});
 	}

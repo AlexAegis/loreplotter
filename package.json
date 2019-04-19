@@ -59,6 +59,7 @@
 		"ngx-scrollbar": "^4.1.1",
 		"pouchdb-adapter-idb": "^7.0.0",
 		"pouchdb-adapter-memory": "^7.0.0",
+		"propagating-hammerjs": "^1.4.6",
 		"resize-observer-polyfill": "^1.5.1",
 		"rxdb": "^8.0.7",
 		"rxjs": "~6.4.0",

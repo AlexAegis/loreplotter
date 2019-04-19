@@ -11,12 +11,6 @@ export class UnixWrapper implements Comparable<UnixWrapper> {
 	}
 
 	public compareTo(other: UnixWrapper): number {
-		console.log(`this.unix: ${this.unix} other.unix: ${other.unix}`);
-		/*if(other.unix === NaN) {
-			return Infinity;
-		} else if(this.unix === NaN) {
-			return -Infinity;
-		}*/
 		return this.unix - other.unix;
 	}
 }

@@ -8,7 +8,8 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Output,
-	EventEmitter
+	EventEmitter,
+	HostListener
 } from '@angular/core';
 import { Actor } from 'src/app/model/actor.class';
 import { rescale } from 'src/app/misc/rescale.function';
@@ -91,8 +92,8 @@ export class BlockComponent implements OnInit {
 	public _containerWidth: number;
 
 	private _actor: Actor;
-	private blockStart = new OverridableProperty<number>(undefined);
-	private blockEnd = new OverridableProperty<number>(undefined);
+	private blockStart = new OverridableProperty<number>(undefined); // in unix
+	private blockEnd = new OverridableProperty<number>(undefined); // in unix
 
 	public _frameStart: number;
 
@@ -105,7 +106,7 @@ export class BlockComponent implements OnInit {
 	public width: number;
 
 	// Used when moving the node in the database as the overrides 'previous' field is getting constantly updated
-	private _originalUnixForPan: number;
+	private _originalUnixesForPan: Map<Node<UnixWrapper, ActorDelta>, number> = new Map();
 	// These field will hold the values for the boundaries of the block override while moving the last or the first node
 	// So the block will never be smaller then it should
 	private _afterFirstUnix: number;
@@ -129,14 +130,16 @@ export class BlockComponent implements OnInit {
 	public nodePosition(unix: number): number {
 		return rescale(unix, this.blockStart.value, this.blockEnd.value, 0, this.width);
 	}
+
 	/**
 	 * This method is for moving the nodes in a block to change the time of an event.
 	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
 	 * and the actual writing happens only when the pan ends to the final position.
 	 */
-	public pan($event: any, node: Node<UnixWrapper, ActorDelta>): void {
+	public panNode($event: any, node: Node<UnixWrapper, ActorDelta>): void {
+		$event.stopPropagation();
 		if ($event.type === 'panstart') {
-			this._originalUnixForPan = node.key.unix;
+			this._originalUnixesForPan.set(node, node.key.unix);
 
 			const nodeIterator = this._actor.states.nodes();
 			const first = nodeIterator.next();
@@ -155,71 +158,119 @@ export class BlockComponent implements OnInit {
 			} else {
 				this._beforeLastUnix = last.value.key.unix;
 			}
+		}
+		const ogUnix = this._originalUnixesForPan.get(node);
+		const previous = node.key.unix;
+		const pos = this.nodePosition(ogUnix) + this.left;
+		const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
 
-			// this._afterFirstUnix = this._actor.states.firstNodeFrom(this._actor.states.first().key).key.unix;
-			// this._beforeLastUnix = this._actor.states.lastNodeBefore(this._actor.states.last().key).key.unix;
-			console.log(`this._afterFirstUnix: ${this._afterFirstUnix} this._beforeLastUnix: ${this._beforeLastUnix}`);
+		let firstLimit: number;
+
+		if (ogUnix === this.blockStart.original) {
+			firstLimit = this._afterFirstUnix;
 		} else {
-			const previous = node.key.unix;
-			const pos = this.nodePosition(this._originalUnixForPan) + this.left;
-			const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
-
-			let firstLimit: number;
-
-			if (this._originalUnixForPan === this.blockStart.original) {
-				firstLimit = this._afterFirstUnix;
-			} else {
-				firstLimit = this.blockStart.original;
-			}
-
-			let lastLimit: number;
-
-			if (this._originalUnixForPan === this.blockEnd.original) {
-				lastLimit = this._beforeLastUnix;
-			} else {
-				lastLimit = this.blockEnd.original;
-			}
-
-			if (rescaledUnix <= firstLimit) {
-				this.blockStart.override = rescaledUnix;
-			} else {
-				this.blockStart.override = firstLimit;
-			}
-
-			if (rescaledUnix >= lastLimit) {
-				this.blockEnd.override = rescaledUnix;
-			} else {
-				this.blockEnd.override = lastLimit;
-			}
-
-			this.update();
-
-			if (previous !== NaN && rescaledUnix !== NaN) {
-				this.loreService.overrideNodePosition$.next({ old: previous, new: rescaledUnix });
-				node.key.unix = rescaledUnix;
-			}
+			firstLimit = this.blockStart.original;
 		}
 
-		if ($event.type === 'panend') {
-			this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
-				lore.atomicUpdate(l => {
-					l.actors
-						.filter(actor => actor.id === this._actor.id)
-						.map(this.databaseService.actorStateMapper)
-						.forEach(actor => {
-							const val = actor.states.remove(new UnixWrapper(this._originalUnixForPan));
-							actor.states.set(new UnixWrapper(this.loreService.overrideNodePosition$.value.new), val);
-						});
-					return l;
-				}).finally(() => {
-					this.blockStart.clear();
-					this.blockEnd.clear();
-					this.loreService.overrideNodePosition$.next(undefined);
-					this._originalUnixForPan = undefined;
-				});
+		let lastLimit: number;
+
+		if (ogUnix === this.blockEnd.original) {
+			lastLimit = this._beforeLastUnix;
+		} else {
+			lastLimit = this.blockEnd.original;
+		}
+
+		if (rescaledUnix <= firstLimit) {
+			this.blockStart.override = rescaledUnix;
+		} else {
+			this.blockStart.override = firstLimit;
+		}
+
+		if (rescaledUnix >= lastLimit) {
+			this.blockEnd.override = rescaledUnix;
+		} else {
+			this.blockEnd.override = lastLimit;
+		}
+
+		// Edge case. Also, the block has to be at least 1 px wide
+		if (this._actor.states.length === 1) {
+			this.blockStart.override = rescaledUnix;
+			this.blockEnd.override = rescaledUnix + 1;
+		}
+
+		if (previous !== NaN && rescaledUnix !== NaN) {
+			node.key.unix = rescaledUnix;
+			this.loreService.overrideNodePosition$.next({
+				actorId: this._actor.id,
+				overrides: [{ original: ogUnix, previous: previous, new: node.key.unix }]
 			});
 		}
 		this.update();
+
+		if ($event.type === 'panend') {
+			this.finalizeNewPositions();
+		}
+	}
+
+	private finalizeNewPositions() {
+		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+			lore.atomicUpdate(l => {
+				l.actors
+					.filter(actor => actor.id === this._actor.id)
+					.map(this.databaseService.actorStateMapper)
+					.forEach(actor => {
+						this.loreService.overrideNodePosition$.value.overrides.forEach(ov => {
+							const val = actor.states.remove(new UnixWrapper(ov.original));
+							actor.states.set(new UnixWrapper(ov.new), val);
+						});
+					});
+				return l;
+			}).finally(() => {
+				this.loreService.overrideNodePosition$.next(undefined);
+				this._originalUnixesForPan.clear();
+				this.update();
+			});
+		});
+	}
+
+	@HostListener('panstart', ['$event'])
+	@HostListener('pan', ['$event'])
+	@HostListener('panend', ['$event'])
+	public pan($event: any) {
+		if ($event.type === 'panstart') {
+			for (const node of this.actor.states.nodes()) {
+				this._originalUnixesForPan.set(node, node.key.unix);
+			}
+		}
+
+		const ogFirstUnix = this._originalUnixesForPan.get(this.actor.states.nodes().next().value);
+		const pos = this.nodePosition(ogFirstUnix) + this.left;
+		const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
+
+		const diff = rescaledUnix - ogFirstUnix;
+		const overrides = [];
+		for (const node of this.actor.states.nodes()) {
+			const previous = node.key.unix;
+			const ogUnix = this._originalUnixesForPan.get(node);
+			node.key.unix = ogUnix + diff;
+			overrides.push({
+				original: ogUnix,
+				previous: previous,
+				new: node.key.unix
+			});
+		}
+
+		this.blockStart.override = this.actor.states.nodes().next().value.key.unix;
+		this.blockEnd.override = this.actor.states.reverseNodes().next().value.key.unix;
+		this.update();
+		this.loreService.overrideNodePosition$.next({
+			actorId: this._actor.id,
+			overrides: overrides
+		});
+
+		if ($event.type === 'panend') {
+			this.finalizeNewPositions();
+		}
 	}
 
 	ngOnInit() {}

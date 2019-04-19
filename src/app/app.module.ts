@@ -31,7 +31,7 @@ import { BlockComponent } from './component/block/block.component';
 
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
-		pan: { direction: Hammer.DIRECTION_ALL, threshold: 2 },
+		pan: { direction: Hammer.DIRECTION_ALL, threshold: 2, domEvents: true, options: { domEvents: true } }, // TODO what
 		swipe: { velocity: 0.4, threshold: 20 } // override default settings
 	};
 }

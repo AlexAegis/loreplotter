@@ -3,12 +3,18 @@
 	height: 20%;
 	position: absolute;
 	display: inline-table;
+	cursor: grab;
+
+	:active {
+		cursor: grabbing;
+	}
 
 	.node {
 		cursor: pointer;
 		position: absolute;
 		width: 6px;
 		margin-left: -3px;
+		z-index: 20;
 		height: 100%;
 		background-color: rgba(0, 0, 0, 0.2);
 		outline: 2px solid rgba(0, 0, 0, 0.6);
