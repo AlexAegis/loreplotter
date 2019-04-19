@@ -1,13 +1,9 @@
 :host {
-	background-color: aquamarine;
+	box-shadow: inset 0px 0px 40px rgba(20, 40, 40, 0.1);
 	height: 20%;
 	position: absolute;
 	display: inline-table;
 	cursor: grab;
-
-	:active {
-		cursor: grabbing;
-	}
 
 	.node {
 		cursor: pointer;
@@ -20,4 +16,8 @@
 		outline: 2px solid rgba(0, 0, 0, 0.6);
 		outline-offset: -2px;
 	}
+}
+
+:host:active {
+	cursor: grabbing;
 }

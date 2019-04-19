@@ -144,4 +144,8 @@ export class LoreService {
 				});
 			});
 	}
+
+	public name(actor: Actor) {
+		return actor.id;
+	}
 }

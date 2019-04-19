@@ -18,6 +18,7 @@
 	</div>
 </div>
 <div class="channel" *ngFor="let actor of (actors$ | async) as actors">
+	{{ loreService.name(actor) }}
 	<app-block
 		[actors]="actors"
 		[actor]="actor"
