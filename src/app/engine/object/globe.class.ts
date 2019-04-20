@@ -60,7 +60,7 @@ export class Globe extends Basic {
 			this.stage.engineService.hovered.next(undefined);
 		});
 		this.addEventListener('pan', event => {
-			this.rotate(event.velocity.x, event.velocity.y, event.final);
+			// this.rotate(event.velocity.x, event.velocity.y, event.final);
 		});
 	}
 

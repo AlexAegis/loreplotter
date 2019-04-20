@@ -12,7 +12,7 @@ import { Globe } from './object/globe.class';
 import { Point } from './object/point.class';
 import { PopupComponent } from '../component/popup/popup.component';
 import { Vector2 } from 'three';
-
+import { OrbitControls } from 'three-full';
 @Injectable({
 	providedIn: 'root'
 })
@@ -20,6 +20,7 @@ export class EngineService {
 	private renderer: THREE.WebGLRenderer;
 
 	public stage: Stage;
+	public controls: OrbitControls;
 
 	private raycaster: THREE.Raycaster = new THREE.Raycaster();
 	public globe: Globe;
@@ -69,6 +70,21 @@ export class EngineService {
 
 		this.stage = new Stage(this);
 
+		this.controls = new OrbitControls(this.stage.camera, this.renderer.domElement);
+		this.controls.enableDamping = true;
+		this.controls.enableZoom = true;
+		this.controls.enablePan = false; // moving the camera in a plane is disabled, only rotation is allowed
+		this.controls.zoomSpeed = 2.0;
+		this.controls.dampingFactor = 0.25;
+		this.controls.minZoom = 10;
+		this.controls.rotateSpeed = 0.1;
+		this.controls.addEventListener('change', e => {
+			this.globe.changed();
+		});
+
+		const axesHelper = new THREE.AxesHelper(5);
+		this.stage.add(axesHelper);
+
 		this.globe = new Globe();
 		this.stage.add(this.globe);
 	}
@@ -108,7 +124,7 @@ export class EngineService {
 			});
 	}
 
-	context(coord: Vector2) {
+	public context(coord: Vector2) {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
@@ -123,11 +139,12 @@ export class EngineService {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
-			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
+			.filter(i => i.object.type === 'Globe' || i.object.type === 'Point') // Globe is needed so you can pan fast
 			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
-				if (start) {
-					this.drag.next(<Globe | Point>intersection.object);
+				if (start && intersection.object.type === 'Point') {
+					this.drag.next(<Point>intersection.object);
+					this.controls.enabled = false;
 				}
 
 				if (this.drag.value !== undefined) {
@@ -140,11 +157,11 @@ export class EngineService {
 				}
 
 				if (end) {
-					// delete intersection.object.parent.userData.override;
 					if (intersection.object.type === 'Point') {
 						this.spawnOnWorld$.next({ object: <Point>intersection.object, point: intersection.point });
 					}
 					this.drag.next(undefined);
+					this.controls.enabled = true;
 				}
 			});
 	}
@@ -176,11 +193,17 @@ export class EngineService {
 	render() {
 		requestAnimationFrame(() => this.render());
 		TWEEN.update(Date.now());
+		if (this.controls) {
+			this.controls.update();
+		}
 		this.renderer.render(this.stage, this.stage.camera);
 	}
 
-	resize() {
-		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
+	public resize() {
+		this.stage.camera.left = window.innerWidth / -2;
+		this.stage.camera.right = window.innerWidth / 2;
+		this.stage.camera.top = window.innerHeight / 2;
+		this.stage.camera.bottom = window.innerHeight / -2;
 		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.globe.changed();

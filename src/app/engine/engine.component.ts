@@ -48,6 +48,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public pan($event: any): void {
+		console.log($event);
 		this.engine.pan(
 			normalize($event.center.x, $event.center.y),
 			new Vector2($event.velocityX * 2, $event.velocityY * 2),
@@ -59,13 +60,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	public turnRight() {
 		this.engine.globe.turnAngleOnX(90);
 	}
-
-	public wheel($event: WheelEvent) {
-		this.engine.stage.zoom($event.deltaY);
-	}
-
-	@HostListener('document:keypress', ['$event'])
-	handleKeyboardEvent(event: KeyboardEvent) {}
 
 	public contextmenu($event: any): boolean {
 		let pos;
