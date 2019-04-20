@@ -237,6 +237,9 @@ export class BlockComponent implements OnInit {
 	@HostListener('pan', ['$event'])
 	@HostListener('panend', ['$event'])
 	public pan($event: any) {
+		$event.stopPropagation();
+		console.log('pan in block');
+		console.log($event);
 		if ($event.type === 'panstart') {
 			for (const node of this.actor.states.nodes()) {
 				this._originalUnixesForPan.set(node, node.key.unix);

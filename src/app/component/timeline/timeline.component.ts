@@ -192,7 +192,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * When the translation finishes, the values are baked (Moved from the delta to the base value, total value doesn't change)
 	 *
 	 */
+	@HostListener('panstart', ['$event'])
+	@HostListener('pan', ['$event'])
+	@HostListener('panend', ['$event'])
 	public shift($event: any) {
+		// $event.stopPropagation();
 		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
 		if ($event.type === 'panend') {
 			this.frameStart.bake();
