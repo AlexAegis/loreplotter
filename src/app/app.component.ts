@@ -105,7 +105,6 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 	@HostListener('window:keyup', ['$event'])
 	public keyEvent($event: KeyboardEvent) {
-		console.log($event);
 		switch ($event.code) {
 			case 'Space':
 				this.play.tap();
