@@ -1,7 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
+import { PlayComponent } from './component/play/play.component';
+import { LoreService } from 'src/app/service/lore.service';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, HostListener } from '@angular/core';
 import { trigger, transition, style, animate, animateChild, state, group, query } from '@angular/animations';
 import { MediaObserver, MediaChange } from '@angular/flex-layout';
 import { filter } from 'rxjs/operators';
+import { TimelineComponent } from './component/timeline/timeline.component';
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',
@@ -74,23 +77,40 @@ import { filter } from 'rxjs/operators';
 	]
 })
 export class AppComponent implements AfterViewInit, OnInit {
-	title = 'Lore';
+	public title = 'Lore';
 
 	@ViewChild('container')
-	container: ElementRef;
+	private container: ElementRef;
 
-	mediaLarge = true;
+	@ViewChild('play')
+	private play: PlayComponent;
 
-	constructor(public media: MediaObserver) {}
+	@ViewChild('timeline')
+	private timeline: TimelineComponent;
 
-	ngAfterViewInit(): void {}
+	public mediaLarge = true;
 
-	ngOnInit(): void {
+	public constructor(public media: MediaObserver, private loreService: LoreService) {}
+
+	public ngAfterViewInit(): void {}
+
+	public ngOnInit(): void {
 		this.media
 			.asObservable()
 			.pipe(filter(a => a && a.length > 0))
 			.subscribe((changes: MediaChange[]) => {
 				this.mediaLarge = changes[0].mqAlias === 'xl';
 			});
+	}
+
+	@HostListener('window:keyup', ['$event'])
+	public keyEvent($event: KeyboardEvent) {
+		console.log($event);
+		switch ($event.code) {
+			case 'Space':
+				this.play.tap();
+				this.timeline.playOrPause(this.play.play);
+				break;
+		}
 	}
 }

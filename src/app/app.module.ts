@@ -28,6 +28,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { SkyhookMultiBackendModule, createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
 import { BlockComponent } from './component/block/block.component';
+import { PlayComponent } from './component/play/play.component';
 
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
@@ -48,7 +49,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 		RepeatDirective,
 		ListComponent,
 		CursorComponent,
-		BlockComponent
+		BlockComponent,
+		PlayComponent
 	],
 	imports: [
 		BrowserModule,

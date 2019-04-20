@@ -226,4 +226,22 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	normalize(value: number) {
 		return value === 0 ? 0 : value / Math.abs(value);
 	}
+
+	public playOrPause(play: boolean) {
+		if (play) {
+			this.play();
+		} else {
+			this.pause();
+		}
+	}
+
+	public play() {
+		console.log('play!');
+		this.loreService.play(this.cursor);
+	}
+
+	public pause() {
+		console.log('pause!');
+		this.loreService.stopSubject.next(true);
+	}
 }

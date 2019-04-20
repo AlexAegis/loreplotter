@@ -72,12 +72,9 @@
 		}
 	}
 
-	.popup {
-		background-color: aquamarine;
-		position: absolute;
-		left: 1000px;
-		top: 600px;
-		border-radius: 25px;
-		padding: 20px;
+	.controls {
+		position: fixed;
+		bottom: 210px;
+		display: inline;
 	}
 }

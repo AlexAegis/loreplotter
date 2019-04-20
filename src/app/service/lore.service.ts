@@ -1,3 +1,4 @@
+import { CursorComponent } from './../component/cursor/cursor.component';
 import { ActorDelta } from './../model/actor-delta.class';
 import { Quaternion, Group, Vector3 } from 'three';
 import { DatabaseService } from 'src/app/database/database.service';
@@ -5,13 +6,13 @@ import { EngineService } from './../engine/engine.service';
 import { Injectable } from '@angular/core';
 import { Moment } from 'moment';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, merge, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, merge, Subject, interval } from 'rxjs';
 import { rescale } from '../misc/rescale.function';
 import { UnixWrapper } from '../model/unix-wrapper.class';
 import { Point } from '../engine/object/point.class';
 import { Enclosing, Node } from '@alexaegis/avl';
 import { invert } from '../engine/helper/invert.function';
-import { flatMap, filter, mergeAll, withLatestFrom, map, tap } from 'rxjs/operators';
+import { flatMap, filter, mergeAll, withLatestFrom, map, tap, takeUntil, retryWhen } from 'rxjs/operators';
 import { Offset } from '@angular-skyhook/core';
 import { Actor } from '../model/actor.class';
 import { normalize } from '../engine/helper/normalize.function';
@@ -30,6 +31,8 @@ export class LoreService {
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;
 	}>(undefined);
+
+	public stopSubject = new BehaviorSubject<boolean>(false);
 
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
 		// This subscriber's job is to map each actors state to the map based on the current cursor
@@ -147,5 +150,15 @@ export class LoreService {
 
 	public name(actor: Actor) {
 		return actor.id;
+	}
+
+	public play(cursor: CursorComponent) {
+		this.stopSubject.next(false);
+		interval(1000 / 60)
+			.pipe(takeUntil(this.stopSubject.pipe(filter(val => val))))
+			.subscribe(i => {
+				this.cursor$.next(this.cursor$.value + 3600 / 6);
+				cursor.contextChange();
+			});
 	}
 }
