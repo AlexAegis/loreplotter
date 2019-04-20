@@ -1,17 +1,17 @@
 import * as TWEEN from '@tweenjs/tween.js';
-import { Group, Shader, Spherical, Vector3 } from 'three';
+import { Group, Shader, Spherical, Vector3, Color, TextureLoader } from 'three';
 import * as THREE from 'three';
 
 import { globeShader } from '../shader/globe.shader';
 import { ClickEvent } from './../event/click-event.type';
 import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
+import { Water } from './water.class';
 
 export class Globe extends Basic {
-	private rotationEase: TWEEN.Tween;
-
 	public type = 'Globe';
 
+	public water: Water;
 	/**+
 	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
 	 * Later change it so it puts down some meshes rather than a line
@@ -21,7 +21,8 @@ export class Globe extends Basic {
 		// const curve = new THREE.LineCurve3(from, to);
 		const points = airCurve.getPoints(50);
 		const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
+		this.castShadow = true;
+		this.receiveShadow = true;
 		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
 
 		// Create the final object to add to the scene
@@ -33,16 +34,18 @@ export class Globe extends Basic {
 	}
 
 	constructor(private radius: number = 1, shader: Shader = globeShader) {
-		super(
-			new THREE.SphereGeometry(radius, 100, 100),
-			new THREE.ShaderMaterial({
-				uniforms: shader.uniforms,
-				vertexShader: shader.vertexShader,
-				fragmentShader: shader.fragmentShader
-			})
-		);
+		super();
+		this.material = new THREE.MeshPhongMaterial({
+			emissive: new Color('#bababa'),
+			displacementMap: new TextureLoader().load(`assets/world.jpg`),
+			bumpMap: new TextureLoader().load(`assets/world.jpg`),
+			displacementScale: -1
+		});
+		this.geometry = new THREE.SphereBufferGeometry(radius, 800, 800);
 		this.name = 'globe';
+		this.geometry.normalizeNormals();
 		this.geometry.computeBoundingSphere();
+		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 		this.addEventListener('click', (event: ClickEvent) => {
 			this.stage.engineService.selected.next(undefined);
 		});
@@ -52,6 +55,9 @@ export class Globe extends Basic {
 		this.addEventListener('pan', event => {
 			// this.rotate(event.velocity.x, event.velocity.y, event.final);
 		});
+
+		this.water = new Water();
+		this.add(this.water);
 	}
 
 	/**

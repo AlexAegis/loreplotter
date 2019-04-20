@@ -1,11 +1,11 @@
 :host {
-	//background-color: rgba(0, 0, 0, 0.1);
+	background-color: rgba(255, 255, 255, 0.7);
 	background-image: linear-gradient(
-		rgba(0, 0, 0, 0.4),
-		rgba(10, 10, 10, 0.2),
-		rgba(92, 92, 92, 0.1),
-		rgba(92, 92, 92, 0.1),
-		rgba(170, 170, 170, 0.05)
+		rgba(0, 0, 0, 0.35),
+		rgba(10, 10, 10, 0.1),
+		rgba(92, 92, 92, 0.05),
+		rgba(92, 92, 92, 0.05),
+		rgba(170, 170, 170, 0.025)
 	);
 	height: 200px;
 	position: fixed;
@@ -54,23 +54,14 @@
 	.channelsContainer {
 		//position: relative;
 		//display: flex;
-		width: 100%;
+		// width: 100%;
 		overflow: hidden;
 		height: 80%;
 		//display: contents;
 	}
 
-	.channelsInnerContainer {
-		//position: relative;
-		//display: flex;
-		width: 100%;
-
-		overflow: hidden;
-		//display: contents;
-	}
-
 	.channels {
-		width: 100%;
+		// width: 100%;
 		//display: contents;
 		//position: relative;
 	}

@@ -7,11 +7,16 @@
 	background-color: rgba(0, 0, 0, 0.8);
 	z-index: 10;
 	overflow: visible;
+	display: inline-table;
 }
 
 :host::after {
 	position: relative;
-	background-color: rgba(0, 0, 0, 0.4);
-	width: 1px;
-	height: 200%;
+	background-color: rgba(0, 0, 0, 0.2);
+	box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.05);
+	width: 2px;
+	left: 1px;
+	height: 500%;
+	content: '';
+	display: inline-table;
 }

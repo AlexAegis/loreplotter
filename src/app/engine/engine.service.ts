@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BehaviorSubject, EMPTY, merge, NEVER, of } from 'rxjs';
 import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
-import { Vector2, Vector3 } from 'three';
+import { Vector2, Vector3, WebGLRenderer } from 'three';
 import * as THREE from 'three';
 import { OrbitControls } from 'three-full';
 
@@ -11,7 +11,12 @@ import { DatabaseService } from './../database/database.service';
 import { Globe } from './object/globe.class';
 import { Point } from './object/point.class';
 import { Stage } from './object/stage.class';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 
+// Injecting the three-mesh-bvh functions for significantly faster ray-casting
+(THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
+(THREE.BufferGeometry.prototype as { [k: string]: any }).disposeBoundsTree = disposeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
 @Injectable({
 	providedIn: 'root'
 })
@@ -56,15 +61,17 @@ export class EngineService {
 	 */
 	constructor(private databaseService: DatabaseService) {
 		this.selection$.subscribe();
+
 		this.hover$.subscribe();
 	}
 
 	createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: canvas,
-			alpha: true,
+			alpha: false,
 			antialias: true
 		});
+		this.renderer.gammaOutput = true;
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 		this.stage = new Stage(this);
@@ -77,6 +84,7 @@ export class EngineService {
 		this.controls.dampingFactor = 0.25;
 		this.controls.minZoom = 10;
 		this.controls.rotateSpeed = 0.1;
+		// this.controls.autoRotate = true; // Disable if not testing
 		this.controls.addEventListener('change', e => {
 			this.globe.changed();
 		});

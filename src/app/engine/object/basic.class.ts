@@ -10,7 +10,7 @@ export class Basic extends THREE.Mesh {
 	@Output()
 	positionChange = new EventEmitter<Vector2>();
 
-	constructor(geometry?: THREE.Geometry, material?: THREE.Material) {
+	constructor(geometry?: THREE.Geometry | THREE.BufferGeometry, material?: THREE.Material) {
 		super(geometry, material);
 	}
 
