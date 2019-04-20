@@ -6,4 +6,12 @@
 	height: 20%;
 	background-color: rgba(0, 0, 0, 0.8);
 	z-index: 10;
+	overflow: visible;
+}
+
+:host::after {
+	position: relative;
+	background-color: rgba(0, 0, 0, 0.4);
+	width: 1px;
+	height: 200%;
 }

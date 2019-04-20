@@ -143,7 +143,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * TODO: Hammer pinch support
 	 * @param $event mouseEvent
 	 */
-	@HostListener('mousewheel', ['$event'])
+	// @HostListener('mousewheel', ['$event'])
 	scrollHandler($event: any) {
 		const direction = this.normalize($event.deltaY); // -1 or 1
 		let prog = this.cursor.progress; // [0-1]

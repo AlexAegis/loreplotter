@@ -139,12 +139,36 @@ export class DatabaseService {
 			new UnixWrapper(moment('2019-01-08').unix()),
 			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
 		);
+
+		const testActor4 = new Actor('4');
+		testActor4.states.set(
+			new UnixWrapper(moment('2019-01-07').unix()),
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
+		);
+		testActor4.states.set(
+			new UnixWrapper(moment('2019-01-08').unix()),
+			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
+		);
+		testActor4.states.set(
+			new UnixWrapper(moment('2019-01-10').unix()),
+			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
+		);
+		const testActor5 = new Actor('5');
+		testActor5.states.set(
+			new UnixWrapper(moment('2019-01-07').unix()),
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
+		);
+		testActor5.states.set(
+			new UnixWrapper(moment('2019-01-10').unix()),
+			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
+		);
+
 		this.connection
 			.pipe(
 				switchMap(conn =>
 					conn.lore.upsert({
 						name: this.currentDocument.value,
-						actors: [testActor1, testActor2, testActor3],
+						actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
 						locations: ['City17', 'City14']
 					})
 				)
