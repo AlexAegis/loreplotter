@@ -20,6 +20,7 @@ import { DeltaProperty } from 'src/app/model/delta-property.class';
 import { LoreService } from 'src/app/service/lore.service';
 
 import { CursorComponent } from './../cursor/cursor.component';
+import { NgScrollbar } from 'ngx-scrollbar';
 
 /**
  * Timeline
@@ -63,15 +64,38 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.calcUnitsBetween();
 	}
 
-	public frameStart: DeltaProperty = new DeltaProperty(); // The frames starting point as unix
-	public frameEnd: DeltaProperty = new DeltaProperty();
-
 	/**
 	 * Returns the frames length in unix
 	 */
 	public get frame(): number {
 		return this.frameEnd.total - this.frameStart.total;
 	}
+	get currentUnit(): moment.unitOfTime.DurationConstructor {
+		return this.units[this.currentUnitIndex].unitName;
+	}
+
+	get currentUnitSeconds(): number {
+		return this.units[this.currentUnitIndex].seconds;
+	}
+
+	get currentUnitDivision(): number {
+		return this.units[this.currentUnitIndex].frame;
+	}
+
+	get previousUnitDivision(): number {
+		return this.currentUnitIndex > 0 ? this.units[this.currentUnitIndex - 1].frame : -Infinity;
+	}
+
+	get nextUnitDivision(): number {
+		return this.currentUnitIndex < this.units.length - 1 ? this.units[this.currentUnitIndex + 1].frame : Infinity;
+	}
+
+	@HostBinding('style.width') get widthCalc(): string {
+		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
+	}
+
+	public frameStart: DeltaProperty = new DeltaProperty(); // The frames starting point as unix
+	public frameEnd: DeltaProperty = new DeltaProperty();
 
 	public unitsBetween: number; // This property holds how many main divisions there is on the timeline,
 
@@ -96,29 +120,9 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	public actors$ = this.databaseService.actors$; // reference of the actor query pipeline
 
-	logActors() {
-		console.log('Logging actors:');
-		this.actors$.pipe(take(1)).subscribe(console.log);
-	}
-	get currentUnit(): moment.unitOfTime.DurationConstructor {
-		return this.units[this.currentUnitIndex].unitName;
-	}
+	@ViewChild(NgScrollbar) private scrollRef: NgScrollbar;
 
-	get currentUnitSeconds(): number {
-		return this.units[this.currentUnitIndex].seconds;
-	}
-
-	get currentUnitDivision(): number {
-		return this.units[this.currentUnitIndex].frame;
-	}
-
-	get previousUnitDivision(): number {
-		return this.currentUnitIndex > 0 ? this.units[this.currentUnitIndex - 1].frame : -Infinity;
-	}
-
-	get nextUnitDivision(): number {
-		return this.currentUnitIndex < this.units.length - 1 ? this.units[this.currentUnitIndex + 1].frame : Infinity;
-	}
+	private scrollOnStart: number;
 
 	ngAfterViewInit(): void {
 		// ResizeObserver is not really supported outside of chrome.
@@ -218,10 +222,15 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostListener('panend', ['$event'])
 	public shift($event: any) {
 		$event.stopPropagation();
+		if ($event.type === 'panstart') {
+			this.scrollOnStart = this.scrollRef.view.scrollTop;
+		}
 		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
+		this.scrollRef.scrollYTo(this.scrollOnStart - $event.deltaY);
 		if ($event.type === 'panend') {
 			this.frameStart.bake();
 			this.frameEnd.bake();
+			this.scrollOnStart = undefined;
 		}
 	}
 
@@ -243,10 +252,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	ngOnInit() {}
-
-	@HostBinding('style.width') get widthCalc(): string {
-		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
-	}
 
 	normalize(value: number) {
 		return value === 0 ? 0 : value / Math.abs(value);
