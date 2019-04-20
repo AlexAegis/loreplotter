@@ -7,7 +7,13 @@
 		[frameEnd]="frameEnd.total"
 	></app-cursor>
 	<div #divisorContainer class="divisorContainer" (pinch)="scrollHandler($event)" (tap)="tap($event)">
-		<div *appRepeat="let c; from: unitsBetween" class="divisor" [ngStyle]="{ 'left.px': dist(c) }"></div>
+		<div *appRepeat="let c; from: unitsBetween + 1" class="divisor" [ngStyle]="{ 'left.px': dist(c) }">
+			<div
+				*appRepeat="let m; from: currentUnitDivision - 1"
+				class="subDivisor"
+				[ngStyle]="{ 'left.px': subDist(m) }"
+			></div>
+		</div>
 	</div>
 </div>
 <div class="channel" *ngFor="let actor of (actors$ | async) as actors">

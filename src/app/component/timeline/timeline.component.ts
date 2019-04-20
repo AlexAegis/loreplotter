@@ -15,7 +15,7 @@ import { Moment } from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
 import * as THREE from 'three';
 import { DatabaseService } from 'src/app/database/database.service';
-import { switchMap, tap, take, filter } from 'rxjs/operators';
+import { switchMap, tap, take, filter, distinct } from 'rxjs/operators';
 import { Actor } from 'src/app/model/actor.class';
 import { LoreService } from 'src/app/service/lore.service';
 import * as TWEEN from '@tweenjs/tween.js';
@@ -23,6 +23,7 @@ import { DeltaProperty } from 'src/app/model/delta-property.class';
 import { normalize } from 'src/app/engine/helper/normalize.function';
 import { rescale } from 'src/app/misc/rescale.function';
 import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
+import { clamp } from 'src/app/engine/helper/clamp.function';
 
 /**
  * Timeline
@@ -38,14 +39,13 @@ import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
 @Component({
 	selector: 'app-timeline',
 	templateUrl: './timeline.component.html',
-	styleUrls: ['./timeline.component.scss']
-	// changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./timeline.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, AfterViewInit {
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
-		private cd: ChangeDetectorRef,
 		public loreService: LoreService,
 		public databaseService: DatabaseService,
 		private changeDetectorRef: ChangeDetectorRef
@@ -77,16 +77,21 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.frameEnd.total - this.frameStart.total;
 	}
 
-	unitsBetween: number; // This property holds how many main divisions there is on the timeline,
+	public unitsBetween: number; // This property holds how many main divisions there is on the timeline,
+
 	// eg.: how many of the current scale's unit, fits into it.
 	distanceBetweenUnits: number;
 	// The resizeObserver keeps this property updated and call the change calculation
 	public containerWidth: number;
-	currentUnitIndex = 0;
+	currentUnitIndex = 3;
 	units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
-		{ unitName: 'day', frame: 7, seconds: moment.duration(1, 'day').asSeconds() },
-		{ unitName: 'week', frame: 4, seconds: moment.duration(1, 'week').asSeconds() },
-		{ unitName: 'month', frame: 12, seconds: moment.duration(1, 'month').asSeconds() }
+		{ unitName: 'second', frame: 1000, seconds: moment.duration(1, 'second').asSeconds() },
+		{ unitName: 'minute', frame: 60, seconds: moment.duration(1, 'minute').asSeconds() },
+		{ unitName: 'hour', frame: 60, seconds: moment.duration(1, 'hour').asSeconds() },
+		{ unitName: 'day', frame: 24, seconds: moment.duration(1, 'day').asSeconds() },
+		{ unitName: 'week', frame: 7, seconds: moment.duration(1, 'week').asSeconds() },
+		{ unitName: 'month', frame: 52, seconds: moment.duration(1, 'month').asSeconds() },
+		{ unitName: 'year', frame: 12, seconds: moment.duration(1, 'year').asSeconds() }
 	];
 
 	@ViewChild('divisorContainer') divisorContainer: ElementRef;
@@ -107,12 +112,16 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.units[this.currentUnitIndex].seconds;
 	}
 
-	get currentUnitUpperlimit(): number {
+	get currentUnitDivision(): number {
 		return this.units[this.currentUnitIndex].frame;
 	}
 
-	get getCurrentUnitInnerDivision(): number {
-		return this.currentUnitIndex > 0 ? this.units[this.currentUnitIndex - 1].frame : 12;
+	get previousUnitDivision(): number {
+		return this.currentUnitIndex > 0 ? this.units[this.currentUnitIndex - 1].frame : -Infinity;
+	}
+
+	get nextUnitDivision(): number {
+		return this.currentUnitIndex < this.units.length - 1 ? this.units[this.currentUnitIndex + 1].frame : Infinity;
 	}
 
 	ngAfterViewInit(): void {
@@ -144,18 +153,26 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		let prog = this.cursor.progress; // [0-1]
 
 		prog = rescale($event.clientX, 0, window.innerWidth, 0, 1);
+		console.log(
+			`prog: ${prog} currentUnitUpperlimit: ${this.currentUnitDivision} nextUnitDivision: ${
+				this.nextUnitDivision
+			} currentUnitIndex: ${this.currentUnitIndex} unitsBetween: ${this.unitsBetween}`
+		);
 		// This will be the cursor positon or the center of the pinch, right now it's just the cursors position
 
-		/*
-		if (direction > 0 && this.unitsBetween === this.currentUnitUpperlimit && this.unit < this.units.length - 1) {
-			this.unit++;
+		if (
+			direction > 0 &&
+			this.nextUnitDivision <= this.unitsBetween &&
+			this.currentUnitIndex < this.units.length - 1
+		) {
+			// this.currentUnitIndex++;
 			console.log('upshift');
 			// upshift
-		} else if (direction < 0 && this.unitsBetween === 1 && this.unit > 0) {
-			this.unit--;
+		} else if (direction < 0 && this.currentUnitDivision >= this.unitsBetween && this.currentUnitIndex > 0) {
+			// this.currentUnitIndex--;
 			console.log('downshift');
 			// downshift
-		}*/
+		}
 		this.frameStart.base -= direction * prog * this.currentUnitSeconds;
 		this.frameEnd.base += direction * (1 - prog) * this.currentUnitSeconds;
 
@@ -177,11 +194,15 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 */
 	public dist(i: number): number {
 		const time = nextWhole(this.frameStart.total, this.currentUnitSeconds, i + 1);
-		//console.log(`magic number: ${this.distanceBetweenUnits * 0.042}`);
 		return (
 			rescale(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
-			this.distanceBetweenUnits * 0.042
+			this.distanceBetweenUnits * 0.042 - // TODO: Change this magic number into something reasonable (although it works)
+			this.distanceBetweenUnits
 		);
+	}
+
+	public subDist(i: number) {
+		return (this.distanceBetweenUnits / this.currentUnitDivision) * (i + 1);
 	}
 
 	/**
