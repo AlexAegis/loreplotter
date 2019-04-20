@@ -54,9 +54,6 @@ export class Point extends Basic implements Interactive {
 		this.addEventListener('pan', event => {
 			this.parent.lookAt(event.point);
 			this.parent.userData.override = true;
-			if (event.final) {
-				delete this.parent.userData.override;
-			}
 		});
 	}
 

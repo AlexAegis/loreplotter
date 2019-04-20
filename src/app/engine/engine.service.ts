@@ -140,6 +140,7 @@ export class EngineService {
 				}
 
 				if (end) {
+					// delete intersection.object.parent.userData.override;
 					if (intersection.object.type === 'Point') {
 						this.spawnOnWorld$.next({ object: <Point>intersection.object, point: intersection.point });
 					}

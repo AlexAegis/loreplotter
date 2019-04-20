@@ -83,8 +83,8 @@ export class LoreService {
 					group.add(new Point(actor.id));
 					engineService.globe.add(group);
 				}
-				// If group location is overridden then ignore the interpolation
-				if (!group.userData.override) {
+
+				if (group.userData.override === undefined) {
 					group.lookAt(
 						new Vector3(
 							enclosure.last.v.position.x,
@@ -106,6 +106,8 @@ export class LoreService {
 					if (t && Math.abs(t) !== Infinity) {
 						Quaternion.slerp(fromQ, toQ, group.quaternion, t);
 					}
+				} else if (group.userData.override === false) {
+					delete group.userData.override;
 				}
 			});
 
@@ -151,6 +153,8 @@ export class LoreService {
 							);
 						});
 					return l;
+				}).finally(() => {
+					object.parent.userData.override = false;
 				});
 			});
 	}
