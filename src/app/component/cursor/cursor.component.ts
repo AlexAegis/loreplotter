@@ -108,9 +108,11 @@ export class CursorComponent implements OnInit {
 		);
 	}
 
+	@HostListener('panstart', ['$event'])
 	@HostListener('pan', ['$event'])
 	@HostListener('panend', ['$event'])
 	panHandler($event: any) {
+		$event.stopPropagation();
 		if (this.position + $event.deltaX >= 0 && this.position + $event.deltaX <= this._containerWidth) {
 			this.deltaPosition = $event.deltaX;
 		}

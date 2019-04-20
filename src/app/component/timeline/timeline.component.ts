@@ -177,7 +177,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 */
 	public dist(i: number): number {
 		const time = nextWhole(this.frameStart.total, this.currentUnitSeconds, i + 1);
-		return rescale(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth);
+		//console.log(`magic number: ${this.distanceBetweenUnits * 0.042}`);
+		return (
+			rescale(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
+			this.distanceBetweenUnits * 0.042
+		);
 	}
 
 	/**
@@ -196,7 +200,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostListener('pan', ['$event'])
 	@HostListener('panend', ['$event'])
 	public shift($event: any) {
-		// $event.stopPropagation();
+		$event.stopPropagation();
 		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
 		if ($event.type === 'panend') {
 			this.frameStart.bake();
