@@ -1,5 +1,5 @@
-import { Spherical, Vector3 } from 'three';
-import { jsonObject, jsonMember, toJson } from 'typedjson';
+import { jsonMember, jsonObject, toJson } from 'typedjson';
+
 import { Vector3Serializable } from './vector3-serializable.interface';
 
 @jsonObject

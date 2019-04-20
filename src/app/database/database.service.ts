@@ -1,18 +1,16 @@
-import { Actor } from './../model/actor.class';
-import { Injectable } from '@angular/core';
-
-import RxDB, { RxDatabase, RxCollection, RxJsonSchema, RxDocument } from 'rxdb';
-import { Observable, from, BehaviorSubject, merge, zip, of, combineLatest } from 'rxjs';
-import { map, tap, mergeMap, switchMap, filter, share, shareReplay } from 'rxjs/operators';
-import * as idb from 'pouchdb-adapter-idb';
-import { Database, LoreCollectionMethods, LoreDocumentMethods, LoreCollection, DatabaseCollections } from './database';
-import { Lore, loreSchema } from '../model/lore.class';
-import { ActorDelta } from '../model/actor-delta.class';
-import * as moment from 'moment';
-import { Vector3 } from 'three';
-import { TypedJSON } from 'typedjson';
 import { Tree } from '@alexaegis/avl';
+import { Injectable } from '@angular/core';
+import * as moment from 'moment';
+import * as idb from 'pouchdb-adapter-idb';
+import RxDB from 'rxdb';
+import { BehaviorSubject, combineLatest, from, Observable } from 'rxjs';
+import { filter, map, mergeMap, shareReplay, switchMap } from 'rxjs/operators';
+
+import { ActorDelta } from '../model/actor-delta.class';
+import { loreSchema } from '../model/lore.class';
 import { UnixWrapper } from '../model/unix-wrapper.class';
+import { Actor } from './../model/actor.class';
+import { Database, DatabaseCollections, LoreCollection, LoreCollectionMethods, LoreDocumentMethods } from './database';
 
 @Injectable({
 	providedIn: 'root'

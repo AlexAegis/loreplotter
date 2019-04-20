@@ -1,17 +1,9 @@
-import { ClickEvent } from '../event/click-event.type';
-import { Point } from './point.class';
-import { Shader, Vector3, Quaternion, Euler, Spherical, Object3D, Vector2 } from 'three';
-import { globeShader } from '../shader/globe.shader';
-
-import * as TWEEN from '@tweenjs/tween.js';
+import { EventEmitter, Output } from '@angular/core';
+import { Object3D, Vector2, Vector3 } from 'three';
 import * as THREE from 'three';
-import { interval, timer } from 'rxjs';
-import { take, delay } from 'rxjs/operators';
-import { Interactive } from '../interfaces/interactive.interface';
-import { invert } from '../helper/invert.function';
-import { EventEmitter, Output, OnChanges, SimpleChanges, Input, DoCheck, Inject, Injectable } from '@angular/core';
+
 import { denormalize } from '../helper/denormalize.function';
-import { EngineService } from '../engine.service';
+import { Point } from './point.class';
 import { Stage } from './stage.class';
 
 export class Basic extends THREE.Mesh {

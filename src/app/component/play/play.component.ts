@@ -1,6 +1,5 @@
-import { CursorComponent } from './../cursor/cursor.component';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { LoreService } from 'src/app/service/lore.service';
-import { Component, OnInit, ElementRef, ViewChild, HostBinding, HostListener, Input } from '@angular/core';
 
 @Component({
 	selector: 'app-play',

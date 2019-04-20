@@ -1,10 +1,12 @@
-import { PlayComponent } from './component/play/play.component';
-import { LoreService } from 'src/app/service/lore.service';
-import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, HostListener } from '@angular/core';
-import { trigger, transition, style, animate, animateChild, state, group, query } from '@angular/animations';
-import { MediaObserver, MediaChange } from '@angular/flex-layout';
+import { animate, animateChild, group, query, state, style, transition, trigger } from '@angular/animations';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { filter } from 'rxjs/operators';
+import { LoreService } from 'src/app/service/lore.service';
+
+import { PlayComponent } from './component/play/play.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
+
 @Component({
 	selector: 'app-root',
 	templateUrl: './app.component.html',

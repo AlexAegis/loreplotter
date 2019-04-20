@@ -1,18 +1,17 @@
-import { LoreService } from 'src/app/service/lore.service';
-import { DatabaseService } from './../database/database.service';
-import { Stage } from './object/stage.class';
 import { Injectable } from '@angular/core';
-import { Vector3 } from 'three';
-import { BehaviorSubject, of, EMPTY, merge, NEVER } from 'rxjs';
-import { switchMap, tap, share, finalize, distinctUntilChanged } from 'rxjs/operators';
-
-import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js';
+import { BehaviorSubject, EMPTY, merge, NEVER, of } from 'rxjs';
+import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
+import { Vector2, Vector3 } from 'three';
+import * as THREE from 'three';
+import { OrbitControls } from 'three-full';
+
+import { PopupComponent } from '../component/popup/popup.component';
+import { DatabaseService } from './../database/database.service';
 import { Globe } from './object/globe.class';
 import { Point } from './object/point.class';
-import { PopupComponent } from '../component/popup/popup.component';
-import { Vector2 } from 'three';
-import { OrbitControls } from 'three-full';
+import { Stage } from './object/stage.class';
+
 @Injectable({
 	providedIn: 'root'
 })

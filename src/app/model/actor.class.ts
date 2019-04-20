@@ -1,10 +1,8 @@
-import { UnixWrapper } from './unix-wrapper.class';
-import { Moment } from 'moment';
-import * as moment from 'moment';
-import { ActorDelta } from './actor-delta.class';
-import { Tree, Node, Enclosing } from '@alexaegis/avl';
+import { Tree } from '@alexaegis/avl';
 import { RxJsonSchema } from 'rxdb';
-import { toJson, jsonObject, jsonMember } from 'typedjson';
+
+import { ActorDelta } from './actor-delta.class';
+import { UnixWrapper } from './unix-wrapper.class';
 
 /**
  * Should be serializable on its own

@@ -1,29 +1,25 @@
-import { CursorComponent } from './../cursor/cursor.component';
 import {
-	Component,
-	OnInit,
-	HostListener,
 	AfterViewInit,
-	ElementRef,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
-	ViewChild,
-	HostBinding
+	Component,
+	ElementRef,
+	HostBinding,
+	HostListener,
+	OnInit,
+	ViewChild
 } from '@angular/core';
-import * as moment from 'moment';
-import { Moment } from 'moment';
-import ResizeObserver from 'resize-observer-polyfill';
-import * as THREE from 'three';
-import { DatabaseService } from 'src/app/database/database.service';
-import { switchMap, tap, take, filter, distinct } from 'rxjs/operators';
-import { Actor } from 'src/app/model/actor.class';
-import { LoreService } from 'src/app/service/lore.service';
 import * as TWEEN from '@tweenjs/tween.js';
-import { DeltaProperty } from 'src/app/model/delta-property.class';
-import { normalize } from 'src/app/engine/helper/normalize.function';
-import { rescale } from 'src/app/misc/rescale.function';
+import * as moment from 'moment';
+import ResizeObserver from 'resize-observer-polyfill';
+import { take } from 'rxjs/operators';
+import { DatabaseService } from 'src/app/database/database.service';
 import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
-import { clamp } from 'src/app/engine/helper/clamp.function';
+import { rescale } from 'src/app/misc/rescale.function';
+import { DeltaProperty } from 'src/app/model/delta-property.class';
+import { LoreService } from 'src/app/service/lore.service';
+
+import { CursorComponent } from './../cursor/cursor.component';
 
 /**
  * Timeline

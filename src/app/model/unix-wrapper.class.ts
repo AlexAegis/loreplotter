@@ -1,5 +1,5 @@
-import { jsonMember, jsonObject } from 'typedjson';
 import { Comparable } from '@alexaegis/avl';
+import { jsonMember, jsonObject } from 'typedjson';
 
 @jsonObject
 export class UnixWrapper implements Comparable<UnixWrapper> {

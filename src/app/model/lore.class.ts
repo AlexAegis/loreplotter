@@ -1,6 +1,6 @@
+import { RxJsonSchema } from 'rxdb';
+
 import { Actor, actorSchema } from './actor.class';
-import { RxJsonSchema, RxJsonSchemaTopLevel } from 'rxdb';
-import { toJson, jsonObject, jsonMember, jsonArrayMember } from 'typedjson';
 
 // @jsonObject()
 // @toJson

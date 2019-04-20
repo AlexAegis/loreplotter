@@ -1,7 +1,6 @@
-import { Component, OnInit, EventEmitter, Output, Input, HostBinding, HostListener } from '@angular/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { EventListener } from '@angular/core/src/debug/debug_node';
-import { Vector3, Vector2 } from 'three';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Component, HostBinding, Input, OnInit } from '@angular/core';
+import { Vector2 } from 'three';
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',

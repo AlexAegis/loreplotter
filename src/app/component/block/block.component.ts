@@ -1,23 +1,24 @@
-import { ActorDelta } from './../../model/actor-delta.class';
-import { UnixWrapper } from './../../model/unix-wrapper.class';
+import { Node } from '@alexaegis/avl';
 import {
-	Component,
-	OnInit,
-	Input,
-	HostBinding,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
-	Output,
+	Component,
 	EventEmitter,
-	HostListener
+	HostBinding,
+	HostListener,
+	Input,
+	OnInit,
+	Output
 } from '@angular/core';
-import { Actor } from 'src/app/model/actor.class';
-import { rescale } from 'src/app/misc/rescale.function';
-import { LoreService } from 'src/app/service/lore.service';
-import { Node } from '@alexaegis/avl';
-import { DatabaseService } from 'src/app/database/database.service';
 import { take } from 'rxjs/operators';
+import { DatabaseService } from 'src/app/database/database.service';
+import { rescale } from 'src/app/misc/rescale.function';
+import { Actor } from 'src/app/model/actor.class';
 import { OverridableProperty } from 'src/app/model/overridable-property.class';
+import { LoreService } from 'src/app/service/lore.service';
+
+import { ActorDelta } from './../../model/actor-delta.class';
+import { UnixWrapper } from './../../model/unix-wrapper.class';
 
 @Component({
 	selector: 'app-block',

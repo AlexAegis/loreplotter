@@ -1,34 +1,31 @@
+import { SkyhookDndModule } from '@angular-skyhook/core';
+import { createDefaultMultiBackend, SkyhookMultiBackendModule } from '@angular-skyhook/multi-backend';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { AgGridModule } from 'ag-grid-angular';
+import * as Hammer from 'hammerjs';
+import { MomentModule } from 'ngx-moment';
+import { NgScrollbarModule, SmoothScrollModule } from 'ngx-scrollbar';
+
+import { environment } from '../environments/environment';
+import { AppComponent } from './app.component';
+import { BlockComponent } from './component/block/block.component';
+import { CursorComponent } from './component/cursor/cursor.component';
+import { HamburgerComponent } from './component/hamburger/hamburger.component';
+import { ListComponent } from './component/list/list.component';
+import { PlayComponent } from './component/play/play.component';
+import { PopupComponent } from './component/popup/popup.component';
+import { SidebarComponent } from './component/sidebar/sidebar.component';
+import { TimelineComponent } from './component/timeline/timeline.component';
 import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule, APP_INITIALIZER } from '@angular/core';
-import { MomentModule } from 'ngx-moment';
-import { AgGridModule } from 'ag-grid-angular';
-
-import { AppComponent } from './app.component';
-import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
-import * as Hammer from 'hammerjs';
-import { PopupComponent } from './component/popup/popup.component';
-
-import { NgScrollbarModule } from 'ngx-scrollbar';
-import { SmoothScrollModule } from 'ngx-scrollbar';
-import { RoutingModule } from './module/routing.module';
-import { SidebarComponent } from './component/sidebar/sidebar.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HamburgerComponent } from './component/hamburger/hamburger.component';
-import { TimelineComponent } from './component/timeline/timeline.component';
 import { MaterialModule } from './module/material.module';
-import { ListComponent } from './component/list/list.component';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment';
-import { CursorComponent } from './component/cursor/cursor.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { SkyhookDndModule } from '@angular-skyhook/core';
-import { SkyhookMultiBackendModule, createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
-import { BlockComponent } from './component/block/block.component';
-import { PlayComponent } from './component/play/play.component';
+import { RoutingModule } from './module/routing.module';
 
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{

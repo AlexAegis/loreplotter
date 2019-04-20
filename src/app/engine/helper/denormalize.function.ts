@@ -1,4 +1,4 @@
-import { Vector3, Vector2 } from 'three';
+import { Vector2, Vector3 } from 'three';
 
 /**
  * Denormalizes a coordinate

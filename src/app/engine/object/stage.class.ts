@@ -1,11 +1,7 @@
-import { Point } from './point.class';
-import { EngineService } from '../engine.service';
-import { throttleTime } from 'rxjs/operators';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
-import { Vector3, Vector2 } from 'three';
-import { Axis } from '../helper/axis.class';
+import { Vector2 } from 'three';
+import { EngineService } from '../engine.service';
 
 export class Stage extends THREE.Scene {
 	public camera: THREE.OrthographicCamera;

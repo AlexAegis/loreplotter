@@ -1,21 +1,11 @@
-import { AirCurve } from './air-curve.class';
-import { Moment } from 'moment';
-import { Basic } from './basic.class';
-import { ClickEvent } from './../event/click-event.type';
-import { Point } from './point.class';
-import { Shader, Vector3, Quaternion, Euler, Spherical, ArcCurve, BufferAttribute } from 'three';
-import { globeShader } from '../shader/globe.shader';
-
 import * as TWEEN from '@tweenjs/tween.js';
+import { Group, Shader, Spherical, Vector3 } from 'three';
 import * as THREE from 'three';
-import { interval, timer, BehaviorSubject } from 'rxjs';
-import { take, delay, window, windowCount, pairwise, map } from 'rxjs/operators';
-import { Interactive } from '../interfaces/interactive.interface';
-import { invert } from '../helper/invert.function';
-import { EventEmitter, Output } from '@angular/core';
-import { denormalize } from '../helper/denormalize.function';
-import { Axis } from '../helper/axis.class';
-import { Group } from 'three';
+
+import { globeShader } from '../shader/globe.shader';
+import { ClickEvent } from './../event/click-event.type';
+import { AirCurve } from './air-curve.class';
+import { Basic } from './basic.class';
 
 export class Globe extends Basic {
 	private rotationEase: TWEEN.Tween;
@@ -90,7 +80,10 @@ export class Globe extends Basic {
 		this.add(group);
 	}
 
-	rotate(x: number, y: number, isFinal?: boolean): Euler {
+	/**
+	 * @deprecated, orbitcontrols are in use instead
+	 */
+	/*rotate(x: number, y: number, isFinal?: boolean): Euler {
 		if (this.rotationEase) {
 			this.rotationEase.stop();
 		}
@@ -114,9 +107,12 @@ export class Globe extends Basic {
 		this.changed();
 
 		return this.rotation;
-	}
+	}*/
 
-	rotatween(x: number, y: number) {
+	/**
+	 * @deprecated, orbitcontrols are in use instead
+	 */
+	/*rotatween(x: number, y: number) {
 		const fromQuat = new Quaternion().copy(this.quaternion);
 
 		this.rotate(x, y);
@@ -133,24 +129,5 @@ export class Globe extends Basic {
 				this.changed();
 			})
 			.start(Date.now());
-	}
-
-	turnAngleOnX(angle: number) {
-		const fromQuat = new Quaternion().copy(this.quaternion);
-		this.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * angle);
-
-		const toQuat = new Quaternion().copy(this.quaternion);
-		this.rotateOnAxis(new Vector3(0, 1, 0), -THREE.Math.DEG2RAD * angle);
-
-		const val = { v: 0 };
-		const target = { v: 1 };
-		new TWEEN.Tween(val)
-			.to(target, 1200)
-			.easing(TWEEN.Easing.Exponential.Out)
-			.onUpdate(o => {
-				Quaternion.slerp(fromQuat, toQuat, this.quaternion, o.v);
-				this.changed();
-			})
-			.start(Date.now());
-	}
+	}*/
 }

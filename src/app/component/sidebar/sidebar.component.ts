@@ -1,11 +1,10 @@
-import { DatabaseService } from 'src/app/database/database.service';
-import { LoreService } from 'src/app/service/lore.service';
-import { Component, OnInit, Input, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { SkyhookDndService } from '@angular-skyhook/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
-import { flatMap, filter } from 'rxjs/operators';
-import { BehaviorSubject } from 'rxjs';
+import { filter } from 'rxjs/operators';
+import { DatabaseService } from 'src/app/database/database.service';
+import { LoreService } from 'src/app/service/lore.service';
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',

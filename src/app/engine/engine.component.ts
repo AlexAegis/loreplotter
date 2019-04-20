@@ -1,21 +1,13 @@
+import { SkyhookDndService } from '@angular-skyhook/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { Vector2 } from 'three';
+
 import { DatabaseService } from '../database/database.service';
+import { LoreService } from '../service/lore.service';
 import { PopupComponent } from './../component/popup/popup.component';
 import { EngineService } from './engine.service';
-import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, HostListener } from '@angular/core';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { Vector3, Euler, Vector2 } from 'three';
 import { normalize } from './helper/normalize.function';
-import { Point } from './object/point.class';
-import { denormalize } from './helper/denormalize.function';
-import { LoreService } from '../service/lore.service';
-import { SkyhookDndService } from '@angular-skyhook/core';
-import { Actor } from '../model/actor.class';
-import { combineLatest, from, of } from 'rxjs';
-import * as moment from 'moment';
 
-import { UnixWrapper } from '../model/unix-wrapper.class';
-import { ActorDelta } from '../model/actor-delta.class';
-import { take } from 'rxjs/operators';
 @Component({
 	selector: 'app-engine',
 	templateUrl: './engine.component.html',
@@ -55,10 +47,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 			$event.type === 'panstart',
 			$event.type === 'panend'
 		);
-	}
-
-	public turnRight() {
-		this.engine.globe.turnAngleOnX(90);
 	}
 
 	public contextmenu($event: any): boolean {

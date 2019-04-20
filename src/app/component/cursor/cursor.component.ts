@@ -1,17 +1,7 @@
-import { LoreService } from './../../service/lore.service';
-import { Moment } from 'moment';
-import * as moment from 'moment';
-import {
-	Component,
-	OnInit,
-	HostListener,
-	HostBinding,
-	Input,
-	Output,
-	EventEmitter,
-	ChangeDetectionStrategy
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
 import { rescale } from 'src/app/misc/rescale.function';
+
+import { LoreService } from './../../service/lore.service';
 
 @Component({
 	selector: 'app-cursor',

@@ -1,22 +1,21 @@
-import { CursorComponent } from './../component/cursor/cursor.component';
-import { ActorDelta } from './../model/actor-delta.class';
-import { Quaternion, Group, Vector3 } from 'three';
-import { DatabaseService } from 'src/app/database/database.service';
-import { EngineService } from './../engine/engine.service';
-import { Injectable } from '@angular/core';
-import { Moment } from 'moment';
-import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, merge, Subject, interval } from 'rxjs';
-import { rescale } from '../misc/rescale.function';
-import { UnixWrapper } from '../model/unix-wrapper.class';
-import { Point } from '../engine/object/point.class';
 import { Enclosing, Node } from '@alexaegis/avl';
-import { invert } from '../engine/helper/invert.function';
-import { flatMap, filter, mergeAll, withLatestFrom, map, tap, takeUntil, retryWhen } from 'rxjs/operators';
 import { Offset } from '@angular-skyhook/core';
-import { Actor } from '../model/actor.class';
-import { normalize } from '../engine/helper/normalize.function';
+import { Injectable } from '@angular/core';
+import * as moment from 'moment';
+import { BehaviorSubject, combineLatest, interval } from 'rxjs';
+import { filter, flatMap, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { DatabaseService } from 'src/app/database/database.service';
+import { Group, Quaternion, Vector3 } from 'three';
+
 import { clamp } from '../engine/helper/clamp.function';
+import { normalize } from '../engine/helper/normalize.function';
+import { Point } from '../engine/object/point.class';
+import { rescale } from '../misc/rescale.function';
+import { Actor } from '../model/actor.class';
+import { UnixWrapper } from '../model/unix-wrapper.class';
+import { CursorComponent } from './../component/cursor/cursor.component';
+import { EngineService } from './../engine/engine.service';
+import { ActorDelta } from './../model/actor-delta.class';
 
 /**
  * This service's goal is to consume the data comint from the database and the engine and then update both

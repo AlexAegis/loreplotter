@@ -1,12 +1,7 @@
-import { Basic } from './basic.class';
-import { Shader, Vector3, Quaternion, Euler } from 'three';
-import { globeShader } from '../shader/globe.shader';
-
-import * as TWEEN from '@tweenjs/tween.js';
 import * as THREE from 'three';
+
 import { Interactive } from '../interfaces/interactive.interface';
-import { Globe } from './globe.class';
-import { ClickEvent } from '../event/click-event.type';
+import { Basic } from './basic.class';
 
 export class Point extends Basic implements Interactive {
 	type = 'Point';

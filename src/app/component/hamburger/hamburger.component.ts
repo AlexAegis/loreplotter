@@ -1,5 +1,4 @@
-import { Component, OnInit, Input, EventEmitter, Output, HostListener, HostBinding } from '@angular/core';
-import { transition, animate, query, trigger, animateChild } from '@angular/animations';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 
 @Component({
 	selector: 'app-hamburger',
