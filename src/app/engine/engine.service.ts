@@ -119,7 +119,7 @@ export class EngineService {
 			});
 	}
 
-	pan(coord: Vector2, velocity: Vector2, start: boolean, end: boolean) {
+	public pan(coord: Vector2, velocity: Vector2, start: boolean, end: boolean) {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
@@ -143,7 +143,6 @@ export class EngineService {
 					if (intersection.object.type === 'Point') {
 						this.spawnOnWorld$.next({ object: <Point>intersection.object, point: intersection.point });
 					}
-
 					this.drag.next(undefined);
 				}
 			});

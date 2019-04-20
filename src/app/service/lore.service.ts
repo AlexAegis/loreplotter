@@ -83,22 +83,29 @@ export class LoreService {
 					group.add(new Point(actor.id));
 					engineService.globe.add(group);
 				}
-				group.lookAt(
-					new Vector3(enclosure.last.v.position.x, enclosure.last.v.position.y, enclosure.last.v.position.z)
-				);
-				group.applyQuaternion(engineService.globe.quaternion);
-				const fromQ = group.quaternion.clone();
-				group.lookAt(
-					new Vector3(
-						enclosure.first.v.position.x,
-						enclosure.first.v.position.y,
-						enclosure.first.v.position.z
-					)
-				);
-				group.applyQuaternion(engineService.globe.quaternion);
-				const toQ = group.quaternion.clone();
-				if (t && Math.abs(t) !== Infinity) {
-					Quaternion.slerp(fromQ, toQ, group.quaternion, t);
+				// If group location is overridden then ignore the interpolation
+				if (!group.userData.override) {
+					group.lookAt(
+						new Vector3(
+							enclosure.last.v.position.x,
+							enclosure.last.v.position.y,
+							enclosure.last.v.position.z
+						)
+					);
+					group.applyQuaternion(engineService.globe.quaternion);
+					const fromQ = group.quaternion.clone();
+					group.lookAt(
+						new Vector3(
+							enclosure.first.v.position.x,
+							enclosure.first.v.position.y,
+							enclosure.first.v.position.z
+						)
+					);
+					group.applyQuaternion(engineService.globe.quaternion);
+					const toQ = group.quaternion.clone();
+					if (t && Math.abs(t) !== Infinity) {
+						Quaternion.slerp(fromQ, toQ, group.quaternion, t);
+					}
 				}
 			});
 
