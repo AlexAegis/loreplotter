@@ -32,11 +32,12 @@ export class Water extends Basic {
 		this.material = new THREE.MeshStandardMaterial({
 			color: new Color('#389bff'),
 			emissive: new Color('#389bff'),
-			emissiveIntensity: 0.4,
+			emissiveIntensity: 0.5,
 			opacity: 0.8,
 			transparent: true,
-			alphaTest: 0.8
-			// bumpMap: this.texture
+			alphaTest: 0.8,
+			normalMap: this.texture,
+			bumpMap: this.texture
 		});
 		this.name = 'water';
 		this.castShadow = true;

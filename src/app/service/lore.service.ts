@@ -3,7 +3,7 @@ import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import { BehaviorSubject, combineLatest, interval } from 'rxjs';
-import { filter, flatMap, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { filter, flatMap, takeUntil, switchMap, withLatestFrom } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3 } from 'three';
 
@@ -16,6 +16,7 @@ import { UnixWrapper } from '../model/unix-wrapper.class';
 import { CursorComponent } from './../component/cursor/cursor.component';
 import { EngineService } from './../engine/engine.service';
 import { ActorDelta } from './../model/actor-delta.class';
+import { TextureDelta } from '../model/texture-delta.class';
 
 /**
  * This service's goal is to consume the data comint from the database and the engine and then update both
@@ -35,6 +36,12 @@ export class LoreService {
 
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
 		// This subscriber's job is to map each actors state to the map based on the current cursor
+
+		this.databaseService.currentLore.subscribe(lore => {
+			engineService.globe.radius = lore.planet.radius;
+			engineService.globe.displacementTexture.loadFromDataURL(lore.planet.displacementTexture);
+			engineService.globe.changed();
+		});
 		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
@@ -47,7 +54,7 @@ export class LoreService {
 			)
 			.subscribe(({ actor, cursor, overrideNodePositions }) => {
 				engineService.selected.next(undefined);
-				engineService.globe.changed();
+
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 					Node<UnixWrapper, ActorDelta>
 				>;
@@ -156,6 +163,22 @@ export class LoreService {
 					object.parent.userData.override = false;
 				});
 			});
+
+		this.engineService.textureChange$
+			.pipe(
+				withLatestFrom(this.databaseService.currentLore, this.cursor$),
+				switchMap(([texture, loreDoc, cursor]) =>
+					loreDoc.atomicUpdate(lore => {
+						lore.planet.displacementTexture = texture;
+						/* In an alternative universe the texture is delta-able
+							lore.textureTree = loreDoc.textureTree; // This is a different lore object so the mapped tree must be brought over
+							lore.textureTree.set(new UnixWrapper(cursor), new TextureDelta(texture));
+						*/
+						return lore;
+					})
+				)
+			)
+			.subscribe();
 	}
 
 	public name(actor: Actor) {

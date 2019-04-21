@@ -9,4 +9,5 @@ export type DrawEvent = {
 	mode: Mode;
 	value: number; // [0 - 1] black to white
 	size: number;
+	final: boolean;
 } & Event;

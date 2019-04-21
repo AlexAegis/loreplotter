@@ -19,25 +19,33 @@ export class Globe extends Basic {
 	public material: THREE.MeshPhongMaterial; // Type override, this field exists on the THREE.Mesh already
 	public water: Water;
 
-	public displacementTexture = new DynamicTexture('#747474');
-	public emissionTexture = new DynamicTexture('#747474');
+	public displacementTexture: DynamicTexture;
+	public emissionTexture: DynamicTexture;
 
-	public constructor(private radius: number = 1) {
+	public constructor(public radius: number = 1, public initialDisplacementTexture?: string) {
 		super();
+
+		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474');
+		this.emissionTexture = new DynamicTexture(initialDisplacementTexture, '#747474');
+
 		this.material = new THREE.MeshPhongMaterial({
-			emissive: '#AFAFAF',
-			emissiveIntensity: 1.5,
+			emissive: '#CFBFAF',
+			emissiveIntensity: 1,
 			displacementMap: this.displacementTexture,
+			normalMap: this.displacementTexture,
 			bumpMap: this.displacementTexture,
 			emissiveMap: this.emissionTexture,
 			displacementScale: 0.1,
 			displacementBias: -0.05
 		});
+
+		this.receiveShadow = true;
+		this.castShadow = true;
 		/*texture.onUpdate = () => {
 			console.log('-------- d9isp tex updated');
 		};*/
 
-		this.geometry = new THREE.SphereBufferGeometry(radius, 800, 800);
+		this.geometry = new THREE.SphereBufferGeometry(radius, 512, 512);
 		this.name = 'globe';
 		this.geometry.normalizeNormals();
 		this.geometry.computeBoundingSphere();
@@ -50,6 +58,9 @@ export class Globe extends Basic {
 		});
 		this.addEventListener('draw', (event: DrawEvent) => {
 			this.drawTo(event.uv, event.mode, event.value, event.size);
+			if (event.final) {
+				this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
+			}
 		});
 
 		this.water = new Water(radius * 0.98);

@@ -7,7 +7,6 @@ import { BrowserModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angu
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { AgGridModule } from 'ag-grid-angular';
 import * as Hammer from 'hammerjs';
 import { MomentModule } from 'ngx-moment';
 import { NgScrollbarModule, SmoothScrollModule } from 'ngx-scrollbar';
@@ -61,7 +60,6 @@ export class MyHammerConfig extends HammerGestureConfig {
 		BrowserAnimationsModule,
 		NgScrollbarModule,
 		SmoothScrollModule,
-		AgGridModule,
 		MomentModule,
 		RoutingModule,
 		FormsModule,

@@ -1,3 +1,4 @@
+import { TextureDelta } from './../model/texture-delta.class';
 import { ButtonType } from './control/button-type.class';
 import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Injectable } from '@angular/core';
@@ -15,6 +16,7 @@ import { Point } from './object/point.class';
 import { Stage } from './object/stage.class';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { Control } from './control/control.class';
+import { Planet } from '../model/planet.class';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -43,6 +45,8 @@ export class EngineService {
 	public indicator: PopupComponent;
 
 	public center = new Vector3(0, 0, 0);
+
+	public textureChange$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
 
@@ -79,43 +83,12 @@ export class EngineService {
 
 		this.stage = new Stage(this);
 		this.stage.add(new THREE.AxesHelper(5));
-
-		this.globe = new Globe(1);
-
+		this.globe = new Globe();
 		this.stage.add(this.globe);
-
 		this.controls = new Control(this.stage.camera, this.renderer.domElement, this.globe);
-		/*
-		interval(1000 / 60)
-			.pipe(
-				withLatestFrom(of(this)),
-				delay(2000),
-				take(240)
-			)
-			.subscribe(([next, t]) => {
-				let i = next / 240;
-				i = 1 - i;
-				i *= 99;
-				i = Math.round(i);
-
-				let n = next / 240;
-				n *= 99;
-				n = Math.round(i);
-				// console.log('FUCK' + i + ' n: ' + n);
-				// this.canvasContext.clearRect(0, 0, 100, 100);
-				t.canvasContext.fillStyle = `#${i}${n}${n}`;
-				t.canvasContext.fillRect(0, 0, 100, 50);
-
-				t.canvasContext.fillStyle = `#${n}${i}${n}`;
-				t.canvasContext.fillRect(0, 50, 100, 50);
-
-				t.texture.image.src = t.engineCanvas.toDataURL();
-				t.texture.anisotropy = 4;
-				t.texture.needsUpdate = true;
-				// console.log((this.globe.material as any).displacementMap === this.texture);
-				// (this.globe.material as any).displacementMap.needsUpdate = true;
-			});*/
 	}
+
+	public createPlanet(planet: Planet): void {}
 
 	spawnActor(coord: Vector2): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
@@ -217,7 +190,8 @@ export class EngineService {
 							face: intersection.face,
 							mode: this.sceneControlService.activeMode.value,
 							value: this.sceneControlService.valueSlider.value,
-							size: this.sceneControlService.sizeSlider.value
+							size: this.sceneControlService.sizeSlider.value,
+							final: end
 						});
 					}
 				}
@@ -228,6 +202,7 @@ export class EngineService {
 					}
 					/*if (intersection.object.type === 'Point') {
 					}*/
+
 					this.drag.next(undefined);
 				}
 			});

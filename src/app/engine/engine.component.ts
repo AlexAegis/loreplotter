@@ -7,6 +7,7 @@ import { LoreService } from '../service/lore.service';
 import { PopupComponent } from './../component/popup/popup.component';
 import { EngineService } from './engine.service';
 import { normalize } from './helper/normalize.function';
+import { take } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-engine',

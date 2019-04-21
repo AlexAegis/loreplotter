@@ -1,6 +1,6 @@
 {
 	"name": "loreplotter",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"author": {
 		"name": "Alex Aegis",
 		"email": "alexaegis@gmail.com",
@@ -26,7 +26,7 @@
 	"private": true,
 	"dependencies": {
 		"@alexaegis/avl": "^1.6.1",
-		"@angular-mdc/web": "^1.0.2",
+		"@angular-mdc/web": "^1.0.3",
 		"@angular-skyhook/core": "^1.1.1",
 		"@angular-skyhook/multi-backend": "^1.1.1",
 		"@angular/animations": "^7.2.13",
@@ -48,8 +48,6 @@
 		"@fortawesome/free-regular-svg-icons": "^5.8.1",
 		"@fortawesome/free-solid-svg-icons": "^5.8.1",
 		"@tweenjs/tween.js": "^17.3.0",
-		"ag-grid-angular": "^20.2.0",
-		"ag-grid-community": "^20.2.0",
 		"ajv": "^6.10.0",
 		"babel-polyfill": "^6.26.0",
 		"core-js": "^2.6.5",
@@ -89,7 +87,7 @@
 		"karma-coverage-istanbul-reporter": "~2.0.5",
 		"karma-jasmine": "~2.0.1",
 		"karma-jasmine-html-reporter": "^1.4.0",
-		"protractor": "~6.0.0",
+		"protractor": "~5.4.2",
 		"ts-node": "^8.1.0",
 		"tslint": "~5.16.0",
 		"typescript": "~3.2.4"

@@ -1,16 +1,18 @@
+import { TextureDelta } from './../model/texture-delta.class';
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import * as idb from 'pouchdb-adapter-idb';
 import RxDB from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable } from 'rxjs';
-import { filter, map, mergeMap, shareReplay, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, from, Observable, Subject, zip } from 'rxjs';
+import { filter, map, mergeMap, shareReplay, switchMap, take } from 'rxjs/operators';
 
 import { ActorDelta } from '../model/actor-delta.class';
-import { loreSchema } from '../model/lore.class';
+import { loreSchema, Lore } from '../model/lore.class';
 import { UnixWrapper } from '../model/unix-wrapper.class';
 import { Actor } from './../model/actor.class';
 import { Database, DatabaseCollections, LoreCollection, LoreCollectionMethods, LoreDocumentMethods } from './database';
+import { Planet } from '../model/planet.class';
 
 @Injectable({
 	providedIn: 'root'
@@ -31,7 +33,6 @@ export class DatabaseService {
 							name: 'lore',
 							schema: loreSchema,
 							statics: this.loreCollectionMethods,
-
 							methods: this.loreDocumentMethods
 						})
 					).pipe(map(coll => db))
@@ -45,10 +46,18 @@ export class DatabaseService {
 					});
 					db.lore.preSave(async function preSaveHook(this: LoreCollection, lore) {
 						if (lore !== undefined && lore !== null) {
+							/*
+							if (lore.textureTree) {
+								lore.textureTreeString = lore.textureTree.stringify();
+								lore.textureTree = undefined;
+								// delete lore.textureTree;
+							}
+							*/
 							for (const actor of lore.actors) {
 								if (actor.states) {
 									actor.statesString = actor.states.stringify();
 									actor.states = undefined;
+									// delete actor.states;
 								}
 							}
 						}
@@ -102,6 +111,19 @@ export class DatabaseService {
 	public currentLore = combineLatest(this.currentDocument, this.connection).pipe(
 		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
 		filter(res => res !== undefined && res !== null),
+		/*map(lore => {
+			if (lore.textureTreeString) {
+				lore.textureTree = Tree.parse<UnixWrapper, TextureDelta>(
+					lore.textureTreeString,
+					UnixWrapper,
+					TextureDelta
+				);
+				lore.textureTreeString = undefined;
+			} else if (!lore.textureTree) {
+				lore.textureTree = new Tree<UnixWrapper, TextureDelta>();
+			}
+			return lore;
+		}),*/
 		shareReplay(1)
 	);
 
@@ -163,17 +185,34 @@ export class DatabaseService {
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
 
-		this.connection
+		const imageURLSubject = new Subject<string>();
+
+		const image = new Image();
+		image.src = `assets/world-invert.png`;
+
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+
+		canvas.width = 512;
+		canvas.height = 512;
+		image.onload = () => {
+			ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // TODO scale it
+			imageURLSubject.next(canvas.toDataURL());
+		};
+
+		// imageURLSubject.next(undefined);
+		zip(this.connection, imageURLSubject.pipe(take(1)))
 			.pipe(
-				switchMap(conn =>
+				switchMap(([conn, img]) =>
 					conn.lore.upsert({
 						name: this.currentDocument.value,
 						actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
-						locations: ['City17', 'City14']
+						locations: ['City17', 'City14'],
+						planet: new Planet(1, img)
 					})
 				)
 			)
-			.subscribe(next => console.log(`Initial project document upserted! ${JSON.stringify(next)}`));
+			.subscribe(next => console.log(`Initial project document upserted!`));
 	}
 
 	public loreCount$(): Observable<number> {
@@ -192,6 +231,8 @@ export class DatabaseService {
 		if (actor.statesString) {
 			actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
 			actor.statesString = undefined;
+		} else if (!actor.states) {
+			actor.states = new Tree<UnixWrapper, ActorDelta>();
 		}
 		return actor;
 	}
