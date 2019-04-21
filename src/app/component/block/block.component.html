@@ -4,7 +4,10 @@
 	*ngFor="let node of actor?.states?.nodes()"
 	[ngStyle]="{ 'left.px': nodePosition(node?.key?.unix) }"
 	(panstart)="panNode($event, node)"
-	(pan)="panNode($event, node)"
+	(panup)="panNode($event, node)"
+	(pandown)="panNode($event, node)"
+	(panleft)="panNode($event, node)"
+	(panright)="panNode($event, node)"
 	(panend)="panNode($event, node)"
 	(tap)="jump.next(nodePosition(node.key.unix) + left)"
 ></div>

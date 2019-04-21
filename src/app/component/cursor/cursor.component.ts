@@ -99,7 +99,10 @@ export class CursorComponent implements OnInit {
 	}
 
 	@HostListener('panstart', ['$event'])
-	@HostListener('pan', ['$event'])
+	@HostListener('panleft', ['$event'])
+	@HostListener('panright', ['$event'])
+	@HostListener('panup', ['$event'])
+	@HostListener('pandown', ['$event'])
 	@HostListener('panend', ['$event'])
 	panHandler($event: any) {
 		$event.stopPropagation();

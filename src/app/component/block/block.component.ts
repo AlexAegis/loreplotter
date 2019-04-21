@@ -139,9 +139,6 @@ export class BlockComponent implements OnInit {
 	 */
 	public panNode($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
-		$event.srcEvent.stopPropagation();
-		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pan in node');
-		console.log($event);
 		if ($event.type === 'panstart') {
 			this._originalUnixesForPan.set(node, node.key.unix);
 
@@ -217,10 +214,12 @@ export class BlockComponent implements OnInit {
 	}
 
 	@HostListener('panstart', ['$event'])
-	@HostListener('pan', ['$event'])
+	@HostListener('panleft', ['$event'])
+	@HostListener('panright', ['$event'])
+	@HostListener('panup', ['$event'])
+	@HostListener('pandown', ['$event'])
 	@HostListener('panend', ['$event'])
 	public pan($event: any) {
-		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pan in block');
 		$event.stopPropagation();
 		if ($event.type === 'panstart') {
 			for (const node of this.actor.states.nodes()) {
