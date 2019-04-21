@@ -40,7 +40,6 @@ import { NgScrollbar } from 'ngx-scrollbar';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, AfterViewInit {
-	noOverflow = 'noOverflow';
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
@@ -94,6 +93,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostBinding('style.width') get widthCalc(): string {
 		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
 	}
+	noOverflow = 'noOverflow';
 
 	public frameStart: DeltaProperty = new DeltaProperty(); // The frames starting point as unix
 	public frameEnd: DeltaProperty = new DeltaProperty();
@@ -124,6 +124,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@ViewChild(NgScrollbar) private scrollRef: NgScrollbar;
 
 	private scrollOnStart: number;
+
+	private panTypeAtStart: string;
 
 	ngAfterViewInit(): void {
 		// ResizeObserver is not really supported outside of chrome.
@@ -219,22 +221,40 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 *
 	 */
 	@HostListener('panstart', ['$event'])
-	@HostListener('pan', ['$event'])
+	@HostListener('panleft', ['$event'])
+	@HostListener('panright', ['$event'])
+	@HostListener('panup', ['$event'])
+	@HostListener('pandown', ['$event'])
 	@HostListener('panend', ['$event'])
 	public shift($event: any) {
 		$event.stopPropagation();
-		$event.srcEvent.stopPropagation();
-		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pan in timeline');
-		console.log($event);
 		if ($event.type === 'panstart') {
 			this.scrollOnStart = this.scrollRef.view.scrollTop;
 		}
-		this.frameStart.delta = this.frameEnd.delta = -rescale($event.deltaX, 0, this.containerWidth, 0, this.frame);
-		this.scrollRef.scrollYTo(this.scrollOnStart - $event.deltaY);
+		if (!this.panTypeAtStart) {
+			if ($event.type === 'panup' || $event.type === 'pandown') {
+				this.panTypeAtStart = 'vertical';
+			} else if ($event.type === 'panleft' || $event.type === 'panright') {
+				this.panTypeAtStart = 'horizontal';
+			}
+		}
+
+		if (this.panTypeAtStart === 'vertical') {
+			this.scrollRef.scrollYTo(this.scrollOnStart - $event.deltaY);
+		} else {
+			this.frameStart.delta = this.frameEnd.delta = -rescale(
+				$event.deltaX,
+				0,
+				this.containerWidth,
+				0,
+				this.frame
+			);
+		}
+
 		if ($event.type === 'panend') {
+			this.panTypeAtStart = undefined;
 			this.frameStart.bake();
 			this.frameEnd.bake();
-			this.scrollOnStart = undefined;
 		}
 	}
 
