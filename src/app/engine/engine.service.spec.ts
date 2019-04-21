@@ -7,7 +7,7 @@ describe('EngineService', () => {
 	let canvas: HTMLCanvasElement;
 
 	beforeAll(async () => {
-		service = new EngineService();
+		service = new EngineService(undefined);
 		canvas = document.createElement('canvas');
 	});
 

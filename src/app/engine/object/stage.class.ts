@@ -33,15 +33,10 @@ export class Stage extends THREE.Scene {
 		const light = new THREE.PointLight(0x48443e, 0.8, 1000);
 		light.castShadow = true;
 		const flareSun = new TextureLoader().load(`assets/textures/lensflare/lensflare-sun.png`);
-		const flareRound = new TextureLoader().load(`assets/textures/lensflare/lensflare-round.png`);
-		const flareWide = new TextureLoader().load(`assets/textures/lensflare/lensflare-wide.png`);
-		const flareSmall = new TextureLoader().load(`assets/textures/lensflare/lensflare-small.png`);
 
 		const lensflare = new Lensflare();
 
 		lensflare.addElement(new LensflareElement(flareSun, 250, 0));
-		lensflare.addElement(new LensflareElement(flareRound, 120, 0.1));
-		lensflare.addElement(new LensflareElement(flareWide, 100, 0.05));
 
 		light.add(lensflare);
 		light.position.set(10, 10, 10);

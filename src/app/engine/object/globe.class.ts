@@ -1,5 +1,5 @@
 import * as TWEEN from '@tweenjs/tween.js';
-import { Group, Shader, Spherical, Vector3, Color, TextureLoader } from 'three';
+import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2, Vector } from 'three';
 import * as THREE from 'three';
 
 import { globeShader } from '../shader/globe.shader';
@@ -7,40 +7,35 @@ import { ClickEvent } from './../event/click-event.type';
 import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
 import { Water } from './water.class';
+import { of } from 'rxjs';
+import { delay } from 'rxjs/operators';
+import { text } from '@fortawesome/fontawesome-svg-core';
+import { DrawEvent } from '../event/draw-event.type';
 
 export class Globe extends Basic {
 	public type = 'Globe';
-
+	public material: THREE.MeshPhongMaterial; // Type override, this field exists on the THREE.Mesh already
 	public water: Water;
-	/**+
-	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
-	 * Later change it so it puts down some meshes rather than a line
-	 */
-	putCurve(from: Vector3, to: Vector3): AirCurve {
-		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
-		// const curve = new THREE.LineCurve3(from, to);
-		const points = airCurve.getPoints(50);
-		const geometry = new THREE.BufferGeometry().setFromPoints(points);
-		this.castShadow = true;
-		this.receiveShadow = true;
-		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+	public canvas: HTMLCanvasElement;
+	public canvasContext: CanvasRenderingContext2D;
+	public image: HTMLImageElement;
+	public texture: Texture;
 
-		// Create the final object to add to the scene
-		const curveObject = new THREE.Line(geometry, material);
-		// TODO Shader that from an uniform variable can change its length (0 to 1)
-
-		this.add(curveObject);
-		return airCurve;
-	}
-
-	constructor(private radius: number = 1, shader: Shader = globeShader) {
+	public constructor(private radius: number = 1) {
 		super();
+		this.texture = this.initializeCanvas();
 		this.material = new THREE.MeshPhongMaterial({
 			emissive: new Color('#bababa'),
-			displacementMap: new TextureLoader().load(`assets/world.jpg`),
-			bumpMap: new TextureLoader().load(`assets/world.jpg`),
-			displacementScale: -1
+			displacementMap: this.texture,
+			bumpMap: this.texture,
+			displacementScale: 0.5,
+			displacementBias: -0.25
 		});
+
+		/*texture.onUpdate = () => {
+			console.log('-------- d9isp tex updated');
+		};*/
+
 		this.geometry = new THREE.SphereBufferGeometry(radius, 800, 800);
 		this.name = 'globe';
 		this.geometry.normalizeNormals();
@@ -53,11 +48,54 @@ export class Globe extends Basic {
 			this.stage.engineService.hovered.next(undefined);
 		});
 		this.addEventListener('pan', event => {
+			// console.log(event);
+			// Thre drawing wil happen here
 			// this.rotate(event.velocity.x, event.velocity.y, event.final);
 		});
 
-		this.water = new Water();
+		this.addEventListener('draw', (event: DrawEvent) => {
+			console.log('DRAW');
+			console.log(event);
+
+			// map the point to the surface of the canvas
+			console.log(event.point);
+			this.drawTo(event.uv);
+			// Thre drawing wil happen here
+			// this.rotate(event.velocity.x, event.velocity.y, event.final);
+		});
+
+		this.water = new Water(radius * 0.98);
 		this.add(this.water);
+	}
+
+	public mapToCanvas(from: Vector3): Vector2 {
+		return undefined;
+	}
+
+	public drawTo(uv: Vector2) {
+		this.canvasContext.fillStyle = '#767676';
+		this.canvasContext.fillRect(uv.x * this.canvas.width, (1 - uv.y) * this.canvas.height, 4, 4 * Math.PI);
+		this.image.src = this.canvas.toDataURL();
+		this.texture.needsUpdate = true;
+	}
+
+	/**
+	 * This method sets up the terraformer canvas
+	 */
+	private initializeCanvas(): Texture {
+		this.canvas = document.createElement('canvas');
+		this.canvas.width = 1024;
+		this.canvas.height = 1024;
+		this.canvasContext = this.canvas.getContext('2d');
+		// shallow water world by default #747474
+		this.canvasContext.fillStyle = '#747474'; // grey by default 757575 is water level 888888 is the base ground level
+		this.canvasContext.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		this.image = new Image();
+		this.image.src = this.canvas.toDataURL();
+		const texture = new THREE.Texture(this.image);
+		texture.anisotropy = 4;
+		texture.needsUpdate = true;
+		return texture;
 	}
 
 	/**
@@ -86,54 +124,24 @@ export class Globe extends Basic {
 		this.add(group);
 	}
 
-	/**
-	 * @deprecated, orbitcontrols are in use instead
+	/**+
+	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
+	 * Later change it so it puts down some meshes rather than a line
 	 */
-	/*rotate(x: number, y: number, isFinal?: boolean): Euler {
-		if (this.rotationEase) {
-			this.rotationEase.stop();
-		}
-		this.rotateOnAxis(new Vector3(0, 1, 0), THREE.Math.DEG2RAD * x);
-		this.rotateOnWorldAxis(new Vector3(1, 0, 0), THREE.Math.DEG2RAD * y);
+	putCurve(from: Vector3, to: Vector3): AirCurve {
+		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
+		// const curve = new THREE.LineCurve3(from, to);
+		const points = airCurve.getPoints(50);
+		const geometry = new THREE.BufferGeometry().setFromPoints(points);
+		this.castShadow = true;
+		this.receiveShadow = true;
+		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
 
-		if (THREE.Math.RAD2DEG * this.rotation.z < 90 && THREE.Math.RAD2DEG * this.rotation.z > -90) {
-			this.rotation.x = THREE.Math.clamp(this.rotation.x, THREE.Math.DEG2RAD * -90, THREE.Math.DEG2RAD * 90);
-		} else {
-			if (this.rotation.x > 0) {
-				this.rotation.x = Math.max(this.rotation.x, THREE.Math.DEG2RAD * 90);
-			} else {
-				this.rotation.x = Math.min(this.rotation.x, THREE.Math.DEG2RAD * -90);
-			}
-		}
+		// Create the final object to add to the scene
+		const curveObject = new THREE.Line(geometry, material);
+		// TODO Shader that from an uniform variable can change its length (0 to 1)
 
-		if (isFinal) {
-			this.rotationEase = this.rotatween(x * 3, y * 3);
-		}
-
-		this.changed();
-
-		return this.rotation;
-	}*/
-
-	/**
-	 * @deprecated, orbitcontrols are in use instead
-	 */
-	/*rotatween(x: number, y: number) {
-		const fromQuat = new Quaternion().copy(this.quaternion);
-
-		this.rotate(x, y);
-		const toQuat = new Quaternion().copy(this.quaternion);
-		// this.setRotationFromQuaternion(fromQuat);
-
-		const val = { v: 0 };
-		const target = { v: 1 };
-		return new TWEEN.Tween(val)
-			.to(target, 1200)
-			.easing(TWEEN.Easing.Elastic.Out)
-			.onUpdate(o => {
-				Quaternion.slerp(fromQuat, toQuat, this.quaternion, o.v);
-				this.changed();
-			})
-			.start(Date.now());
-	}*/
+		this.add(curveObject);
+		return airCurve;
+	}
 }

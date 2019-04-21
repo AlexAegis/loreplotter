@@ -1,3 +1,4 @@
+import { EngineService } from './engine/engine.service';
 import { animate, animateChild, group, query, state, style, transition, trigger } from '@angular/animations';
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
@@ -92,7 +93,11 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 	public mediaLarge = true;
 
-	public constructor(public media: MediaObserver, private loreService: LoreService) {}
+	public constructor(
+		public media: MediaObserver,
+		private loreService: LoreService,
+		private engineService: EngineService
+	) {}
 
 	public ngAfterViewInit(): void {}
 

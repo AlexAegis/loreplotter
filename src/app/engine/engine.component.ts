@@ -40,6 +40,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public pan($event: any): void {
+		console.log($event);
 		this.engine.pan(
 			normalize($event.center.x, $event.center.y),
 			new Vector2($event.velocityX * 2, $event.velocityY * 2),

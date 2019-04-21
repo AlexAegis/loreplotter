@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
-import { BehaviorSubject, EMPTY, merge, NEVER, of } from 'rxjs';
-import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, merge, NEVER, of, interval } from 'rxjs';
+import { distinctUntilChanged, finalize, share, switchMap, tap, take, delay, withLatestFrom } from 'rxjs/operators';
 import { Vector2, Vector3, WebGLRenderer } from 'three';
 import * as THREE from 'three';
 import { OrbitControls } from 'three-full';
@@ -12,6 +12,7 @@ import { Globe } from './object/globe.class';
 import { Point } from './object/point.class';
 import { Stage } from './object/stage.class';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+import { Control } from './control/control.class';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -21,6 +22,15 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 	providedIn: 'root'
 })
 export class EngineService {
+	/**
+	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
+	 * (Since they are shared, side effects will only happen once)
+	 */
+	constructor(private databaseService: DatabaseService) {
+		this.selection$.subscribe();
+
+		this.hover$.subscribe();
+	}
 	private renderer: THREE.WebGLRenderer;
 
 	public stage: Stage;
@@ -55,17 +65,8 @@ export class EngineService {
 	public drag: BehaviorSubject<Point | Globe> = new BehaviorSubject<Point | Globe>(undefined);
 
 	public spawnOnWorld$ = new BehaviorSubject<{ object: Point; point: Vector3 }>(undefined);
-	/**
-	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
-	 * (Since they are shared, side effects will only happen once)
-	 */
-	constructor(private databaseService: DatabaseService) {
-		this.selection$.subscribe();
 
-		this.hover$.subscribe();
-	}
-
-	createScene(canvas: HTMLCanvasElement): void {
+	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: canvas,
 			alpha: false,
@@ -75,25 +76,43 @@ export class EngineService {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 
 		this.stage = new Stage(this);
+		this.stage.add(new THREE.AxesHelper(5));
 
-		this.controls = new OrbitControls(this.stage.camera, this.renderer.domElement);
-		this.controls.enableDamping = true;
-		this.controls.enableZoom = true;
-		this.controls.enablePan = false; // moving the camera in a plane is disabled, only rotation is allowed
-		this.controls.zoomSpeed = 2.0;
-		this.controls.dampingFactor = 0.25;
-		this.controls.minZoom = 10;
-		this.controls.rotateSpeed = 0.1;
-		// this.controls.autoRotate = true; // Disable if not testing
-		this.controls.addEventListener('change', e => {
-			this.globe.changed();
-		});
+		this.globe = new Globe(1);
 
-		const axesHelper = new THREE.AxesHelper(5);
-		this.stage.add(axesHelper);
-
-		this.globe = new Globe();
 		this.stage.add(this.globe);
+
+		this.controls = new Control(this.stage.camera, this.renderer.domElement, this.globe);
+		/*
+		interval(1000 / 60)
+			.pipe(
+				withLatestFrom(of(this)),
+				delay(2000),
+				take(240)
+			)
+			.subscribe(([next, t]) => {
+				let i = next / 240;
+				i = 1 - i;
+				i *= 99;
+				i = Math.round(i);
+
+				let n = next / 240;
+				n *= 99;
+				n = Math.round(i);
+				// console.log('FUCK' + i + ' n: ' + n);
+				// this.canvasContext.clearRect(0, 0, 100, 100);
+				t.canvasContext.fillStyle = `#${i}${n}${n}`;
+				t.canvasContext.fillRect(0, 0, 100, 50);
+
+				t.canvasContext.fillStyle = `#${n}${i}${n}`;
+				t.canvasContext.fillRect(0, 50, 100, 50);
+
+				t.texture.image.src = t.engineCanvas.toDataURL();
+				t.texture.anisotropy = 4;
+				t.texture.needsUpdate = true;
+				// console.log((this.globe.material as any).displacementMap === this.texture);
+				// (this.globe.material as any).displacementMap.needsUpdate = true;
+			});*/
 	}
 
 	spawnActor(coord: Vector2): void {
@@ -127,7 +146,20 @@ export class EngineService {
 			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
 			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
-				intersection.object.dispatchEvent({ type: 'click', point: intersection.point, shift: shift });
+				intersection.object.dispatchEvent({
+					type: 'click',
+					point: intersection.point,
+					shift: shift
+				});
+
+				// Only send this event when the correct mode is active, also send the draw on pan too
+				intersection.object.dispatchEvent({
+					type: 'draw',
+					point: intersection.point,
+					shift: shift,
+					uv: intersection.uv,
+					face: intersection.face
+				});
 			});
 	}
 
@@ -153,13 +185,21 @@ export class EngineService {
 					this.drag.next(<Point>intersection.object);
 					this.controls.enabled = false;
 				}
-
+				this.controls.enabled = false; // always disabled TODO TAKE THIS OUT
 				if (this.drag.value !== undefined) {
 					this.drag.value.dispatchEvent({
 						type: 'pan',
 						point: intersection.point,
 						velocity: velocity,
 						final: end
+					});
+				}
+				if (intersection.object.type === 'Globe') {
+					intersection.object.dispatchEvent({
+						type: 'draw',
+						point: intersection.point,
+						uv: intersection.uv,
+						face: intersection.face
 					});
 				}
 

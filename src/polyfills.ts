@@ -78,12 +78,10 @@
  * Zone JS is required by default for Angular itself.
  */
 import 'zone.js/dist/zone'; // Included with Angular CLI.
-import 'hammerjs/hammer';
-import * as propagating from 'propagating-hammerjs';
-Hammer = propagating(Hammer);
 import 'babel-polyfill';
 import 'reflect-metadata';
 (window as any).global = window;
-/***************************************************************************************************
- * APPLICATION IMPORTS
- */
+
+import 'hammerjs/hammer';
+import './polyfill/hammer-propagation.polyfill';
+import './polyfill/hammer-extended-mouse-events.polyfill';
