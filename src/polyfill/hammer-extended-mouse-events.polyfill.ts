@@ -12,6 +12,7 @@ function inArray(src, find, findByKey) {
 	} else {
 		let i = 0;
 		while (i < src.length) {
+			// tslint:disable-next-line: triple-equals
 			if ((findByKey && src[i][findByKey] == find) || (!findByKey && src[i] === find)) {
 				return i;
 			}
@@ -63,12 +64,14 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 		// start and mouse must be down
 		// ? CHANGE: ev.button === 0 changed into: ev.button <= 2
 		if (eventType & (Hammer as any).INPUT_START && (ev.button <= 2 || isTouch)) {
+			this.button = ev.button; // ? CHANGE: new line, save the reference because while panning the buttons code is not sent
 			if (storeIndex < 0) {
 				store.push(ev);
 				storeIndex = store.length - 1;
 			}
 		} else if (eventType & ((Hammer as any).INPUT_END | (Hammer as any).INPUT_CANCEL)) {
 			removePointer = true;
+			this.button = undefined; // ? CHANGE: new line
 		}
 
 		// it not found, so the pointer hasn't been down (so it's probably a hover)
@@ -80,7 +83,7 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 		store[storeIndex] = ev;
 
 		this.callback(this.manager, eventType, {
-			button: ev.button, // ? CHANGE: Also send the button to the event
+			button: this.button, // ? CHANGE: Also send the button to the event
 			pointers: store,
 			changedPointers: [ev],
 			pointerType: pointerType,

@@ -1,3 +1,5 @@
+import { ButtonType } from './control/button-type.class';
+import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BehaviorSubject, EMPTY, merge, NEVER, of, interval } from 'rxjs';
@@ -26,7 +28,7 @@ export class EngineService {
 	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
-	constructor(private databaseService: DatabaseService) {
+	constructor(private databaseService: DatabaseService, public sceneControlService: SceneControlService) {
 		this.selection$.subscribe();
 
 		this.hover$.subscribe();
@@ -62,7 +64,7 @@ export class EngineService {
 		share()
 	);
 
-	public drag: BehaviorSubject<Point | Globe> = new BehaviorSubject<Point | Globe>(undefined);
+	public drag: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
 
 	public spawnOnWorld$ = new BehaviorSubject<{ object: Point; point: Vector3 }>(undefined);
 
@@ -151,15 +153,18 @@ export class EngineService {
 					point: intersection.point,
 					shift: shift
 				});
-
-				// Only send this event when the correct mode is active, also send the draw on pan too
-				intersection.object.dispatchEvent({
-					type: 'draw',
-					point: intersection.point,
-					shift: shift,
-					uv: intersection.uv,
-					face: intersection.face
-				});
+				if (!this.sceneControlService.isMoving()) {
+					intersection.object.dispatchEvent({
+						type: 'draw',
+						point: intersection.point,
+						shift: shift,
+						uv: intersection.uv,
+						face: intersection.face,
+						mode: this.sceneControlService.activeMode.value,
+						value: this.sceneControlService.valueSlider.value,
+						size: this.sceneControlService.sizeSlider.value
+					});
+				}
 			});
 	}
 
@@ -174,7 +179,13 @@ export class EngineService {
 			});
 	}
 
-	public pan(coord: Vector2, velocity: Vector2, start: boolean, end: boolean) {
+	public pan(coord: Vector2, velocity: Vector2, button: number, start: boolean, end: boolean) {
+		if (start && !this.sceneControlService.isMoving()) {
+			this.controls.enabled = false;
+		} else if (end) {
+			this.controls.enabled = true;
+		}
+
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
@@ -183,32 +194,41 @@ export class EngineService {
 			.forEach(intersection => {
 				if (start && intersection.object.type === 'Point') {
 					this.drag.next(<Point>intersection.object);
+				}
+				if (this.sceneControlService.isMoving() || button === ButtonType.RIGHT) {
+					if (this.drag.value !== undefined) {
+						this.controls.enabled = false; // if its a point im dragging
+						this.drag.value.dispatchEvent({
+							type: 'pan',
+							point: intersection.point,
+							velocity: velocity,
+							final: end
+						});
+					}
+				}
+
+				if (!this.sceneControlService.isMoving()) {
 					this.controls.enabled = false;
-				}
-				this.controls.enabled = false; // always disabled TODO TAKE THIS OUT
-				if (this.drag.value !== undefined) {
-					this.drag.value.dispatchEvent({
-						type: 'pan',
-						point: intersection.point,
-						velocity: velocity,
-						final: end
-					});
-				}
-				if (intersection.object.type === 'Globe') {
-					intersection.object.dispatchEvent({
-						type: 'draw',
-						point: intersection.point,
-						uv: intersection.uv,
-						face: intersection.face
-					});
+					if (intersection.object.type === 'Globe') {
+						intersection.object.dispatchEvent({
+							type: 'draw',
+							point: intersection.point,
+							uv: intersection.uv,
+							face: intersection.face,
+							mode: this.sceneControlService.activeMode.value,
+							value: this.sceneControlService.valueSlider.value,
+							size: this.sceneControlService.sizeSlider.value
+						});
+					}
 				}
 
 				if (end) {
-					if (intersection.object.type === 'Point') {
-						this.spawnOnWorld$.next({ object: <Point>intersection.object, point: intersection.point });
+					if (this.drag.value !== undefined) {
+						this.spawnOnWorld$.next({ object: this.drag.value, point: intersection.point });
 					}
+					/*if (intersection.object.type === 'Point') {
+					}*/
 					this.drag.next(undefined);
-					this.controls.enabled = true;
 				}
 			});
 	}

@@ -18,7 +18,7 @@
 	</div>
 </div>
 <div class="channelsContainer">
-	<ng-scrollbar class="channels">
+	<ng-scrollbar class="channels" [viewClass]="noOverflow">
 		<div class="channel" *ngFor="let actor of (actors$ | async) as actors">
 			{{ loreService.name(actor) }}
 			<app-block

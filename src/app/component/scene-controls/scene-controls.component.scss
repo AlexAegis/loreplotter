@@ -1,0 +1,14 @@
+:host {
+	//position: fixed;
+	top: 0px;
+	//display: inline;
+	margin: 0.2rem;
+
+	> * {
+		margin-right: 0.4rem;
+	}
+
+	.active {
+		background-color: greenyellow;
+	}
+}

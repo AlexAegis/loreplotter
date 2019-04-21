@@ -139,6 +139,9 @@ export class BlockComponent implements OnInit {
 	 */
 	public panNode($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
+		$event.srcEvent.stopPropagation();
+		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pan in node');
+		console.log($event);
 		if ($event.type === 'panstart') {
 			this._originalUnixesForPan.set(node, node.key.unix);
 
@@ -213,34 +216,12 @@ export class BlockComponent implements OnInit {
 		}
 	}
 
-	private finalizeNewPositions() {
-		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
-			lore.atomicUpdate(l => {
-				l.actors
-					.filter(actor => actor.id === this._actor.id)
-					.map(this.databaseService.actorStateMapper)
-					.forEach(actor => {
-						this.loreService.overrideNodePosition$.value.overrides.forEach(ov => {
-							const val = actor.states.remove(new UnixWrapper(ov.original));
-							actor.states.set(new UnixWrapper(ov.new), val);
-						});
-					});
-				return l;
-			}).finally(() => {
-				this.loreService.overrideNodePosition$.next(undefined);
-				this._originalUnixesForPan.clear();
-				this.update();
-			});
-		});
-	}
-
 	@HostListener('panstart', ['$event'])
 	@HostListener('pan', ['$event'])
 	@HostListener('panend', ['$event'])
 	public pan($event: any) {
+		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pan in block');
 		$event.stopPropagation();
-		console.log('pan in block');
-		console.log($event);
 		if ($event.type === 'panstart') {
 			for (const node of this.actor.states.nodes()) {
 				this._originalUnixesForPan.set(node, node.key.unix);
@@ -275,6 +256,27 @@ export class BlockComponent implements OnInit {
 		if ($event.type === 'panend') {
 			this.finalizeNewPositions();
 		}
+	}
+
+	private finalizeNewPositions() {
+		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+			lore.atomicUpdate(l => {
+				l.actors
+					.filter(actor => actor.id === this._actor.id)
+					.map(this.databaseService.actorStateMapper)
+					.forEach(actor => {
+						this.loreService.overrideNodePosition$.value.overrides.forEach(ov => {
+							const val = actor.states.remove(new UnixWrapper(ov.original));
+							actor.states.set(new UnixWrapper(ov.new), val);
+						});
+					});
+				return l;
+			}).finally(() => {
+				this.loreService.overrideNodePosition$.next(undefined);
+				this._originalUnixesForPan.clear();
+				this.update();
+			});
+		});
 	}
 
 	ngOnInit() {}

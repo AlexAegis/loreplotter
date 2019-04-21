@@ -37,6 +37,8 @@ import {
 	ShowOnDirtyErrorStateMatcher
 } from '@angular/material';
 
+//  export { GestureConfig } from '@angular/material';
+
 const modules = [
 	MatButtonModule,
 	MatCheckboxModule,

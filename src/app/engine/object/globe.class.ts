@@ -11,27 +11,28 @@ import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { text } from '@fortawesome/fontawesome-svg-core';
 import { DrawEvent } from '../event/draw-event.type';
+import { Mode } from 'src/app/component/scene-controls/scene-control.service';
+import { DynamicTexture } from './dynamic-texture.class';
 
 export class Globe extends Basic {
 	public type = 'Globe';
 	public material: THREE.MeshPhongMaterial; // Type override, this field exists on the THREE.Mesh already
 	public water: Water;
-	public canvas: HTMLCanvasElement;
-	public canvasContext: CanvasRenderingContext2D;
-	public image: HTMLImageElement;
-	public texture: Texture;
+
+	public displacementTexture = new DynamicTexture('#747474');
+	public emissionTexture = new DynamicTexture('#747474');
 
 	public constructor(private radius: number = 1) {
 		super();
-		this.texture = this.initializeCanvas();
 		this.material = new THREE.MeshPhongMaterial({
-			emissive: new Color('#bababa'),
-			displacementMap: this.texture,
-			bumpMap: this.texture,
-			displacementScale: 0.5,
-			displacementBias: -0.25
+			emissive: '#AFAFAF',
+			emissiveIntensity: 1.5,
+			displacementMap: this.displacementTexture,
+			bumpMap: this.displacementTexture,
+			emissiveMap: this.emissionTexture,
+			displacementScale: 0.1,
+			displacementBias: -0.05
 		});
-
 		/*texture.onUpdate = () => {
 			console.log('-------- d9isp tex updated');
 		};*/
@@ -47,55 +48,42 @@ export class Globe extends Basic {
 		this.addEventListener('hover', (event: ClickEvent) => {
 			this.stage.engineService.hovered.next(undefined);
 		});
-		this.addEventListener('pan', event => {
-			// console.log(event);
-			// Thre drawing wil happen here
-			// this.rotate(event.velocity.x, event.velocity.y, event.final);
-		});
-
 		this.addEventListener('draw', (event: DrawEvent) => {
-			console.log('DRAW');
-			console.log(event);
-
-			// map the point to the surface of the canvas
-			console.log(event.point);
-			this.drawTo(event.uv);
-			// Thre drawing wil happen here
-			// this.rotate(event.velocity.x, event.velocity.y, event.final);
+			this.drawTo(event.uv, event.mode, event.value, event.size);
 		});
 
 		this.water = new Water(radius * 0.98);
 		this.add(this.water);
 	}
 
-	public mapToCanvas(from: Vector3): Vector2 {
-		return undefined;
-	}
+	public drawTo(uv: Vector2, mode: Mode, value: number, size: number) {
+		const x = uv.x * this.displacementTexture.canvas.width;
+		const y = (1 - uv.y) * this.displacementTexture.canvas.height;
+		/*const data = this.canvasContext.getImageData(x, y, 1, 1).data;
+		const diff = 5;
+		const raised = `rgba(${data[0] + diff}, ${data[1] + diff}, ${data[2] + diff}, ${data[3]})`;*/
+		value *= 255; // upscale normalized value to rgb range
+		const greyScaleColor = `rgb(${value},${value},${value})`;
+		this.displacementTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
+		/*
+		let emissionR = 60;
+		let emissionG = 60;
+		let emissionB = 60;
 
-	public drawTo(uv: Vector2) {
-		this.canvasContext.fillStyle = '#767676';
-		this.canvasContext.fillRect(uv.x * this.canvas.width, (1 - uv.y) * this.canvas.height, 4, 4 * Math.PI);
-		this.image.src = this.canvas.toDataURL();
-		this.texture.needsUpdate = true;
-	}
-
-	/**
-	 * This method sets up the terraformer canvas
-	 */
-	private initializeCanvas(): Texture {
-		this.canvas = document.createElement('canvas');
-		this.canvas.width = 1024;
-		this.canvas.height = 1024;
-		this.canvasContext = this.canvas.getContext('2d');
-		// shallow water world by default #747474
-		this.canvasContext.fillStyle = '#747474'; // grey by default 757575 is water level 888888 is the base ground level
-		this.canvasContext.fillRect(0, 0, this.canvas.width, this.canvas.height);
-		this.image = new Image();
-		this.image.src = this.canvas.toDataURL();
-		const texture = new THREE.Texture(this.image);
-		texture.anisotropy = 4;
-		texture.needsUpdate = true;
-		return texture;
+		if (value > 120 && value <= 140) {
+			emissionR = 70;
+			emissionG = 170;
+			emissionB = 70;
+		} else if (value > 140 && value <= 200) {
+			emissionR = 30;
+			emissionG = 30;
+			emissionB = 30;
+		} else if (value > 200) {
+			emissionR = value;
+			emissionG = value;
+			emissionB = value;
+		}*/
+		this.emissionTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
 	}
 
 	/**

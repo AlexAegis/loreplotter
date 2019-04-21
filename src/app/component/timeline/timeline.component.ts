@@ -40,6 +40,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, AfterViewInit {
+	noOverflow = 'noOverflow';
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
@@ -222,6 +223,9 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostListener('panend', ['$event'])
 	public shift($event: any) {
 		$event.stopPropagation();
+		$event.srcEvent.stopPropagation();
+		console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pan in timeline');
+		console.log($event);
 		if ($event.type === 'panstart') {
 			this.scrollOnStart = this.scrollRef.view.scrollTop;
 		}
@@ -266,12 +270,10 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	public play() {
-		console.log('play!');
 		this.loreService.play(this.cursor);
 	}
 
 	public pause() {
-		console.log('pause!');
 		this.loreService.stopSubject.next(true);
 	}
 }

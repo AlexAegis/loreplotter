@@ -11,7 +11,7 @@
 	position: fixed;
 	bottom: 0;
 	overflow: hidden; // Hides the blocks and the cursor when the sidebar is expanded
-
+	z-index: -10;
 	#ruler {
 		// background-color: rgba(0, 0, 0, 0.05);
 		display: flex;
@@ -77,5 +77,13 @@
 		line-height: 80%;
 		overflow: hidden;
 		color: rgba(0, 0, 0, 0.1);
+	}
+
+	::ng-deep {
+		.ng-scroll-view {
+			overflow: hidden !important;
+			overflow-y: hidden !important;
+			overflow-x: hidden !important;
+		}
 	}
 }

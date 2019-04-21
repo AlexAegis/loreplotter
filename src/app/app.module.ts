@@ -24,8 +24,9 @@ import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
 import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
-import { MaterialModule } from './module/material.module';
+import { MaterialModule /*, GestureConfig */ } from './module/material.module';
 import { RoutingModule } from './module/routing.module';
+import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
 
 export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
@@ -35,7 +36,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 			domEvents: true,
 			options: { domEvents: true }
 		}, // TODO what
-		swipe: { velocity: 0.4, threshold: 20 } // override default settings
+		swipe: { velocity: 0.4, threshold: 20, domEvents: true, options: { domEvents: true } } // override default settings
 	};
 }
 
@@ -52,7 +53,8 @@ export class MyHammerConfig extends HammerGestureConfig {
 		ListComponent,
 		CursorComponent,
 		BlockComponent,
-		PlayComponent
+		PlayComponent,
+		SceneControlsComponent
 	],
 	imports: [
 		BrowserModule,
@@ -65,11 +67,11 @@ export class MyHammerConfig extends HammerGestureConfig {
 		FormsModule,
 		FontAwesomeModule,
 		ReactiveFormsModule,
-		MaterialModule,
 		DragDropModule,
 		SkyhookMultiBackendModule,
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
-		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production })
+		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+		MaterialModule
 	],
 	providers: [
 		{

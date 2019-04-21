@@ -49,7 +49,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
 			.asObservable()
 			.pipe(filter(a => a && a.length > 0))
 			.subscribe((changes: MediaChange[]) => {
-				console.log('change');
 				this.mediaQueryAlias = changes[0].mqAlias;
 				this.opened = changes[0].mqAlias === 'xl';
 				this.over = changes[0].mqAlias === 'xl' ? 'side' : 'over';
