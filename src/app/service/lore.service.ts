@@ -79,8 +79,14 @@ export class LoreService {
 						}
 					}
 				}
-				const t = THREE.Math.mapLinear(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 
+				const t = THREE.Math.mapLinear(
+					cursor,
+					enclosure.last ? enclosure.last.k.unix : -Infinity,
+					enclosure.first ? enclosure.first.k.unix : Infinity,
+					0,
+					1
+				);
 				let actorObject = engineService.globe.getObjectByName(actor.id) as Point;
 				let group: Group;
 				if (actorObject) {
@@ -92,7 +98,11 @@ export class LoreService {
 					engineService.globe.add(group);
 				}
 
-				if (group.userData.override === undefined) {
+				if (
+					group.userData.override === undefined &&
+					enclosure.last !== undefined &&
+					enclosure.first !== undefined
+				) {
 					const lastVec = new Vector3(
 						enclosure.last.v.position.x,
 						enclosure.last.v.position.y,

@@ -1,5 +1,5 @@
 import * as TWEEN from '@tweenjs/tween.js';
-import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2, Vector } from 'three';
+import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2, Vector, Object3D } from 'three';
 import * as THREE from 'three';
 import { TranslucentShader } from 'three-full';
 
@@ -9,13 +9,14 @@ import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
 import { Water } from './water.class';
 import { of, BehaviorSubject, Subject } from 'rxjs';
-import { delay, debounce, debounceTime, throttleTime } from 'rxjs/operators';
+import { delay, debounce, debounceTime, throttleTime, flatMap, auditTime } from 'rxjs/operators';
 import { text } from '@fortawesome/fontawesome-svg-core';
 import { DrawEvent } from '../event/draw-event.type';
 import { Mode } from 'src/app/component/scene-controls/scene-control.service';
 import { DynamicTexture } from './dynamic-texture.class';
 import { Atmosphere } from './atmosphere.class';
 import { Sun } from './sun.class';
+import { Point } from './point.class';
 
 export class Globe extends Basic {
 	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
@@ -35,7 +36,7 @@ export class Globe extends Basic {
 		canvas.width = 4096;
 		canvas.height = 4096;
 
-		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas);
+		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas, this);
 
 		/*
 		const shader = new TranslucentShader();
@@ -118,6 +119,20 @@ export class Globe extends Basic {
 				this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
 			}
 		});*/
+
+		this.pointUpdateAudit.pipe(auditTime(200)).subscribe(next => {
+			this.points.forEach(point => (point as Point).updateHeightAndWorldPos());
+		});
+	}
+
+	public pointUpdateAudit = new Subject<boolean>();
+
+	public get points(): Array<Point> {
+		return this.children
+			.filter(child => child.children.length === 1) // each group that has one child
+			.reduce((acc: Array<Object3D>, child) => acc.push(...child.children) && acc, []) // each of those children
+			.filter(o => o.type === 'Point') // only the Points
+			.map(o => o as Point); // as Points
 	}
 
 	// public drawSubject = new Subject<DrawEvent>();
@@ -131,6 +146,7 @@ export class Globe extends Basic {
 		value *= 255; // upscale normalized value to rgb range
 		const greyScaleColor = `rgb(${value},${value},${value})`;
 		this.displacementTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
+
 		/*
 		let emissionR = 60;
 		let emissionG = 60;

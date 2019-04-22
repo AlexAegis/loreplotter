@@ -54,10 +54,14 @@ export class Point extends Basic implements Interactive {
 
 		this.addEventListener('pan', event => {
 			this.parent.lookAt(event.point);
-			this.parent.updateWorldMatrix(false, true);
-			this.updateHeight();
+			this.updateHeightAndWorldPos();
 			this.parent.userData.override = true;
 		});
+	}
+
+	public updateHeightAndWorldPos(): void {
+		this.parent.updateWorldMatrix(false, true);
+		this.updateHeight();
 	}
 
 	public updateHeight(): void {

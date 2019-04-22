@@ -157,7 +157,7 @@ export class BlockComponent implements OnInit {
 			const nodeIterator = this._actor.states.nodes();
 			const first = nodeIterator.next();
 			const second = nodeIterator.next();
-			if (second) {
+			if (second.value) {
 				this._afterFirstUnix = second.value.key.unix;
 			} else {
 				this._afterFirstUnix = first.value.key.unix;
@@ -166,7 +166,7 @@ export class BlockComponent implements OnInit {
 			const reverseNodeIterator = this._actor.states.reverseNodes();
 			const last = reverseNodeIterator.next();
 			const secondLast = reverseNodeIterator.next();
-			if (secondLast) {
+			if (secondLast.value) {
 				this._beforeLastUnix = secondLast.value.key.unix;
 			} else {
 				this._beforeLastUnix = last.value.key.unix;

@@ -2,10 +2,17 @@ import { Texture, CanvasTexture, Vector3, Vector2 } from 'three';
 import { Subject, race, interval, BehaviorSubject } from 'rxjs';
 import { debounceTime, debounce, throttleTime, auditTime, audit } from 'rxjs/operators';
 import * as THREE from 'three';
+import { Globe } from './globe.class';
+import { Point } from './point.class';
 
 export class DynamicTexture extends CanvasTexture {
 	public drawEnabled = true;
-	public constructor(defaultTexture?: string, defaultColor?: string, canvas?: HTMLCanvasElement) {
+	public constructor(
+		defaultTexture?: string,
+		defaultColor?: string,
+		canvas?: HTMLCanvasElement,
+		private globe?: Globe
+	) {
 		super(canvas);
 		this.canvas = canvas;
 		this.canvasContext = canvas.getContext('2d');
@@ -15,6 +22,12 @@ export class DynamicTexture extends CanvasTexture {
 		if (defaultTexture) {
 			this.loadFromDataURL(defaultTexture);
 		}
+
+		this.onUpdate = () => {
+			if (this.globe) {
+				this.globe.pointUpdateAudit.next(true);
+			}
+		};
 	}
 	public canvas: HTMLCanvasElement;
 	public canvasContext: CanvasRenderingContext2D;
@@ -33,6 +46,7 @@ export class DynamicTexture extends CanvasTexture {
 		this.canvasContext.fillStyle = color;
 		this.canvasContext.fillRect(x, y, size, height !== undefined ? height : (size * Math.PI) / 1.9);
 		this.needsUpdate = true;
+
 		// 	console.log('DRAW');
 		// this.update();
 		// this.updateQueue.next(true);
