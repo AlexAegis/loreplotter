@@ -224,7 +224,7 @@ export class DatabaseService {
 		);
 	}
 
-	public actorCount$(): Observable<number> {
+	public get actorCount$(): Observable<number> {
 		return this.currentLore.pipe(map(res => res.actors.length));
 	}
 

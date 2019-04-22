@@ -27,8 +27,7 @@ export class Stage extends Scene {
 	public sun: Sun;
 	// private light: THREE.AmbientLight;
 
-	// Target of the popup TODO: Change this back to undefined after experimenting
-	public popupTarget = new BehaviorSubject<Vector2>(undefined);
+	public popupTarget = new BehaviorSubject<Vector2>(null);
 
 	constructor(public engineService: EngineService) {
 		super();

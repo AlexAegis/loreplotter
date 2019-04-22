@@ -27,10 +27,13 @@ export class PopupComponent implements OnInit {
 	// @HostBinding('style.visibility')
 	visibility = 'hidden';
 
+	private _pos = new Vector2(0, 0);
+
 	@Input()
 	set pos(vector: Vector2) {
 		this.left = vector ? vector.x : this.left;
 		this.top = vector ? vector.y : this.top;
+		this._pos.set(this.left, this.top);
 		if (vector) {
 			this.visibility = 'visible';
 		} else {
@@ -39,7 +42,7 @@ export class PopupComponent implements OnInit {
 	}
 
 	get pos(): Vector2 {
-		return new Vector2(this.left, this.top);
+		return this._pos;
 	}
 
 	constructor() {}
