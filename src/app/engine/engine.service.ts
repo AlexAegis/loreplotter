@@ -7,7 +7,7 @@ import { BehaviorSubject, EMPTY, merge, NEVER, of, interval } from 'rxjs';
 import { distinctUntilChanged, finalize, share, switchMap, tap, take, delay, withLatestFrom } from 'rxjs/operators';
 import { Vector2, Vector3, WebGLRenderer } from 'three';
 import * as THREE from 'three';
-import { OrbitControls } from 'three-full';
+import { OrbitControls, ShaderGodRays } from 'three-full';
 
 import { PopupComponent } from '../component/popup/popup.component';
 import { DatabaseService } from './../database/database.service';
@@ -17,6 +17,17 @@ import { Stage } from './object/stage.class';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { Control } from './control/control.class';
 import { Planet } from '../model/planet.class';
+
+import {
+	BlendFunction,
+	EffectPass,
+	GodRaysEffect,
+	KernelSize,
+	SMAAEffect,
+	RenderPass,
+	BloomEffect,
+	EffectComposer
+} from 'postprocessing';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -72,20 +83,73 @@ export class EngineService {
 
 	public spawnOnWorld$ = new BehaviorSubject<{ object: Point; point: Vector3 }>(undefined);
 
+	public composer: EffectComposer;
+	public renderPass: RenderPass;
+	public godRays: GodRaysEffect;
+	public bloomEffect: BloomEffect;
+	public pass: EffectPass;
+
 	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: canvas,
 			alpha: false,
+			logarithmicDepthBuffer: true,
 			antialias: true
 		});
+		this.renderer.setPixelRatio(window.devicePixelRatio);
+		// this.renderer.gammaOutput = true;
+		this.renderer.gammaInput = true;
 		this.renderer.gammaOutput = true;
+		this.renderer.setClearColor(0x000000, 0.0);
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
-
+		this.renderer.shadowMap.enabled = true;
 		this.stage = new Stage(this);
-		this.stage.add(new THREE.AxesHelper(5));
+		// this.stage.add(new THREE.AxesHelper(5));
 		this.globe = new Globe();
 		this.stage.add(this.globe);
 		this.controls = new Control(this.stage.camera, this.renderer.domElement, this.globe);
+
+		// PostProcessing
+
+		/*const smaaEffect = new SMAAEffect(assets.get("smaa-search"), assets.get("smaa-area"));
+		smaaEffect.setEdgeDetectionThreshold(0.065);
+*/
+
+		this.composer = new EffectComposer(this.renderer, {
+			stencilBuffer: true
+		});
+		this.renderPass = new RenderPass(this.stage, null);
+		this.renderPass.camera = this.stage.camera;
+		this.renderPass.renderToScreen = false;
+
+		this.godRays = new GodRaysEffect(this.stage.camera, this.stage.sun, {
+			resolutionScale: 0.75,
+			blendFunction: BlendFunction.LIGHTEN,
+			kernelSize: KernelSize.SMALL,
+			density: 0.98,
+			decay: 0.93,
+			weight: 0.3,
+			exposure: 0.55,
+			samples: 60,
+			clampMax: 1.0
+		});
+
+		this.bloomEffect = new BloomEffect({
+			blendFunction: BlendFunction.SCREEN,
+			kernelSize: KernelSize.SMALL,
+			resolutionScale: 0.5,
+			distinction: 1.0
+		});
+
+		this.bloomEffect.blendMode.opacity.value = 2.1;
+
+		this.godRays.dithering = true;
+
+		this.pass = new EffectPass(this.stage.camera, /*smaaEffect,*/ this.bloomEffect, this.godRays);
+		this.pass.renderToScreen = true;
+
+		this.composer.addPass(this.renderPass);
+		this.composer.addPass(this.pass);
 	}
 
 	public createPlanet(planet: Planet): void {}
@@ -238,14 +302,16 @@ export class EngineService {
 		if (this.controls) {
 			this.controls.update();
 		}
-		this.renderer.render(this.stage, this.stage.camera);
+		this.composer.render();
+		// this.renderer.render(this.stage, this.stage.camera);
 	}
 
 	public resize() {
-		this.stage.camera.left = window.innerWidth / -2;
+		/*	this.stage.camera.left = window.innerWidth / -2;
 		this.stage.camera.right = window.innerWidth / 2;
 		this.stage.camera.top = window.innerHeight / 2;
-		this.stage.camera.bottom = window.innerHeight / -2;
+		this.stage.camera.bottom = window.innerHeight / -2;*/
+		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
 		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.globe.changed();

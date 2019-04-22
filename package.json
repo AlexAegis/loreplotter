@@ -55,6 +55,7 @@
 		"moment": "^2.24.0",
 		"ngx-moment": "^3.4.0",
 		"ngx-scrollbar": "^4.1.1",
+		"postprocessing": "^6.2.1",
 		"pouchdb-adapter-idb": "^7.0.0",
 		"pouchdb-adapter-memory": "^7.0.0",
 		"propagating-hammerjs": "^1.4.6",

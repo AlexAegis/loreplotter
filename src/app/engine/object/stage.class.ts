@@ -1,10 +1,29 @@
 import { BehaviorSubject } from 'rxjs';
 import * as THREE from 'three';
-import { Vector2, Vector3, TextureLoader } from 'three';
+import {
+	Vector2,
+	Vector3,
+	TextureLoader,
+	Scene,
+	OrthographicCamera,
+	Color,
+	Mesh,
+	AmbientLight,
+	MeshBasicMaterial,
+	IcosahedronGeometry,
+	Object3D,
+	PerspectiveCamera,
+	Group
+} from 'three';
 import { EngineService } from '../engine.service';
 import { Lensflare, LensflareElement } from 'three-full';
-export class Stage extends THREE.Scene {
-	public camera: THREE.OrthographicCamera;
+import { Sun } from './sun.class';
+import { Basic } from './basic.class';
+export class Stage extends Scene {
+	public camera: PerspectiveCamera;
+	public sunGroup: Group;
+	public pseudoSunGroup: Group;
+	public sun: Sun;
 	// private light: THREE.AmbientLight;
 
 	// Target of the popup TODO: Change this back to undefined after experimenting
@@ -14,34 +33,34 @@ export class Stage extends THREE.Scene {
 		super();
 
 		this.name = 'stage';
-		// this.camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
-		this.camera = new THREE.OrthographicCamera(
+		this.camera = new PerspectiveCamera(120, window.innerWidth / window.innerHeight, 0.1, 10000);
+		/*this.camera = new OrthographicCamera(
 			window.innerWidth / -2,
 			window.innerWidth / 2,
 			window.innerHeight / 2,
 			window.innerHeight / -2,
 			0.1,
-			100
-		);
+			10000
+		);*/
 		this.camera.name = 'camera';
-		this.camera.position.z = 12;
+		this.camera.position.z = 1000;
 		this.camera.zoom = window.innerHeight / 2;
 		this.camera.updateProjectionMatrix();
 		this.add(this.camera);
-		this.background = new THREE.Color('#fafafa');
+		// this.background = new THREE.Color('#fafafa');
+		// this.background = new Color('#5e81b2');
+		this.background = new Color('#121212');
 
-		const light = new THREE.PointLight(0x48443e, 0.8, 1000);
-		light.castShadow = true;
-		const flareSun = new TextureLoader().load(`assets/textures/lensflare/lensflare-sun.png`);
-
-		const lensflare = new Lensflare();
-
-		lensflare.addElement(new LensflareElement(flareSun, 250, 0));
-
-		light.add(lensflare);
-		light.position.set(10, 10, 10);
-		this.add(light);
-
+		this.sunGroup = new Group();
+		this.pseudoSunGroup = new Group();
+		this.sun = new Sun();
+		this.add(this.sun);
+		this.sun.position.set(10, 0, 0);
+		this.sunGroup.position.set(0, 0, 0);
+		this.pseudoSunGroup.position.set(10, 0, 0);
+		this.sunGroup.add(this.pseudoSunGroup);
+		this.sun.directionalLight.target = this.sunGroup;
+		this.add(this.sunGroup);
 		// soft white light
 		// this.light = new THREE.AmbientLight(0x002020);
 		// this.light.position.z = 100;

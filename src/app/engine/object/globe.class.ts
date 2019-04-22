@@ -1,6 +1,7 @@
 import * as TWEEN from '@tweenjs/tween.js';
 import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2, Vector } from 'three';
 import * as THREE from 'three';
+import { TranslucentShader } from 'three-full';
 
 import { globeShader } from '../shader/globe.shader';
 import { ClickEvent } from './../event/click-event.type';
@@ -16,7 +17,7 @@ import { DynamicTexture } from './dynamic-texture.class';
 
 export class Globe extends Basic {
 	public type = 'Globe';
-	public material: THREE.MeshPhongMaterial; // Type override, this field exists on the THREE.Mesh already
+	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
 	public water: Water;
 
 	public displacementTexture: DynamicTexture;
@@ -27,16 +28,45 @@ export class Globe extends Basic {
 
 		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474');
 		this.emissionTexture = new DynamicTexture(initialDisplacementTexture, '#747474');
+		/*
+		const shader = new TranslucentShader();
+		const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+		uniforms['map'].value = this.displacementTexture;
+		uniforms['diffuse'].value = new THREE.Vector3(1.0, 0.2, 0.2);
+		uniforms['shininess'].value = 500;
+		uniforms['thicknessMap'].value = this.displacementTexture;
+		uniforms['thicknessColor'].value = new THREE.Vector3(0.5, 0.3, 0.0);
+		uniforms['thicknessDistortion'].value = 0.1;
+		uniforms['thicknessAmbient'].value = 0.4;
+		uniforms['thicknessAttenuation'].value = 0.8;
+		uniforms['thicknessPower'].value = 2.0;
+		uniforms['thicknessScale'].value = 16.0;
+		const material = new THREE.ShaderMaterial({
+			uniforms: uniforms,
+			vertexShader: shader.vertexShader,
+			fragmentShader: shader.fragmentShader,
+			lights: true
+		});
+		material.extensions.derivatives = true;
 
-		this.material = new THREE.MeshPhongMaterial({
+		this.material = material;*/
+
+		this.material = new THREE.MeshPhysicalMaterial({
 			emissive: '#CFBFAF',
-			emissiveIntensity: 1,
+			emissiveIntensity: 0.06,
 			displacementMap: this.displacementTexture,
-			normalMap: this.displacementTexture,
 			bumpMap: this.displacementTexture,
 			emissiveMap: this.emissionTexture,
-			displacementScale: 0.1,
-			displacementBias: -0.05
+			displacementScale: 0.15,
+			displacementBias: -0.0345,
+			aoMap: this.displacementTexture,
+			aoMapIntensity: 1,
+			bumpScale: 0.02,
+			roughness: 0.8,
+			metalness: 0.5,
+			reflectivity: 0.5,
+			clearCoat: 0.9,
+			clearCoatRoughness: 0.9
 		});
 
 		this.receiveShadow = true;
@@ -47,8 +77,12 @@ export class Globe extends Basic {
 
 		this.geometry = new THREE.SphereBufferGeometry(radius, 512, 512);
 		this.name = 'globe';
-		this.geometry.normalizeNormals();
+		// this.geometry.normalizeNormals();
+
+		(this.geometry as any).computeFaceNormals();
+		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
+		this.geometry.normalizeNormals();
 		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 		this.addEventListener('click', (event: ClickEvent) => {
 			this.stage.engineService.selected.next(undefined);

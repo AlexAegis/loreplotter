@@ -7,10 +7,11 @@ export class Control extends OrbitControls {
 		this.enableDamping = true;
 		this.enableZoom = true;
 		this.enablePan = false; // moving the camera in a plane is disabled, only rotation is allowed
-		this.zoomSpeed = 2.0;
+		this.zoomSpeed = 10.0;
 		this.dampingFactor = 0.25;
-		this.minZoom = 10;
-		this.rotateSpeed = 0.1;
+		this.minDistance = this.minZoom = 100;
+		this.maxDistance = this.maxZoom = 4000;
+		this.rotateSpeed = 0.05;
 		this.addEventListener('change', e => {
 			globe.changed();
 		});
@@ -24,7 +25,10 @@ export class Control extends OrbitControls {
 	public enablePan: boolean;
 	public zoomSpeed: number;
 	public dampingFactor: number;
-	public minZoom: number;
+	public minZoom: number; // Ortographic only
+	public maxZoom: number; // Ortographic only
+	public maxDistance: number; // Perspective only
+	public minDistance: number; // Ortographic only
 	public rotateSpeed: number;
 	public mouseButtons: any;
 

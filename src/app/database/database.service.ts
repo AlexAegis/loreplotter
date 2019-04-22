@@ -188,7 +188,8 @@ export class DatabaseService {
 		const imageURLSubject = new Subject<string>();
 
 		const image = new Image();
-		image.src = `assets/world-invert.png`;
+		// image.src = `assets/world-invert.png`;
+		image.src = `assets/elev_bump_8k.jpg`;
 
 		const canvas = document.createElement('canvas');
 		const ctx = canvas.getContext('2d');

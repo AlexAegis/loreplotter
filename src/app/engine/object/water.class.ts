@@ -1,6 +1,6 @@
 import { interval, of } from 'rxjs';
 import * as TWEEN from '@tweenjs/tween.js';
-import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture } from 'three';
+import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2 } from 'three';
 import * as THREE from 'three';
 
 import { globeShader } from '../shader/globe.shader';
@@ -13,7 +13,7 @@ export class Water extends Basic {
 	public type = 'Water';
 	public texture: Texture;
 	constructor(private radius: number = 0.98) {
-		super(new THREE.SphereGeometry(radius, 70, 70), undefined);
+		super(new THREE.SphereGeometry(radius, 128, 128), undefined);
 		this.texture = new TextureLoader().load(`assets/textures/water/ripple.gif`, tex => {
 			tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
 			tex.offset.set(0, 0);
@@ -29,19 +29,25 @@ export class Water extends Basic {
 			.subscribe(([next, tex]) => {
 				tex.needsUpdate = true;
 			});*/
-		this.material = new THREE.MeshStandardMaterial({
-			color: new Color('#389bff'),
-			emissive: new Color('#389bff'),
-			emissiveIntensity: 0.5,
-			opacity: 0.8,
+
+		// (this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+		this.material = new THREE.MeshPhysicalMaterial({
+			color: new Color('#63acff'), // 63acff
+			emissive: new Color('#63acff'), // 2863a3
+			emissiveIntensity: 0.03,
+			opacity: 0.85,
 			transparent: true,
-			alphaTest: 0.8,
-			normalMap: this.texture,
-			bumpMap: this.texture
+			bumpMap: this.texture,
+			bumpScale: 0.0001,
+			roughness: 0.78,
+			metalness: 1,
+			reflectivity: 0.8,
+			clearCoat: 0.9,
+			clearCoatRoughness: 0.9
 		});
+		this.frustumCulled = false;
 		this.name = 'water';
 		this.castShadow = true;
 		this.receiveShadow = true;
-		this.geometry.computeBoundingSphere();
 	}
 }

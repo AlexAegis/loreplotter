@@ -17,7 +17,9 @@ import { CursorComponent } from './../component/cursor/cursor.component';
 import { EngineService } from './../engine/engine.service';
 import { ActorDelta } from './../model/actor-delta.class';
 import { TextureDelta } from '../model/texture-delta.class';
+import * as THREE from 'three';
 
+const DAY_IN_SECONDS = 86400;
 /**
  * This service's goal is to consume the data comint from the database and the engine and then update both
  */
@@ -25,23 +27,14 @@ import { TextureDelta } from '../model/texture-delta.class';
 	providedIn: 'root'
 })
 export class LoreService {
-	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
-	public spawnOnClientOffset$ = new BehaviorSubject<Offset>(undefined);
-	public overrideNodePosition$ = new BehaviorSubject<{
-		actorId: string;
-		overrides: Array<{ original: number; previous: number; new: number }>;
-	}>(undefined);
-
-	public stopSubject = new BehaviorSubject<boolean>(false);
-
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
-		// This subscriber's job is to map each actors state to the map based on the current cursor
-
 		this.databaseService.currentLore.subscribe(lore => {
 			engineService.globe.radius = lore.planet.radius;
 			engineService.globe.displacementTexture.loadFromDataURL(lore.planet.displacementTexture);
 			engineService.globe.changed();
 		});
+
+		// This subscriber's job is to map each actors state to the map based on the current cursor
 		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
@@ -54,6 +47,11 @@ export class LoreService {
 			)
 			.subscribe(({ actor, cursor, overrideNodePositions }) => {
 				engineService.selected.next(undefined);
+				engineService.stage.sunGroup.rotation.set(0, 0, 0);
+				engineService.stage.sunGroup.rotateY(
+					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * 360 * THREE.Math.DEG2RAD
+				);
+				engineService.stage.pseudoSunGroup.getWorldPosition(engineService.stage.sun.position);
 
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 					Node<UnixWrapper, ActorDelta>
@@ -180,6 +178,15 @@ export class LoreService {
 			)
 			.subscribe();
 	}
+
+	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
+	public spawnOnClientOffset$ = new BehaviorSubject<Offset>(undefined);
+	public overrideNodePosition$ = new BehaviorSubject<{
+		actorId: string;
+		overrides: Array<{ original: number; previous: number; new: number }>;
+	}>(undefined);
+
+	public stopSubject = new BehaviorSubject<boolean>(false);
 
 	public name(actor: Actor) {
 		return actor.id;
