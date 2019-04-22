@@ -19,6 +19,7 @@ import { EngineService } from '../engine.service';
 import { Lensflare, LensflareElement } from 'three-full';
 import { Sun } from './sun.class';
 import { Basic } from './basic.class';
+import { Atmosphere } from './atmosphere.class';
 export class Stage extends Scene {
 	public camera: PerspectiveCamera;
 	public sunGroup: Group;
@@ -61,6 +62,7 @@ export class Stage extends Scene {
 		this.sunGroup.add(this.pseudoSunGroup);
 		this.sun.directionalLight.target = this.sunGroup;
 		this.add(this.sunGroup);
+
 		// soft white light
 		// this.light = new THREE.AmbientLight(0x002020);
 		// this.light.position.z = 100;

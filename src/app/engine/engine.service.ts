@@ -1,3 +1,5 @@
+import { atmosphereShader } from './shader/atmosphere.shader';
+import { Atmosphere } from './object/atmosphere.class';
 import { TextureDelta } from './../model/texture-delta.class';
 import { ButtonType } from './control/button-type.class';
 import { SceneControlService } from './../component/scene-controls/scene-control.service';
@@ -28,8 +30,10 @@ import {
 	BloomEffect,
 	VignetteEffect,
 	ToneMappingEffect,
+	OutlineEffect,
 	EffectComposer
 } from 'postprocessing';
+import * as dat from 'dat.gui';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -91,7 +95,10 @@ export class EngineService {
 	public bloomEffect: BloomEffect;
 	public vignetteEffect: VignetteEffect;
 	public toneMappingEffect: ToneMappingEffect;
+	public outlineEffect: OutlineEffect;
 	public pass: EffectPass;
+
+	public atmosphere: Atmosphere;
 
 	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
@@ -113,11 +120,26 @@ export class EngineService {
 		this.stage.add(this.globe);
 		this.controls = new Control(this.stage.camera, this.renderer.domElement, this.globe);
 
-		// PostProcessing
+		const glowMaterial = new THREE.ShaderMaterial({
+			uniforms: {
+				c: { type: 'f', value: 0.5 },
+				p: { type: 'f', value: 12 },
+				glowColor: { type: 'c', value: new THREE.Color('#2f91ff') },
+				viewVector: { type: 'v3', value: this.stage.camera.position }
+			},
+			vertexShader: atmosphereShader.vertexShader,
+			fragmentShader: atmosphereShader.fragmentShader,
+			side: THREE.BackSide,
+			blending: THREE.AdditiveBlending,
+			transparent: false
+		});
 
-		/*const smaaEffect = new SMAAEffect(assets.get("smaa-search"), assets.get("smaa-area"));
-		smaaEffect.setEdgeDetectionThreshold(0.065);
-*/
+		const glow = new THREE.Mesh(new THREE.SphereBufferGeometry(this.globe.radius, 60, 60), glowMaterial);
+
+		glow.scale.multiplyScalar(1.04);
+		this.stage.add(glow);
+
+		// PostProcessing
 
 		this.composer = new EffectComposer(this.renderer, {
 			stencilBuffer: true
@@ -183,6 +205,7 @@ adaptive: true,
 			this.godRays,
 			/*smaaEffect,*/ this.bloomEffect,
 			// 	this.toneMappingEffect,
+
 			this.vignetteEffect
 		);
 		this.pass.renderToScreen = true;
@@ -342,7 +365,6 @@ adaptive: true,
 			this.controls.update();
 		}
 		this.composer.render();
-		// this.renderer.render(this.stage, this.stage.camera);
 	}
 
 	public resize() {

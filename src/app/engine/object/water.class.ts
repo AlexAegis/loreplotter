@@ -1,6 +1,18 @@
 import { interval, of } from 'rxjs';
 import * as TWEEN from '@tweenjs/tween.js';
-import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2 } from 'three';
+import {
+	Group,
+	Shader,
+	Spherical,
+	Vector3,
+	Color,
+	TextureLoader,
+	Texture,
+	Vector2,
+	Blending,
+	AdditiveBlending,
+	MultiplyBlending
+} from 'three';
 import * as THREE from 'three';
 
 import { globeShader } from '../shader/globe.shader';
@@ -35,8 +47,11 @@ export class Water extends Basic {
 			color: new Color('#63a9ff'), // 63acff
 			emissive: new Color('#1b3287'), // 2863a3
 			emissiveIntensity: 0.02,
-			opacity: 0.7,
-			transparent: false,
+			opacity: 0.8,
+			transparent: true,
+			//  alphaMap: this.texture,
+			// blendEquationAlpha: 1.1,
+			// blending: MultiplyBlending,
 			bumpMap: this.texture,
 			bumpScale: 0.0001,
 			roughness: 0.3,

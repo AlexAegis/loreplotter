@@ -14,6 +14,8 @@ import { text } from '@fortawesome/fontawesome-svg-core';
 import { DrawEvent } from '../event/draw-event.type';
 import { Mode } from 'src/app/component/scene-controls/scene-control.service';
 import { DynamicTexture } from './dynamic-texture.class';
+import { Atmosphere } from './atmosphere.class';
+import { Sun } from './sun.class';
 
 export class Globe extends Basic {
 	public type = 'Globe';
@@ -23,6 +25,7 @@ export class Globe extends Basic {
 	public displacementTexture: DynamicTexture;
 	public emissionTexture: DynamicTexture;
 
+	public atmos_scale_height = 7;
 	public constructor(public radius: number = 1, public initialDisplacementTexture?: string) {
 		super();
 
@@ -103,6 +106,7 @@ export class Globe extends Basic {
 
 		this.water = new Water(radius * 0.98);
 		this.add(this.water);
+
 		/*
 		this.drawSubject.pipe(throttleTime(1000 / 60)).subscribe(event => {
 			this.drawTo(event.uv, event.mode, event.value, event.size);
