@@ -40,8 +40,6 @@ export class Sun extends Basic {
 	public constructor(public radius: number = 0.6) {
 		super();
 		this.name = 'sun';
-		this.displacementTexture = new DynamicTexture(undefined, '#742424');
-		this.emissionTexture = new DynamicTexture(undefined, '#742424');
 
 		this.material = new THREE.MeshPhongMaterial({
 			emissive: '#ffd3a8',

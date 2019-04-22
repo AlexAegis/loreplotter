@@ -194,8 +194,8 @@ export class DatabaseService {
 		const canvas = document.createElement('canvas');
 		const ctx = canvas.getContext('2d');
 
-		canvas.width = 512;
-		canvas.height = 512;
+		canvas.width = 4096;
+		canvas.height = 4096;
 		image.onload = () => {
 			ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // TODO scale it
 			imageURLSubject.next(canvas.toDataURL());

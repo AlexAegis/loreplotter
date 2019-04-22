@@ -6,10 +6,7 @@ describe('EngineService', () => {
 	let service: EngineService;
 	let canvas: HTMLCanvasElement;
 
-	beforeAll(async () => {
-		service = new EngineService(undefined);
-		canvas = document.createElement('canvas');
-	});
+	beforeAll(async () => {});
 
 	beforeEach(async(() => {}));
 

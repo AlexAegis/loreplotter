@@ -26,6 +26,8 @@ import {
 	SMAAEffect,
 	RenderPass,
 	BloomEffect,
+	VignetteEffect,
+	ToneMappingEffect,
 	EffectComposer
 } from 'postprocessing';
 
@@ -87,6 +89,8 @@ export class EngineService {
 	public renderPass: RenderPass;
 	public godRays: GodRaysEffect;
 	public bloomEffect: BloomEffect;
+	public vignetteEffect: VignetteEffect;
+	public toneMappingEffect: ToneMappingEffect;
 	public pass: EffectPass;
 
 	public createScene(canvas: HTMLCanvasElement): void {
@@ -127,7 +131,7 @@ export class EngineService {
 			blendFunction: BlendFunction.LIGHTEN,
 			kernelSize: KernelSize.SMALL,
 			density: 0.98,
-			decay: 0.93,
+			decay: 0.94,
 			weight: 0.3,
 			exposure: 0.55,
 			samples: 60,
@@ -141,11 +145,46 @@ export class EngineService {
 			distinction: 1.0
 		});
 
-		this.bloomEffect.blendMode.opacity.value = 2.1;
+		this.vignetteEffect = new VignetteEffect({
+			eskil: true,
+			offset: 0.05,
+			darkness: 0.7
+		});
+
+		// Cant make it work
+		this.toneMappingEffect = new ToneMappingEffect({
+			blendFunction: BlendFunction.NORMAL,
+			resolution: 8,
+			adaptive: true,
+			distinction: 3.7,
+			adaptationRate: 5.0,
+			averageLuminance: 1,
+			maxLuminance: 10.0,
+			middleGrey: 0.22
+		});
+
+		/*
+adaptive: true,
+			resolution: 256,
+			distinction: 2.0,
+			middleGrey: 0.6,
+			maxLuminance: 16.0,
+			averageLuminance: 1.0,
+			adaptationRate: 5.0
+
+		*/
+
+		this.bloomEffect.blendMode.opacity.value = 3.1;
 
 		this.godRays.dithering = true;
 
-		this.pass = new EffectPass(this.stage.camera, /*smaaEffect,*/ this.bloomEffect, this.godRays);
+		this.pass = new EffectPass(
+			this.stage.camera,
+			this.godRays,
+			/*smaaEffect,*/ this.bloomEffect,
+			// 	this.toneMappingEffect,
+			this.vignetteEffect
+		);
 		this.pass.renderToScreen = true;
 
 		this.composer.addPass(this.renderPass);

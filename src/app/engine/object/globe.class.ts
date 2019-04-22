@@ -8,8 +8,8 @@ import { ClickEvent } from './../event/click-event.type';
 import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
 import { Water } from './water.class';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { of, BehaviorSubject, Subject } from 'rxjs';
+import { delay, debounce, debounceTime, throttleTime } from 'rxjs/operators';
 import { text } from '@fortawesome/fontawesome-svg-core';
 import { DrawEvent } from '../event/draw-event.type';
 import { Mode } from 'src/app/component/scene-controls/scene-control.service';
@@ -26,8 +26,12 @@ export class Globe extends Basic {
 	public constructor(public radius: number = 1, public initialDisplacementTexture?: string) {
 		super();
 
-		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474');
-		this.emissionTexture = new DynamicTexture(initialDisplacementTexture, '#747474');
+		const canvas = document.createElement('canvas');
+		canvas.width = 4096;
+		canvas.height = 4096;
+
+		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas);
+
 		/*
 		const shader = new TranslucentShader();
 		const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
@@ -53,18 +57,16 @@ export class Globe extends Basic {
 
 		this.material = new THREE.MeshPhysicalMaterial({
 			emissive: '#CFBFAF',
-			emissiveIntensity: 0.06,
+			emissiveIntensity: 0.003,
 			displacementMap: this.displacementTexture,
 			bumpMap: this.displacementTexture,
-			emissiveMap: this.emissionTexture,
+			map: this.displacementTexture,
 			displacementScale: 0.15,
 			displacementBias: -0.0345,
-			aoMap: this.displacementTexture,
-			aoMapIntensity: 1,
-			bumpScale: 0.02,
-			roughness: 0.8,
+			bumpScale: 0.008,
+			roughness: 0.5,
 			metalness: 0.5,
-			reflectivity: 0.5,
+			reflectivity: 0.7,
 			clearCoat: 0.9,
 			clearCoatRoughness: 0.9
 		});
@@ -91,15 +93,26 @@ export class Globe extends Basic {
 			this.stage.engineService.hovered.next(undefined);
 		});
 		this.addEventListener('draw', (event: DrawEvent) => {
+			// this.drawSubject.next(event);
+
 			this.drawTo(event.uv, event.mode, event.value, event.size);
 			if (event.final) {
-				this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
+				// TODO REENABLE this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
 			}
 		});
 
 		this.water = new Water(radius * 0.98);
 		this.add(this.water);
+		/*
+		this.drawSubject.pipe(throttleTime(1000 / 60)).subscribe(event => {
+			this.drawTo(event.uv, event.mode, event.value, event.size);
+			if (event.final) {
+				this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
+			}
+		});*/
 	}
+
+	// public drawSubject = new Subject<DrawEvent>();
 
 	public drawTo(uv: Vector2, mode: Mode, value: number, size: number) {
 		const x = uv.x * this.displacementTexture.canvas.width;
@@ -128,7 +141,7 @@ export class Globe extends Basic {
 			emissionG = value;
 			emissionB = value;
 		}*/
-		this.emissionTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
+		// this.emissionTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
 	}
 
 	/**
