@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import * as idb from 'pouchdb-adapter-idb';
 import RxDB from 'rxdb';
 import { BehaviorSubject, combineLatest, from, Observable, Subject, zip } from 'rxjs';
-import { filter, map, mergeMap, shareReplay, switchMap, take } from 'rxjs/operators';
+import { filter, map, mergeMap, shareReplay, switchMap, take, tap } from 'rxjs/operators';
 
 import { ActorDelta } from '../model/actor-delta.class';
 import { loreSchema, Lore } from '../model/lore.class';
@@ -111,6 +111,7 @@ export class DatabaseService {
 	public currentLore = combineLatest(this.currentDocument, this.connection).pipe(
 		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
 		filter(res => res !== undefined && res !== null),
+		tap(lore => lore.actors.map(this.actorStateMapper)),
 		/*map(lore => {
 			if (lore.textureTreeString) {
 				lore.textureTree = Tree.parse<UnixWrapper, TextureDelta>(

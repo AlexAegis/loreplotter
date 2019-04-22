@@ -19,9 +19,10 @@
 </div>
 <div class="channelsContainer">
 	<ng-scrollbar class="channels" [viewClass]="noOverflow">
-		<div class="channel" *ngFor="let actor of (actors$ | async) as actors">
+		<div class="channel" *ngFor="let actor of (actors$ | async) as actors" (tap)="spawnNode($event, actor, block)">
 			{{ loreService.name(actor) }}
 			<app-block
+				#block
 				[actors]="actors"
 				[actor]="actor"
 				[frameStart]="frameStart.total"

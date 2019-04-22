@@ -33,7 +33,7 @@ export class Point extends Basic implements Interactive {
 	constructor(public name: string) {
 		super(new THREE.SphereBufferGeometry(0.05, 40, 40), undefined);
 		this.type = 'Point';
-		this.position.set(0, 0, 1); // TODO, radius
+		this.position.set(0, 0, 1);
 		this.rotateX(90 * THREE.Math.DEG2RAD);
 		this.material = this.defaultMaterial;
 		(this.geometry as any).computeFaceNormals();

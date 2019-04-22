@@ -6,7 +6,7 @@ import * as moment from 'moment';
 import { BehaviorSubject, combineLatest, interval } from 'rxjs';
 import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
-import { Group, Quaternion, Vector3 } from 'three';
+import { Group, Quaternion, Vector3, Object3D } from 'three';
 
 import { clamp } from '../engine/helper/clamp.function';
 import { normalize } from '../engine/helper/normalize.function';
@@ -28,7 +28,17 @@ const DAY_IN_SECONDS = 86400;
 	providedIn: 'root'
 })
 export class LoreService {
+	// best name ever
+	public slerperHelper: Group;
+	public pseudoPoint: Group;
+	public latestSlerpsWorldPositionHolder: Vector3;
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
+		this.slerperHelper = new Group();
+		this.pseudoPoint = new Group();
+		this.pseudoPoint.position.set(0, 0, 1);
+		this.slerperHelper.add(this.pseudoPoint);
+		this.latestSlerpsWorldPositionHolder = new Vector3();
+
 		/** Only the initial texture is preloaded */
 		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
 			engineService.globe.radius = lore.planet.radius;
@@ -93,13 +103,7 @@ export class LoreService {
 					}
 				}
 
-				const t = THREE.Math.mapLinear(
-					cursor,
-					enclosure.last ? enclosure.last.k.unix : -Infinity,
-					enclosure.first ? enclosure.first.k.unix : Infinity,
-					0,
-					1
-				);
+				const t = this.progress(enclosure, cursor);
 				let actorObject = engineService.globe.getObjectByName(actor.id) as Point;
 				let group: Group;
 				if (actorObject) {
@@ -116,28 +120,8 @@ export class LoreService {
 					enclosure.last !== undefined &&
 					enclosure.first !== undefined
 				) {
-					const lastVec = new Vector3(
-						enclosure.last.v.position.x,
-						enclosure.last.v.position.y,
-						enclosure.last.v.position.z
-					);
+					this.lookAtInterpolated(enclosure, t, group);
 
-					const firstVec = new Vector3(
-						enclosure.first.v.position.x,
-						enclosure.first.v.position.y,
-						enclosure.first.v.position.z
-					);
-
-					group.lookAt(lastVec);
-					group.applyQuaternion(engineService.globe.quaternion);
-					const fromQ = group.quaternion.clone();
-					group.lookAt(firstVec);
-					group.applyQuaternion(engineService.globe.quaternion);
-					const toQ = group.quaternion.clone();
-					if (t && Math.abs(t) !== Infinity) {
-						Quaternion.slerp(fromQ, toQ, group.quaternion, t);
-						group.updateWorldMatrix(false, true); // The childrens worldpositions won't update unless I call this
-					}
 					actorObject.updateHeight();
 				} else if (group.userData.override === false) {
 					delete group.userData.override;
@@ -225,5 +209,37 @@ export class LoreService {
 				this.cursor$.next(this.cursor$.value + 3600 / 6);
 				cursor.contextChange();
 			});
+	}
+
+	/**
+	 * rotates the position t'th way between the enclosure
+	 * Returns a new worldpositon at radius 1
+	 */
+	public lookAtInterpolated(
+		enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>,
+		t: number,
+		o: Object3D = this.slerperHelper
+	): Vector3 {
+		o.lookAt(enclosure.last.v.position.x, enclosure.last.v.position.y, enclosure.last.v.position.z);
+		o.applyQuaternion(this.engineService.globe.quaternion);
+		const fromQ = o.quaternion.clone();
+		o.lookAt(enclosure.first.v.position.x, enclosure.first.v.position.y, enclosure.first.v.position.z);
+		o.applyQuaternion(this.engineService.globe.quaternion); // if the globe is rotated (it's not) then account it
+		const toQ = o.quaternion.clone();
+		if (t && Math.abs(t) !== Infinity) {
+			Quaternion.slerp(fromQ, toQ, o.quaternion, t);
+			o.updateWorldMatrix(false, true); // The childrens worldpositions won't update unless I call this
+		}
+		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
+	}
+
+	public progress(enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>, unix: number) {
+		return THREE.Math.mapLinear(
+			unix,
+			enclosure.last ? enclosure.last.k.unix : -Infinity,
+			enclosure.first ? enclosure.first.k.unix : Infinity,
+			0,
+			1
+		);
 	}
 }

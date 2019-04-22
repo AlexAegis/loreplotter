@@ -1,3 +1,7 @@
+import { Vector3Serializable } from './../../model/vector3-serializable.interface';
+import { BlockComponent } from './../block/block.component';
+import { Actor } from 'src/app/model/actor.class';
+import { ClickEvent } from './../../engine/event/click-event.type';
 import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
@@ -12,7 +16,7 @@ import {
 import * as TWEEN from '@tweenjs/tween.js';
 import * as moment from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
-import { take } from 'rxjs/operators';
+import { take, switchMap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
 import { DeltaProperty } from 'src/app/model/delta-property.class';
@@ -21,6 +25,9 @@ import { LoreService } from 'src/app/service/lore.service';
 import { CursorComponent } from './../cursor/cursor.component';
 import { NgScrollbar } from 'ngx-scrollbar';
 import * as THREE from 'three';
+import { ActorDelta } from 'src/app/model/actor-delta.class';
+import { UnixWrapper } from 'src/app/model/unix-wrapper.class';
+import { loreSchema } from 'src/app/model/lore.class';
 
 /**
  * Timeline
@@ -260,6 +267,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * On click, jump with the cursor
 	 */
 	public tap($event: any) {
+		$event.stopPropagation();
 		this.easeCursorTo($event.center.x - this.el.nativeElement.offsetLeft);
 	}
 
@@ -277,6 +285,53 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	normalize(value: number) {
 		return value === 0 ? 0 : value / Math.abs(value);
+	}
+
+	public spawnNode($event: any, actor: Actor, block: BlockComponent) {
+		$event.stopPropagation();
+		block.isSaving = true;
+		const unix = THREE.Math.mapLinear(
+			$event.center.x - this.el.nativeElement.offsetLeft,
+			0,
+			this.containerWidth,
+			this.frameStart.total,
+			this.frameEnd.total
+		);
+		const wrapper = new UnixWrapper(unix);
+		const enclosing = actor.states.enclosingNodes(wrapper);
+		let finalPosition: Vector3Serializable;
+		if (enclosing.first === undefined || enclosing.last === undefined) {
+			let node = enclosing.first;
+			if (!node) {
+				node = enclosing.last;
+			}
+			finalPosition = {
+				x: node.value.position.x,
+				y: node.value.position.y,
+				z: node.value.position.z
+			};
+		} else {
+			const progress = this.loreService.progress(enclosing, unix);
+			const worldPos = this.loreService.lookAtInterpolated(enclosing, progress);
+			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
+		}
+
+		this.databaseService.currentLore
+			.pipe(
+				take(1),
+				switchMap(next =>
+					next
+						.atomicUpdate(lore => {
+							lore.actors
+								.filter(a => a.id === actor.id)
+								.map(this.databaseService.actorStateMapper)
+								.forEach(a => a.states.set(wrapper, new ActorDelta(undefined, finalPosition)));
+							return lore;
+						})
+						.finally(() => (block.isSaving = false))
+				)
+			)
+			.subscribe();
 	}
 
 	public playOrPause(play: boolean) {
