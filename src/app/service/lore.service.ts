@@ -37,6 +37,9 @@ export class LoreService {
 		});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
+
+		// TODO: Refactor sources, so that when the database finsihes writing an old value,
+		// if there is still overwrite in prograss, dont update that. for blocks
 		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
@@ -64,17 +67,27 @@ export class LoreService {
 					enclosure.first = enclosure.last;
 				}
 
-				if (overrideNodePositions !== undefined && overrideNodePositions.actorId === actor.id) {
+				if (
+					overrideNodePositions !== undefined &&
+					overrideNodePositions.overrides.length > 0 &&
+					overrideNodePositions.actorId === actor.id
+				) {
 					for (const node of actor.states.nodes()) {
 						overrideNodePositions.overrides
 							.filter(ov => ov.previous === node.key.unix)
 							.forEach(ov => {
 								node.key.unix = ov.new;
 							});
-						if (node.key.unix >= enclosure.first.key.unix && node.key.unix <= cursor) {
+						if (
+							enclosure.first === undefined ||
+							(node.key.unix >= enclosure.first.key.unix && node.key.unix <= cursor)
+						) {
 							enclosure.first = node;
 						}
-						if (node.key.unix <= enclosure.last.key.unix && node.key.unix >= cursor) {
+						if (
+							enclosure.last === undefined ||
+							(node.key.unix <= enclosure.last.key.unix && node.key.unix >= cursor)
+						) {
 							enclosure.last = node;
 						}
 					}

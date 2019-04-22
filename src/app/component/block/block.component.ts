@@ -27,6 +27,22 @@ import * as THREE from 'three';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlockComponent implements OnInit {
+	public isPanning = false;
+	public isSaving = false;
+
+	@HostBinding('style.opacity')
+	public get isSavingOpacity(): number {
+		return this.isSaving ? 0.5 : 1;
+	}
+
+	/**
+	 * Pointer events are disabled while saving
+	 */
+	@HostBinding('style.pointer-events')
+	public get isSavingPointerEvents(): string {
+		return this.isSaving ? 'none' : 'all';
+	}
+
 	@Input()
 	public set containerWidth(containerWidth: number) {
 		this._containerWidth = containerWidth;
@@ -152,6 +168,7 @@ export class BlockComponent implements OnInit {
 	public panNode($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
 		if ($event.type === 'panstart') {
+			this.isPanning = true;
 			this._originalUnixesForPan.set(node, node.key.unix);
 
 			const nodeIterator = this._actor.states.nodes();
@@ -227,6 +244,7 @@ export class BlockComponent implements OnInit {
 		this.update();
 
 		if ($event.type === 'panend') {
+			this.isPanning = false;
 			this.finalizeNewPositions();
 		}
 	}
@@ -240,6 +258,7 @@ export class BlockComponent implements OnInit {
 	public pan($event: any) {
 		$event.stopPropagation();
 		if ($event.type === 'panstart') {
+			this.isPanning = true;
 			for (const node of this.actor.states.nodes()) {
 				this._originalUnixesForPan.set(node, node.key.unix);
 			}
@@ -277,12 +296,15 @@ export class BlockComponent implements OnInit {
 		});
 
 		if ($event.type === 'panend') {
+			this.isPanning = false;
 			this.finalizeNewPositions();
 		}
 	}
 
 	private finalizeNewPositions() {
 		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+			this.isSaving = true;
+			this.cd.detectChanges();
 			lore.atomicUpdate(l => {
 				l.actors
 					.filter(actor => actor.id === this._actor.id)
@@ -297,6 +319,7 @@ export class BlockComponent implements OnInit {
 			}).finally(() => {
 				this.loreService.overrideNodePosition$.next(undefined);
 				this._originalUnixesForPan.clear();
+				this.isSaving = false;
 				this.update();
 			});
 		});

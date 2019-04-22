@@ -10,11 +10,11 @@ export class Basic extends THREE.Mesh {
 	@Output()
 	positionChange = new EventEmitter<Vector2>();
 
-	constructor(geometry?: THREE.Geometry | THREE.BufferGeometry, material?: THREE.Material) {
+	public constructor(geometry?: THREE.Geometry | THREE.BufferGeometry, material?: THREE.Material) {
 		super(geometry, material);
 	}
 
-	get stage(): Stage {
+	public get stage(): Stage {
 		let o: THREE.Object3D = this;
 		while (o && o.type !== 'Scene') {
 			o = o.parent;
@@ -22,7 +22,7 @@ export class Basic extends THREE.Mesh {
 		return <Stage>o;
 	}
 
-	changed() {
+	public changed() {
 		const stage = this.stage;
 		if (stage) {
 			const camera: THREE.Camera = <THREE.Camera>stage.getObjectByName('camera');

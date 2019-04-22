@@ -1,22 +1,15 @@
-import * as TWEEN from '@tweenjs/tween.js';
-import { Group, Shader, Spherical, Vector3, Color, TextureLoader, Texture, Vector2, Vector, Object3D } from 'three';
+import { Subject } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
+import { Mode } from 'src/app/component/scene-controls/scene-control.service';
 import * as THREE from 'three';
-import { TranslucentShader } from 'three-full';
-
-import { globeShader } from '../shader/globe.shader';
+import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
+import { DrawEvent } from '../event/draw-event.type';
 import { ClickEvent } from './../event/click-event.type';
 import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
-import { Water } from './water.class';
-import { of, BehaviorSubject, Subject } from 'rxjs';
-import { delay, debounce, debounceTime, throttleTime, flatMap, auditTime } from 'rxjs/operators';
-import { text } from '@fortawesome/fontawesome-svg-core';
-import { DrawEvent } from '../event/draw-event.type';
-import { Mode } from 'src/app/component/scene-controls/scene-control.service';
 import { DynamicTexture } from './dynamic-texture.class';
-import { Atmosphere } from './atmosphere.class';
-import { Sun } from './sun.class';
 import { Point } from './point.class';
+import { Water } from './water.class';
 
 export class Globe extends Basic {
 	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
@@ -101,8 +94,6 @@ export class Globe extends Basic {
 			this.stage.engineService.hovered.next(undefined);
 		});
 		this.addEventListener('draw', (event: DrawEvent) => {
-			// this.drawSubject.next(event);
-
 			this.drawTo(event.uv, event.mode, event.value, event.size);
 			if (event.final) {
 				this.stage.engineService.textureChange$.next(this.displacementTexture);
@@ -111,14 +102,6 @@ export class Globe extends Basic {
 
 		this.water = new Water(radius * 0.98);
 		this.add(this.water);
-
-		/*
-		this.drawSubject.pipe(throttleTime(1000 / 60)).subscribe(event => {
-			this.drawTo(event.uv, event.mode, event.value, event.size);
-			if (event.final) {
-				this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
-			}
-		});*/
 
 		this.pointUpdateAudit.pipe(auditTime(200)).subscribe(next => {
 			this.points.forEach(point => (point as Point).updateHeightAndWorldPos());
