@@ -15,12 +15,12 @@ import ResizeObserver from 'resize-observer-polyfill';
 import { take } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
-import { rescale } from 'src/app/misc/rescale.function';
 import { DeltaProperty } from 'src/app/model/delta-property.class';
 import { LoreService } from 'src/app/service/lore.service';
 
 import { CursorComponent } from './../cursor/cursor.component';
 import { NgScrollbar } from 'ngx-scrollbar';
+import * as THREE from 'three';
 
 /**
  * Timeline
@@ -58,8 +58,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			.clone()
 			.add(2, 'week')
 			.unix();
-
-		console.log(`frame: ${this.frameEnd.total}`);
 
 		this.calcUnitsBetween();
 	}
@@ -155,7 +153,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		const direction = this.normalize($event.deltaY); // -1 or 1
 		let prog = this.cursor.progress; // [0-1]
 
-		prog = rescale($event.clientX, 0, window.innerWidth, 0, 1);
+		prog = THREE.Math.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
 		console.log(
 			`prog: ${prog} currentUnitUpperlimit: ${this.currentUnitDivision} nextUnitDivision: ${
 				this.nextUnitDivision
@@ -198,7 +196,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	public dist(i: number): number {
 		const time = nextWhole(this.frameStart.total, this.currentUnitSeconds, i + 1);
 		return (
-			rescale(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
+			THREE.Math.mapLinear(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
 			this.distanceBetweenUnits * 0.042 - // TODO: Change this magic number into something reasonable (although it works)
 			this.distanceBetweenUnits
 		);
@@ -242,7 +240,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		if (this.panTypeAtStart === 'vertical') {
 			this.scrollRef.scrollYTo(this.scrollOnStart - $event.deltaY);
 		} else {
-			this.frameStart.delta = this.frameEnd.delta = -rescale(
+			this.frameStart.delta = this.frameEnd.delta = -THREE.Math.mapLinear(
 				$event.deltaX,
 				0,
 				this.containerWidth,

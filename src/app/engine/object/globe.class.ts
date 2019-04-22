@@ -18,17 +18,19 @@ import { Atmosphere } from './atmosphere.class';
 import { Sun } from './sun.class';
 
 export class Globe extends Basic {
-	public type = 'Globe';
 	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
 	public water: Water;
 
 	public displacementTexture: DynamicTexture;
 	public emissionTexture: DynamicTexture;
 
-	public atmos_scale_height = 7;
-	public constructor(public radius: number = 1, public initialDisplacementTexture?: string) {
-		super();
+	public displacementBias = -0.0345;
+	public displacementScale = 0.15;
 
+	public constructor(public radius: number = 0.99, public initialDisplacementTexture?: string) {
+		super();
+		this.type = 'Globe';
+		this.name = 'globe';
 		const canvas = document.createElement('canvas');
 		canvas.width = 4096;
 		canvas.height = 4096;
@@ -62,10 +64,12 @@ export class Globe extends Basic {
 			emissive: '#CFBFAF',
 			emissiveIntensity: 0.003,
 			displacementMap: this.displacementTexture,
+			emissiveMap: this.displacementTexture,
+			metalnessMap: this.displacementTexture,
 			bumpMap: this.displacementTexture,
 			map: this.displacementTexture,
-			displacementScale: 0.15,
-			displacementBias: -0.0345,
+			displacementScale: this.displacementScale,
+			displacementBias: this.displacementBias,
 			bumpScale: 0.008,
 			roughness: 0.5,
 			metalness: 0.5,
@@ -81,7 +85,7 @@ export class Globe extends Basic {
 		};*/
 
 		this.geometry = new THREE.SphereBufferGeometry(radius, 512, 512);
-		this.name = 'globe';
+
 		// this.geometry.normalizeNormals();
 
 		(this.geometry as any).computeFaceNormals();
@@ -100,7 +104,7 @@ export class Globe extends Basic {
 
 			this.drawTo(event.uv, event.mode, event.value, event.size);
 			if (event.final) {
-				// TODO REENABLE this.stage.engineService.textureChange$.next(this.displacementTexture.canvas.toDataURL());
+				this.stage.engineService.textureChange$.next(this.displacementTexture);
 			}
 		});
 

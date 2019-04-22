@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
-import { rescale } from 'src/app/misc/rescale.function';
-
 import { LoreService } from './../../service/lore.service';
+import * as THREE from 'three';
 
 @Component({
 	selector: 'app-cursor',
@@ -14,7 +13,7 @@ export class CursorComponent implements OnInit {
 	public set containerWidth(width: number) {
 		const prevWidth = this._containerWidth || width;
 		this._containerWidth = width;
-		this.position = rescale(this._position, 0, prevWidth, 0, this._containerWidth);
+		this.position = THREE.Math.mapLinear(this._position, 0, prevWidth, 0, this._containerWidth);
 		this.contextChange();
 	}
 
@@ -80,7 +79,7 @@ export class CursorComponent implements OnInit {
 	changed(): void {
 		if (this._frameStart && this._frameEnd) {
 			this.loreService.cursor$.next(
-				rescale(this.totalPosition, 0, this._containerWidth, this._frameStart, this._frameEnd)
+				THREE.Math.mapLinear(this.totalPosition, 0, this._containerWidth, this._frameStart, this._frameEnd)
 			);
 		}
 	}
@@ -89,7 +88,7 @@ export class CursorComponent implements OnInit {
 	 * This function updates the cursor's position based on the environment
 	 */
 	contextChange(): void {
-		this.position = rescale(
+		this.position = THREE.Math.mapLinear(
 			this.loreService.cursor$.value,
 			this._frameStart,
 			this._frameEnd,
@@ -119,6 +118,6 @@ export class CursorComponent implements OnInit {
 	}
 
 	get progress(): number {
-		return rescale(this.position, 0, this._containerWidth, 0, 1);
+		return THREE.Math.mapLinear(this.position, 0, this._containerWidth, 0, 1);
 	}
 }

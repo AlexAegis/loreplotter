@@ -207,7 +207,7 @@ export class DatabaseService {
 				switchMap(([conn, img]) =>
 					conn.lore.upsert({
 						name: this.currentDocument.value,
-						actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
+						actors: [testActor1 /*, testActor2, testActor3, testActor4, testActor5*/],
 						locations: ['City17', 'City14'],
 						planet: new Planet(1, img)
 					})

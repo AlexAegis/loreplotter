@@ -40,11 +40,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 		public lore: LoreService,
 		public db: DatabaseService
 	) {
-		this.actorSource
+		/*this.actorSource
 			.listen(a => a)
 			.subscribe(a => {
 				console.log(`dragging ${a.isDragging()}`);
-			});
+			});*/
 		this.media
 			.asObservable()
 			.pipe(filter(a => a && a.length > 0))

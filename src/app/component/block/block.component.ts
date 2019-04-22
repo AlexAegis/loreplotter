@@ -12,13 +12,13 @@ import {
 } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
-import { rescale } from 'src/app/misc/rescale.function';
 import { Actor } from 'src/app/model/actor.class';
 import { OverridableProperty } from 'src/app/model/overridable-property.class';
 import { LoreService } from 'src/app/service/lore.service';
 
 import { ActorDelta } from './../../model/actor-delta.class';
 import { UnixWrapper } from './../../model/unix-wrapper.class';
+import * as THREE from 'three';
 
 @Component({
 	selector: 'app-block',
@@ -121,15 +121,27 @@ export class BlockComponent implements OnInit {
 			this.frameEnd !== undefined &&
 			this.containerWidth !== undefined
 		) {
-			this.left = rescale(this.blockStart.value, this.frameStart, this.frameEnd, 0, this.containerWidth);
-			const right = rescale(this.blockEnd.value, this.frameStart, this.frameEnd, 0, this.containerWidth);
+			this.left = THREE.Math.mapLinear(
+				this.blockStart.value,
+				this.frameStart,
+				this.frameEnd,
+				0,
+				this.containerWidth
+			);
+			const right = THREE.Math.mapLinear(
+				this.blockEnd.value,
+				this.frameStart,
+				this.frameEnd,
+				0,
+				this.containerWidth
+			);
 			this.width = right - this.left;
 		}
 		this.cd.detectChanges();
 	}
 
 	public nodePosition(unix: number): number {
-		return rescale(unix, this.blockStart.value, this.blockEnd.value, 0, this.width);
+		return THREE.Math.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width);
 	}
 
 	/**
@@ -163,7 +175,13 @@ export class BlockComponent implements OnInit {
 		const ogUnix = this._originalUnixesForPan.get(node);
 		const previous = node.key.unix;
 		const pos = this.nodePosition(ogUnix) + this.left;
-		const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
+		const rescaledUnix = THREE.Math.mapLinear(
+			pos + $event.deltaX,
+			0,
+			this.containerWidth,
+			this.frameStart,
+			this.frameEnd
+		);
 
 		let firstLimit: number;
 
@@ -229,7 +247,13 @@ export class BlockComponent implements OnInit {
 
 		const ogFirstUnix = this._originalUnixesForPan.get(this.actor.states.nodes().next().value);
 		const pos = this.nodePosition(ogFirstUnix) + this.left;
-		const rescaledUnix = rescale(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd);
+		const rescaledUnix = THREE.Math.mapLinear(
+			pos + $event.deltaX,
+			0,
+			this.containerWidth,
+			this.frameStart,
+			this.frameEnd
+		);
 
 		const diff = rescaledUnix - ogFirstUnix;
 		const overrides = [];

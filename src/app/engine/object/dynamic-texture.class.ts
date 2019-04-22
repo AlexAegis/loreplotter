@@ -1,8 +1,10 @@
-import { Texture, CanvasTexture } from 'three';
+import { Texture, CanvasTexture, Vector3, Vector2 } from 'three';
 import { Subject, race, interval, BehaviorSubject } from 'rxjs';
 import { debounceTime, debounce, throttleTime, auditTime, audit } from 'rxjs/operators';
+import * as THREE from 'three';
 
 export class DynamicTexture extends CanvasTexture {
+	public drawEnabled = true;
 	public constructor(defaultTexture?: string, defaultColor?: string, canvas?: HTMLCanvasElement) {
 		super(canvas);
 		this.canvas = canvas;
@@ -12,21 +14,11 @@ export class DynamicTexture extends CanvasTexture {
 
 		if (defaultTexture) {
 			this.loadFromDataURL(defaultTexture);
-		} /*
-		if (defaultColor) {
-			this.draw(defaultColor, 0, 0, this.canvas.width, this.canvas.height);
-		}*/
-
-		this.updateQueue.pipe(audit(() => this.loadSubject)).subscribe(next => {
-			this.update();
-		});
+		}
 	}
 	public canvas: HTMLCanvasElement;
 	public canvasContext: CanvasRenderingContext2D;
 	public image: HTMLImageElement;
-
-	private updateQueue = new Subject<boolean>();
-	private loadSubject = new BehaviorSubject<boolean>(true);
 
 	public loadFromDataURL(data: string) {
 		const image = new Image();
@@ -37,12 +29,28 @@ export class DynamicTexture extends CanvasTexture {
 		};
 	}
 	public draw(color: string, x: number, y: number, size: number, height?: number): void {
+		// if (this.drawEnabled) {
 		this.canvasContext.fillStyle = color;
 		this.canvasContext.fillRect(x, y, size, height !== undefined ? height : (size * Math.PI) / 1.9);
 		this.needsUpdate = true;
-		console.log('DRAW');
+		// 	console.log('DRAW');
 		// this.update();
 		// this.updateQueue.next(true);
+		// }
+	}
+
+	/**
+	 * it's grayscale, every value is the same
+	 */
+	public heightAt(uv: Vector2): number {
+		const sampleSize = 1;
+		const imgd = this.canvasContext.getImageData(
+			uv.x * this.canvas.width - sampleSize / 2,
+			(1 - uv.y) * this.canvas.height - sampleSize / 2,
+			sampleSize,
+			sampleSize
+		);
+		return THREE.Math.mapLinear(imgd.data[0], 0, 255, 0, 1);
 	}
 
 	public update(): void {

@@ -1,3 +1,4 @@
+import { DynamicTexture } from './object/dynamic-texture.class';
 import { atmosphereShader } from './shader/atmosphere.shader';
 import { Atmosphere } from './object/atmosphere.class';
 import { TextureDelta } from './../model/texture-delta.class';
@@ -6,7 +7,7 @@ import { SceneControlService } from './../component/scene-controls/scene-control
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BehaviorSubject, EMPTY, merge, NEVER, of, interval } from 'rxjs';
-import { distinctUntilChanged, finalize, share, switchMap, tap, take, delay, withLatestFrom } from 'rxjs/operators';
+import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
 import { Vector2, Vector3, WebGLRenderer } from 'three';
 import * as THREE from 'three';
 import { OrbitControls, ShaderGodRays } from 'three-full';
@@ -49,7 +50,6 @@ export class EngineService {
 	 */
 	constructor(private databaseService: DatabaseService, public sceneControlService: SceneControlService) {
 		this.selection$.subscribe();
-
 		this.hover$.subscribe();
 	}
 	private renderer: THREE.WebGLRenderer;
@@ -57,13 +57,13 @@ export class EngineService {
 	public stage: Stage;
 	public controls: OrbitControls;
 
-	private raycaster: THREE.Raycaster = new THREE.Raycaster();
+	public raycaster: THREE.Raycaster = new THREE.Raycaster();
 	public globe: Globe;
 	public indicator: PopupComponent;
 
 	public center = new Vector3(0, 0, 0);
 
-	public textureChange$: BehaviorSubject<string> = new BehaviorSubject<string>(undefined);
+	public textureChange$: BehaviorSubject<DynamicTexture> = new BehaviorSubject<DynamicTexture>(undefined);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
 
@@ -85,7 +85,7 @@ export class EngineService {
 		share()
 	);
 
-	public drag: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
+	public drag: Point = undefined;
 
 	public spawnOnWorld$ = new BehaviorSubject<{ object: Point; point: Vector3 }>(undefined);
 
@@ -99,6 +99,10 @@ export class EngineService {
 	public pass: EffectPass;
 
 	public atmosphere: Atmosphere;
+
+	public lastHover: string;
+	public lastHoverAt: Vector2;
+	public lastHoverAtClone: Vector2;
 
 	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
@@ -247,12 +251,13 @@ adaptive: true,
 			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
 			.splice(0, 1) // only the first hit
 			.forEach(intersection => {
+				console.log('CLICK: ' + intersection.object.type);
 				intersection.object.dispatchEvent({
 					type: 'click',
 					point: intersection.point,
 					shift: shift
 				});
-				if (!this.sceneControlService.isMoving()) {
+				if (this.sceneControlService.isDraw()) {
 					intersection.object.dispatchEvent({
 						type: 'draw',
 						point: intersection.point,
@@ -277,61 +282,59 @@ adaptive: true,
 				intersection.object.dispatchEvent({ type: 'context', point: intersection.point });
 			});
 	}
-
 	public pan(coord: Vector2, velocity: Vector2, button: number, start: boolean, end: boolean) {
-		if (start && !this.sceneControlService.isMoving()) {
-			this.controls.enabled = false;
-		} else if (end) {
-			this.controls.enabled = true;
-		}
-
+		this.controls.enabled = this.sceneControlService.isMoving();
 		this.raycaster.setFromCamera(coord, this.stage.camera);
-		this.raycaster
-			.intersectObject(this.globe, true)
-			.filter(i => i.object.type === 'Globe' || i.object.type === 'Point') // Globe is needed so you can pan fast
-			.splice(0, 1) // only the first hit
-			.forEach(intersection => {
-				if (start && intersection.object.type === 'Point') {
-					this.drag.next(<Point>intersection.object);
+		const intersections = this.raycaster.intersectObject(this.globe, true);
+		const intersectionsFiltered = intersections.filter(i => i.object.type === 'Globe' || i.object.type === 'Point'); // Ignoring arcs
+		const intersection = intersectionsFiltered[0]; // only the first hit
+		if (intersection) {
+			if (start) {
+				switch (intersection.object.type) {
+					case 'Point':
+						this.drag = <Point>intersection.object;
+						this.controls.enabled = false;
+						break;
+					case 'Globe':
+						this.drag = undefined;
+						this.controls.enabled = false;
+						break;
 				}
-				if (this.sceneControlService.isMoving() || button === ButtonType.RIGHT) {
-					if (this.drag.value !== undefined) {
-						this.controls.enabled = false; // if its a point im dragging
-						this.drag.value.dispatchEvent({
-							type: 'pan',
-							point: intersection.point,
-							velocity: velocity,
-							final: end
-						});
-					}
-				}
+			}
 
-				if (!this.sceneControlService.isMoving()) {
-					this.controls.enabled = false;
-					if (intersection.object.type === 'Globe') {
-						intersection.object.dispatchEvent({
-							type: 'draw',
-							point: intersection.point,
-							uv: intersection.uv,
-							face: intersection.face,
-							mode: this.sceneControlService.activeMode.value,
-							value: this.sceneControlService.valueSlider.value,
-							size: this.sceneControlService.sizeSlider.value,
-							final: end
-						});
-					}
-				}
+			if (this.drag !== undefined) {
+				this.controls.enabled = false; // if its a point im dragging
+				this.drag.dispatchEvent({
+					type: 'pan',
+					point: intersection.point,
+					velocity: velocity,
+					final: end
+				});
+			}
 
-				if (end) {
-					if (this.drag.value !== undefined) {
-						this.spawnOnWorld$.next({ object: this.drag.value, point: intersection.point });
-					}
-					/*if (intersection.object.type === 'Point') {
+			if (this.sceneControlService.isDraw()) {
+				intersection.object.dispatchEvent({
+					type: 'draw',
+					point: intersection.point,
+					uv: intersection.uv,
+					face: intersection.face,
+					mode: this.sceneControlService.activeMode.value,
+					value: this.sceneControlService.valueSlider.value,
+					size: this.sceneControlService.sizeSlider.value,
+					final: end
+				});
+			}
+
+			if (end) {
+				if (this.drag !== undefined) {
+					this.spawnOnWorld$.next({ object: this.drag, point: intersection.point });
+					this.drag = undefined;
+				}
+				/*if (intersection.object.type === 'Point') {
 					}*/
-
-					this.drag.next(undefined);
-				}
-			});
+				// this.controls.enabled = true;
+			}
+		}
 	}
 
 	putCurve(from: Vector3, to: Vector3): void {
@@ -345,6 +348,9 @@ adaptive: true,
 			.splice(0, 1)
 			.forEach(intersection => {
 				intersection.object.dispatchEvent({ type: 'hover' });
+				this.lastHover = intersection.object.type;
+				this.lastHoverAt = coord;
+				this.lastHoverAtClone = coord.clone();
 			});
 	}
 

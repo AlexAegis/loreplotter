@@ -25,13 +25,19 @@ export class Water extends Basic {
 	public type = 'Water';
 	public texture: Texture;
 	constructor(private radius: number = 0.98) {
-		super(new THREE.SphereGeometry(radius, 128, 128), undefined);
+		super(new THREE.SphereBufferGeometry(radius, 128, 128), undefined);
 		this.texture = new TextureLoader().load(`assets/textures/water/ripple.gif`, tex => {
 			tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
 			tex.offset.set(0, 0);
 			tex.repeat.set(100, 100);
 			tex.anisotropy = 4;
 		}); // TODO: Animate the gif
+
+		(this.geometry as any).computeFaceNormals();
+		this.geometry.computeVertexNormals();
+		this.geometry.computeBoundingSphere();
+		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+
 		/*
 		interval(1000 / 60)
 			.pipe(

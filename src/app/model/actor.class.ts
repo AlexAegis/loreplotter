@@ -9,7 +9,6 @@ import { UnixWrapper } from './unix-wrapper.class';
  */
 export class Actor {
 	constructor(id: string) {
-		console.log(`actor created with id: ${id}`);
 		this.id = id;
 	}
 	public id: string;

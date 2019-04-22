@@ -2,38 +2,40 @@ import * as THREE from 'three';
 
 import { Interactive } from '../interfaces/interactive.interface';
 import { Basic } from './basic.class';
+import * as dat from 'dat.gui';
 
 export class Point extends Basic implements Interactive {
-	type = 'Point';
-
 	private defaultMaterial = new THREE.MeshBasicMaterial({
 		wireframe: false,
 		opacity: 0.8,
-		transparent: true,
+		transparent: false,
 		color: 0xaa4444
 	});
 
 	private selectedMaterial = new THREE.MeshBasicMaterial({
 		wireframe: true,
 		opacity: 0.9,
-		transparent: true,
+		transparent: false,
 		color: 0xaa4444
 	});
 
 	private highlightMaterial = new THREE.MeshBasicMaterial({
 		wireframe: false,
 		opacity: 0.6,
-		transparent: true,
+		transparent: false,
 		color: 0xaa8888
 	});
 
 	constructor(public name: string) {
-		super(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 40), undefined);
-		this.position.set(0, 0, 1);
+		super(new THREE.SphereBufferGeometry(0.05, 40, 40), undefined);
+		this.type = 'Point';
+		this.position.set(0, 0, 1); // TODO, radius
 		this.rotateX(90 * THREE.Math.DEG2RAD);
 		this.material = this.defaultMaterial;
-		this.geometry.computeBoundingBox();
-
+		(this.geometry as any).computeFaceNormals();
+		this.geometry.computeVertexNormals();
+		this.geometry.computeBoundingSphere();
+		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 		this.addEventListener('click', attachment => {
 			// this.stage.engineService.selected.next(this);
 		});

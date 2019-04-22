@@ -31,7 +31,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 	overrides = <any>{
 		pan: {
 			direction: Hammer.DIRECTION_ALL,
-			threshold: 2,
+			threshold: 0,
 			domEvents: true,
 			options: { domEvents: true }
 		}, // TODO what

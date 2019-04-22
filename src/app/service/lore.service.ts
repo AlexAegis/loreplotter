@@ -1,16 +1,16 @@
+import { Axis } from './../engine/helper/axis.class';
 import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import { BehaviorSubject, combineLatest, interval } from 'rxjs';
-import { filter, flatMap, takeUntil, switchMap, withLatestFrom } from 'rxjs/operators';
+import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3 } from 'three';
 
 import { clamp } from '../engine/helper/clamp.function';
 import { normalize } from '../engine/helper/normalize.function';
 import { Point } from '../engine/object/point.class';
-import { rescale } from '../misc/rescale.function';
 import { Actor } from '../model/actor.class';
 import { UnixWrapper } from '../model/unix-wrapper.class';
 import { CursorComponent } from './../component/cursor/cursor.component';
@@ -18,6 +18,7 @@ import { EngineService } from './../engine/engine.service';
 import { ActorDelta } from './../model/actor-delta.class';
 import { TextureDelta } from '../model/texture-delta.class';
 import * as THREE from 'three';
+import { Globe } from '../engine/object/globe.class';
 
 const DAY_IN_SECONDS = 86400;
 /**
@@ -28,7 +29,8 @@ const DAY_IN_SECONDS = 86400;
 })
 export class LoreService {
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
-		this.databaseService.currentLore.subscribe(lore => {
+		/** Only the initial texture is preloaded */
+		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
 			engineService.globe.radius = lore.planet.radius;
 			engineService.globe.displacementTexture.loadFromDataURL(lore.planet.displacementTexture);
 			engineService.globe.changed();
@@ -77,38 +79,64 @@ export class LoreService {
 						}
 					}
 				}
-				const t = clamp(rescale(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1), 0, 1);
-				const actorObject = engineService.globe.getObjectByName(actor.id);
+				const t = THREE.Math.mapLinear(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
+
+				let actorObject = engineService.globe.getObjectByName(actor.id);
 				let group: Group;
 				if (actorObject) {
 					group = actorObject.parent as Group;
 				} else {
 					group = new Group();
-					group.add(new Point(actor.id));
+					actorObject = new Point(actor.id);
+					group.add(actorObject);
 					engineService.globe.add(group);
 				}
 
 				if (group.userData.override === undefined) {
-					group.lookAt(
-						new Vector3(
-							enclosure.last.v.position.x,
-							enclosure.last.v.position.y,
-							enclosure.last.v.position.z
-						)
+					const lastVec = new Vector3(
+						enclosure.last.v.position.x,
+						enclosure.last.v.position.y,
+						enclosure.last.v.position.z
 					);
+
+					const firstVec = new Vector3(
+						enclosure.first.v.position.x,
+						enclosure.first.v.position.y,
+						enclosure.first.v.position.z
+					);
+
+					group.lookAt(lastVec);
 					group.applyQuaternion(engineService.globe.quaternion);
 					const fromQ = group.quaternion.clone();
-					group.lookAt(
-						new Vector3(
-							enclosure.first.v.position.x,
-							enclosure.first.v.position.y,
-							enclosure.first.v.position.z
-						)
-					);
+					group.lookAt(firstVec);
 					group.applyQuaternion(engineService.globe.quaternion);
 					const toQ = group.quaternion.clone();
 					if (t && Math.abs(t) !== Infinity) {
 						Quaternion.slerp(fromQ, toQ, group.quaternion, t);
+						group.updateWorldMatrix(false, true);
+					}
+
+					const globe = group.parent as Globe;
+					const worldPos = actorObject.getWorldPosition(new Vector3());
+					// console.log(worldPos);
+					worldPos.multiplyScalar(1.1); // Look from further away;
+					const toCenter = worldPos
+						.clone()
+						.multiplyScalar(-1)
+						.normalize();
+					engineService.raycaster.set(worldPos, toCenter);
+
+					// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
+					const intersection = engineService.raycaster.intersectObject(globe)[0];
+					if (intersection) {
+						const displacementHere = globe.displacementTexture.heightAt(intersection.uv);
+						actorObject.position.set(
+							0,
+							0,
+							globe.radius + displacementHere * globe.displacementScale + globe.displacementBias
+						);
+					} else {
+						console.log('No intersection');
 					}
 				} else if (group.userData.override === false) {
 					delete group.userData.override;
@@ -165,16 +193,12 @@ export class LoreService {
 		this.engineService.textureChange$
 			.pipe(
 				withLatestFrom(this.databaseService.currentLore, this.cursor$),
-				switchMap(([texture, loreDoc, cursor]) =>
-					loreDoc.atomicUpdate(lore => {
-						lore.planet.displacementTexture = texture;
-						/* In an alternative universe the texture is delta-able
-							lore.textureTree = loreDoc.textureTree; // This is a different lore object so the mapped tree must be brought over
-							lore.textureTree.set(new UnixWrapper(cursor), new TextureDelta(texture));
-						*/
+				switchMap(([texture, loreDoc, cursor]) => {
+					return loreDoc.atomicUpdate(lore => {
+						lore.planet.displacementTexture = texture.canvas.toDataURL();
 						return lore;
-					})
-				)
+					});
+				})
 			)
 			.subscribe();
 	}
