@@ -102,9 +102,7 @@ export class BlockComponent implements OnInit, OnDestroy {
 	) {}
 
 	public get isAtMostOneLeft(): boolean {
-		const res = this.actor.states.length <= 1;
-		console.log(res);
-		return res;
+		return this.actor.states.length <= 1;
 	}
 
 	public isDestroyed = false;
