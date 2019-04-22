@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { Interactive } from '../interfaces/interactive.interface';
 import { Basic } from './basic.class';
 import * as dat from 'dat.gui';
+import { Vector3 } from 'three';
+import { Globe } from './globe.class';
 
 export class Point extends Basic implements Interactive {
 	private defaultMaterial = new THREE.MeshBasicMaterial({
@@ -25,6 +27,8 @@ export class Point extends Basic implements Interactive {
 		transparent: false,
 		color: 0xaa8888
 	});
+
+	public lastWorldPosition = new Vector3();
 
 	constructor(public name: string) {
 		super(new THREE.SphereBufferGeometry(0.05, 40, 40), undefined);
@@ -50,8 +54,31 @@ export class Point extends Basic implements Interactive {
 
 		this.addEventListener('pan', event => {
 			this.parent.lookAt(event.point);
+			this.parent.updateWorldMatrix(false, true);
+			this.updateHeight();
 			this.parent.userData.override = true;
 		});
+	}
+
+	public updateHeight(): void {
+		const engineService = this.stage.engineService;
+		const globe = this.parent.parent as Globe;
+		const worldPos = this.getWorldPosition(this.lastWorldPosition);
+		// console.log(worldPos);
+		worldPos.multiplyScalar(1.1); // Look from further away;
+		const toCenter = worldPos
+			.clone()
+			.multiplyScalar(-1)
+			.normalize();
+		engineService.raycaster.set(worldPos, toCenter);
+
+		// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
+		const intersection = engineService.raycaster.intersectObject(globe)[0];
+		if (intersection) {
+			//  but there's always be an intersection as the globe is spherical
+			const displacementHere = globe.displacementTexture.heightAt(intersection.uv);
+			this.position.set(0, 0, globe.radius + displacementHere * globe.displacementScale + globe.displacementBias);
+		}
 	}
 
 	select() {

@@ -81,7 +81,7 @@ export class LoreService {
 				}
 				const t = THREE.Math.mapLinear(cursor, enclosure.last.k.unix, enclosure.first.k.unix, 0, 1);
 
-				let actorObject = engineService.globe.getObjectByName(actor.id);
+				let actorObject = engineService.globe.getObjectByName(actor.id) as Point;
 				let group: Group;
 				if (actorObject) {
 					group = actorObject.parent as Group;
@@ -113,31 +113,9 @@ export class LoreService {
 					const toQ = group.quaternion.clone();
 					if (t && Math.abs(t) !== Infinity) {
 						Quaternion.slerp(fromQ, toQ, group.quaternion, t);
-						group.updateWorldMatrix(false, true);
+						group.updateWorldMatrix(false, true); // The childrens worldpositions won't update unless I call this
 					}
-
-					const globe = group.parent as Globe;
-					const worldPos = actorObject.getWorldPosition(new Vector3());
-					// console.log(worldPos);
-					worldPos.multiplyScalar(1.1); // Look from further away;
-					const toCenter = worldPos
-						.clone()
-						.multiplyScalar(-1)
-						.normalize();
-					engineService.raycaster.set(worldPos, toCenter);
-
-					// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
-					const intersection = engineService.raycaster.intersectObject(globe)[0];
-					if (intersection) {
-						const displacementHere = globe.displacementTexture.heightAt(intersection.uv);
-						actorObject.position.set(
-							0,
-							0,
-							globe.radius + displacementHere * globe.displacementScale + globe.displacementBias
-						);
-					} else {
-						console.log('No intersection');
-					}
+					actorObject.updateHeight();
 				} else if (group.userData.override === false) {
 					delete group.userData.override;
 				}
