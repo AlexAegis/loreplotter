@@ -157,7 +157,9 @@ export class BlockComponent implements OnInit {
 	}
 
 	public nodePosition(unix: number): number {
-		return THREE.Math.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width);
+		return this.width > 0 // If the width is 0, eg.: there's only one node, there's no point in mapping anything, it would produce a NaN
+			? THREE.Math.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width)
+			: 0;
 	}
 
 	/**
