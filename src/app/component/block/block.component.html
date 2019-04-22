@@ -9,5 +9,16 @@
 	(panleft)="panNode($event, node)"
 	(panright)="panNode($event, node)"
 	(panend)="panNode($event, node)"
-></div>
+	(tap)="tap($event, node)"
+>
+	<button
+		class="remove"
+		mat-icon-button
+		*ngIf="node === selection"
+		(tap)="remove($event, node)"
+		[disabled]="isAtMostOneLeft"
+	>
+		<fa-icon [icon]="faTrash" [size]="'lg'"></fa-icon>
+	</button>
+</div>
 <!---->

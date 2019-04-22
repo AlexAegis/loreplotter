@@ -1,3 +1,4 @@
+import { BlockService } from './block.service';
 import { Node } from '@alexaegis/avl';
 import {
 	ChangeDetectionStrategy,
@@ -8,7 +9,8 @@ import {
 	HostListener,
 	Input,
 	OnInit,
-	Output
+	Output,
+	OnDestroy
 } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
@@ -18,6 +20,7 @@ import { LoreService } from 'src/app/service/lore.service';
 
 import { ActorDelta } from './../../model/actor-delta.class';
 import { UnixWrapper } from './../../model/unix-wrapper.class';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import * as THREE from 'three';
 
 @Component({
@@ -26,15 +29,11 @@ import * as THREE from 'three';
 	styleUrls: ['./block.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlockComponent implements OnInit {
-	public isPanning = false;
-	public isSaving = false;
-
+export class BlockComponent implements OnInit, OnDestroy {
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;
 	}
-
 	/**
 	 * Pointer events are disabled while saving
 	 */
@@ -98,8 +97,21 @@ export class BlockComponent implements OnInit {
 	constructor(
 		public databaseService: DatabaseService,
 		public loreService: LoreService,
+		public blockService: BlockService,
 		private cd: ChangeDetectorRef
 	) {}
+
+	public get isAtMostOneLeft(): boolean {
+		const res = this.actor.states.length <= 1;
+		console.log(res);
+		return res;
+	}
+
+	public isDestroyed = false;
+	public faTrash = faTrash; // Node remove icon
+	public isPanning = false;
+	public isSaving = false;
+	public selection: Node<UnixWrapper, ActorDelta>;
 
 	private _actors: Array<Actor>;
 
@@ -128,6 +140,13 @@ export class BlockComponent implements OnInit {
 	// So the block will never be smaller then it should
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
+
+	/**
+	 * I'm marking the object as destroyed so the tear-down mechanic in the block-service would skip it's operation
+	 */
+	ngOnDestroy(): void {
+		this.isDestroyed = true;
+	}
 
 	private update(): void {
 		if (
@@ -325,6 +344,46 @@ export class BlockComponent implements OnInit {
 				this.update();
 			});
 		});
+	}
+
+	public tap($event: any, node: Node<UnixWrapper, ActorDelta>) {
+		$event.stopPropagation();
+		this.blockService.selection.next({ block: this, node: node });
+	}
+
+	public select(node: Node<UnixWrapper, ActorDelta>) {
+		this.selection = node;
+		this.jump.next(this.nodePosition(node.key.unix) + this.left);
+		this.cd.detectChanges();
+	}
+
+	public deselect(): void {
+		this.selection = undefined;
+		this.cd.detectChanges();
+	}
+
+	public remove($event: any, node: Node<UnixWrapper, ActorDelta>) {
+		$event.stopPropagation();
+		if (!this.isAtMostOneLeft) {
+			//  TODO: Make hammer not ignore the disabled setting on buttons
+			this.blockService.selection.next(undefined);
+			this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+				this.isSaving = true;
+				this.cd.detectChanges();
+				lore.atomicUpdate(l => {
+					l.actors
+						.filter(actor => actor.id === this._actor.id)
+						.map(this.databaseService.actorStateMapper)
+						.forEach(actor => {
+							actor.states.remove(node.key);
+						});
+					return l;
+				}).finally(() => {
+					this.isSaving = false;
+					this.update();
+				});
+			});
+		}
 	}
 
 	ngOnInit() {}

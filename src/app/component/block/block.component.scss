@@ -18,12 +18,14 @@
 		outline: 2px solid rgba(0, 0, 0, 0.6);
 		outline-offset: -2px;
 	}
+
+	.remove {
+		z-index: 25;
+		color: black;
+		display: inherit;
+	}
 }
 
 :host:active {
 	cursor: grabbing;
-}
-
-.isSaving {
-	background-color: red !important;
 }

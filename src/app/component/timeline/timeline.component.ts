@@ -1,3 +1,4 @@
+import { BlockService } from './../block/block.service';
 import { Vector3Serializable } from './../../model/vector3-serializable.interface';
 import { BlockComponent } from './../block/block.component';
 import { Actor } from 'src/app/model/actor.class';
@@ -11,7 +12,9 @@ import {
 	HostBinding,
 	HostListener,
 	OnInit,
-	ViewChild
+	ViewChild,
+	ViewChildren,
+	QueryList
 } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import * as moment from 'moment';
@@ -52,6 +55,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		public db: DatabaseService,
 		public loreService: LoreService,
 		public databaseService: DatabaseService,
+		public blockService: BlockService,
 		private changeDetectorRef: ChangeDetectorRef
 	) {
 		// Initial timeframe is 4 weeks with the cursor being in the middle
@@ -233,6 +237,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostListener('panend', ['$event'])
 	public shift($event: any) {
 		$event.stopPropagation();
+		this.blockService.selection.next(undefined);
 		if ($event.type === 'panstart') {
 			this.scrollOnStart = this.scrollRef.view.scrollTop;
 		}
