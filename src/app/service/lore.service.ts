@@ -64,7 +64,7 @@ export class LoreService {
 				engineService.selected.next(undefined);
 				engineService.stage.sunGroup.rotation.set(0, 0, 0);
 				engineService.stage.sunGroup.rotateY(
-					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * 360 * THREE.Math.DEG2RAD
+					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * THREE.Math.DEG2RAD
 				);
 
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
