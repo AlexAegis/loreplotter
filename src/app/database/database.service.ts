@@ -82,7 +82,7 @@ export class DatabaseService {
 			share()
 		);
 
-		this.currentLore$ = combineLatest(this.currentDocument$, this.connection$).pipe(
+		this.currentLore$ = combineLatest([this.currentDocument$, this.connection$]).pipe(
 			switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
 			filter(res => res !== undefined && res !== null),
 			tap(lore => lore.actors.map(this.actorStateMapper)),

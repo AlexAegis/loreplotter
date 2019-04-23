@@ -47,7 +47,7 @@ export class LoreService {
 		});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
-		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
+		combineLatest([this.databaseService.actors$, this.cursor$, this.overrideNodePosition$])
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
 					actors.map(actor => ({
