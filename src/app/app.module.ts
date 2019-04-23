@@ -26,18 +26,7 @@ import { EngineComponent } from './engine/engine.component';
 import { MaterialModule /*, GestureConfig */ } from './module/material.module';
 import { RoutingModule } from './module/routing.module';
 import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
-
-export class MyHammerConfig extends HammerGestureConfig {
-	overrides = <any>{
-		pan: {
-			direction: Hammer.DIRECTION_ALL,
-			threshold: 0,
-			domEvents: true,
-			options: { domEvents: true }
-		}, // TODO what
-		swipe: { velocity: 0.4, threshold: 20, domEvents: true, options: { domEvents: true } } // override default settings
-	};
-}
+import { MyHammerConfig } from './hammer-config.class';
 
 @NgModule({
 	declarations: [
