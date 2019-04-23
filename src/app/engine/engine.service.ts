@@ -35,6 +35,7 @@ import {
 	EffectComposer
 } from 'postprocessing';
 import * as dat from 'dat.gui';
+import { withTeardown } from '../misc/with-teardown.function';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -69,8 +70,7 @@ export class EngineService {
 
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
-		switchMap(item => (!item ? EMPTY : merge(of(item), NEVER).pipe(finalize(() => item.deselect())))),
-		tap(item => item.select()),
+		withTeardown(item => item.select(), item => () => item.deselect()),
 		tap(() => this.globe.changed()),
 		share()
 	);
@@ -79,8 +79,7 @@ export class EngineService {
 
 	public hover$ = this.hovered.pipe(
 		distinctUntilChanged(),
-		switchMap(item => (!item ? EMPTY : merge(of(item), NEVER).pipe(finalize(() => item.unhover())))),
-		tap(item => item.hover()),
+		withTeardown(item => item.hover(), item => () => item.unhover()),
 		tap(() => this.globe.changed()),
 		share()
 	);

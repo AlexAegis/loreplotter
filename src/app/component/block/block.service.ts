@@ -5,6 +5,7 @@ import { BehaviorSubject, EMPTY, merge, of, NEVER, Subscription } from 'rxjs';
 import { Injectable, OnDestroy } from '@angular/core';
 import { distinctUntilChanged, switchMap, finalize, tap, share } from 'rxjs/operators';
 import { Node } from '@alexaegis/avl';
+import { withTeardown } from 'src/app/misc/with-teardown.function';
 
 @Injectable({
 	providedIn: 'root'
@@ -14,12 +15,10 @@ export class BlockService implements OnDestroy {
 
 	public selection$ = this.selection.pipe(
 		distinctUntilChanged(),
-		switchMap(item =>
-			!item
-				? EMPTY
-				: merge(of(item), NEVER).pipe(finalize(() => !item.block.isDestroyed && item.block.deselect()))
+		withTeardown(
+			item => item.block.select(item.node),
+			item => () => !item.block.isDestroyed && item.block.deselect()
 		),
-		tap(item => item.block.select(item.node)),
 		share()
 	);
 

@@ -8,6 +8,7 @@ import {
 	IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
 import { distinctUntilChanged, switchMap, tap, finalize, share } from 'rxjs/operators';
+import { withTeardown } from 'src/app/misc/with-teardown.function';
 
 export interface Modes {
 	move: Mode;
@@ -38,8 +39,7 @@ export class SceneControlService {
 
 	public activeMode$ = this.activeMode.pipe(
 		distinctUntilChanged(),
-		switchMap(item => (!item ? EMPTY : merge(of(item), NEVER).pipe(finalize(() => (item.active = false))))),
-		tap(item => (item.active = true)),
+		withTeardown(item => (item.active = true), item => () => (item.active = false)),
 		share()
 	);
 

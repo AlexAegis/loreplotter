@@ -1,12 +1,22 @@
 import { EngineService } from './engine/engine.service';
 import { animate, animateChild, group, query, state, style, transition, trigger } from '@angular/animations';
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+	AfterViewInit,
+	Component,
+	ElementRef,
+	HostListener,
+	OnInit,
+	ViewChild,
+	HostBinding,
+	OnDestroy
+} from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { filter } from 'rxjs/operators';
 import { LoreService } from 'src/app/service/lore.service';
 
 import { PlayComponent } from './component/play/play.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
+import { Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-root',
@@ -79,7 +89,12 @@ import { TimelineComponent } from './component/timeline/timeline.component';
 		])
 	]
 })
-export class AppComponent implements AfterViewInit, OnInit {
+export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
+	public constructor(
+		public media: MediaObserver,
+		private loreService: LoreService,
+		private engineService: EngineService
+	) {}
 	public title = 'Lore';
 
 	@ViewChild('container')
@@ -91,23 +106,24 @@ export class AppComponent implements AfterViewInit, OnInit {
 	@ViewChild('timeline')
 	private timeline: TimelineComponent;
 
+	@HostBinding('class.darkTheme')
+	public darkTheme = true;
+
 	public mediaLarge = true;
 
-	public constructor(
-		public media: MediaObserver,
-		private loreService: LoreService,
-		private engineService: EngineService
-	) {}
+	private subscriptions = new Subscription();
 
 	public ngAfterViewInit(): void {}
 
 	public ngOnInit(): void {
-		this.media
-			.asObservable()
-			.pipe(filter(a => a && a.length > 0))
-			.subscribe((changes: MediaChange[]) => {
-				this.mediaLarge = changes[0].mqAlias === 'xl';
-			});
+		this.subscriptions.add(
+			this.media
+				.asObservable()
+				.pipe(filter(a => a && a.length > 0))
+				.subscribe((changes: MediaChange[]) => {
+					this.mediaLarge = changes[0].mqAlias === 'xl';
+				})
+		);
 	}
 
 	@HostListener('window:keyup', ['$event'])
@@ -118,5 +134,9 @@ export class AppComponent implements AfterViewInit, OnInit {
 				this.timeline.playOrPause(this.play.play);
 				break;
 		}
+	}
+
+	public ngOnDestroy(): void {
+		this.subscriptions.unsubscribe();
 	}
 }
