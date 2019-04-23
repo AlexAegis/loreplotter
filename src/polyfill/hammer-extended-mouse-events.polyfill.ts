@@ -71,7 +71,6 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 			}
 		} else if (eventType & ((Hammer as any).INPUT_END | (Hammer as any).INPUT_CANCEL)) {
 			removePointer = true;
-			this.button = undefined; // ? CHANGE: new line
 		}
 
 		// it not found, so the pointer hasn't been down (so it's probably a hover)
@@ -94,5 +93,6 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 			// remove from the store
 			store.splice(storeIndex, 1);
 		}
+		this.button = undefined; // ? CHANGE: new line
 	}
 });

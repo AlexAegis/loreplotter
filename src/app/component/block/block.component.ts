@@ -321,7 +321,7 @@ export class BlockComponent implements OnInit, OnDestroy {
 	}
 
 	private finalizeNewPositions() {
-		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+		this.databaseService.currentLore$.pipe(take(1)).subscribe(lore => {
 			this.isSaving = true;
 			this.cd.detectChanges();
 			lore.atomicUpdate(l => {
@@ -365,7 +365,7 @@ export class BlockComponent implements OnInit, OnDestroy {
 		if (!this.isAtMostOneLeft) {
 			//  TODO: Make hammer not ignore the disabled setting on buttons
 			this.blockService.selection.next(undefined);
-			this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+			this.databaseService.currentLore$.pipe(take(1)).subscribe(lore => {
 				this.isSaving = true;
 				this.cd.detectChanges();
 				lore.atomicUpdate(l => {

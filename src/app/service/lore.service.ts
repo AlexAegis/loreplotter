@@ -39,17 +39,14 @@ export class LoreService {
 		this.slerperHelper.add(this.pseudoPoint);
 		this.latestSlerpsWorldPositionHolder = new Vector3();
 
-		/** Only the initial texture is preloaded */
-		this.databaseService.currentLore.pipe(take(1)).subscribe(lore => {
+		// Only the initial texture is preloaded
+		this.databaseService.currentLore$.pipe(take(1)).subscribe(lore => {
 			engineService.globe.radius = lore.planet.radius;
 			engineService.globe.displacementTexture.loadFromDataURL(lore.planet.displacementTexture);
 			engineService.globe.changed();
 		});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
-
-		// TODO: Refactor sources, so that when the database finsihes writing an old value,
-		// if there is still overwrite in prograss, dont update that. for blocks
 		combineLatest(this.databaseService.actors$, this.cursor$, this.overrideNodePosition$)
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
@@ -131,7 +128,7 @@ export class LoreService {
 		this.spawnOnClientOffset$
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore, this.cursor$)
+				withLatestFrom(this.databaseService.currentLore$, this.cursor$)
 			)
 			.subscribe(([offset, lore, cursor]) => {
 				const dropVector = this.engineService.intersection(normalize(offset.x, offset.y));
@@ -150,7 +147,7 @@ export class LoreService {
 		this.engineService.spawnOnWorld$
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore, this.cursor$)
+				withLatestFrom(this.databaseService.currentLore$, this.cursor$)
 			)
 			.subscribe(([{ object, point }, lore, cursor]) => {
 				point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
@@ -176,7 +173,7 @@ export class LoreService {
 
 		this.engineService.textureChange$
 			.pipe(
-				withLatestFrom(this.databaseService.currentLore, this.cursor$),
+				withLatestFrom(this.databaseService.currentLore$, this.cursor$),
 				switchMap(([texture, loreDoc, cursor]) => {
 					return loreDoc.atomicUpdate(lore => {
 						lore.planet.displacementTexture = texture.canvas.toDataURL();

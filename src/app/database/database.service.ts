@@ -3,9 +3,9 @@ import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import * as idb from 'pouchdb-adapter-idb';
-import RxDB from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable, Subject, zip } from 'rxjs';
-import { filter, map, mergeMap, shareReplay, switchMap, take, tap } from 'rxjs/operators';
+import RxDB, { RxDatabase, RxDocument } from 'rxdb';
+import { BehaviorSubject, combineLatest, from, Observable, Subject, zip, of } from 'rxjs';
+import { filter, map, mergeMap, shareReplay, switchMap, take, tap, share, delayWhen } from 'rxjs/operators';
 
 import { ActorDelta } from '../model/actor-delta.class';
 import { loreSchema, Lore } from '../model/lore.class';
@@ -20,77 +20,89 @@ import { Planet } from '../model/planet.class';
 export class DatabaseService {
 	constructor() {
 		RxDB.plugin(idb);
-		from(
+		this.currentDocument$ = new BehaviorSubject<string>('TestProject');
+
+		this.connection$ = from(
 			RxDB.create<DatabaseCollections>({
 				name: 'loredb',
 				adapter: 'idb'
 			})
-		)
-			.pipe(
-				mergeMap(db =>
-					from(
-						db.collection<LoreCollection>({
-							name: 'lore',
-							schema: loreSchema,
-							statics: this.loreCollectionMethods,
-							methods: this.loreDocumentMethods
-						})
-					).pipe(map(coll => db))
-				),
-				map(db => {
-					db.lore.postInsert(async function postCreateHook(this: LoreCollection, lore) {
-						// console.log(`Post Insert ${lore.name}`);
-					}, true);
-					db.lore.postCreate(async function postCreateHook(this: LoreCollection, lore) {
-						// console.log(`Post Create ${lore.name}`);
-					});
-					db.lore.preSave(async function preSaveHook(this: LoreCollection, lore) {
-						if (lore !== undefined && lore !== null) {
-							/*
+		).pipe(
+			delayWhen(db =>
+				from(
+					db.collection<LoreCollection>({
+						name: 'lore',
+						schema: loreSchema,
+						statics: this.loreCollectionMethods,
+						methods: this.loreDocumentMethods
+					})
+				)
+			),
+			map(db => {
+				db.lore.postInsert(async function postCreateHook(this: LoreCollection, lore) {
+					// console.log(`Post Insert ${lore.name}`);
+				}, true);
+				db.lore.postCreate(async function postCreateHook(this: LoreCollection, lore) {
+					// console.log(`Post Create ${lore.name}`);
+				});
+				db.lore.preSave(async function preSaveHook(this: LoreCollection, lore) {
+					if (lore !== undefined && lore !== null) {
+						/*
 							if (lore.textureTree) {
 								lore.textureTreeString = lore.textureTree.stringify();
 								lore.textureTree = undefined;
 								// delete lore.textureTree;
 							}
 							*/
-							for (const actor of lore.actors) {
-								if (actor.states) {
-									actor.statesString = actor.states.stringify();
-									actor.states = undefined;
-									// delete actor.states;
-								}
+						for (const actor of lore.actors) {
+							if (actor.states) {
+								actor.statesString = actor.states.stringify();
+								actor.states = undefined;
+								// delete actor.states;
 							}
 						}
-					}, true);
-					db.lore.preInsert(async function preInsertHook(this: LoreCollection, lore) {
-						console.log(`Before inserting ${lore.name}`);
-					}, true);
-					db.lore.postInsert(
-						function myPostInsertHook(
-							this: LoreCollection,
-							lore,
-							document // RxDocument
-						) {
-							// console.log('insert to ' + this.name + '-collection: ' + document.name);
-						},
-						false // not async
-					);
-					return db;
-				})
-			)
-			.subscribe(db => {
-				console.log('Database initialized!');
-				this.db.next(db);
-				this.initData();
-			});
+					}
+				}, true);
+				db.lore.preInsert(async function preInsertHook(this: LoreCollection, lore) {
+					console.log(`Before inserting ${lore.name}`);
+				}, true);
+				db.lore.postInsert(
+					function myPostInsertHook(
+						this: LoreCollection,
+						lore,
+						document // RxDocument
+					) {
+						// console.log('insert to ' + this.name + '-collection: ' + document.name);
+					},
+					false // not async
+				);
+				return db;
+			}),
+			delayWhen(db => this.initData(db, this.currentDocument$.value)), // TODO Check delayWhen alternative
+			share()
+		);
+
+		this.currentLore$ = combineLatest(this.currentDocument$, this.connection$).pipe(
+			switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
+			filter(res => res !== undefined && res !== null),
+			tap(lore => lore.actors.map(this.actorStateMapper)),
+			shareReplay(1)
+		);
+
+		this.actorCount$ = this.currentLore$.pipe(map(res => res.actors.length));
+		this.loreCount$ = this.connection$.pipe(
+			switchMap(conn => conn.lore.find().$),
+			filter(res => res !== undefined && res !== null),
+			map(next => next.length)
+		);
+
+		this.actors$ = this.currentLore$.pipe(map(lore => lore.actors.map(this.actorStateMapper)));
 	}
 
-	public get connection() {
-		return this.db.pipe(filter(next => next !== undefined));
-	}
-	public currentDocument = new BehaviorSubject<string>('TestProject');
-
-	private db: BehaviorSubject<Database> = new BehaviorSubject(undefined);
+	public connection$: Observable<Database>;
+	public currentDocument$: BehaviorSubject<string>;
+	public currentLore$: Observable<RxDocument<Lore, LoreDocumentMethods>>;
+	public actors$: Observable<Array<Actor>>;
 
 	private loreDocumentMethods: LoreDocumentMethods = {
 		actorCount: function() {
@@ -108,27 +120,14 @@ export class DatabaseService {
 		}
 	};
 
-	public currentLore = combineLatest(this.currentDocument, this.connection).pipe(
-		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
-		filter(res => res !== undefined && res !== null),
-		tap(lore => lore.actors.map(this.actorStateMapper)),
-		/*map(lore => {
-			if (lore.textureTreeString) {
-				lore.textureTree = Tree.parse<UnixWrapper, TextureDelta>(
-					lore.textureTreeString,
-					UnixWrapper,
-					TextureDelta
-				);
-				lore.textureTreeString = undefined;
-			} else if (!lore.textureTree) {
-				lore.textureTree = new Tree<UnixWrapper, TextureDelta>();
-			}
-			return lore;
-		}),*/
-		shareReplay(1)
-	);
+	public actorCount$: Observable<number>;
 
-	private initData() {
+	public loreCount$: Observable<number>;
+
+	private initData(
+		conn: RxDatabase<DatabaseCollections>,
+		withName: string
+	): Observable<RxDocument<Lore, LoreDocumentMethods>> {
 		const testActor1 = new Actor('1');
 		testActor1.states.set(
 			new UnixWrapper(moment('2019-01-02').unix()),
@@ -186,47 +185,34 @@ export class DatabaseService {
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
 
-		const imageURLSubject = new Subject<string>();
+		return from(
+			new Promise<string>((res, rej) => {
+				const image = new Image();
+				// image.src = `assets/world-invert.png`;
+				image.src = `assets/elev_bump_8k.jpg`;
 
-		const image = new Image();
-		// image.src = `assets/world-invert.png`;
-		image.src = `assets/elev_bump_8k.jpg`;
+				const canvas = document.createElement('canvas');
+				const ctx = canvas.getContext('2d');
 
-		const canvas = document.createElement('canvas');
-		const ctx = canvas.getContext('2d');
-
-		canvas.width = 4096;
-		canvas.height = 4096;
-		image.onload = () => {
-			ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // TODO scale it
-			imageURLSubject.next(canvas.toDataURL());
-		};
-
-		// imageURLSubject.next(undefined);
-		zip(this.connection, imageURLSubject.pipe(take(1)))
-			.pipe(
-				switchMap(([conn, img]) =>
-					conn.lore.upsert({
-						name: this.currentDocument.value,
-						actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
-						locations: ['City17', 'City14'],
-						planet: new Planet(1, img)
-					})
-				)
-			)
-			.subscribe(next => console.log(`Initial project document upserted!`));
-	}
-
-	public loreCount$(): Observable<number> {
-		return this.connection.pipe(
-			switchMap(conn => conn.lore.find().$),
-			filter(res => res !== undefined && res !== null),
-			map(next => next.length)
+				canvas.width = 4096;
+				canvas.height = 4096;
+				image.onload = () => {
+					ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // TODO scale it
+					res(canvas.toDataURL());
+				};
+				image.onerror = rej;
+			})
+		).pipe(
+			switchMap(img =>
+				conn.lore.upsert({
+					name: withName,
+					actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
+					locations: ['City17', 'City14'],
+					planet: new Planet(1, img)
+				})
+			),
+			tap(next => console.log(`Initial project document upserted!`))
 		);
-	}
-
-	public get actorCount$(): Observable<number> {
-		return this.currentLore.pipe(map(res => res.actors.length));
 	}
 
 	public actorStateMapper(actor: Actor) {
@@ -237,13 +223,5 @@ export class DatabaseService {
 			actor.states = new Tree<UnixWrapper, ActorDelta>();
 		}
 		return actor;
-	}
-
-	public get actors$(): Observable<Array<Actor>> {
-		return this.currentLore.pipe(
-			map(lore => {
-				return lore.actors.map(this.actorStateMapper);
-			})
-		);
 	}
 }

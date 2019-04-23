@@ -70,7 +70,10 @@ export class EngineService {
 
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
-		withTeardown(item => item.select(), item => () => item.deselect()),
+		withTeardown(
+			item => this.selectOutlineEffect.setSelection([item]),
+			item => () => this.selectOutlineEffect.deselectObject(item)
+		),
 		tap(() => this.globe.changed()),
 		share()
 	);
@@ -79,7 +82,10 @@ export class EngineService {
 
 	public hover$ = this.hovered.pipe(
 		distinctUntilChanged(),
-		withTeardown(item => item.hover(), item => () => item.unhover()),
+		withTeardown(
+			item => this.hoverOutlineEffect.setSelection([item]),
+			item => () => this.hoverOutlineEffect.deselectObject(item)
+		),
 		tap(() => this.globe.changed()),
 		share()
 	);
@@ -94,14 +100,11 @@ export class EngineService {
 	public bloomEffect: BloomEffect;
 	public vignetteEffect: VignetteEffect;
 	public toneMappingEffect: ToneMappingEffect;
-	public outlineEffect: OutlineEffect;
+	public hoverOutlineEffect: OutlineEffect;
+	public selectOutlineEffect: OutlineEffect;
 	public pass: EffectPass;
 
 	public atmosphere: Atmosphere;
-
-	public lastHover: string;
-	public lastHoverAt: Vector2;
-	public lastHoverAtClone: Vector2;
 
 	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
@@ -175,7 +178,6 @@ export class EngineService {
 			offset: 0.05,
 			darkness: 0.7
 		});
-
 		// Cant make it work
 		this.toneMappingEffect = new ToneMappingEffect({
 			blendFunction: BlendFunction.NORMAL,
@@ -186,6 +188,26 @@ export class EngineService {
 			averageLuminance: 1,
 			maxLuminance: 10.0,
 			middleGrey: 0.22
+		});
+
+		this.hoverOutlineEffect = new OutlineEffect(this.stage, this.stage.camera, {
+			blendFunction: BlendFunction.SCREEN,
+			edgeStrength: 9,
+			pulseSpeed: 0.0,
+			visibleEdgeColor: 0x38ff70,
+			hiddenEdgeColor: 0x30bf40,
+			blur: 4,
+			blurriness: 4,
+			xRay: true
+		});
+		this.selectOutlineEffect = new OutlineEffect(this.stage, this.stage.camera, {
+			blendFunction: BlendFunction.ADD,
+			edgeStrength: 2.5,
+			pulseSpeed: 0.0,
+			visibleEdgeColor: 0xffff00,
+			hiddenEdgeColor: 0x22090a,
+			blur: false,
+			xRay: true
 		});
 
 		/*
@@ -206,9 +228,11 @@ adaptive: true,
 		this.pass = new EffectPass(
 			this.stage.camera,
 			this.godRays,
-			/*smaaEffect,*/ this.bloomEffect,
+			/*smaaEffect,*/
+			this.bloomEffect,
 			// 	this.toneMappingEffect,
-
+			this.hoverOutlineEffect,
+			this.selectOutlineEffect,
 			this.vignetteEffect
 		);
 		this.pass.renderToScreen = true;
@@ -243,32 +267,38 @@ adaptive: true,
 		return intersection && intersection.point;
 	}
 
-	click(coord: Vector2, shift: boolean) {
+	public click(coord: Vector2, shift: boolean) {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
-		this.raycaster
+		const intersection = this.raycaster
 			.intersectObject(this.globe, true)
-			.filter(intersection => intersection.object.type === 'Globe' || intersection.object.type === 'Point') // Ignoring arcs
-			.splice(0, 1) // only the first hit
-			.forEach(intersection => {
-				console.log('CLICK: ' + intersection.object.type);
-				intersection.object.dispatchEvent({
-					type: 'click',
-					point: intersection.point,
-					shift: shift
-				});
-				if (this.sceneControlService.isDraw()) {
-					intersection.object.dispatchEvent({
-						type: 'draw',
-						point: intersection.point,
-						shift: shift,
-						uv: intersection.uv,
-						face: intersection.face,
-						mode: this.sceneControlService.activeMode.value,
-						value: this.sceneControlService.valueSlider.value,
-						size: this.sceneControlService.sizeSlider.value
-					});
-				}
+			.filter(i => i.object.type === 'Globe' || i.object.type === 'Point') // Ignoring arcs
+			.shift(); // only the first hit
+		if (intersection) {
+			console.log('CLICK: ' + intersection.object.type);
+			intersection.object.dispatchEvent({
+				type: 'click',
+				point: intersection.point,
+				shift: shift
 			});
+			if (this.sceneControlService.isDraw()) {
+				intersection.object.dispatchEvent({
+					type: 'draw',
+					point: intersection.point,
+					shift: shift,
+					uv: intersection.uv,
+					face: intersection.face,
+					mode: this.sceneControlService.activeMode.value,
+					value: this.sceneControlService.valueSlider.value,
+					size: this.sceneControlService.sizeSlider.value
+				});
+			} else {
+				if (intersection.object.type === 'Point') {
+					this.selected.next(intersection.object as Point);
+				} else {
+					this.selected.next(undefined);
+				}
+			}
+		}
 	}
 
 	public context(coord: Vector2) {
@@ -281,6 +311,7 @@ adaptive: true,
 				intersection.object.dispatchEvent({ type: 'context', point: intersection.point });
 			});
 	}
+
 	public pan(coord: Vector2, velocity: Vector2, button: number, start: boolean, end: boolean) {
 		this.controls.enabled = this.sceneControlService.isMoving();
 		this.raycaster.setFromCamera(coord, this.stage.camera);
@@ -340,20 +371,21 @@ adaptive: true,
 		this.globe.putCurve(from, to);
 	}
 
-	hover(coord: Vector2) {
+	public hover(coord: Vector2) {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
-		this.raycaster
-			.intersectObject(this.globe, true)
-			.splice(0, 1)
-			.forEach(intersection => {
-				intersection.object.dispatchEvent({ type: 'hover' });
-				this.lastHover = intersection.object.type;
-				this.lastHoverAt = coord;
-				this.lastHoverAtClone = coord.clone();
-			});
+		const intersection = this.raycaster.intersectObject(this.globe, true).shift();
+
+		if (intersection && intersection.object.type === 'Point') {
+			this.hovered.next(intersection.object as Point);
+		} else {
+			this.hovered.next(undefined);
+		}
 	}
 
-	animate(): void {
+	/**
+	 * Start the rendering process
+	 */
+	public animate(): void {
 		window.addEventListener('DOMContentLoaded', () => {
 			this.render();
 		});
@@ -363,7 +395,10 @@ adaptive: true,
 		});
 	}
 
-	render() {
+	/**
+	 * Main render loop
+	 */
+	private render() {
 		requestAnimationFrame(() => this.render());
 		TWEEN.update(Date.now());
 		if (this.controls) {
@@ -372,11 +407,10 @@ adaptive: true,
 		this.composer.render();
 	}
 
+	/**
+	 * Adjust camera and renderer on resize
+	 */
 	public resize() {
-		/*	this.stage.camera.left = window.innerWidth / -2;
-		this.stage.camera.right = window.innerWidth / 2;
-		this.stage.camera.top = window.innerHeight / 2;
-		this.stage.camera.bottom = window.innerHeight / -2;*/
 		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
 		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);

@@ -321,7 +321,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
 		}
 
-		this.databaseService.currentLore
+		this.databaseService.currentLore$
 			.pipe(
 				take(1),
 				switchMap(next =>

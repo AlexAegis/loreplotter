@@ -51,6 +51,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public contextmenu($event: any): boolean {
+		console.log($event);
 		let pos;
 		if ($event.type === 'press') {
 			// Hammer press event
@@ -64,7 +65,16 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public tap($event: any) {
-		this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
+		console.log($event);
+		$event.stopPropagation();
+		switch ($event.button) {
+			case 0:
+				this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
+				break;
+			case 2:
+				this.engine.context(normalize($event.center.x, $event.center.y));
+				break;
+		}
 		this.engine.globe.changed();
 	}
 

@@ -38,16 +38,6 @@ export class Water extends Basic {
 		this.geometry.computeBoundingSphere();
 		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 
-		/*
-		interval(1000 / 60)
-			.pipe(
-				delay(2000),
-				withLatestFrom(of(this.texture))
-			)
-			.subscribe(([next, tex]) => {
-				tex.needsUpdate = true;
-			});*/
-
 		// (this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 		this.material = new THREE.MeshPhysicalMaterial({
 			color: new Color('#63a9ff'), // 63acff

@@ -1,33 +1,10 @@
 import * as THREE from 'three';
 
-import { Interactive } from '../interfaces/interactive.interface';
 import { Basic } from './basic.class';
-import * as dat from 'dat.gui';
 import { Vector3 } from 'three';
 import { Globe } from './globe.class';
 
-export class Point extends Basic implements Interactive {
-	private defaultMaterial = new THREE.MeshBasicMaterial({
-		wireframe: false,
-		opacity: 0.8,
-		transparent: false,
-		color: 0xaa4444
-	});
-
-	private selectedMaterial = new THREE.MeshBasicMaterial({
-		wireframe: true,
-		opacity: 0.9,
-		transparent: false,
-		color: 0xaa4444
-	});
-
-	private highlightMaterial = new THREE.MeshBasicMaterial({
-		wireframe: false,
-		opacity: 0.6,
-		transparent: false,
-		color: 0xaa8888
-	});
-
+export class Point extends Basic {
 	public lastWorldPosition = new Vector3();
 
 	constructor(public name: string) {
@@ -35,22 +12,16 @@ export class Point extends Basic implements Interactive {
 		this.type = 'Point';
 		this.position.set(0, 0, 1);
 		this.rotateX(90 * THREE.Math.DEG2RAD);
-		this.material = this.defaultMaterial;
+		this.material = new THREE.MeshBasicMaterial({
+			wireframe: false,
+			opacity: 0.8,
+			transparent: false,
+			color: 0xaa4444
+		});
 		(this.geometry as any).computeFaceNormals();
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
 		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
-		this.addEventListener('click', attachment => {
-			// this.stage.engineService.selected.next(this);
-		});
-
-		this.addEventListener('context', attachment => {
-			this.stage.engineService.selected.next(this);
-		});
-
-		this.addEventListener('hover', attachment => {
-			this.stage.engineService.hovered.next(this);
-		});
 
 		this.addEventListener('pan', event => {
 			this.parent.lookAt(event.point);
@@ -82,26 +53,6 @@ export class Point extends Basic implements Interactive {
 			//  but there's always be an intersection as the globe is spherical
 			const displacementHere = globe.displacementTexture.heightAt(intersection.uv);
 			this.position.set(0, 0, globe.radius + displacementHere * globe.displacementScale + globe.displacementBias);
-		}
-	}
-
-	select() {
-		this.material = this.selectedMaterial;
-	}
-
-	deselect() {
-		this.material = this.defaultMaterial;
-	}
-
-	hover() {
-		this.material = this.highlightMaterial;
-	}
-
-	unhover() {
-		if (this.stage.engineService.selected.value === this) {
-			this.select();
-		} else {
-			this.deselect();
 		}
 	}
 }
