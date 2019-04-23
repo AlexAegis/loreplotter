@@ -66,7 +66,6 @@ export class LoreService {
 				engineService.stage.sunGroup.rotateY(
 					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * 360 * THREE.Math.DEG2RAD
 				);
-				engineService.stage.pseudoSunGroup.getWorldPosition(engineService.stage.sun.position);
 
 				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 					Node<UnixWrapper, ActorDelta>

@@ -23,7 +23,6 @@ import { Atmosphere } from './atmosphere.class';
 export class Stage extends Scene {
 	public camera: PerspectiveCamera;
 	public sunGroup: Group;
-	public pseudoSunGroup: Group;
 	public sun: Sun;
 	// private light: THREE.AmbientLight;
 
@@ -52,13 +51,10 @@ export class Stage extends Scene {
 		this.background = new Color('#121212');
 
 		this.sunGroup = new Group();
-		this.pseudoSunGroup = new Group();
 		this.sun = new Sun();
-		this.add(this.sun);
+		this.sunGroup.add(this.sun);
 		this.sun.position.set(10, 0, 0);
 		this.sunGroup.position.set(0, 0, 0);
-		this.pseudoSunGroup.position.set(10, 0, 0);
-		this.sunGroup.add(this.pseudoSunGroup);
 		this.sun.directionalLight.target = this.sunGroup;
 		this.add(this.sunGroup);
 
