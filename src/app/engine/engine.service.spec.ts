@@ -3,8 +3,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { EngineService } from './engine.service';
 
 describe('EngineService', () => {
-	let service: EngineService;
-	let canvas: HTMLCanvasElement;
+	const service: EngineService;
+	const canvas: HTMLCanvasElement;
 
 	beforeAll(async () => {});
 
