@@ -113,7 +113,7 @@ export class EngineService {
 			canvas: canvas,
 			alpha: false,
 			logarithmicDepthBuffer: true,
-			antialias: true
+			antialias: false
 		});
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.gammaInput = true;
