@@ -27,7 +27,7 @@ import { MaterialModule /*, GestureConfig */ } from './module/material.module';
 import { RoutingModule } from './module/routing.module';
 import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
 import { MyHammerConfig } from './hammer-config.class';
-
+import { DeviceDetectorModule } from 'ngx-device-detector';
 @NgModule({
 	declarations: [
 		AppComponent,
@@ -58,6 +58,7 @@ import { MyHammerConfig } from './hammer-config.class';
 		DragDropModule,
 		SkyhookMultiBackendModule,
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
+		DeviceDetectorModule.forRoot(),
 		MaterialModule
 	],
 	providers: [

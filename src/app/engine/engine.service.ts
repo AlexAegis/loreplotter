@@ -36,6 +36,7 @@ import {
 } from 'postprocessing';
 import * as dat from 'dat.gui';
 import { withTeardown } from '../misc/with-teardown.function';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -49,7 +50,11 @@ export class EngineService {
 	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
-	constructor(private databaseService: DatabaseService, public sceneControlService: SceneControlService) {
+	constructor(
+		private databaseService: DatabaseService,
+		public sceneControlService: SceneControlService,
+		private deviceService: DeviceDetectorService
+	) {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 	}
@@ -109,13 +114,21 @@ export class EngineService {
 	private postprocessing: boolean;
 
 	public createScene(canvas: HTMLCanvasElement): void {
+		const isDesktopDevice = this.deviceService.isDesktop();
+
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: canvas,
 			alpha: false,
 			logarithmicDepthBuffer: true,
 			antialias: false
 		});
-		this.renderer.setPixelRatio(window.devicePixelRatio);
+		let downScaleFactor: number;
+		if (isDesktopDevice) {
+			downScaleFactor = 1; // No downscale
+		} else {
+			downScaleFactor = 2;
+		}
+		this.renderer.setPixelRatio(window.devicePixelRatio / downScaleFactor);
 		this.renderer.gammaInput = true;
 		this.renderer.gammaOutput = true;
 		this.renderer.setClearColor(0x000000, 0.0);

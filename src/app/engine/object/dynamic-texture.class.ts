@@ -17,7 +17,7 @@ export class DynamicTexture extends CanvasTexture {
 		this.canvas = canvas;
 		this.canvasContext = canvas.getContext('2d');
 		this.canvasContext.imageSmoothingEnabled = true;
-		this.anisotropy = 2;
+		// this.anisotropy = 2;
 
 		if (defaultTexture) {
 			this.loadFromDataURL(defaultTexture);

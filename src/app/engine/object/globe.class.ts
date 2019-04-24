@@ -26,8 +26,8 @@ export class Globe extends Basic {
 		this.type = 'Globe';
 		this.name = 'globe';
 		const canvas = document.createElement('canvas');
-		canvas.width = 4096; // 4096
-		canvas.height = 4096;
+		canvas.width = 2048; // 4096
+		canvas.height = 2048;
 
 		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas, this);
 
