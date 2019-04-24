@@ -46,7 +46,8 @@ export class LoreService {
 				mergeMap(lore =>
 					lore.allAttachments$.pipe(
 						flatMap(doc => doc),
-						// tap(doc => console.log(doc.id)),
+						filter(doc => doc.id === 'texture'),
+						take(1),
 						switchMap(doc => doc.getData()),
 						map(att => ({ lore: lore, att: att }))
 					)
@@ -185,15 +186,19 @@ export class LoreService {
 
 		this.engineService.textureChange$
 			.pipe(
-				withLatestFrom(this.databaseService.currentLore$, this.cursor$),
-				switchMap(([texture, loreDoc, cursor]) => {
-					return loreDoc.atomicUpdate(lore => {
-						// lore.planet.displacementTexture = texture.canvas.toDataURL();
-						return lore;
-					});
-				})
+				tap(next => console.log(`tex change! ${next}`)),
+				switchMap(texture => from(new Promise<Blob>(res => texture.canvas.toBlob(res, 'image/jpeg')))),
+				tap(next => console.log(`tex as blob! ${next.size}`)),
+				withLatestFrom(this.databaseService.currentLore$),
+				switchMap(([texture, loreDoc]) =>
+					loreDoc.putAttachment({
+						id: 'texture', // string, name of the attachment like 'cat.jpg'
+						data: texture, // (string|Blob|Buffer) data of the attachment
+						type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
+					})
+				)
 			)
-			.subscribe();
+			.subscribe(console.log);
 	}
 
 	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix

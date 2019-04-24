@@ -6,7 +6,7 @@ import { ButtonType } from './control/button-type.class';
 import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
-import { BehaviorSubject, EMPTY, merge, NEVER, of, interval } from 'rxjs';
+import { BehaviorSubject, EMPTY, merge, NEVER, of, interval, ReplaySubject } from 'rxjs';
 import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
 import { Vector2, Vector3, WebGLRenderer } from 'three';
 import * as THREE from 'three';
@@ -69,7 +69,7 @@ export class EngineService {
 
 	public center = new Vector3(0, 0, 0);
 
-	public textureChange$: BehaviorSubject<DynamicTexture> = new BehaviorSubject<DynamicTexture>(undefined);
+	public textureChange$: ReplaySubject<DynamicTexture> = new ReplaySubject<DynamicTexture>(1);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
 

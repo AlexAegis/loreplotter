@@ -105,8 +105,7 @@ export class DatabaseService {
 	public actors$: Observable<Array<Actor>>;
 
 	private loreDocumentMethods: LoreDocumentMethods = {
-		actorCount: function() {
-			// console.log(`actors length: ${this.actors}`);
+		actorCount: function(): number {
 			return this.actors === undefined || this.actors === null ? 0 : this.actors.length;
 		},
 		nextId: function(): string {
@@ -192,43 +191,22 @@ export class DatabaseService {
 				locations: ['City17', 'City14'],
 				planet: new Planet('Earth', 1)
 			}),
-			from(
-				from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
-				/*new Promise<Blob>(res => {
-					const xmlhttp = new XMLHttpRequest();
-					xmlhttp.onreadystatechange = () => {
-						if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
-							res(xmlhttp.response);
-						}
-					};
-					xmlhttp.open('GET', `assets/elev_bump_8k.jpg`, true);
-					xmlhttp.send();
-
-					const fr = new FileReader();
-					fr.
-				})*/
-			)
+			from(from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob())))
 		).pipe(
-			mergeMap(([lore, image]) => {
-				console.log(typeof image);
-				return from(
+			mergeMap(([lore, image]) =>
+				from(
 					lore.putAttachment({
 						id: 'texture', // string, name of the attachment like 'cat.jpg'
 						data: image, // (string|Blob|Buffer) data of the attachment
 						type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
 					})
-				).pipe(
-					map(att => {
-						console.log(att.length);
-						return lore;
-					})
-				);
-			}),
+				).pipe(map(att => lore))
+			),
 			tap(next => console.log(`Initial project document upserted!`))
 		);
 	}
 
-	public actorStateMapper(actor: Actor) {
+	public actorStateMapper(actor: Actor): Actor {
 		if (actor.statesString) {
 			actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
 			actor.statesString = undefined;
