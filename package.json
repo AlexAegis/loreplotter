@@ -61,7 +61,7 @@
 		"resize-observer-polyfill": "^1.5.1",
 		"rxdb": "^8.1.0",
 		"rxjs": "~6.5.1",
-		"three": "~0.103.0",
+		"three": "~0.104.0",
 		"three-full": "^17.1.0",
 		"three-mesh-bvh": "^0.1.2",
 		"tslib": "^1.9.3",
