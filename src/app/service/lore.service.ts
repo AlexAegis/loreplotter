@@ -3,8 +3,8 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval, timer } from 'rxjs';
-import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, interval, timer, from } from 'rxjs';
+import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take, map, mergeMap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
 
@@ -40,11 +40,23 @@ export class LoreService {
 		this.latestSlerpsWorldPositionHolder = new Vector3();
 
 		// Only the initial texture is preloaded
-		this.databaseService.currentLore$.pipe(take(1)).subscribe(lore => {
-			engineService.globe.radius = lore.planet.radius;
-			engineService.globe.displacementTexture.loadFromDataURL(lore.planet.displacementTexture);
-			engineService.globe.changed();
-		});
+		this.databaseService.currentLore$
+			.pipe(
+				take(1),
+				mergeMap(lore =>
+					lore.allAttachments$.pipe(
+						flatMap(doc => doc),
+						// tap(doc => console.log(doc.id)),
+						switchMap(doc => doc.getData()),
+						map(att => ({ lore: lore, att: att }))
+					)
+				)
+			)
+			.subscribe(({ lore, att }) => {
+				engineService.globe.radius = lore.planet.radius;
+				engineService.globe.displacementTexture.loadFromBlob(att);
+				engineService.globe.changed();
+			});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
 		combineLatest([this.databaseService.actors$, this.cursor$, this.overrideNodePosition$])
@@ -176,7 +188,7 @@ export class LoreService {
 				withLatestFrom(this.databaseService.currentLore$, this.cursor$),
 				switchMap(([texture, loreDoc, cursor]) => {
 					return loreDoc.atomicUpdate(lore => {
-						lore.planet.displacementTexture = texture.canvas.toDataURL();
+						// lore.planet.displacementTexture = texture.canvas.toDataURL();
 						return lore;
 					});
 				})

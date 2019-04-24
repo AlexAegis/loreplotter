@@ -33,7 +33,11 @@ export class DynamicTexture extends CanvasTexture {
 	public canvasContext: CanvasRenderingContext2D;
 	public image: HTMLImageElement;
 
-	public loadFromDataURL(data: string) {
+	public loadFromBlob(blob: Blob): void {
+		this.loadFromDataURL(URL.createObjectURL(blob));
+	}
+
+	public loadFromDataURL(data: string): void {
 		const image = new Image();
 		image.src = data;
 		image.onload = () => {

@@ -5,7 +5,7 @@ import * as moment from 'moment';
 import * as idb from 'pouchdb-adapter-idb';
 import RxDB, { RxDatabase, RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, from, Observable, Subject, zip, of } from 'rxjs';
-import { filter, map, mergeMap, shareReplay, switchMap, take, tap, share, delayWhen } from 'rxjs/operators';
+import { filter, map, mergeMap, shareReplay, switchMap, take, tap, share, delayWhen, flatMap } from 'rxjs/operators';
 
 import { ActorDelta } from '../model/actor-delta.class';
 import { loreSchema, Lore } from '../model/lore.class';
@@ -78,7 +78,7 @@ export class DatabaseService {
 				);
 				return db;
 			}),
-			delayWhen(db => this.initData(db, this.currentDocument$.value)), // TODO Check delayWhen alternative
+			delayWhen(db => this.initData(db, this.currentDocument$.value)),
 			share()
 		);
 
@@ -185,29 +185,45 @@ export class DatabaseService {
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
 
-		return from(
-			new Promise<string>((res, rej) => {
-				const image = new Image();
-				image.src = `assets/elev_bump_8k.jpg`;
-				const canvas = document.createElement('canvas');
-				const ctx = canvas.getContext('2d');
-				image.onload = () => {
-					canvas.width = image.width;
-					canvas.height = image.height;
-					ctx.drawImage(image, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-					res(canvas.toDataURL());
-				};
-				image.onerror = rej;
-			})
+		return zip(
+			conn.lore.upsert({
+				name: withName,
+				actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
+				locations: ['City17', 'City14'],
+				planet: new Planet('Earth', 1)
+			}),
+			from(
+				from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
+				/*new Promise<Blob>(res => {
+					const xmlhttp = new XMLHttpRequest();
+					xmlhttp.onreadystatechange = () => {
+						if (xmlhttp.status === 200 && xmlhttp.readyState === 4) {
+							res(xmlhttp.response);
+						}
+					};
+					xmlhttp.open('GET', `assets/elev_bump_8k.jpg`, true);
+					xmlhttp.send();
+
+					const fr = new FileReader();
+					fr.
+				})*/
+			)
 		).pipe(
-			switchMap(img =>
-				conn.lore.upsert({
-					name: withName,
-					actors: [testActor1, testActor2, testActor3, testActor4, testActor5],
-					locations: ['City17', 'City14'],
-					planet: new Planet(1, img)
-				})
-			),
+			mergeMap(([lore, image]) => {
+				console.log(typeof image);
+				return from(
+					lore.putAttachment({
+						id: 'texture', // string, name of the attachment like 'cat.jpg'
+						data: image, // (string|Blob|Buffer) data of the attachment
+						type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
+					})
+				).pipe(
+					map(att => {
+						console.log(att.length);
+						return lore;
+					})
+				);
+			}),
 			tap(next => console.log(`Initial project document upserted!`))
 		);
 	}

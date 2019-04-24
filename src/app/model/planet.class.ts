@@ -1,19 +1,10 @@
-import { Tree } from '@alexaegis/avl';
 import { RxJsonSchema } from 'rxdb';
 
-import { ActorDelta } from './actor-delta.class';
-import { UnixWrapper } from './unix-wrapper.class';
-
 /**
- * Should be serializable on its own
+ *
  */
 export class Planet {
-	constructor(radius?: number, displacementTexture?: string) {
-		this.radius = radius;
-		this.displacementTexture = displacementTexture;
-	}
-	public radius: number;
-	public displacementTexture: string;
+	constructor(public name?: string, public radius?: number) {}
 }
 
 export const planetSchema: RxJsonSchema = {
@@ -26,7 +17,7 @@ export const planetSchema: RxJsonSchema = {
 		radius: {
 			type: 'number'
 		},
-		displacementTexture: {
+		name: {
 			type: 'string'
 		}
 	},

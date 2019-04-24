@@ -1,24 +1,15 @@
 import { Planet, planetSchema } from './planet.class';
-import { Tree } from '@alexaegis/avl';
 import { RxJsonSchema } from 'rxdb';
 
 import { Actor, actorSchema } from './actor.class';
-import { TextureDelta } from './texture-delta.class';
-import { UnixWrapper } from './unix-wrapper.class';
-
-// @jsonObject()
-// @toJson
+/**
+ * Has an attachment for the planets texture
+ */
 export class Lore {
-	// @jsonMember({ constructor: String.prototype.constructor })
 	name: string;
-	// @jsonArrayMember(Actor.prototype.constructor)
 	actors: Array<Actor> = [];
-	// @jsonArrayMember(String.prototype.constructor)
 	locations: Array<string> = [];
-	texture: string;
 	planet: Planet;
-	// textureTree: Tree<UnixWrapper, TextureDelta> = new Tree<UnixWrapper, TextureDelta>();
-	// textureTreeString: string;
 }
 
 export const loreSchema: RxJsonSchema = {
@@ -47,6 +38,9 @@ export const loreSchema: RxJsonSchema = {
 			}
 		},
 		planet: planetSchema
+	},
+	attachments: {
+		encrypted: false
 	},
 	required: ['name']
 };
