@@ -17,8 +17,6 @@ $ph-bg: rgba(255, 255, 255, 0.356) !default;
 // that you are using.
 @include angular-material-theme($client-theme);
 
-// @import './datagrid.scss';
-@import './dragula.scss';
 /* You can add global styles to this file, and also import other style files */
 
 body {

@@ -226,14 +226,14 @@ adaptive: true,
 		this.godRays.dithering = true;
 
 		this.pass = new EffectPass(
-			this.stage.camera,
-			this.godRays,
+			this.stage.camera
+			// 	this.godRays,
 			/*smaaEffect,*/
-			this.bloomEffect,
+			// 	this.bloomEffect,
 			// 	this.toneMappingEffect,
-			this.hoverOutlineEffect,
-			this.selectOutlineEffect,
-			this.vignetteEffect
+			// 	this.hoverOutlineEffect,
+			// 	this.selectOutlineEffect,
+			// 	this.vignetteEffect
 		);
 		this.pass.renderToScreen = true;
 
@@ -386,9 +386,13 @@ adaptive: true,
 	 * Start the rendering process
 	 */
 	public animate(): void {
-		window.addEventListener('DOMContentLoaded', () => {
-			this.render();
-		});
+		if (this.renderer.context.getSupportedExtensions().indexOf('EXT_frag_depth') >= 0) {
+			window.addEventListener('DOMContentLoaded', () => {
+				this.render();
+			});
+		} else {
+			console.log('ayy lmao');
+		}
 
 		window.addEventListener('resize', () => {
 			this.resize();

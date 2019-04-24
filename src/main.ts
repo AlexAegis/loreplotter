@@ -10,4 +10,10 @@ if (environment.production) {
 
 platformBrowserDynamic()
 	.bootstrapModule(AppModule)
-	.catch(err => console.error(err));
+	.then(() => {
+		if ('serviceWorker' in navigator && environment.production) {
+			// Service Worker registration is broken as of angular 7, register manually
+			navigator.serviceWorker.register('./ngsw-worker.js');
+		}
+	})
+	.catch(console.error);

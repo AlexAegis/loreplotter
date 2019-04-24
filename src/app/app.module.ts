@@ -45,6 +45,7 @@ import { MyHammerConfig } from './hammer-config.class';
 		SceneControlsComponent
 	],
 	imports: [
+		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: true }),
 		BrowserModule,
 		BrowserAnimationsModule,
 		NgScrollbarModule,
@@ -57,7 +58,6 @@ import { MyHammerConfig } from './hammer-config.class';
 		DragDropModule,
 		SkyhookMultiBackendModule,
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
-		ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
 		MaterialModule
 	],
 	providers: [

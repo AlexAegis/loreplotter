@@ -34,6 +34,12 @@ The software is built with the Angular framework and many other JavaScript modul
 
 ---
 
+Check bundle sizes
+
+```bash
+npx webpack-bundle-analyzer dist/loreplotter/stats.json
+```
+
 ## Technologies
 
 ### [Angular 7](https://angular.io/)

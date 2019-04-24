@@ -16,8 +16,10 @@
 	},
 	"scripts": {
 		"ng": "ng",
-		"start": "ng serve --poll=2000 --aot --sourceMap=true",
-		"build": "ng build --prod --aot --base-href \"/loreplotter/\"",
+		"start": "ng serve --poll=2000 --aot --sourceMap=true --host 0.0.0.0",
+		"build": "ng build --prod --aot --stats-json --base-href \"/loreplotter/\"",
+		"stats": "webpack-bundle-analyzer dist/loreplotter/stats.json",
+		"start:prod": "http-server ./dist/ -c-1 --gzip -o http://localhost:8080/loreplotter",
 		"test": "ng test",
 		"test:headless": "ng test --watch=false --browsers=ChromeHeadless",
 		"lint": "ng lint",
@@ -82,6 +84,7 @@
 		"@types/webpack": "^4.4.27",
 		"codelyzer": "~5.0.0",
 		"compression-webpack-plugin": "^2.0.0",
+		"http-server": "^0.11.1",
 		"jasmine-core": "~3.4.0",
 		"jasmine-spec-reporter": "~4.2.1",
 		"karma": "~4.1.0",
@@ -93,6 +96,7 @@
 		"ts-node": "^8.1.0",
 		"tslint": "~5.16.0",
 		"typescript": "~3.2.4",
+		"uglifyjs-webpack-plugin": "^2.1.2",
 		"webpack-bundle-analyzer": "^3.3.2"
 	},
 	"greenkeeper": {
