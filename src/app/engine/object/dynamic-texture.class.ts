@@ -17,7 +17,7 @@ export class DynamicTexture extends CanvasTexture {
 		this.canvas = canvas;
 		this.canvasContext = canvas.getContext('2d');
 		this.canvasContext.imageSmoothingEnabled = true;
-		this.anisotropy = 8;
+		this.anisotropy = 2;
 
 		if (defaultTexture) {
 			this.loadFromDataURL(defaultTexture);
@@ -37,7 +37,17 @@ export class DynamicTexture extends CanvasTexture {
 		const image = new Image();
 		image.src = data;
 		image.onload = () => {
-			this.canvasContext.drawImage(image, 0, 0);
+			this.canvasContext.drawImage(
+				image,
+				0,
+				0,
+				image.width,
+				image.height,
+				0,
+				0,
+				this.canvas.width,
+				this.canvas.height
+			);
 			this.needsUpdate = true;
 		};
 	}

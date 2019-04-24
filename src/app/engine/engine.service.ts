@@ -106,6 +106,8 @@ export class EngineService {
 
 	public atmosphere: Atmosphere;
 
+	private postprocessing: boolean;
+
 	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: canvas,
@@ -114,7 +116,6 @@ export class EngineService {
 			antialias: true
 		});
 		this.renderer.setPixelRatio(window.devicePixelRatio);
-		// this.renderer.gammaOutput = true;
 		this.renderer.gammaInput = true;
 		this.renderer.gammaOutput = true;
 		this.renderer.setClearColor(0x000000, 0.0);
@@ -226,22 +227,20 @@ adaptive: true,
 		this.godRays.dithering = true;
 
 		this.pass = new EffectPass(
-			this.stage.camera
-			// 	this.godRays,
+			this.stage.camera,
+			this.godRays,
 			/*smaaEffect,*/
-			// 	this.bloomEffect,
+			this.bloomEffect,
 			// 	this.toneMappingEffect,
-			// 	this.hoverOutlineEffect,
-			// 	this.selectOutlineEffect,
-			// 	this.vignetteEffect
+			this.hoverOutlineEffect,
+			this.selectOutlineEffect,
+			this.vignetteEffect
 		);
 		this.pass.renderToScreen = true;
 
 		this.composer.addPass(this.renderPass);
 		this.composer.addPass(this.pass);
 	}
-
-	public createPlanet(planet: Planet): void {}
 
 	spawnActor(coord: Vector2): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
@@ -387,12 +386,14 @@ adaptive: true,
 	 */
 	public animate(): void {
 		if (this.renderer.context.getSupportedExtensions().indexOf('EXT_frag_depth') >= 0) {
-			window.addEventListener('DOMContentLoaded', () => {
-				this.render();
-			});
+			this.postprocessing = true;
 		} else {
-			console.log('ayy lmao');
+			this.postprocessing = false; // TODO: duh
 		}
+
+		window.addEventListener('DOMContentLoaded', () => {
+			this.render();
+		});
 
 		window.addEventListener('resize', () => {
 			this.resize();
@@ -408,7 +409,11 @@ adaptive: true,
 		if (this.controls) {
 			this.controls.update();
 		}
-		this.composer.render();
+		if (this.postprocessing) {
+			this.composer.render();
+		} else {
+			this.renderer.render(this.stage, this.stage.camera);
+		}
 	}
 
 	/**

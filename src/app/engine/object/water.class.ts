@@ -1,25 +1,7 @@
-import { interval, of } from 'rxjs';
-import * as TWEEN from '@tweenjs/tween.js';
-import {
-	Group,
-	Shader,
-	Spherical,
-	Vector3,
-	Color,
-	TextureLoader,
-	Texture,
-	Vector2,
-	Blending,
-	AdditiveBlending,
-	MultiplyBlending
-} from 'three';
+import { Color, TextureLoader, Texture } from 'three';
 import * as THREE from 'three';
 
-import { globeShader } from '../shader/globe.shader';
-import { ClickEvent } from '../event/click-event.type';
-import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
-import { withLatestFrom, delay } from 'rxjs/operators';
 
 export class Water extends Basic {
 	public type = 'Water';

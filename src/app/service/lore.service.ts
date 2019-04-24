@@ -3,7 +3,7 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, timer } from 'rxjs';
 import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -199,7 +199,7 @@ export class LoreService {
 
 	public play(cursor: CursorComponent) {
 		this.stopSubject.next(false);
-		interval(1000 / 60)
+		timer(0, 1000 / 60)
 			.pipe(takeUntil(this.stopSubject.pipe(filter(val => val))))
 			.subscribe(i => {
 				this.cursor$.next(this.cursor$.value + 3600 / 6);

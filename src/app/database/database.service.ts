@@ -188,16 +188,13 @@ export class DatabaseService {
 		return from(
 			new Promise<string>((res, rej) => {
 				const image = new Image();
-				// image.src = `assets/world-invert.png`;
-				image.src = `assets/elev_bump_8k.jpg`;
-
+				image.src = `assets/elev_bump_2k.jpg`;
 				const canvas = document.createElement('canvas');
 				const ctx = canvas.getContext('2d');
-
-				canvas.width = 4096;
-				canvas.height = 4096;
 				image.onload = () => {
-					ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // TODO scale it
+					canvas.width = image.width;
+					canvas.height = image.height;
+					ctx.drawImage(image, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height); // TODO scale it
 					res(canvas.toDataURL());
 				};
 				image.onerror = rej;

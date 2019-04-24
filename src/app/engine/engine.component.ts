@@ -68,6 +68,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		console.log($event);
 		$event.stopPropagation();
 		switch ($event.button) {
+			case undefined:
 			case 0:
 				this.engine.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
 				break;

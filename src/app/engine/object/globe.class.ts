@@ -26,35 +26,12 @@ export class Globe extends Basic {
 		this.type = 'Globe';
 		this.name = 'globe';
 		const canvas = document.createElement('canvas');
-		canvas.width = 4096;
+		canvas.width = 4096; // 4096
 		canvas.height = 4096;
 
 		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas, this);
 
-		/*
-		const shader = new TranslucentShader();
-		const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-		uniforms['map'].value = this.displacementTexture;
-		uniforms['diffuse'].value = new THREE.Vector3(1.0, 0.2, 0.2);
-		uniforms['shininess'].value = 500;
-		uniforms['thicknessMap'].value = this.displacementTexture;
-		uniforms['thicknessColor'].value = new THREE.Vector3(0.5, 0.3, 0.0);
-		uniforms['thicknessDistortion'].value = 0.1;
-		uniforms['thicknessAmbient'].value = 0.4;
-		uniforms['thicknessAttenuation'].value = 0.8;
-		uniforms['thicknessPower'].value = 2.0;
-		uniforms['thicknessScale'].value = 16.0;
-		const material = new THREE.ShaderMaterial({
-			uniforms: uniforms,
-			vertexShader: shader.vertexShader,
-			fragmentShader: shader.fragmentShader,
-			lights: true
-		});
-		material.extensions.derivatives = true;
-
-		this.material = material;*/
-
-		this.material = new THREE.MeshPhysicalMaterial({
+		this.material = new THREE.MeshStandardMaterial({
 			emissive: '#CFBFAF',
 			emissiveIntensity: 0.003,
 			displacementMap: this.displacementTexture,
@@ -64,12 +41,12 @@ export class Globe extends Basic {
 			map: this.displacementTexture,
 			displacementScale: this.displacementScale,
 			displacementBias: this.displacementBias,
-			bumpScale: 0.008,
-			roughness: 0.5,
-			metalness: 0.5,
-			reflectivity: 0.7,
-			clearCoat: 0.9,
-			clearCoatRoughness: 0.9
+			bumpScale: 0.008
+			// roughness: 0.5,
+			// metalness: 0.5,
+			// reflectivity: 0.7,
+			// clearCoat: 0.9,
+			// clearCoatRoughness: 0.9
 		});
 
 		this.receiveShadow = true;
