@@ -3,7 +3,7 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval, timer, from, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, timer, from, Subject, of } from 'rxjs';
 import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take, map, mergeMap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -19,6 +19,9 @@ import { ActorDelta } from './../model/actor-delta.class';
 import { TextureDelta } from '../model/texture-delta.class';
 import * as THREE from 'three';
 import { Globe } from '../engine/object/globe.class';
+import { RxAttachment } from 'rxdb';
+import { Lore } from '../model/lore.class';
+import { LoreDocumentMethods } from '../database/database';
 
 const DAY_IN_SECONDS = 86400;
 /**
@@ -44,10 +47,8 @@ export class LoreService {
 			.pipe(
 				take(1),
 				mergeMap(lore =>
-					lore.allAttachments$.pipe(
-						flatMap(doc => doc),
-						filter(doc => doc.id === 'texture'),
-						take(1),
+					of(lore.getAttachment('texture')).pipe(
+						map(doc => (doc as any) as RxAttachment<Lore, LoreDocumentMethods>),
 						switchMap(doc => doc.getData()),
 						map(att => ({ lore: lore, att: att }))
 					)
