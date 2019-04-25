@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
 import { LoreService } from './../../service/lore.service';
 import * as THREE from 'three';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'app-cursor',
@@ -51,7 +52,12 @@ export class CursorComponent implements OnInit {
 		return this._deltaPosition || 0;
 	}
 
-	constructor(private loreService: LoreService) {}
+	public cursor$: Observable<number>;
+
+	constructor(private loreService: LoreService) {
+		this.cursor$ = this.loreService.cursor$;
+	}
+
 	@HostBinding('style.left') get positionPx(): string {
 		return `${this.totalPosition}px`;
 	}

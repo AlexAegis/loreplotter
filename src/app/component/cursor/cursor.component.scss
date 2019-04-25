@@ -8,6 +8,29 @@
 	z-index: 10;
 	overflow: visible;
 	display: inline-table;
+
+	div {
+		background-color: #282828;
+		padding: 0.8rem;
+		z-index: 10;
+		border-radius: 1.5rem;
+		color: whitesmoke;
+		position: fixed;
+		margin-top: -1rem;
+		transform: perspective(1px) translateX(-50%) translateY(-100%);
+		text-align: center;
+	}
+
+	div::after {
+		margin-left: 2px;
+		z-index: 9;
+		position: fixed;
+		background-color: #282828;
+		transform: perspective(1px) translateX(-50%) translateY(30%) rotate(45deg);
+		width: 1rem;
+		height: 1rem;
+		content: '';
+	}
 }
 
 :host::after {

@@ -135,6 +135,8 @@ export class LoreService {
 				} else if (group.userData.override === false) {
 					delete group.userData.override;
 				}
+
+				engineService.globe.changed();
 			});
 
 		// This subsriptions job is to
