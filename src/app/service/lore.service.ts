@@ -3,7 +3,7 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval, timer, from } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, timer, from, Subject } from 'rxjs';
 import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take, map, mergeMap } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -202,7 +202,7 @@ export class LoreService {
 	}
 
 	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
-	public spawnOnClientOffset$ = new BehaviorSubject<Offset>(undefined);
+	public spawnOnClientOffset$ = new Subject<Offset>();
 	public overrideNodePosition$ = new BehaviorSubject<{
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;

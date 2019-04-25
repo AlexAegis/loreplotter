@@ -47,13 +47,6 @@ export class DatabaseService {
 				});
 				db.lore.preSave(async function preSaveHook(this: LoreCollection, lore) {
 					if (lore !== undefined && lore !== null) {
-						/*
-							if (lore.textureTree) {
-								lore.textureTreeString = lore.textureTree.stringify();
-								lore.textureTree = undefined;
-								// delete lore.textureTree;
-							}
-							*/
 						for (const actor of lore.actors) {
 							if (actor.states) {
 								actor.statesString = actor.states.stringify();
@@ -79,6 +72,7 @@ export class DatabaseService {
 				return db;
 			}),
 			delayWhen(db => this.initData(db, this.currentDocument$.value)),
+
 			share()
 		);
 

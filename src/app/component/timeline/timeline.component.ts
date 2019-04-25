@@ -165,11 +165,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		let prog = this.cursor.progress; // [0-1]
 
 		prog = THREE.Math.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
-		console.log(
+		/*console.log(
 			`prog: ${prog} currentUnitUpperlimit: ${this.currentUnitDivision} nextUnitDivision: ${
 				this.nextUnitDivision
 			} currentUnitIndex: ${this.currentUnitIndex} unitsBetween: ${this.unitsBetween}`
-		);
+		);*/
 		// This will be the cursor positon or the center of the pinch, right now it's just the cursors position
 
 		if (
