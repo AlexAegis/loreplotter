@@ -25,6 +25,7 @@ import { UnixWrapper } from './../../model/unix-wrapper.class';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import * as THREE from 'three';
 import RxDB, { RxDocument } from 'rxdb';
+import { from } from 'rxjs';
 
 @Component({
 	selector: 'app-block',
@@ -68,8 +69,8 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	@Input()
 	public set actor(actor: RxDocument<Actor>) {
 		this._actor = actor;
-		this.blockStart.original = this._actor.states.first().key.unix;
-		this.blockEnd.original = this._actor.states.last().key.unix;
+		this.blockStart.original = this.blockStart.override = this._actor.states.first().key.unix;
+		this.blockEnd.original = this.blockEnd.override = this._actor.states.last().key.unix;
 		this.update();
 	}
 
@@ -134,13 +135,17 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 	@HostBinding('style.width.px')
 	public width: number;
-
 	// Used when moving the node in the database as the overrides 'previous' field is getting constantly updated
 	private _originalUnixesForPan: Map<Node<UnixWrapper, ActorDelta>, number> = new Map();
 	// These field will hold the values for the boundaries of the block override while moving the last or the first node
 	// So the block will never be smaller then it should
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
+
+	public clearBlockOverrides() {
+		this.blockStart.clear();
+		this.blockEnd.clear();
+	}
 
 	ngOnChanges(changes: SimpleChanges): void {}
 
@@ -152,7 +157,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		this.isDestroyed = true;
 	}
 
-	private update(): void {
+	public update(): void {
 		if (
 			this.blockStart !== undefined &&
 			this.blockEnd !== undefined &&
@@ -181,23 +186,8 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	public nodePosition(unix: number): number {
-		/*console.log(
-			`nodePosition: { unix: ${unix}, blockStart: ${this.blockStart.value}, blockEnd: ${
-				this.blockEnd.value
-			}, width: ${this.width} }`
-		);*/
-
-		const finalUnix = unix;
-		/*if (this.loreService.overrideNodePosition$.value) {
-			this.loreService.overrideNodePosition$.value.overrides.forEach(override => {
-				if (override.original === unix) {
-					finalUnix = override.new;
-				}
-			});
-		}*/
-
 		return this.width > 0 // If the width is 0, eg.: there's only one node, there's no point in mapping anything, it would produce a NaN
-			? THREE.Math.mapLinear(finalUnix, this.blockStart.value, this.blockEnd.value, 0, this.width)
+			? THREE.Math.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width)
 			: 0;
 	}
 
@@ -211,13 +201,9 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		if ($event.type === 'panstart') {
 			this.isPanning = true;
 			this._originalUnixesForPan.set(node, node.key.unix);
-			for (const n of this.actor.states.nodes()) {
-				console.log(`quickly iterating through nodes: ${n.key.unix}`);
-			}
 			const nodeIterator = this.actor.states.nodes();
 			const first = nodeIterator.next();
-			this.blockStart.original = first.value.key.unix; // ? LOOK OVER HERE
-			console.log(`first node:`);
+			this.blockStart.original = first.value.key.unix;
 			const second = nodeIterator.next();
 			if (second.value) {
 				this._afterFirstUnix = second.value.key.unix;
@@ -227,7 +213,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 			const reverseNodeIterator = this.actor.states.reverseNodes();
 			const last = reverseNodeIterator.next();
-			this.blockEnd.original = last.value.key.unix; // ? LOOK OVER HERE
+			this.blockEnd.original = last.value.key.unix;
 			const secondLast = reverseNodeIterator.next();
 			if (secondLast.value) {
 				this._beforeLastUnix = secondLast.value.key.unix;
@@ -262,13 +248,10 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			lastLimit = this.blockEnd.original;
 		}
 
-		console.log(`rescaledUnix: ${rescaledUnix} firstLimit: ${firstLimit}`);
 		if (rescaledUnix <= firstLimit) {
 			this.blockStart.override = rescaledUnix;
-			console.log(`using rescaledUnix! ${rescaledUnix}`);
 		} else {
 			this.blockStart.override = firstLimit;
-			console.log(`using firstLimit! ${firstLimit}`);
 		}
 
 		if (rescaledUnix >= lastLimit) {
@@ -282,9 +265,8 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.blockStart.override = rescaledUnix;
 			this.blockEnd.override = rescaledUnix + 1;
 		}
-		console.log(node.key.unix);
 		if (previous !== NaN && rescaledUnix !== NaN) {
-			node.key.unix = rescaledUnix; // ! HEY
+			// node.key.unix = rescaledUnix; // ! HEY You can probably remove this
 			this.loreService.overrideNodePosition$.next({
 				actorId: this.actor.id,
 				overrides: [{ original: ogUnix, previous: previous, new: rescaledUnix }]
@@ -329,7 +311,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		for (const node of this.actor.states.nodes()) {
 			const previous = node.key.unix;
 			const ogUnix = this._originalUnixesForPan.get(node);
-			node.key.unix = ogUnix + diff; // ! HEY
+			// node.key.unix = ogUnix + diff; // ! HEY You can probably remove this
 			overrides.push({
 				original: ogUnix,
 				previous: previous,
@@ -347,26 +329,36 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 		if ($event.type === 'panend') {
 			this.isPanning = false;
-			this.finalizeNewPositions().then();
+			this.finalizeNewPositions();
 		}
 	}
 
-	private async finalizeNewPositions() {
+	private finalizeNewPositions() {
 		this.isSaving = true;
-		this.actor = await this.actor.atomicUpdate(a => {
-			this.loreService.overrideNodePosition$.value.overrides.forEach(override => {
-				a = this.databaseService.actorStateMapper(a as RxDocument<Actor>);
-				const delta = a.states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
-				if (delta) {
-					a.states.set(new UnixWrapper(override.new), delta);
-				}
+		this.actor
+			.atomicUpdate(a => {
+				this.resetEveryNodeToOriginalUnix();
+				this.loreService.overrideNodePosition$.value.overrides.forEach(override => {
+					const delta = this.actor.states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
+					if (delta) {
+						this.actor.states.set(new UnixWrapper(override.new), delta);
+					}
+				});
+				a.states = this.actor.states;
+				return a;
+			})
+			.then(nexta => {
+				this.loreService.overrideNodePosition$.next(undefined);
+				this._originalUnixesForPan.clear();
+				this.isSaving = false;
+				this.actor = nexta;
 			});
-			return a;
-		});
-		this.loreService.overrideNodePosition$.next(undefined);
-		this._originalUnixesForPan.clear();
-		this.isSaving = false;
-		this.update();
+	}
+
+	public resetEveryNodeToOriginalUnix(): void {
+		for (const [key, val] of this._originalUnixesForPan.entries()) {
+			key.key.unix = val;
+		}
 	}
 
 	public tap($event: any, node: Node<UnixWrapper, ActorDelta>) {
@@ -395,8 +387,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.cd.detectChanges();
 			this.actor
 				.atomicUpdate(a => (a.states = this.actor.states) && a)
-				.then()
-				.finally(() => {
+				.then(a => {
 					this.isSaving = false;
 					this.update();
 				});

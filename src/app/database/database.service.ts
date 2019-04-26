@@ -92,7 +92,7 @@ export class DatabaseService {
 					}
 				}, true);
 			}),
-			delayWhen(db => this.initData(db, this.currentLore.value)), // TODO This should read, but set the currentLore's value
+			// delayWhen(db => this.initData(db, this.currentLore.value)), // TODO This should read, but set the currentLore's value
 			shareReplay(1)
 		);
 

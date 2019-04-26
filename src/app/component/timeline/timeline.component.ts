@@ -33,6 +33,7 @@ import { ActorDelta } from 'src/app/model/actor-delta.class';
 import { UnixWrapper } from 'src/app/model/unix-wrapper.class';
 import { loreSchema } from 'src/app/model/lore.class';
 import { RxDocument } from 'rxdb';
+import { Clock } from 'three';
 
 /**
  * Timeline
@@ -336,11 +337,9 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		actor.states.set(wrapper, new ActorDelta(undefined, finalPosition));
 		actor
 			.atomicUpdate(a => (a.states = actor.states) && a)
-			.then()
-			.finally(() => {
+			.then(a => {
 				block.isSaving = false;
-				block.cd.markForCheck();
-				block.cd.detectChanges();
+				block.actor = a;
 			});
 	}
 
