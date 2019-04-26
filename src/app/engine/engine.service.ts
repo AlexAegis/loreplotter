@@ -99,7 +99,7 @@ export class EngineService {
 
 	public drag: Point = undefined;
 
-	public spawnOnWorld$ = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
+	public spawnOnWorld = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
 
 	public composer: EffectComposer;
 	public renderPass: RenderPass;
@@ -370,7 +370,7 @@ adaptive: true,
 
 			if (end) {
 				if (this.drag !== undefined) {
-					this.spawnOnWorld$.next({ point: this.drag, position: intersection.point });
+					this.spawnOnWorld.next({ point: this.drag, position: intersection.point });
 					this.drag = undefined;
 				}
 				/*if (intersection.object.type === 'Point') {

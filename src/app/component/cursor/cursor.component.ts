@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
 import { LoreService } from './../../service/lore.service';
 import * as THREE from 'three';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { DeltaProperty } from 'src/app/model/delta-property.class';
 
 @Component({
@@ -11,7 +11,7 @@ import { DeltaProperty } from 'src/app/model/delta-property.class';
 	// changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CursorComponent implements OnInit {
-	private position = new DeltaProperty();
+	public position = new DeltaProperty();
 
 	@Input('containerWidth')
 	public set containerWidth(width: number) {
@@ -37,10 +37,12 @@ export class CursorComponent implements OnInit {
 		this.contextChange();
 	}
 
-	public cursor$: Observable<number>;
+	public cursor: BehaviorSubject<number>;
+	public overrideCursor: BehaviorSubject<number>;
 
 	constructor(private loreService: LoreService) {
-		this.cursor$ = this.loreService.cursor$;
+		this.cursor = this.loreService.cursor;
+		this.overrideCursor = this.loreService.overrideCursor;
 	}
 
 	@HostBinding('style.left.px') get positionPx(): number {
@@ -61,7 +63,7 @@ export class CursorComponent implements OnInit {
 	 */
 	changed(): void {
 		if (this._frameStart && this._frameEnd) {
-			this.loreService.cursor$.next(
+			this.overrideCursor.next(
 				THREE.Math.mapLinear(this.position.total, 0, this._containerWidth, this._frameStart, this._frameEnd)
 			);
 		}
@@ -71,13 +73,15 @@ export class CursorComponent implements OnInit {
 	 * This function updates the cursor's position based on the environment
 	 */
 	contextChange(): void {
+		// if (!this.position.delta) {
 		this.position.base = THREE.Math.mapLinear(
-			this.loreService.cursor$.value,
+			this.loreService.cursor.value,
 			this._frameStart,
 			this._frameEnd,
 			0,
 			this._containerWidth
 		);
+		// }
 	}
 
 	@HostListener('panstart', ['$event'])
@@ -94,6 +98,8 @@ export class CursorComponent implements OnInit {
 		this.changed();
 		if ($event.type === 'panend') {
 			this.position.bake();
+			this.cursor.next(this.overrideCursor.value);
+			this.overrideCursor.next(undefined);
 		}
 	}
 

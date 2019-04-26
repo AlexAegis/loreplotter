@@ -3,8 +3,20 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval, timer, from, Subject, of } from 'rxjs';
-import { filter, flatMap, takeUntil, switchMap, withLatestFrom, tap, take, map, mergeMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, interval, timer, from, Subject, of, ReplaySubject } from 'rxjs';
+import {
+	filter,
+	flatMap,
+	takeUntil,
+	switchMap,
+	withLatestFrom,
+	tap,
+	take,
+	map,
+	mergeMap,
+	share,
+	shareReplay
+} from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
 
@@ -61,7 +73,7 @@ export class LoreService {
 			});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
-		combineLatest([this.databaseService.currentLoreActors$, this.cursor$, this.overrideNodePosition$])
+		combineLatest([this.databaseService.currentLoreActors$, this.cursor$, this.overrideNodePosition])
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
 					actors.map(actor => ({
@@ -141,10 +153,10 @@ export class LoreService {
 			});
 
 		// This subsriptions job is to create a brand new actor
-		this.spawnOnClientOffset$
+		this.spawnOnClientOffset
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.cursor$),
+				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.cursor),
 				switchMap(([offset, lore, nextId, cursor]) => {
 					const dropVector = this.engineService.intersection(normalize(offset.x, offset.y));
 					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
@@ -158,10 +170,10 @@ export class LoreService {
 			)
 			.subscribe();
 
-		this.engineService.spawnOnWorld$
+		this.engineService.spawnOnWorld
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.cursor$),
+				withLatestFrom(this.cursor),
 				switchMap(async ([{ point, position }, cursor]) => {
 					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 					point.actor.states.set(
@@ -196,9 +208,15 @@ export class LoreService {
 			.subscribe(console.log);
 	}
 
-	public cursor$ = new BehaviorSubject<number>(moment('2019-01-03T01:10:00').unix()); // Unix
-	public spawnOnClientOffset$ = new Subject<Offset>();
-	public overrideNodePosition$ = new BehaviorSubject<{
+	public cursor = new BehaviorSubject<number>(moment('2019-01-03T12:00:00').unix()); // Unix
+	public overrideCursor = new BehaviorSubject<number>(undefined);
+	public cursor$ = combineLatest([this.cursor, this.overrideCursor]).pipe(
+		map(([c, oc]) => (oc ? oc : c)),
+		shareReplay(1)
+	);
+
+	public spawnOnClientOffset = new Subject<Offset>();
+	public overrideNodePosition = new BehaviorSubject<{
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;
 	}>(undefined);
@@ -208,14 +226,17 @@ export class LoreService {
 	public name(actor: Actor) {
 		return actor.id;
 	}
-
-	public play(cursor: CursorComponent) {
+	public play(cursorComponent: CursorComponent) {
 		this.stopSubject.next(false);
 		timer(0, 1000 / 60)
-			.pipe(takeUntil(this.stopSubject.pipe(filter(val => val))))
+			.pipe(
+				takeUntil(this.stopSubject.pipe(filter(val => val))),
+				filter(i => !this.overrideCursor.value),
+				map(i => this.cursor.value + 3600 / 6)
+			)
 			.subscribe(i => {
-				this.cursor$.next(this.cursor$.value + 3600 / 6);
-				cursor.contextChange();
+				this.cursor.next(i);
+				cursorComponent.contextChange();
 			});
 	}
 

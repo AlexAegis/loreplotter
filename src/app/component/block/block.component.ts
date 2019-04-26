@@ -267,7 +267,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		}
 		if (previous !== NaN && rescaledUnix !== NaN) {
 			// node.key.unix = rescaledUnix; // ! HEY You can probably remove this
-			this.loreService.overrideNodePosition$.next({
+			this.loreService.overrideNodePosition.next({
 				actorId: this.actor.id,
 				overrides: [{ original: ogUnix, previous: previous, new: rescaledUnix }]
 			});
@@ -322,7 +322,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		this.blockStart.override = this.actor.states.nodes().next().value.key.unix;
 		this.blockEnd.override = this.actor.states.reverseNodes().next().value.key.unix;
 		this.update();
-		this.loreService.overrideNodePosition$.next({
+		this.loreService.overrideNodePosition.next({
 			actorId: this._actor.id,
 			overrides: overrides
 		});
@@ -338,7 +338,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		this.actor
 			.atomicUpdate(a => {
 				this.resetEveryNodeToOriginalUnix();
-				this.loreService.overrideNodePosition$.value.overrides.forEach(override => {
+				this.loreService.overrideNodePosition.value.overrides.forEach(override => {
 					const delta = this.actor.states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
 					if (delta) {
 						this.actor.states.set(new UnixWrapper(override.new), delta);
@@ -348,7 +348,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 				return a;
 			})
 			.then(nexta => {
-				this.loreService.overrideNodePosition$.next(undefined);
+				this.loreService.overrideNodePosition.next(undefined);
 				this._originalUnixesForPan.clear();
 				this.isSaving = false;
 				this.actor = nexta;

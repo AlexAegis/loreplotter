@@ -34,6 +34,7 @@ import { UnixWrapper } from 'src/app/model/unix-wrapper.class';
 import { loreSchema } from 'src/app/model/lore.class';
 import { RxDocument } from 'rxdb';
 import { Clock } from 'three';
+import { Observable } from 'rxjs';
 
 /**
  * Timeline
@@ -56,6 +57,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@ViewChildren(BlockComponent)
 	public blocks: QueryList<BlockComponent>;
 
+	public cursor$: Observable<number>;
+
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
@@ -66,16 +69,17 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	) {
 		// Initial timeframe is 4 weeks with the cursor being in the middle
 		this.frameStart.base = moment
-			.unix(loreService.cursor$.value)
+			.unix(loreService.cursor.value)
 			.clone()
 			.subtract(2, 'week')
 			.unix();
 		this.frameEnd.base = moment
-			.unix(loreService.cursor$.value)
+			.unix(loreService.cursor.value)
 			.clone()
 			.add(2, 'week')
 			.unix();
 
+		this.cursor$ = this.loreService.cursor$;
 		this.calcUnitsBetween();
 	}
 
@@ -202,7 +206,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		this.frameEnd.base += direction * (1 - prog) * this.currentUnitSeconds;
 
 		this.calcUnitsBetween();
-		this.cursor.changed();
+		// this.cursor.changed();
+		this.cursor.contextChange();
 	}
 
 	/**
@@ -290,11 +295,15 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	public easeCursorTo(position: number) {
-		new TWEEN.Tween(this.cursor)
-			.to({ position: position }, 220)
+		new TWEEN.Tween(this.cursor.position)
+			.to({ base: position }, 220)
 			.easing(TWEEN.Easing.Exponential.Out)
 			.onUpdate(a => {
 				this.cursor.changed();
+			})
+			.onComplete(a => {
+				this.loreService.cursor.next(this.loreService.overrideCursor.value);
+				this.loreService.overrideCursor.next(undefined);
 			})
 			.start(Date.now());
 	}

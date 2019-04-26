@@ -9,7 +9,7 @@
 	overflow: visible;
 	display: inline-table;
 
-	div {
+	> div {
 		background-color: #282828;
 		padding: 0.8rem;
 		z-index: 10;
@@ -21,7 +21,7 @@
 		text-align: center;
 	}
 
-	div::after {
+	> div::after {
 		margin-left: 2px;
 		z-index: 9;
 		position: fixed;

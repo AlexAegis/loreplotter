@@ -24,7 +24,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	drop = this.dnd.dropTarget('Actor', {
 		drop: monitor => {
 			console.log(monitor.getClientOffset());
-			this.loreService.spawnOnClientOffset$.next(monitor.getClientOffset());
+			this.loreService.spawnOnClientOffset.next(monitor.getClientOffset());
 		}
 	});
 
