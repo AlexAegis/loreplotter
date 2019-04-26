@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, O
 import { LoreService } from './../../service/lore.service';
 import * as THREE from 'three';
 import { Observable } from 'rxjs';
+import { DeltaProperty } from 'src/app/model/delta-property.class';
 
 @Component({
 	selector: 'app-cursor',
@@ -10,11 +11,13 @@ import { Observable } from 'rxjs';
 	// changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CursorComponent implements OnInit {
+	private position = new DeltaProperty();
+
 	@Input('containerWidth')
 	public set containerWidth(width: number) {
 		const prevWidth = this._containerWidth || width;
 		this._containerWidth = width;
-		this.position = THREE.Math.mapLinear(this._position, 0, prevWidth, 0, this._containerWidth);
+		this.position.base = THREE.Math.mapLinear(this.position.base, 0, prevWidth, 0, this._containerWidth);
 		this.contextChange();
 	}
 
@@ -34,48 +37,22 @@ export class CursorComponent implements OnInit {
 		this.contextChange();
 	}
 
-	public set position(position: number) {
-		this._position = position;
-		// this.changed();
-	}
-
-	public get position(): number {
-		return this._position || 0;
-	}
-
-	private set deltaPosition(deltaPosition: number) {
-		this._deltaPosition = deltaPosition;
-		this.changed();
-	}
-
-	private get deltaPosition(): number {
-		return this._deltaPosition || 0;
-	}
-
 	public cursor$: Observable<number>;
 
 	constructor(private loreService: LoreService) {
 		this.cursor$ = this.loreService.cursor$;
 	}
 
-	@HostBinding('style.left') get positionPx(): string {
-		return `${this.totalPosition}px`;
+	@HostBinding('style.left.px') get positionPx(): number {
+		// console.log(this._pos);
+		return this.position.total;
 	}
-
-	get totalPosition(): number {
-		return this.deltaPosition + this.position;
-	}
-
-	private _position = 0;
-	private _deltaPosition = 0;
 
 	private _containerWidth: number;
 
 	private _frameEnd: number;
 
 	private _frameStart: number;
-
-	public _totalPosition = 0;
 
 	ngOnInit() {}
 
@@ -85,7 +62,7 @@ export class CursorComponent implements OnInit {
 	changed(): void {
 		if (this._frameStart && this._frameEnd) {
 			this.loreService.cursor$.next(
-				THREE.Math.mapLinear(this.totalPosition, 0, this._containerWidth, this._frameStart, this._frameEnd)
+				THREE.Math.mapLinear(this.position.total, 0, this._containerWidth, this._frameStart, this._frameEnd)
 			);
 		}
 	}
@@ -94,7 +71,7 @@ export class CursorComponent implements OnInit {
 	 * This function updates the cursor's position based on the environment
 	 */
 	contextChange(): void {
-		this.position = THREE.Math.mapLinear(
+		this.position.base = THREE.Math.mapLinear(
 			this.loreService.cursor$.value,
 			this._frameStart,
 			this._frameEnd,
@@ -111,19 +88,16 @@ export class CursorComponent implements OnInit {
 	@HostListener('panend', ['$event'])
 	panHandler($event: any) {
 		$event.stopPropagation();
-		if (this.position + $event.deltaX >= 0 && this.position + $event.deltaX <= this._containerWidth) {
-			this.deltaPosition = $event.deltaX;
+		if (this.position.base + $event.deltaX >= 0 && this.position.base + $event.deltaX <= this._containerWidth) {
+			this.position.delta = $event.deltaX;
 		}
+		this.changed();
 		if ($event.type === 'panend') {
-			if (!this._position) {
-				this._position = 0;
-			}
-			this._position += this.deltaPosition;
-			this.deltaPosition = 0;
+			this.position.bake();
 		}
 	}
 
 	get progress(): number {
-		return THREE.Math.mapLinear(this.position, 0, this._containerWidth, 0, 1);
+		return THREE.Math.mapLinear(this.position.total, 0, this._containerWidth, 0, 1);
 	}
 }
