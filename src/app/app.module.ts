@@ -28,6 +28,9 @@ import { RoutingModule } from './module/routing.module';
 import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
 import { MyHammerConfig } from './hammer-config.class';
 import { DeviceDetectorModule } from 'ngx-device-detector';
+import { SliderComponent } from './component/slider/slider.component';
+import { Ng5SliderModule } from 'ng5-slider';
+
 @NgModule({
 	declarations: [
 		AppComponent,
@@ -42,13 +45,15 @@ import { DeviceDetectorModule } from 'ngx-device-detector';
 		CursorComponent,
 		BlockComponent,
 		PlayComponent,
-		SceneControlsComponent
+		SceneControlsComponent,
+		SliderComponent
 	],
 	imports: [
 		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),
 		BrowserModule,
 		BrowserAnimationsModule,
 		NgScrollbarModule,
+		Ng5SliderModule,
 		SmoothScrollModule,
 		MomentModule,
 		RoutingModule,

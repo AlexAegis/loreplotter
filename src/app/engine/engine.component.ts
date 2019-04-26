@@ -65,7 +65,6 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 	}
 
 	public tap($event: any) {
-		console.log($event);
 		$event.stopPropagation();
 		switch ($event.button) {
 			case undefined:

@@ -85,3 +85,11 @@ import 'reflect-metadata';
 import 'hammerjs/hammer';
 import './polyfill/hammer-propagation.polyfill';
 import './polyfill/hammer-extended-mouse-events.polyfill';
+
+import { BehaviorSubject } from 'rxjs';
+
+Object.defineProperty(BehaviorSubject.prototype, 'value', {
+	set: function(v) {
+		return this.next(v);
+	}
+});

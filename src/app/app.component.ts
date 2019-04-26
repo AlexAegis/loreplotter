@@ -17,6 +17,7 @@ import { LoreService } from 'src/app/service/lore.service';
 import { PlayComponent } from './component/play/play.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
 import { Subscription } from 'rxjs';
+import { Options } from 'ng5-slider';
 
 @Component({
 	selector: 'app-root',
@@ -92,10 +93,15 @@ import { Subscription } from 'rxjs';
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 	public constructor(
 		public media: MediaObserver,
-		private loreService: LoreService,
+		public loreService: LoreService,
 		private engineService: EngineService
 	) {}
 	public title = 'Lore';
+
+	public sliderOptions: Options = {
+		floor: -6400,
+		ceil: 6400
+	};
 
 	@ViewChild('container')
 	private container: ElementRef;
@@ -135,6 +141,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 				break;
 		}
 	}
+
 
 	public ngOnDestroy(): void {
 		this.subscriptions.unsubscribe();

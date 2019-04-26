@@ -1,0 +1,12 @@
+:host {
+	> div {
+		width: 10rem;
+		height: 2rem;
+		background-color: brown;
+		> div {
+			background-color: aquamarine;
+			width: 0.2rem;
+			height: 2rem;
+		}
+	}
+}
