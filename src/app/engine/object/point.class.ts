@@ -28,13 +28,16 @@ export class Point extends Basic {
 
 		this.addEventListener('pan', event => {
 			this.parent.lookAt(event.point);
-			this.updateHeightAndWorldPos();
+			this.updateHeightAndWorldPosAndScale();
 			this.parent.userData.override = true;
 		});
 	}
 
-	public updateHeightAndWorldPos(): void {
+	public updateHeightAndWorldPosAndScale(scalarScale?: number): void {
 		this.parent.updateWorldMatrix(false, true);
+		if (scalarScale) {
+			this.scale.setScalar(scalarScale);
+		}
 		this.updateHeight();
 	}
 

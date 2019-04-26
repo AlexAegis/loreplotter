@@ -1,5 +1,5 @@
 import { Subject } from 'rxjs';
-import { auditTime } from 'rxjs/operators';
+import { auditTime, scan, map } from 'rxjs/operators';
 import { Mode } from 'src/app/component/scene-controls/scene-control.service';
 import * as THREE from 'three';
 import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
@@ -80,12 +80,17 @@ export class Globe extends Basic {
 		this.water = new Water(radius * 0.98);
 		this.add(this.water);
 
-		this.pointUpdateAudit.pipe(auditTime(200)).subscribe(next => {
-			this.points.forEach(point => (point as Point).updateHeightAndWorldPos());
-		});
+		this.pointUpdateAudit
+			.pipe(
+				auditTime(1000 / 60),
+				scan((acc, next) => (next ? next : acc)) // so that an undefined will trigger the last element again
+			)
+			.subscribe(next => {
+				this.points.forEach(point => (point as Point).updateHeightAndWorldPosAndScale(next));
+			});
 	}
 
-	public pointUpdateAudit = new Subject<boolean>();
+	public pointUpdateAudit = new Subject<number>();
 
 	public get points(): Array<Point> {
 		return this.children

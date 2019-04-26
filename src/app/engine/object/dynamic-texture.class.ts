@@ -25,7 +25,7 @@ export class DynamicTexture extends CanvasTexture {
 
 		this.onUpdate = () => {
 			if (this.globe) {
-				this.globe.pointUpdateAudit.next(true);
+				this.globe.pointUpdateAudit.next(undefined);
 			}
 		};
 	}

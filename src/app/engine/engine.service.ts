@@ -160,7 +160,6 @@ export class EngineService {
 
 		glow.scale.multiplyScalar(1.04);
 		this.stage.add(glow);
-
 		// PostProcessing
 
 		this.composer = new EffectComposer(this.renderer, {
@@ -217,8 +216,8 @@ export class EngineService {
 			xRay: true
 		});
 		this.selectOutlineEffect = new OutlineEffect(this.stage, this.stage.camera, {
-			blendFunction: BlendFunction.ADD,
-			edgeStrength: 2.5,
+			blendFunction: BlendFunction.SCREEN,
+			edgeStrength: 9,
 			pulseSpeed: 0.0,
 			visibleEdgeColor: 0xffff00,
 			hiddenEdgeColor: 0x22090a,
@@ -424,11 +423,7 @@ adaptive: true,
 		if (this.controls) {
 			this.controls.update();
 		}
-		if (this.postprocessing) {
-			this.composer.render(this.clock.getDelta());
-		} else {
-			this.renderer.render(this.stage, this.stage.camera);
-		}
+		this.composer.render(this.clock.getDelta());
 	}
 
 	/**

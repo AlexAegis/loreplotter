@@ -1,6 +1,7 @@
 import { OrbitControls } from 'three-full';
 import { Globe } from '../object/globe.class';
 import * as THREE from 'three';
+import { Vector3 } from 'three';
 export class Control extends OrbitControls {
 	public constructor(camera: THREE.Camera, canvas: HTMLCanvasElement, globe: Globe) {
 		super(camera, canvas);
@@ -13,6 +14,16 @@ export class Control extends OrbitControls {
 		this.maxDistance = this.maxZoom = 4000;
 		this.rotateSpeed = 0.05;
 		this.addEventListener('change', e => {
+			// TODO: Only on zoom change
+			globe.pointUpdateAudit.next(
+				THREE.Math.mapLinear(
+					(e.target.object.position as Vector3).distanceTo(globe.position),
+					this.minDistance,
+					this.maxDistance,
+					0.2,
+					2
+				)
+			); // [100 - 4000]
 			globe.changed();
 		});
 
