@@ -3,12 +3,15 @@ import * as THREE from 'three';
 import { Basic } from './basic.class';
 import { Vector3 } from 'three';
 import { Globe } from './globe.class';
+import { RxDocument } from 'rxdb';
+import { Actor } from 'src/app/model/actor.class';
 
 export class Point extends Basic {
 	public lastWorldPosition = new Vector3();
 
-	constructor(public name: string) {
+	constructor(public actor: RxDocument<Actor>) {
 		super(new THREE.SphereBufferGeometry(0.05, 40, 40), undefined);
+		this.name = actor.id;
 		this.type = 'Point';
 		this.position.set(0, 0, 1);
 		this.rotateX(90 * THREE.Math.DEG2RAD);

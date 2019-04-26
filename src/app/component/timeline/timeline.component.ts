@@ -14,12 +14,13 @@ import {
 	OnInit,
 	ViewChild,
 	ViewChildren,
-	QueryList
+	QueryList,
+	Query
 } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import * as moment from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
-import { take, switchMap } from 'rxjs/operators';
+import { take, switchMap, flatMap, filter, tap, finalize } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
 import { DeltaProperty } from 'src/app/model/delta-property.class';
@@ -31,6 +32,7 @@ import * as THREE from 'three';
 import { ActorDelta } from 'src/app/model/actor-delta.class';
 import { UnixWrapper } from 'src/app/model/unix-wrapper.class';
 import { loreSchema } from 'src/app/model/lore.class';
+import { RxDocument } from 'rxdb';
 
 /**
  * Timeline
@@ -46,10 +48,13 @@ import { loreSchema } from 'src/app/model/lore.class';
 @Component({
 	selector: 'app-timeline',
 	templateUrl: './timeline.component.html',
-	styleUrls: ['./timeline.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./timeline.component.scss']
+	// changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, AfterViewInit {
+	@ViewChildren(BlockComponent)
+	public blocks: QueryList<BlockComponent>;
+
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
@@ -128,7 +133,14 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	@ViewChild('cursor') cursor: CursorComponent;
 
-	public actors$ = this.databaseService.actors$; // reference of the actor query pipeline
+	public actors$ = this.databaseService.currentLoreActors$.pipe(
+		tap(next => {
+			this.blocks.forEach(block => {
+				block.cd.markForCheck();
+				block.cd.detectChanges();
+			});
+		})
+	); // reference of the actor query pipeline
 
 	@ViewChild(NgScrollbar) private scrollRef: NgScrollbar;
 
@@ -292,7 +304,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return value === 0 ? 0 : value / Math.abs(value);
 	}
 
-	public spawnNode($event: any, actor: Actor, block: BlockComponent) {
+	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent) {
 		$event.stopPropagation();
 		block.isSaving = true;
 		const unix = THREE.Math.mapLinear(
@@ -321,22 +333,15 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
 		}
 
-		this.databaseService.currentLore$
-			.pipe(
-				take(1),
-				switchMap(next =>
-					next
-						.atomicUpdate(lore => {
-							lore.actors
-								.filter(a => a.id === actor.id)
-								.map(this.databaseService.actorStateMapper)
-								.forEach(a => a.states.set(wrapper, new ActorDelta(undefined, finalPosition)));
-							return lore;
-						})
-						.finally(() => (block.isSaving = false))
-				)
-			)
-			.subscribe();
+		actor.states.set(wrapper, new ActorDelta(undefined, finalPosition));
+		actor
+			.atomicUpdate(a => (a.states = actor.states) && a)
+			.then()
+			.finally(() => {
+				block.isSaving = false;
+				block.cd.markForCheck();
+				block.cd.detectChanges();
+			});
 	}
 
 	public playOrPause(play: boolean) {

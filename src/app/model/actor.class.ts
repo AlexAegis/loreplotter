@@ -8,9 +8,11 @@ import { UnixWrapper } from './unix-wrapper.class';
  * Should be serializable on its own
  */
 export class Actor {
-	constructor(id: string) {
+	constructor(id: string, lore?: string) {
 		this.id = id;
+		this.lore = lore;
 	}
+	public lore: string;
 	public id: string;
 	public states: Tree<UnixWrapper, ActorDelta> = new Tree<UnixWrapper, ActorDelta>(); // Self ordering structure
 	public statesString: string;
@@ -23,8 +25,13 @@ export const actorSchema: RxJsonSchema = {
 	keyCompression: true,
 	type: 'object',
 	properties: {
+		lore: {
+			type: 'string',
+			ref: 'lore'
+		},
 		id: {
-			type: 'string'
+			type: 'string',
+			primary: true
 		},
 		statesString: {
 			type: 'string'

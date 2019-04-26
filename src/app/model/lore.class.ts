@@ -23,12 +23,6 @@ export const loreSchema: RxJsonSchema = {
 			type: 'string',
 			primary: true
 		},
-		actors: {
-			type: 'array',
-			default: [],
-			uniqueItems: true,
-			items: actorSchema
-		},
 		locations: {
 			type: 'array',
 			uniqueItems: true,

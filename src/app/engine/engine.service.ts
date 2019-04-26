@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BehaviorSubject, EMPTY, merge, NEVER, of, interval, ReplaySubject } from 'rxjs';
 import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
-import { Vector2, Vector3, WebGLRenderer } from 'three';
+import { Vector2, Vector3, WebGLRenderer, Clock } from 'three';
 import * as THREE from 'three';
 import { OrbitControls, ShaderGodRays } from 'three-full';
 
@@ -46,6 +46,7 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 	providedIn: 'root'
 })
 export class EngineService {
+	public clock: Clock;
 	/**
 	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
 	 * (Since they are shared, side effects will only happen once)
@@ -55,6 +56,7 @@ export class EngineService {
 		public sceneControlService: SceneControlService,
 		private deviceService: DeviceDetectorService
 	) {
+		this.clock = new Clock();
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 	}
@@ -97,7 +99,7 @@ export class EngineService {
 
 	public drag: Point = undefined;
 
-	public spawnOnWorld$ = new BehaviorSubject<{ object: Point; point: Vector3 }>(undefined);
+	public spawnOnWorld$ = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
 
 	public composer: EffectComposer;
 	public renderPass: RenderPass;
@@ -369,7 +371,7 @@ adaptive: true,
 
 			if (end) {
 				if (this.drag !== undefined) {
-					this.spawnOnWorld$.next({ object: this.drag, point: intersection.point });
+					this.spawnOnWorld$.next({ point: this.drag, position: intersection.point });
 					this.drag = undefined;
 				}
 				/*if (intersection.object.type === 'Point') {
@@ -423,7 +425,7 @@ adaptive: true,
 			this.controls.update();
 		}
 		if (this.postprocessing) {
-			this.composer.render();
+			this.composer.render(this.clock.getDelta());
 		} else {
 			this.renderer.render(this.stage, this.stage.camera);
 		}
@@ -436,6 +438,7 @@ adaptive: true,
 		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
 		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
+		this.composer.setSize(window.innerWidth, window.innerHeight);
 		this.globe.changed();
 	}
 }

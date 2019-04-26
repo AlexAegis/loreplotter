@@ -61,7 +61,7 @@ export class LoreService {
 			});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
-		combineLatest([this.databaseService.actors$, this.cursor$, this.overrideNodePosition$])
+		combineLatest([this.databaseService.currentLoreActors$, this.cursor$, this.overrideNodePosition$])
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
 					actors.map(actor => ({
@@ -120,7 +120,7 @@ export class LoreService {
 					group = actorObject.parent as Group;
 				} else {
 					group = new Group();
-					actorObject = new Point(actor.id);
+					actorObject = new Point(actor);
 					group.add(actorObject);
 					engineService.globe.add(group);
 				}
@@ -140,52 +140,44 @@ export class LoreService {
 				engineService.globe.changed();
 			});
 
-		// This subsriptions job is to
+		// This subsriptions job is to create a brand new actor
 		this.spawnOnClientOffset$
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore$, this.cursor$)
+				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.cursor$),
+				switchMap(([offset, lore, nextId, cursor]) => {
+					const dropVector = this.engineService.intersection(normalize(offset.x, offset.y));
+					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
+					const actor = new Actor(nextId, lore.name);
+					actor.states.set(
+						new UnixWrapper(cursor),
+						new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
+					);
+					return lore.collection.database.actor.insert(actor);
+				})
 			)
-			.subscribe(([offset, lore, cursor]) => {
-				const dropVector = this.engineService.intersection(normalize(offset.x, offset.y));
-				dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
-				const actor = new Actor(lore.nextId());
-				actor.states.set(
-					new UnixWrapper(cursor),
-					new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
-				);
-				lore.atomicUpdate(l => {
-					l.actors.push(actor);
-					return l;
-				});
-			});
+			.subscribe();
 
 		this.engineService.spawnOnWorld$
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore$, this.cursor$)
+				withLatestFrom(this.cursor$),
+				switchMap(async ([{ point, position }, cursor]) => {
+					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
+					point.actor.states.set(
+						new UnixWrapper(cursor),
+						new ActorDelta(undefined, {
+							x: position.x,
+							y: position.y,
+							z: position.z
+						})
+					);
+					const updatedActor = await point.actor.atomicUpdate(a => (a.states = point.actor.states) && a);
+					point.parent.userData.override = false;
+					return updatedActor;
+				})
 			)
-			.subscribe(([{ object, point }, lore, cursor]) => {
-				point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
-				lore.atomicUpdate(l => {
-					l.actors
-						.filter(a => a.id === object.name)
-						.map(this.databaseService.actorStateMapper)
-						.forEach(actor => {
-							actor.states.set(
-								new UnixWrapper(cursor),
-								new ActorDelta(undefined, {
-									x: point.x,
-									y: point.y,
-									z: point.z
-								})
-							);
-						});
-					return l;
-				}).finally(() => {
-					object.parent.userData.override = false;
-				});
-			});
+			.subscribe();
 
 		this.engineService.textureChange$
 			.pipe(

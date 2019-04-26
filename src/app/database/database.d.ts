@@ -1,19 +1,23 @@
 import { RxDatabase, RxCollection, RxJsonSchema, RxDocument } from 'rxdb';
 import { Lore } from '../model/lore.class';
-
-export type Database = RxDatabase<DatabaseCollections>;
-export interface DatabaseCollections {
-	lore: LoreCollection;
+import { Actor } from '../model/actor.class';
+import { Observable } from 'rxjs';
+export interface RxCollections {
+	lore: RxCollection<Lore, LoreDocumentMethods, LoreCollectionMethods>;
+	actor: RxCollection<Actor>;
 }
-
-export type LoreCollection = RxCollection<Lore, LoreDocumentMethods, LoreCollectionMethods>;
 
 export type LoreDocument = RxDocument<Lore, LoreDocumentMethods>;
 
 export interface LoreCollectionMethods {
-	[countAllDocuments: string]: (this: LoreCollection) => Promise<number>;
+	[countAllDocuments: string]: (
+		this: RxCollection<Lore, LoreDocumentMethods, LoreCollectionMethods>
+	) => Promise<number>;
 }
 
 export interface LoreDocumentMethods {
-	[methodName: string]: (this: Lore) => any;
+	collectActors: (
+		this: RxDocument<Lore>,
+		stateMapper: (actor: RxDocument<Actor, {}>) => RxDocument<Actor, {}>
+	) => Observable<RxDocument<Actor>[]>;
 }

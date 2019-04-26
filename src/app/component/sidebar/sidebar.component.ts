@@ -30,7 +30,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 	});
 
 	actorCount$ = this.db.actorCount$;
-	actors$ = this.db.actors$;
+	actors$ = this.db.currentLoreActors$;
 
 	mediaQueryAlias: string;
 

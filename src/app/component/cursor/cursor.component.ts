@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
 @Component({
 	selector: 'app-cursor',
 	templateUrl: './cursor.component.html',
-	styleUrls: ['./cursor.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./cursor.component.scss']
+	// changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CursorComponent implements OnInit {
 	@Input('containerWidth')

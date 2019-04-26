@@ -10,9 +10,11 @@ import {
 	Input,
 	OnInit,
 	Output,
-	OnDestroy
+	OnDestroy,
+	OnChanges,
+	SimpleChanges
 } from '@angular/core';
-import { take } from 'rxjs/operators';
+import { take, filter, flatMap, switchMap, tap, map, finalize, withLatestFrom } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Actor } from 'src/app/model/actor.class';
 import { OverridableProperty } from 'src/app/model/overridable-property.class';
@@ -22,6 +24,7 @@ import { ActorDelta } from './../../model/actor-delta.class';
 import { UnixWrapper } from './../../model/unix-wrapper.class';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import * as THREE from 'three';
+import RxDB, { RxDocument } from 'rxdb';
 
 @Component({
 	selector: 'app-block',
@@ -29,7 +32,7 @@ import * as THREE from 'three';
 	styleUrls: ['./block.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlockComponent implements OnInit, OnDestroy {
+export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;
@@ -53,24 +56,24 @@ export class BlockComponent implements OnInit, OnDestroy {
 	}
 
 	@Input()
-	public set actors(actors: Array<Actor>) {
+	public set actors(actors: Array<RxDocument<Actor>>) {
 		this._actors = actors;
 		this.update();
 	}
 
-	public get actors(): Array<Actor> {
+	public get actors(): Array<RxDocument<Actor>> {
 		return this._actors;
 	}
 
 	@Input()
-	public set actor(actor: Actor) {
+	public set actor(actor: RxDocument<Actor>) {
 		this._actor = actor;
 		this.blockStart.original = this._actor.states.first().key.unix;
 		this.blockEnd.original = this._actor.states.last().key.unix;
 		this.update();
 	}
 
-	public get actor(): Actor {
+	public get actor(): RxDocument<Actor> {
 		return this._actor;
 	}
 
@@ -98,7 +101,7 @@ export class BlockComponent implements OnInit, OnDestroy {
 		public databaseService: DatabaseService,
 		public loreService: LoreService,
 		public blockService: BlockService,
-		private cd: ChangeDetectorRef
+		public cd: ChangeDetectorRef
 	) {}
 
 	public get isAtMostOneLeft(): boolean {
@@ -111,14 +114,14 @@ export class BlockComponent implements OnInit, OnDestroy {
 	public isSaving = false;
 	public selection: Node<UnixWrapper, ActorDelta>;
 
-	private _actors: Array<Actor>;
+	private _actors: Array<RxDocument<Actor>>;
 
 	@Output()
 	public jump = new EventEmitter<number>();
 
 	public _containerWidth: number;
 
-	private _actor: Actor;
+	private _actor: RxDocument<Actor>;
 	private blockStart = new OverridableProperty<number>(undefined); // in unix
 	private blockEnd = new OverridableProperty<number>(undefined); // in unix
 
@@ -139,10 +142,13 @@ export class BlockComponent implements OnInit, OnDestroy {
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
 
+	ngOnChanges(changes: SimpleChanges): void {}
+
 	/**
 	 * I'm marking the object as destroyed so the tear-down mechanic in the block-service would skip it's operation
 	 */
 	ngOnDestroy(): void {
+		console.log('block destorye');
 		this.isDestroyed = true;
 	}
 
@@ -170,12 +176,28 @@ export class BlockComponent implements OnInit, OnDestroy {
 			);
 			this.width = right - this.left;
 		}
+		this.cd.markForCheck();
 		this.cd.detectChanges();
 	}
 
 	public nodePosition(unix: number): number {
+		/*console.log(
+			`nodePosition: { unix: ${unix}, blockStart: ${this.blockStart.value}, blockEnd: ${
+				this.blockEnd.value
+			}, width: ${this.width} }`
+		);*/
+
+		const finalUnix = unix;
+		/*if (this.loreService.overrideNodePosition$.value) {
+			this.loreService.overrideNodePosition$.value.overrides.forEach(override => {
+				if (override.original === unix) {
+					finalUnix = override.new;
+				}
+			});
+		}*/
+
 		return this.width > 0 // If the width is 0, eg.: there's only one node, there's no point in mapping anything, it would produce a NaN
-			? THREE.Math.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width)
+			? THREE.Math.mapLinear(finalUnix, this.blockStart.value, this.blockEnd.value, 0, this.width)
 			: 0;
 	}
 
@@ -189,9 +211,13 @@ export class BlockComponent implements OnInit, OnDestroy {
 		if ($event.type === 'panstart') {
 			this.isPanning = true;
 			this._originalUnixesForPan.set(node, node.key.unix);
-
-			const nodeIterator = this._actor.states.nodes();
+			for (const n of this.actor.states.nodes()) {
+				console.log(`quickly iterating through nodes: ${n.key.unix}`);
+			}
+			const nodeIterator = this.actor.states.nodes();
 			const first = nodeIterator.next();
+			this.blockStart.original = first.value.key.unix; // ? LOOK OVER HERE
+			console.log(`first node:`);
 			const second = nodeIterator.next();
 			if (second.value) {
 				this._afterFirstUnix = second.value.key.unix;
@@ -199,8 +225,9 @@ export class BlockComponent implements OnInit, OnDestroy {
 				this._afterFirstUnix = first.value.key.unix;
 			}
 
-			const reverseNodeIterator = this._actor.states.reverseNodes();
+			const reverseNodeIterator = this.actor.states.reverseNodes();
 			const last = reverseNodeIterator.next();
+			this.blockEnd.original = last.value.key.unix; // ? LOOK OVER HERE
 			const secondLast = reverseNodeIterator.next();
 			if (secondLast.value) {
 				this._beforeLastUnix = secondLast.value.key.unix;
@@ -235,10 +262,13 @@ export class BlockComponent implements OnInit, OnDestroy {
 			lastLimit = this.blockEnd.original;
 		}
 
+		console.log(`rescaledUnix: ${rescaledUnix} firstLimit: ${firstLimit}`);
 		if (rescaledUnix <= firstLimit) {
 			this.blockStart.override = rescaledUnix;
+			console.log(`using rescaledUnix! ${rescaledUnix}`);
 		} else {
 			this.blockStart.override = firstLimit;
+			console.log(`using firstLimit! ${firstLimit}`);
 		}
 
 		if (rescaledUnix >= lastLimit) {
@@ -252,12 +282,12 @@ export class BlockComponent implements OnInit, OnDestroy {
 			this.blockStart.override = rescaledUnix;
 			this.blockEnd.override = rescaledUnix + 1;
 		}
-
+		console.log(node.key.unix);
 		if (previous !== NaN && rescaledUnix !== NaN) {
-			node.key.unix = rescaledUnix;
+			node.key.unix = rescaledUnix; // ! HEY
 			this.loreService.overrideNodePosition$.next({
-				actorId: this._actor.id,
-				overrides: [{ original: ogUnix, previous: previous, new: node.key.unix }]
+				actorId: this.actor.id,
+				overrides: [{ original: ogUnix, previous: previous, new: rescaledUnix }]
 			});
 		}
 		this.update();
@@ -265,6 +295,7 @@ export class BlockComponent implements OnInit, OnDestroy {
 		if ($event.type === 'panend') {
 			this.isPanning = false;
 			this.finalizeNewPositions();
+			this.update();
 		}
 	}
 
@@ -298,11 +329,11 @@ export class BlockComponent implements OnInit, OnDestroy {
 		for (const node of this.actor.states.nodes()) {
 			const previous = node.key.unix;
 			const ogUnix = this._originalUnixesForPan.get(node);
-			node.key.unix = ogUnix + diff;
+			node.key.unix = ogUnix + diff; // ! HEY
 			overrides.push({
 				original: ogUnix,
 				previous: previous,
-				new: node.key.unix
+				new: ogUnix + diff
 			});
 		}
 
@@ -316,32 +347,26 @@ export class BlockComponent implements OnInit, OnDestroy {
 
 		if ($event.type === 'panend') {
 			this.isPanning = false;
-			this.finalizeNewPositions();
+			this.finalizeNewPositions().then();
 		}
 	}
 
-	private finalizeNewPositions() {
-		this.databaseService.currentLore$.pipe(take(1)).subscribe(lore => {
-			this.isSaving = true;
-			this.cd.detectChanges();
-			lore.atomicUpdate(l => {
-				l.actors
-					.filter(actor => actor.id === this._actor.id)
-					.map(this.databaseService.actorStateMapper)
-					.forEach(actor => {
-						this.loreService.overrideNodePosition$.value.overrides.forEach(ov => {
-							const val = actor.states.remove(new UnixWrapper(ov.original));
-							actor.states.set(new UnixWrapper(ov.new), val);
-						});
-					});
-				return l;
-			}).finally(() => {
-				this.loreService.overrideNodePosition$.next(undefined);
-				this._originalUnixesForPan.clear();
-				this.isSaving = false;
-				this.update();
+	private async finalizeNewPositions() {
+		this.isSaving = true;
+		this.actor = await this.actor.atomicUpdate(a => {
+			this.loreService.overrideNodePosition$.value.overrides.forEach(override => {
+				a = this.databaseService.actorStateMapper(a as RxDocument<Actor>);
+				const delta = a.states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
+				if (delta) {
+					a.states.set(new UnixWrapper(override.new), delta);
+				}
 			});
+			return a;
 		});
+		this.loreService.overrideNodePosition$.next(undefined);
+		this._originalUnixesForPan.clear();
+		this.isSaving = false;
+		this.update();
 	}
 
 	public tap($event: any, node: Node<UnixWrapper, ActorDelta>) {
@@ -365,22 +390,16 @@ export class BlockComponent implements OnInit, OnDestroy {
 		if (!this.isAtMostOneLeft) {
 			//  TODO: Make hammer not ignore the disabled setting on buttons
 			this.blockService.selection.next(undefined);
-			this.databaseService.currentLore$.pipe(take(1)).subscribe(lore => {
-				this.isSaving = true;
-				this.cd.detectChanges();
-				lore.atomicUpdate(l => {
-					l.actors
-						.filter(actor => actor.id === this._actor.id)
-						.map(this.databaseService.actorStateMapper)
-						.forEach(actor => {
-							actor.states.remove(node.key);
-						});
-					return l;
-				}).finally(() => {
+			this.isSaving = true;
+			this.actor.states.remove(node.key);
+			this.cd.detectChanges();
+			this.actor
+				.atomicUpdate(a => (a.states = this.actor.states) && a)
+				.then()
+				.finally(() => {
 					this.isSaving = false;
 					this.update();
 				});
-			});
 		}
 	}
 
