@@ -28,13 +28,13 @@ export class LightControlComponent implements OnInit {
 
 	ngOnInit() {}
 
-	public togglePermaDay() {
+	public togglePermaDay($event: any) {
 		this.engineService.manualLight.next(!this.engineService.manualLight.value);
 		this.cd.detectChanges();
 		this.cd.markForCheck();
 	}
 
-	public toggleManualLight() {
+	public toggleManualLight($event: any) {
 		this.engineService.manualLightControl.next(!this.engineService.manualLightControl.value);
 		this.cd.detectChanges();
 		this.cd.markForCheck();

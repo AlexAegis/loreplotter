@@ -114,6 +114,8 @@ export class EngineService {
 	public drag: Point = undefined;
 
 	public spawnOnWorld = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
+
+	public manualLightControl = new BehaviorSubject<boolean>(false);
 	public manualLight = new BehaviorSubject<boolean>(true);
 
 	public autoLight$ = combineLatest([this.zoomSubject, this.speed]).pipe(
@@ -121,7 +123,15 @@ export class EngineService {
 		distinctUntilChanged()
 	);
 
-	public manualLightControl = new BehaviorSubject<boolean>(false);
+	private darkToLight = { from: { light: 0 }, to: { light: 1 } };
+	private lightToDark = { from: { light: 1 }, to: { light: 0 } };
+
+	public light$ = combineLatest([this.manualLightControl, this.manualLight, this.autoLight$]).pipe(
+		map(([manual, permaDay, auto]) => (manual ? permaDay : auto)),
+		map(next => (next ? this.darkToLight : this.lightToDark)),
+		tweenMap(1000, TWEEN.Easing.Exponential.Out),
+		share()
+	);
 
 	public composer: EffectComposer;
 	public renderPass: RenderPass;
@@ -277,23 +287,14 @@ adaptive: true,
 		this.composer.addPass(this.renderPass);
 		this.composer.addPass(this.pass);
 
-		const darkToLight = { from: { light: 0 }, to: { light: 1 } };
-		const lightToDark = { from: { light: 1 }, to: { light: 0 } };
-
-		combineLatest([this.manualLightControl, this.manualLight, this.autoLight$])
-			.pipe(
-				map(([manual, permaDay, auto]) => (manual ? permaDay : auto)),
-				map(next => (next ? darkToLight : lightToDark)),
-				tweenMap(1000, TWEEN.Easing.Exponential.Out)
-			)
-			.subscribe(({ light }) => {
-				(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
-				glow.scale.setScalar(light * 0.65 + 0.05);
-				this.stage.ambient.intensity = light;
-				this.stage.sun.material.opacity = 1 - light;
-				this.stage.sun.directionalLight.intensity =
-					(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
-			});
+		this.light$.subscribe(({ light }) => {
+			(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
+			glow.scale.setScalar(light * 0.65 + 0.05);
+			this.stage.ambient.intensity = light;
+			this.stage.sun.material.opacity = 1 - light;
+			this.stage.sun.directionalLight.intensity =
+				(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
+		});
 
 		/**
 			 *

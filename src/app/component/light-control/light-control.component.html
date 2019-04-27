@@ -1,8 +1,8 @@
-<mat-button-toggle (click)="toggleManualLight()">
+<button mat-fab color="'primary'" (tap)="toggleManualLight($event)">
 	{{ engineService.manualLightControl.value ? 'Manual' : 'Auto' }}
-</mat-button-toggle>
+</button>
 <div @toggles *ngIf="engineService.manualLightControl.value">
-	<button mat-flat-button (click)="togglePermaDay()">
+	<button mat-flat-button (tap)="togglePermaDay($event)">
 		<fa-icon [icon]="toggleIcon" [size]="'xl'"></fa-icon>
 	</button>
 </div>
