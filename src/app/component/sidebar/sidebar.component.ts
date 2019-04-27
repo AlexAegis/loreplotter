@@ -2,9 +2,13 @@ import { SkyhookDndService } from '@angular-skyhook/core';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
+import { RxDocument } from 'rxdb';
 import { filter } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
+import { Actor } from 'src/app/model/actor.class';
 import { LoreService } from 'src/app/service/lore.service';
+import { EngineService } from 'src/app/engine/engine.service';
+
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',
@@ -29,16 +33,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
 		}
 	});
 
-	actorCount$ = this.db.actorCount$;
-	actors$ = this.db.currentLoreActors$;
+	actorCount$ = this.databaseService.actorCount$;
+	actors$ = this.databaseService.currentLoreActors$;
 
 	mediaQueryAlias: string;
 
 	constructor(
 		private media: MediaObserver,
 		private dnd: SkyhookDndService,
-		public lore: LoreService,
-		public db: DatabaseService
+		public loreService: LoreService,
+		public databaseService: DatabaseService,
+		public engineService: EngineService
 	) {
 		/*this.actorSource
 			.listen(a => a)
@@ -70,6 +75,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
 			this.opened = change.mqAlias === 'xl';
 			this.over = change.mqAlias === 'xl' ? 'side' : 'over';
 		});*/
+	}
+
+	select($event, actor: RxDocument<Actor>): void {
+		this.engineService.selectedByActor.next(actor);
 	}
 
 	ngOnDestroy() {

@@ -2,27 +2,29 @@ import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import {
-    BlendFunction,
-    BloomEffect,
-    EffectComposer,
-    EffectPass,
-    GodRaysEffect,
-    KernelSize,
-    OutlineEffect,
-    RenderPass,
-    ToneMappingEffect,
-    VignetteEffect,
+	BlendFunction,
+	BloomEffect,
+	EffectComposer,
+	EffectPass,
+	GodRaysEffect,
+	KernelSize,
+	OutlineEffect,
+	RenderPass,
+	ToneMappingEffect,
+	VignetteEffect
 } from 'postprocessing';
-import { BehaviorSubject, combineLatest, from, ReplaySubject } from 'rxjs';
-import { distinctUntilChanged, map, share, tap } from 'rxjs/operators';
-import { Clock, Color, Raycaster, Vector2, Vector3, WebGLRenderer } from 'three';
+import { RxDocument } from 'rxdb';
+import { BehaviorSubject, combineLatest, from, merge, ReplaySubject, range, zip, timer, Subject } from 'rxjs';
+import { distinctUntilChanged, map, share, tap, shareReplay, filter, auditTime, flatMap, take } from 'rxjs/operators';
 import * as THREE from 'three';
+import { Clock, Color, Raycaster, Vector2, Vector3, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three-full';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 
 import { PopupComponent } from '../component/popup/popup.component';
 import { tweenMap } from '../misc/tween-map.operator';
 import { withTeardown } from '../misc/with-teardown.operator';
+import { Actor } from '../model/actor.class';
 import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Control } from './control/control.class';
 import { denormalize } from './helper/denormalize.function';
@@ -40,6 +42,14 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 	providedIn: 'root'
 })
 export class EngineService {
+	/**
+	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
+	 * (Since they are shared, side effects will only happen once)
+	 */
+	constructor(public sceneControlService: SceneControlService, private deviceService: DeviceDetectorService) {
+		this.selection$.subscribe();
+		this.hover$.subscribe();
+	}
 	// Rendering
 	public clock = new Clock(); // Clock for the renderer
 	private renderer: WebGLRenderer;
@@ -58,7 +68,7 @@ export class EngineService {
 
 	// 3D Objects
 	public stage: Stage;
-	public controls: OrbitControls;
+	public control: Control;
 	public globe: Globe;
 
 	// Playback
@@ -67,27 +77,43 @@ export class EngineService {
 	// Selection
 	public popupTarget = new BehaviorSubject<Vector2>(null);
 	public indicator: PopupComponent;
+	public refreshPopupPositionQueue = new BehaviorSubject<boolean>(undefined);
+	public refreshPopupPositionExecutor = this.refreshPopupPositionQueue
+		.pipe(
+			auditTime(1000 / 60),
+			flatMap(next => zip(range(10), timer(0, 1000 / 60)).pipe(take(5)))
+		)
+		.subscribe(next => this.refreshPopupPosition());
 
+	public selectedByActor = new BehaviorSubject<RxDocument<Actor>>(undefined); // Selected Actor on the sidebar
 	public selected = new BehaviorSubject<Point>(undefined); // Selected Actor on map, and it's current position
+	public selectedActorForwarder = this.selectedByActor
+		.pipe(
+			filter(actor => !!this.globe),
+			map(actor => this.globe.findPointByActor(actor))
+		)
+		.subscribe(next => this.selected.next(next));
+
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
+		tap(next => console.log('Selection changed!' + next)),
 		withTeardown(
 			item => this.selectOutlineEffect.setSelection([item]),
-			item => () => this.selectOutlineEffect.deselectObject(item)
+			item => () => this.selectOutlineEffect.deselectObject(item) // clearSelection() // deselectObject(item)
 		),
 		tap(() => this.refreshPopupPosition()),
 		share()
 	);
 
 	// Hover
-	public hovered: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
+	public hovered = new Subject<Point>();
 	public hover$ = this.hovered.pipe(
 		distinctUntilChanged(),
+		tap(next => console.log('Hovered changed!' + next)),
 		withTeardown(
 			item => this.hoverOutlineEffect.setSelection([item]),
-			item => () => this.hoverOutlineEffect.deselectObject(item)
+			item => () => this.hoverOutlineEffect.deselectObject(item) // clearSelection() // deselectObject(item)
 		),
-		tap(() => this.refreshPopupPosition()),
 		share()
 	);
 
@@ -119,15 +145,6 @@ export class EngineService {
 		share()
 	);
 
-	/**
-	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
-	 * (Since they are shared, side effects will only happen once)
-	 */
-	constructor(public sceneControlService: SceneControlService, private deviceService: DeviceDetectorService) {
-		this.selection$.subscribe();
-		this.hover$.subscribe();
-	}
-
 	public createScene(canvas: HTMLCanvasElement): void {
 		const isDesktopDevice = this.deviceService.isDesktop();
 
@@ -152,7 +169,7 @@ export class EngineService {
 		this.stage = new Stage(this);
 		this.globe = new Globe(this.zoomSubject);
 		this.stage.add(this.globe);
-		this.controls = new Control(this.zoomSubject, this.stage.camera, this.renderer.domElement, this.globe);
+		this.control = new Control(this, this.stage.camera, this.renderer.domElement);
 
 		const glowMaterial = new THREE.ShaderMaterial({
 			uniforms: {
@@ -260,7 +277,7 @@ export class EngineService {
 			/*smaaEffect,*/
 			this.bloomEffect,
 			// 	this.toneMappingEffect,
-			this.hoverOutlineEffect,
+			// this.hoverOutlineEffect,
 			this.selectOutlineEffect,
 			this.vignetteEffect
 		);
@@ -340,7 +357,7 @@ export class EngineService {
 	}
 
 	public pan(coord: Vector2, velocity: Vector2, button: number, start: boolean, end: boolean) {
-		this.controls.enabled = this.sceneControlService.isMoving();
+		this.control.enabled = this.sceneControlService.isMoving();
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		const intersections = this.raycaster.intersectObject(this.globe, true);
 		const intersectionsFiltered = intersections.filter(i => i.object.type === 'Globe' || i.object.type === 'Point'); // Ignoring arcs
@@ -350,17 +367,17 @@ export class EngineService {
 				switch (intersection.object.type) {
 					case 'Point':
 						this.drag = <Point>intersection.object;
-						this.controls.enabled = false;
+						this.control.enabled = false;
 						break;
 					case 'Globe':
 						this.drag = undefined;
-						this.controls.enabled = false;
+						this.control.enabled = false;
 						break;
 				}
 			}
 
 			if (this.drag !== undefined) {
-				this.controls.enabled = false; // if its a point im dragging
+				this.control.enabled = false; // if its a point im dragging
 				this.drag.dispatchEvent({
 					type: 'pan',
 					point: intersection.point,
@@ -403,6 +420,7 @@ export class EngineService {
 		const intersection = this.raycaster.intersectObject(this.globe, true).shift();
 
 		if (intersection && intersection.object.type === 'Point') {
+			console.log(intersection);
 			this.hovered.next(intersection.object as Point);
 		} else {
 			this.hovered.next(undefined);
@@ -429,8 +447,8 @@ export class EngineService {
 	private render() {
 		requestAnimationFrame(() => this.render());
 		TWEEN.update(Date.now());
-		if (this.controls) {
-			this.controls.update();
+		if (this.control) {
+			this.control.update();
 		}
 		this.composer.render(this.clock.getDelta());
 	}

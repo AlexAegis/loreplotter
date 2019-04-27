@@ -10,6 +10,8 @@ import { Basic } from './basic.class';
 import { DynamicTexture } from './dynamic-texture.class';
 import { Point } from './point.class';
 import { Water } from './water.class';
+import { RxDocument } from 'rxdb';
+import { Actor } from 'src/app/model/actor.class';
 
 export class Globe extends Basic {
 	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
@@ -186,5 +188,9 @@ export class Globe extends Basic {
 
 		this.add(curveObject);
 		return airCurve;
+	}
+
+	findPointByActor(actor: RxDocument<Actor>): any {
+		return this.points.filter(point => point.actor.id === actor.id).shift();
 	}
 }

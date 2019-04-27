@@ -83,7 +83,6 @@ export class LoreService {
 				)
 			)
 			.subscribe(({ actor, cursor, overrideNodePositions }) => {
-				engineService.selected.next(undefined);
 				engineService.stage.sunGroup.rotation.set(0, 0, 0);
 				engineService.stage.sunGroup.rotateY(
 					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * THREE.Math.DEG2RAD

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import {
-    faAngleDoubleDown,
-    faAngleDoubleUp,
-    faArrowsAlt,
-    faPencilAlt,
-    IconDefinition,
+	faAngleDoubleDown,
+	faAngleDoubleUp,
+	faArrowsAlt,
+	faPencilAlt,
+	IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, share } from 'rxjs/operators';

@@ -3,13 +3,9 @@ import { Globe } from '../object/globe.class';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { BehaviorSubject } from 'rxjs';
+import { EngineService } from '../engine.service';
 export class Control extends OrbitControls {
-	public constructor(
-		private zoomSubject: BehaviorSubject<number>,
-		camera: THREE.Camera,
-		canvas: HTMLCanvasElement,
-		globe: Globe
-	) {
+	public constructor(private engineService: EngineService, camera: THREE.Camera, canvas: HTMLCanvasElement) {
 		super(camera, canvas);
 		this.enableDamping = true;
 		this.enableZoom = true;
@@ -21,19 +17,18 @@ export class Control extends OrbitControls {
 		this.rotateSpeed = 0.05;
 		this.addEventListener('change', e => {
 			// TODO: Only on zoom change
-			this.zoomSubject.next(
+			this.engineService.zoomSubject.next(
 				THREE.Math.mapLinear(
-					(e.target.object.position as Vector3).distanceTo(globe.position),
+					(e.target.object.position as Vector3).distanceTo(this.engineService.globe.position),
 					this.minDistance,
 					this.maxDistance,
 					0.2,
 					2
 				)
 			);
+			// ? On everything
+			this.engineService.refreshPopupPositionQueue.next(true);
 		});
-
-		// (this as any).domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
-		// console.log(this);
 	}
 	public enableDamping: boolean;
 	public enabled: boolean;
@@ -52,36 +47,5 @@ export class Control extends OrbitControls {
 	public scope: any;
 
 	public addEventListener: (event: string, callback: (e: any) => void) => void;
-	/*
-	onMouseDown(event) {
-		console.log('ONMD!!!!!!!!!!!!!!!!!!!!!');
-		console.log(this); // canvas
-		if (super.enabled === false) {
-			return;
-		}
-
-		// Prevent the browser from scrolling.
-
-		event.preventDefault();
-
-		// Manually set the focus since calling preventDefault above
-		// prevents the browser from setting it automatically.
-
-		(this as any).domElement && super.domElement.focus ? super.domElement.focus() : window.focus();
-
-		if (super.enableRotate === false) {
-			return;
-		}
-
-		(this as any).handleMouseDownRotate(event);
-
-		this.state = super.STATE.ROTATE;
-
-		if (this.state !== super.STATE.NONE) {
-			document.addEventListener('mousemove', super.onMouseMove, false);
-			document.addEventListener('mouseup', super.onMouseUp, false);
-
-			super.dispatchEvent(super.startEvent);
-		}
-	}*/
+	public update: () => void;
 }
