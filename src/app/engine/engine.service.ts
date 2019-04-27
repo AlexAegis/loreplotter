@@ -7,8 +7,8 @@ import { SceneControlService } from './../component/scene-controls/scene-control
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
 import { BehaviorSubject, EMPTY, merge, NEVER, of, interval, ReplaySubject } from 'rxjs';
-import { distinctUntilChanged, finalize, share, switchMap, tap } from 'rxjs/operators';
-import { Vector2, Vector3, WebGLRenderer, Clock } from 'three';
+import { distinctUntilChanged, finalize, share, switchMap, tap, map } from 'rxjs/operators';
+import { Vector2, Vector3, WebGLRenderer, Clock, Color } from 'three';
 import * as THREE from 'three';
 import { OrbitControls, ShaderGodRays } from 'three-full';
 
@@ -35,8 +35,9 @@ import {
 	EffectComposer
 } from 'postprocessing';
 import * as dat from 'dat.gui';
-import { withTeardown } from '../misc/with-teardown.function';
+import { withTeardown } from '../misc/with-teardown.operator';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import { tweenMap } from '../misc/tween-map.operator';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -69,8 +70,6 @@ export class EngineService {
 	public globe: Globe;
 	public indicator: PopupComponent;
 
-	public center = new Vector3(0, 0, 0);
-
 	public textureChange$: ReplaySubject<DynamicTexture> = new ReplaySubject<DynamicTexture>(1);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
@@ -100,6 +99,8 @@ export class EngineService {
 	public drag: Point = undefined;
 
 	public spawnOnWorld = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
+	public permamentDay = new BehaviorSubject<boolean>(true);
+	public manualLightControl = new BehaviorSubject<boolean>(false);
 
 	public composer: EffectComposer;
 	public renderPass: RenderPass;
@@ -141,6 +142,21 @@ export class EngineService {
 		this.globe = new Globe();
 		this.stage.add(this.globe);
 		this.controls = new Control(this.stage.camera, this.renderer.domElement, this.globe);
+
+		const darkToLight = { from: { light: 0 }, to: { light: 1 } };
+		const lightToDark = { from: { light: 1 }, to: { light: 0 } };
+		this.permamentDay
+			.pipe(
+				map(next => (next ? darkToLight : lightToDark)),
+				tweenMap(1000, TWEEN.Easing.Exponential.Out)
+			)
+			.subscribe(({ light }) => {
+				(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
+				this.stage.ambient.intensity = light;
+				this.stage.sun.material.opacity = 1 - light;
+				this.stage.sun.directionalLight.intensity =
+					(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
+			});
 
 		const glowMaterial = new THREE.ShaderMaterial({
 			uniforms: {

@@ -94,7 +94,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 	public constructor(
 		public media: MediaObserver,
 		public loreService: LoreService,
-		private engineService: EngineService
+		public engineService: EngineService
 	) {}
 	public title = 'Lore';
 
@@ -141,7 +141,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 				break;
 		}
 	}
-
 
 	public ngOnDestroy(): void {
 		this.subscriptions.unsubscribe();

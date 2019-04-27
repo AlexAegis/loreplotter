@@ -28,8 +28,8 @@ import { RoutingModule } from './module/routing.module';
 import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
 import { MyHammerConfig } from './hammer-config.class';
 import { DeviceDetectorModule } from 'ngx-device-detector';
-import { SliderComponent } from './component/slider/slider.component';
 import { Ng5SliderModule } from 'ng5-slider';
+import { LightControlComponent } from './component/light-control/light-control.component';
 
 @NgModule({
 	declarations: [
@@ -46,7 +46,7 @@ import { Ng5SliderModule } from 'ng5-slider';
 		BlockComponent,
 		PlayComponent,
 		SceneControlsComponent,
-		SliderComponent
+		LightControlComponent
 	],
 	imports: [
 		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),

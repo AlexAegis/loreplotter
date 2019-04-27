@@ -5,7 +5,7 @@ import { BehaviorSubject, EMPTY, merge, of, NEVER, Subscription } from 'rxjs';
 import { Injectable, OnDestroy } from '@angular/core';
 import { distinctUntilChanged, switchMap, finalize, tap, share } from 'rxjs/operators';
 import { Node } from '@alexaegis/avl';
-import { withTeardown } from 'src/app/misc/with-teardown.function';
+import { withTeardown } from 'src/app/misc/with-teardown.operator';
 
 @Injectable({
 	providedIn: 'root'

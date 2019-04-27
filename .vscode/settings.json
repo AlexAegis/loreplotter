@@ -2,8 +2,21 @@
 	"tslint.alwaysShowRuleFailuresAsWarnings": true,
 	"editor.formatOnSave": true,
 	"editor.autoIndent": true,
-	"editor.quickSuggestions": true,
+	"editor.tabCompletion": "off",
+	"editor.quickSuggestions": {
+		"other": true,
+		"comments": false,
+		"strings": false
+	},
+	"editor.wordBasedSuggestions": true,
+	"editor.suggest.localityBonus": true,
+	"editor.snippetSuggestions": "bottom",
+	"editor.quickSuggestionsDelay": 0,
 	"editor.tabSize": 4,
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true
+	},
+	"typescript.quickSuggestionsForPaths": false,
 	"prettier.useTabs": true,
 	"prettier.tabWidth": 4,
 	"prettier.singleQuote": true,
@@ -25,7 +38,7 @@
 	"files.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,
-		"node_modules": false,
+		"node_modules": true,
 		"coverage": true
 	},
 	"travis.repository": "loreplotter",
@@ -34,9 +47,8 @@
 	"docthis.includeMemberOfOnClassMembers": false,
 	"search.usePCRE2": true,
 	"terminal.integrated.windowsEnableConpty": true,
-	"editor.codeActionsOnSave": {
-		"source.fixAll": true
-	},
+
 	"plantuml.diagramsRoot": "docs/",
-	"plantuml.exportOutDir": "dist/"
+	"plantuml.exportOutDir": "dist/",
+	"typescript.tsdk": "node_modules\\typescript\\lib"
 }

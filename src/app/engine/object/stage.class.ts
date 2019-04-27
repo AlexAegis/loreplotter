@@ -1,5 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js';
 import {
 	Vector2,
 	Vector3,
@@ -20,11 +21,13 @@ import { Lensflare, LensflareElement } from 'three-full';
 import { Sun } from './sun.class';
 import { Basic } from './basic.class';
 import { Atmosphere } from './atmosphere.class';
+import { switchMap, map, auditTime } from 'rxjs/operators';
+import { tweenMap } from 'src/app/misc/tween-map.operator';
 export class Stage extends Scene {
 	public camera: PerspectiveCamera;
 	public sunGroup: Group;
 	public sun: Sun;
-	// private light: THREE.AmbientLight;
+	public ambient: AmbientLight;
 
 	public popupTarget = new BehaviorSubject<Vector2>(null);
 
@@ -58,6 +61,9 @@ export class Stage extends Scene {
 		this.sun.directionalLight.target = this.sunGroup;
 		this.add(this.sunGroup);
 
+		// light mode
+		this.ambient = new AmbientLight('#ffd3a8', 1.2);
+		this.add(this.ambient);
 		// soft white light
 		// this.light = new THREE.AmbientLight(0x002020);
 		// this.light.position.z = 100;

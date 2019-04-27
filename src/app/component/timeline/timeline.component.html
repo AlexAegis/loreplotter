@@ -22,7 +22,7 @@
 		<div
 			#channels
 			class="channel"
-			*ngFor="let actor of (actors$ | async) as actors"
+			*ngFor="let actor of actors$ | async as actors"
 			(tap)="spawnNode($event, actor, block)"
 		>
 			{{ loreService.name(actor) }}

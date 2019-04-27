@@ -25,18 +25,18 @@ export class Water extends Basic {
 			color: new Color('#63a9ff'), // 63acff
 			emissive: new Color('#1b3287'), // 2863a3
 			emissiveIntensity: 0.02,
-			opacity: 0.8,
+			opacity: 0.5,
 			transparent: true,
 			//  alphaMap: this.texture,
 			// blendEquationAlpha: 1.1,
 			// blending: MultiplyBlending,
 			bumpMap: this.texture,
 			bumpScale: 0.0001,
-			roughness: 0.3,
-			metalness: 0.8,
+			roughness: 0.6,
+			metalness: 0.3,
 			reflectivity: 0.3,
-			clearCoat: 0.9,
-			clearCoatRoughness: 0.7
+			clearCoat: 0.3,
+			clearCoatRoughness: 0.8
 		});
 		this.frustumCulled = false;
 		this.name = 'water';

@@ -1,14 +1,11 @@
 {
 	"recommendations": [
-		"karyfoundation.theme-karyfoundation-themes",
-		"dbaeumer.vscode-eslint",
 		"ms-vscode.vscode-typescript-tslint-plugin",
 		"eg2.vscode-npm-script",
 		"esbenp.prettier-vscode",
 		"jasonlhy.hungry-delete",
 		"pkief.material-icon-theme",
 		"robinbentley.sass-indented",
-		"streetsidesoftware.code-spell-checker",
 		"msjsdiag.debugger-for-chrome",
 		"daylerees.rainglow",
 		"wix.vscode-import-cost",
@@ -17,6 +14,7 @@
 		"npxms.hide-gitignored",
 		"cyrilletuzi.angular-schematics",
 		"msjsdiag.debugger-for-chrome",
-		"mikael.angular-beastcode"
+		"mikael.angular-beastcode",
+		"equinusocio.vsc-material-theme"
 	]
 }

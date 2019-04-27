@@ -37,6 +37,7 @@ export class Sun extends Basic {
 	public displacementTexture: DynamicTexture;
 	public emissionTexture: DynamicTexture;
 	public directionalLight: DirectionalLight;
+	public directionalLightBaseIntensity = 0.6;
 	public constructor(public radius: number = 0.6) {
 		super();
 		this.name = 'sun';
@@ -73,7 +74,7 @@ export class Sun extends Basic {
 		});
 
 		this.castShadow = false;
-		this.directionalLight = new DirectionalLight(0xffd3a8, 0.6);
+		this.directionalLight = new DirectionalLight(0xffd3a8, this.directionalLightBaseIntensity);
 		this.directionalLight.castShadow = true;
 		this.directionalLight.receiveShadow = true;
 

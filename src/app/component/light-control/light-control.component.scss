@@ -1,0 +1,9 @@
+:host {
+	margin-left: 0.5rem;
+	div {
+		display: inline-flex;
+		> button {
+			margin-left: 1rem;
+		}
+	}
+}

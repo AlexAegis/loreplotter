@@ -1,8 +1,10 @@
 :host {
 	cursor: pointer;
+
 	svg {
 		position: relative;
-		left: 1rem;
+		transform: translateX(10%) translateY(-25%);
+		//left: 1rem;
 		bottom: -0.5rem;
 	}
 }

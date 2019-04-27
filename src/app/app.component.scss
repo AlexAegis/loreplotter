@@ -72,10 +72,34 @@
 		}
 	}
 
-	.time-controls {
-		position: fixed;
-		bottom: 210px;
-		display: inline;
+	.controls {
+		display: inline-flex;
+		flex-direction: column;
+		height: 100%;
+		> .scene-control {
+			bottom: 210px;
+			display: inline;
+		}
+		> .time-control {
+			position: fixed;
+			bottom: 210px;
+			right: 1rem;
+			display: inline-flex;
+			flex-direction: column;
+			.inlineFromRight {
+				display: inline-flex;
+				direction: rtl;
+				margin-bottom: 0.5rem;
+				> * {
+					margin-left: 0.5rem;
+				}
+			}
+		}
+		> .light-control {
+			position: fixed;
+			bottom: 210px;
+			display: inline;
+		}
 	}
 }
 
