@@ -213,7 +213,6 @@ export class LoreService {
 		map(([c, oc]) => (oc ? oc : c)),
 		shareReplay(1)
 	);
-	public speed = new BehaviorSubject<number>(3600 / 6); // in seconds
 
 	public spawnOnClientOffset = new Subject<Offset>();
 	public overrideNodePosition = new BehaviorSubject<{
@@ -232,7 +231,7 @@ export class LoreService {
 			.pipe(
 				takeUntil(this.stopSubject.pipe(filter(val => val))),
 				filter(i => !this.overrideCursor.value),
-				map(i => this.cursor.value + this.speed.value)
+				map(i => this.cursor.value + this.engineService.speed.value)
 			)
 			.subscribe(i => {
 				this.cursor.next(i);

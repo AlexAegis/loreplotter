@@ -6,8 +6,20 @@ import { ButtonType } from './control/button-type.class';
 import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
-import { BehaviorSubject, EMPTY, merge, NEVER, of, interval, ReplaySubject } from 'rxjs';
-import { distinctUntilChanged, finalize, share, switchMap, tap, map } from 'rxjs/operators';
+import { BehaviorSubject, EMPTY, merge, NEVER, of, interval, ReplaySubject, iif, combineLatest, from } from 'rxjs';
+import {
+	distinctUntilChanged,
+	finalize,
+	share,
+	switchMap,
+	tap,
+	map,
+	mergeMap,
+	take,
+	takeLast,
+	ignoreElements,
+	skipWhile
+} from 'rxjs/operators';
 import { Vector2, Vector3, WebGLRenderer, Clock, Color } from 'three';
 import * as THREE from 'three';
 import { OrbitControls, ShaderGodRays } from 'three-full';
@@ -48,6 +60,8 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 })
 export class EngineService {
 	public clock: Clock;
+
+	public speed = new BehaviorSubject<number>(3600 / 6); // in seconds
 	/**
 	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
 	 * (Since they are shared, side effects will only happen once)
@@ -73,6 +87,7 @@ export class EngineService {
 	public textureChange$: ReplaySubject<DynamicTexture> = new ReplaySubject<DynamicTexture>(1);
 
 	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
+	public zoomSubject: BehaviorSubject<number> = new BehaviorSubject<number>(undefined);
 
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
@@ -99,7 +114,13 @@ export class EngineService {
 	public drag: Point = undefined;
 
 	public spawnOnWorld = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
-	public permamentDay = new BehaviorSubject<boolean>(true);
+	public manualLight = new BehaviorSubject<boolean>(true);
+
+	public autoLight$ = combineLatest([this.zoomSubject, this.speed]).pipe(
+		map(([zoom, speed]) => zoom <= 0.4 || Math.abs(speed) >= 2000),
+		distinctUntilChanged()
+	);
+
 	public manualLightControl = new BehaviorSubject<boolean>(false);
 
 	public composer: EffectComposer;
@@ -139,24 +160,9 @@ export class EngineService {
 		this.renderer.shadowMap.enabled = true;
 		this.stage = new Stage(this);
 		// this.stage.add(new THREE.AxesHelper(5));
-		this.globe = new Globe();
+		this.globe = new Globe(this.zoomSubject);
 		this.stage.add(this.globe);
-		this.controls = new Control(this.stage.camera, this.renderer.domElement, this.globe);
-
-		const darkToLight = { from: { light: 0 }, to: { light: 1 } };
-		const lightToDark = { from: { light: 1 }, to: { light: 0 } };
-		this.permamentDay
-			.pipe(
-				map(next => (next ? darkToLight : lightToDark)),
-				tweenMap(1000, TWEEN.Easing.Exponential.Out)
-			)
-			.subscribe(({ light }) => {
-				(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
-				this.stage.ambient.intensity = light;
-				this.stage.sun.material.opacity = 1 - light;
-				this.stage.sun.directionalLight.intensity =
-					(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
-			});
+		this.controls = new Control(this.zoomSubject, this.stage.camera, this.renderer.domElement, this.globe);
 
 		const glowMaterial = new THREE.ShaderMaterial({
 			uniforms: {
@@ -174,7 +180,7 @@ export class EngineService {
 
 		const glow = new THREE.Mesh(new THREE.SphereBufferGeometry(this.globe.radius, 60, 60), glowMaterial);
 
-		glow.scale.multiplyScalar(1.04);
+		glow.scale.setScalar(1.04);
 		this.stage.add(glow);
 		// PostProcessing
 
@@ -270,6 +276,35 @@ adaptive: true,
 
 		this.composer.addPass(this.renderPass);
 		this.composer.addPass(this.pass);
+
+		const darkToLight = { from: { light: 0 }, to: { light: 1 } };
+		const lightToDark = { from: { light: 1 }, to: { light: 0 } };
+
+		combineLatest([this.manualLightControl, this.manualLight, this.autoLight$])
+			.pipe(
+				map(([manual, permaDay, auto]) => (manual ? permaDay : auto)),
+				map(next => (next ? darkToLight : lightToDark)),
+				tweenMap(1000, TWEEN.Easing.Exponential.Out)
+			)
+			.subscribe(({ light }) => {
+				(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
+				glow.scale.setScalar(light * 0.65 + 0.05);
+				this.stage.ambient.intensity = light;
+				this.stage.sun.material.opacity = 1 - light;
+				this.stage.sun.directionalLight.intensity =
+					(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
+			});
+
+		/**
+			 *
+			 * mergeMap(([permaDay, manual]) =>
+					iif(
+						() => manual,
+						of(permaDay),
+						this.autoLight$.pipe(tap(e => console.log(`what are youi doing: ${e}`)))
+					)
+				),
+			 */
 	}
 
 	spawnActor(coord: Vector2): void {

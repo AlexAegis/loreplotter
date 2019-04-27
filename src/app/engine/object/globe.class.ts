@@ -1,5 +1,5 @@
-import { Subject } from 'rxjs';
-import { auditTime, scan, map } from 'rxjs/operators';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { auditTime, scan, map, tap } from 'rxjs/operators';
 import { Mode } from 'src/app/component/scene-controls/scene-control.service';
 import * as THREE from 'three';
 import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
@@ -21,7 +21,11 @@ export class Globe extends Basic {
 	public displacementBias = -0.0345;
 	public displacementScale = 0.15;
 
-	public constructor(public radius: number = 0.99, public initialDisplacementTexture?: string) {
+	public constructor(
+		private zoomSubject: BehaviorSubject<number>,
+		public radius: number = 0.99,
+		public initialDisplacementTexture?: string
+	) {
 		super();
 		this.type = 'Globe';
 		this.name = 'globe';
@@ -80,6 +84,9 @@ export class Globe extends Basic {
 		this.water = new Water(radius * 0.98);
 		this.add(this.water);
 
+		this.zoomSubject /*.pipe(tap(z => console.log(`z: ${z}`)))*/
+			.subscribe(this.pointUpdateAudit);
+
 		this.pointUpdateAudit
 			.pipe(
 				auditTime(1000 / 60),
@@ -87,6 +94,7 @@ export class Globe extends Basic {
 			)
 			.subscribe(next => {
 				this.points.forEach(point => (point as Point).updateHeightAndWorldPosAndScale(next));
+				this.changed();
 			});
 	}
 

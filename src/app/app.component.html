@@ -15,16 +15,16 @@
 		<app-scene-controls class="scene-control"></app-scene-controls>
 		<div class="time-control">
 			<div class="inlineFromRight">
-				<button mat-mini-fab [color]="'basic'" (click)="loreService.speed.next(1)">1X</button>
-				<button mat-mini-fab [color]="'basic'" (click)="loreService.speed.next(2)">2X</button>
-				<button mat-mini-fab [color]="'basic'" (click)="loreService.speed.next(4)">4X</button>
-				<button mat-mini-fab [color]="'basic'" (click)="loreService.speed.next(10)">10X</button>
-				<button mat-mini-fab [color]="'basic'" (click)="loreService.speed.next(100)">100X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="engineService.speed.next(1)">1X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="engineService.speed.next(2)">2X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="engineService.speed.next(4)">4X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="engineService.speed.next(10)">10X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="engineService.speed.next(100)">100X</button>
 			</div>
 			<div class="inlineFromRight">
 				<app-play #play (tap)="timeline.playOrPause(play.play)"></app-play>
 				<div class="slider">
-					<ng5-slider [(value)]="loreService.speed.value" [options]="sliderOptions"></ng5-slider>
+					<ng5-slider [(value)]="engineService.speed.value" [options]="sliderOptions"></ng5-slider>
 				</div>
 			</div>
 		</div>

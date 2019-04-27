@@ -2,20 +2,26 @@ import { OrbitControls } from 'three-full';
 import { Globe } from '../object/globe.class';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
+import { BehaviorSubject } from 'rxjs';
 export class Control extends OrbitControls {
-	public constructor(camera: THREE.Camera, canvas: HTMLCanvasElement, globe: Globe) {
+	public constructor(
+		private zoomSubject: BehaviorSubject<number>,
+		camera: THREE.Camera,
+		canvas: HTMLCanvasElement,
+		globe: Globe
+	) {
 		super(camera, canvas);
 		this.enableDamping = true;
 		this.enableZoom = true;
 		this.enablePan = false; // moving the camera in a plane is disabled, only rotation is allowed
-		this.zoomSpeed = 10.0;
+		this.zoomSpeed = 6.0;
 		this.dampingFactor = 0.25;
 		this.minDistance = this.minZoom = 100;
 		this.maxDistance = this.maxZoom = 4000;
 		this.rotateSpeed = 0.05;
 		this.addEventListener('change', e => {
 			// TODO: Only on zoom change
-			globe.pointUpdateAudit.next(
+			this.zoomSubject.next(
 				THREE.Math.mapLinear(
 					(e.target.object.position as Vector3).distanceTo(globe.position),
 					this.minDistance,
@@ -23,8 +29,7 @@ export class Control extends OrbitControls {
 					0.2,
 					2
 				)
-			); // [100 - 4000]
-			globe.changed();
+			);
 		});
 
 		// (this as any).domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
