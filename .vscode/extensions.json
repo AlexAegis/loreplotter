@@ -15,6 +15,7 @@
 		"cyrilletuzi.angular-schematics",
 		"msjsdiag.debugger-for-chrome",
 		"mikael.angular-beastcode",
-		"equinusocio.vsc-material-theme"
+		"equinusocio.vsc-material-theme",
+		"rbbit.typescript-hero"
 	]
 }

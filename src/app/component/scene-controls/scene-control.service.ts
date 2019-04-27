@@ -1,13 +1,13 @@
-import { BehaviorSubject, merge, EMPTY, NEVER, of } from 'rxjs';
 import { Injectable } from '@angular/core';
 import {
-	faArrowsAlt,
-	faAngleDoubleUp,
-	faAngleDoubleDown,
-	faPencilAlt,
-	IconDefinition
+    faAngleDoubleDown,
+    faAngleDoubleUp,
+    faArrowsAlt,
+    faPencilAlt,
+    IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
-import { distinctUntilChanged, switchMap, tap, finalize, share } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
+import { distinctUntilChanged, share } from 'rxjs/operators';
 import { withTeardown } from 'src/app/misc/with-teardown.operator';
 
 export interface Modes {

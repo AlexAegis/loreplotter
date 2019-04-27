@@ -68,7 +68,7 @@ export class LoreService {
 			.subscribe(({ lore, att }) => {
 				engineService.globe.radius = lore.planet.radius;
 				engineService.globe.displacementTexture.loadFromBlob(att);
-				engineService.globe.changed();
+				engineService.refreshPopupPosition();
 			});
 
 		// This subscriber's job is to map each actors state to the map based on the current cursor
@@ -148,7 +148,7 @@ export class LoreService {
 					delete group.userData.override;
 				}
 
-				engineService.globe.changed();
+				engineService.refreshPopupPosition();
 			});
 
 		// This subsriptions job is to create a brand new actor

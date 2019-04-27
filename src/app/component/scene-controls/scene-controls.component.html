@@ -6,19 +6,19 @@
 >
 	<fa-icon [icon]="mode.icon" [size]="iconSize"></fa-icon>
 </button>
-Height:
-<mat-slider
-	min="0"
-	max="1"
-	step="0.01"
-	(input)="sceneControlService.valueSlider.next($event.value)"
-	[value]="sceneControlService.valueSlider.value"
-></mat-slider>
-Size:
-<mat-slider
-	min="1"
-	max="1000"
-	step="0.1"
-	(input)="sceneControlService.sizeSlider.next($event.value)"
-	[value]="sceneControlService.sizeSlider.value"
-></mat-slider>
+<span>Height:</span>
+<div class="slider">
+	<ng5-slider
+		[options]="heightSliderOptions"
+		(valueChange)="sceneControlService.valueSlider.next($event)"
+		[value]="sceneControlService.valueSlider.value"
+	></ng5-slider>
+</div>
+<span>Size:</span>
+<div class="slider">
+	<ng5-slider
+		[options]="sizeSliderOptions"
+		(valueChange)="sceneControlService.sizeSlider.next($event)"
+		[value]="sceneControlService.sizeSlider.value"
+	></ng5-slider>
+</div>

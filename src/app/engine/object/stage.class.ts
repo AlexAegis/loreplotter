@@ -29,8 +29,6 @@ export class Stage extends Scene {
 	public sun: Sun;
 	public ambient: AmbientLight;
 
-	public popupTarget = new BehaviorSubject<Vector2>(null);
-
 	constructor(public engineService: EngineService) {
 		super();
 

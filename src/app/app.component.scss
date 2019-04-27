@@ -78,7 +78,6 @@
 		height: 100%;
 		> .scene-control {
 			bottom: 210px;
-			display: inline;
 		}
 		> .time-control {
 			position: fixed;
@@ -100,54 +99,5 @@
 			bottom: 210px;
 			display: inline;
 		}
-	}
-}
-
-::ng-deep {
-	.slider {
-		width: 12rem;
-	}
-	.slider .ng5-slider .ng5-slider-bar {
-		background: #ffe4d1;
-		height: 2px;
-	}
-	.slider .ng5-slider .ng5-slider-selection {
-		background: orange;
-	}
-
-	.slider .ng5-slider .ng5-slider-pointer {
-		width: 8px;
-		height: 16px;
-		top: auto; /* to remove the default positioning */
-		bottom: 0;
-		background-color: #333;
-		border-top-left-radius: 3px;
-		border-top-right-radius: 3px;
-	}
-
-	.slider .ng5-slider .ng5-slider-pointer:after {
-		display: none;
-	}
-
-	.slider .ng5-slider .ng5-slider-bubble {
-		bottom: 14px;
-	}
-
-	.slider .ng5-slider .ng5-slider-limit {
-		font-weight: bold;
-		color: orange;
-	}
-
-	.slider .ng5-slider .ng5-slider-tick {
-		width: 1px;
-		height: 10px;
-		margin-left: 4px;
-		border-radius: 0;
-		background: #ffe4d1;
-		top: -1px;
-	}
-
-	.slider .ng5-slider .ng5-slider-tick.ng5-slider-selected {
-		background: orange;
 	}
 }

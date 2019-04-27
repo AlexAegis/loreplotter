@@ -1,55 +1,36 @@
-import { DynamicTexture } from './object/dynamic-texture.class';
-import { atmosphereShader } from './shader/atmosphere.shader';
-import { Atmosphere } from './object/atmosphere.class';
-import { TextureDelta } from './../model/texture-delta.class';
-import { ButtonType } from './control/button-type.class';
-import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Injectable } from '@angular/core';
 import * as TWEEN from '@tweenjs/tween.js';
-import { BehaviorSubject, EMPTY, merge, NEVER, of, interval, ReplaySubject, iif, combineLatest, from } from 'rxjs';
+import { DeviceDetectorService } from 'ngx-device-detector';
 import {
-	distinctUntilChanged,
-	finalize,
-	share,
-	switchMap,
-	tap,
-	map,
-	mergeMap,
-	take,
-	takeLast,
-	ignoreElements,
-	skipWhile
-} from 'rxjs/operators';
-import { Vector2, Vector3, WebGLRenderer, Clock, Color } from 'three';
+    BlendFunction,
+    BloomEffect,
+    EffectComposer,
+    EffectPass,
+    GodRaysEffect,
+    KernelSize,
+    OutlineEffect,
+    RenderPass,
+    ToneMappingEffect,
+    VignetteEffect,
+} from 'postprocessing';
+import { BehaviorSubject, combineLatest, from, ReplaySubject } from 'rxjs';
+import { distinctUntilChanged, map, share, tap } from 'rxjs/operators';
+import { Clock, Color, Raycaster, Vector2, Vector3, WebGLRenderer } from 'three';
 import * as THREE from 'three';
-import { OrbitControls, ShaderGodRays } from 'three-full';
+import { OrbitControls } from 'three-full';
+import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 
 import { PopupComponent } from '../component/popup/popup.component';
-import { DatabaseService } from './../database/database.service';
+import { tweenMap } from '../misc/tween-map.operator';
+import { withTeardown } from '../misc/with-teardown.operator';
+import { SceneControlService } from './../component/scene-controls/scene-control.service';
+import { Control } from './control/control.class';
+import { denormalize } from './helper/denormalize.function';
+import { DynamicTexture } from './object/dynamic-texture.class';
 import { Globe } from './object/globe.class';
 import { Point } from './object/point.class';
 import { Stage } from './object/stage.class';
-import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
-import { Control } from './control/control.class';
-import { Planet } from '../model/planet.class';
-
-import {
-	BlendFunction,
-	EffectPass,
-	GodRaysEffect,
-	KernelSize,
-	SMAAEffect,
-	RenderPass,
-	BloomEffect,
-	VignetteEffect,
-	ToneMappingEffect,
-	OutlineEffect,
-	EffectComposer
-} from 'postprocessing';
-import * as dat from 'dat.gui';
-import { withTeardown } from '../misc/with-teardown.operator';
-import { DeviceDetectorService } from 'ngx-device-detector';
-import { tweenMap } from '../misc/tween-map.operator';
+import { atmosphereShader } from './shader/atmosphere.shader';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -59,65 +40,70 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 	providedIn: 'root'
 })
 export class EngineService {
-	public clock: Clock;
+	// Rendering
+	public clock = new Clock(); // Clock for the renderer
+	private renderer: WebGLRenderer;
+	public raycaster = new Raycaster();
 
-	public speed = new BehaviorSubject<number>(3600 / 6); // in seconds
-	/**
-	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
-	 * (Since they are shared, side effects will only happen once)
-	 */
-	constructor(
-		private databaseService: DatabaseService,
-		public sceneControlService: SceneControlService,
-		private deviceService: DeviceDetectorService
-	) {
-		this.clock = new Clock();
-		this.selection$.subscribe();
-		this.hover$.subscribe();
-	}
-	private renderer: THREE.WebGLRenderer;
+	// Postprocessing
+	public composer: EffectComposer;
+	public renderPass: RenderPass;
+	public godRays: GodRaysEffect;
+	public bloomEffect: BloomEffect;
+	public vignetteEffect: VignetteEffect;
+	public toneMappingEffect: ToneMappingEffect;
+	public hoverOutlineEffect: OutlineEffect;
+	public selectOutlineEffect: OutlineEffect;
+	public pass: EffectPass;
 
+	// 3D Objects
 	public stage: Stage;
 	public controls: OrbitControls;
-
-	public raycaster: THREE.Raycaster = new THREE.Raycaster();
 	public globe: Globe;
+
+	// Playback
+	public speed = new BehaviorSubject<number>(3600 / 6); // Current speed of the playback in seconds
+
+	// Selection
+	public popupTarget = new BehaviorSubject<Vector2>(null);
 	public indicator: PopupComponent;
 
-	public textureChange$: ReplaySubject<DynamicTexture> = new ReplaySubject<DynamicTexture>(1);
-
-	public selected: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
-	public zoomSubject: BehaviorSubject<number> = new BehaviorSubject<number>(undefined);
-
+	public selected = new BehaviorSubject<Point>(undefined); // Selected Actor on map, and it's current position
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
 		withTeardown(
 			item => this.selectOutlineEffect.setSelection([item]),
 			item => () => this.selectOutlineEffect.deselectObject(item)
 		),
-		tap(() => this.globe.changed()),
+		tap(() => this.refreshPopupPosition()),
 		share()
 	);
 
+	// Hover
 	public hovered: BehaviorSubject<Point> = new BehaviorSubject<Point>(undefined);
-
 	public hover$ = this.hovered.pipe(
 		distinctUntilChanged(),
 		withTeardown(
 			item => this.hoverOutlineEffect.setSelection([item]),
 			item => () => this.hoverOutlineEffect.deselectObject(item)
 		),
-		tap(() => this.globe.changed()),
+		tap(() => this.refreshPopupPosition()),
 		share()
 	);
 
-	public drag: Point = undefined;
+	// Zoom
+	public zoomSubject: BehaviorSubject<number> = new BehaviorSubject<number>(undefined);
 
+	// Drag
+	public drag: Point = undefined;
 	public spawnOnWorld = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
 
+	// Draw
+	public textureChange$ = new ReplaySubject<DynamicTexture>(1);
+
+	// Light Control
 	public manualLightControl = new BehaviorSubject<boolean>(false);
 	public manualLight = new BehaviorSubject<boolean>(true);
-
 	public autoLight$ = combineLatest([this.zoomSubject, this.speed]).pipe(
 		map(([zoom, speed]) => zoom <= 0.4 || Math.abs(speed) >= 2000),
 		distinctUntilChanged()
@@ -133,19 +119,14 @@ export class EngineService {
 		share()
 	);
 
-	public composer: EffectComposer;
-	public renderPass: RenderPass;
-	public godRays: GodRaysEffect;
-	public bloomEffect: BloomEffect;
-	public vignetteEffect: VignetteEffect;
-	public toneMappingEffect: ToneMappingEffect;
-	public hoverOutlineEffect: OutlineEffect;
-	public selectOutlineEffect: OutlineEffect;
-	public pass: EffectPass;
-
-	public atmosphere: Atmosphere;
-
-	private postprocessing: boolean;
+	/**
+	 * These subscribtions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
+	 * (Since they are shared, side effects will only happen once)
+	 */
+	constructor(public sceneControlService: SceneControlService, private deviceService: DeviceDetectorService) {
+		this.selection$.subscribe();
+		this.hover$.subscribe();
+	}
 
 	public createScene(canvas: HTMLCanvasElement): void {
 		const isDesktopDevice = this.deviceService.isDesktop();
@@ -169,7 +150,6 @@ export class EngineService {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMap.enabled = true;
 		this.stage = new Stage(this);
-		// this.stage.add(new THREE.AxesHelper(5));
 		this.globe = new Globe(this.zoomSubject);
 		this.stage.add(this.globe);
 		this.controls = new Control(this.zoomSubject, this.stage.camera, this.renderer.domElement, this.globe);
@@ -189,9 +169,22 @@ export class EngineService {
 		});
 
 		const glow = new THREE.Mesh(new THREE.SphereBufferGeometry(this.globe.radius, 60, 60), glowMaterial);
-
 		glow.scale.setScalar(1.04);
 		this.stage.add(glow);
+		this.initializePostprocessing();
+
+		// Light and Dark mode change on the scene, for the UI, check subscriber in the AppComponent
+		this.light$.subscribe(({ light }) => {
+			(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
+			glow.scale.setScalar(light * 0.65 + 0.05);
+			this.stage.ambient.intensity = light;
+			this.stage.sun.material.opacity = 1 - light;
+			this.stage.sun.directionalLight.intensity =
+				(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
+		});
+	}
+
+	private initializePostprocessing(): void {
 		// PostProcessing
 
 		this.composer = new EffectComposer(this.renderer, {
@@ -257,17 +250,6 @@ export class EngineService {
 			xRay: true
 		});
 
-		/*
-adaptive: true,
-			resolution: 256,
-			distinction: 2.0,
-			middleGrey: 0.6,
-			maxLuminance: 16.0,
-			averageLuminance: 1.0,
-			adaptationRate: 5.0
-
-		*/
-
 		this.bloomEffect.blendMode.opacity.value = 3.1;
 
 		this.godRays.dithering = true;
@@ -286,26 +268,6 @@ adaptive: true,
 
 		this.composer.addPass(this.renderPass);
 		this.composer.addPass(this.pass);
-
-		this.light$.subscribe(({ light }) => {
-			(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
-			glow.scale.setScalar(light * 0.65 + 0.05);
-			this.stage.ambient.intensity = light;
-			this.stage.sun.material.opacity = 1 - light;
-			this.stage.sun.directionalLight.intensity =
-				(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
-		});
-
-		/**
-			 *
-			 * mergeMap(([permaDay, manual]) =>
-					iif(
-						() => manual,
-						of(permaDay),
-						this.autoLight$.pipe(tap(e => console.log(`what are youi doing: ${e}`)))
-					)
-				),
-			 */
 	}
 
 	spawnActor(coord: Vector2): void {
@@ -451,12 +413,7 @@ adaptive: true,
 	 * Start the rendering process
 	 */
 	public animate(): void {
-		if (this.renderer.context.getSupportedExtensions().indexOf('EXT_frag_depth') >= 0) {
-			this.postprocessing = true;
-		} else {
-			this.postprocessing = false; // TODO: duh
-		}
-
+		// this.renderer.context.getSupportedExtensions().indexOf('EXT_frag_depth') >= 0 // Checking feature availability
 		window.addEventListener('DOMContentLoaded', () => {
 			this.render();
 		});
@@ -481,11 +438,20 @@ adaptive: true,
 	/**
 	 * Adjust camera and renderer on resize
 	 */
-	public resize() {
+	private resize() {
 		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
 		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.composer.setSize(window.innerWidth, window.innerHeight);
-		this.globe.changed();
+		this.refreshPopupPosition();
+	}
+
+	public refreshPopupPosition() {
+		const point: Point = this.selected.value;
+		if (point) {
+			this.popupTarget.next(denormalize(point.getWorldPosition(new Vector3()).project(this.stage.camera)));
+		} else {
+			this.popupTarget.next(undefined);
+		}
 	}
 }

@@ -22,16 +22,5 @@ export class Basic extends THREE.Mesh {
 		return <Stage>o;
 	}
 
-	public changed() {
-		const stage = this.stage;
-		if (stage) {
-			const camera: THREE.Camera = <THREE.Camera>stage.getObjectByName('camera');
-			const point: Point = stage.engineService.selected.value;
-			if (point) {
-				this.stage.popupTarget.next(denormalize(point.getWorldPosition(new Vector3()).project(camera)));
-			} else {
-				this.stage.popupTarget.next(undefined);
-			}
-		}
-	}
+	public changed() {}
 }

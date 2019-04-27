@@ -47,8 +47,8 @@
 	"docthis.includeMemberOfOnClassMembers": false,
 	"search.usePCRE2": true,
 	"terminal.integrated.windowsEnableConpty": true,
-
 	"plantuml.diagramsRoot": "docs/",
 	"plantuml.exportOutDir": "dist/",
-	"typescript.tsdk": "node_modules\\typescript\\lib"
+	"typescript.tsdk": "node_modules\\typescript\\lib",
+	"typescriptHero.imports.organizeOnSave": true
 }

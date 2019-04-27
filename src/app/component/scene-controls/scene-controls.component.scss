@@ -1,11 +1,24 @@
 :host {
 	//position: fixed;
 	top: 0px;
-	//display: inline;
+	display: inline-block;
 	margin: 0.2rem;
+	color: white;
 
 	> * {
 		margin-right: 0.4rem;
+		float: left;
+		line-height: 2rem;
+	}
+
+	> span {
+		display: inline-block;
+		vertical-align: middle;
+	}
+
+	span,
+	button {
+		margin-top: 1rem;
 	}
 
 	.active {
