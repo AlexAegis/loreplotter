@@ -432,8 +432,8 @@ adaptive: true,
 		}
 	}
 
-	putCurve(from: Vector3, to: Vector3): void {
-		this.globe.putCurve(from, to);
+	putCurve(_from: Vector3, _to: Vector3): void {
+		this.globe.putCurve(_from, _to);
 	}
 
 	public hover(coord: Vector2) {
