@@ -289,6 +289,8 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	@HostListener('panend', ['$event'])
 	public pan($event: any) {
 		$event.stopPropagation();
+		console.log('hello');
+		console.log($event);
 		if ($event.type === 'panstart') {
 			this.isPanning = true;
 			for (const node of this.actor.states.nodes()) {

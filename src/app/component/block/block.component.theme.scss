@@ -1,0 +1,19 @@
+@import '~@angular/material/theming';
+
+@mixin block-component-theme($theme) {
+	$primary: map-get($theme, primary);
+	$accent: map-get($theme, accent);
+	$warn: map-get($theme, warn);
+
+	app-block {
+		background-color: rgba(mat-color($primary, 'darker'), 0.1);
+		.node {
+			outline: 2px solid rgba(mat-color($primary, 'darker'), 0.6);
+			background-color: rgba(mat-color($primary, 'darker'), 0.8);
+		}
+
+		.remove {
+			color: mat-color($primary, 'lighter');
+		}
+	}
+}

@@ -1,0 +1,12 @@
+@import '~@angular/material/theming';
+
+@mixin hamburger-component-theme($theme) {
+	$background: map-get($theme, background);
+	$primary: map-get($theme, primary);
+
+	div > span {
+		background-color: mat-color($primary);
+
+		filter: invert(100%);
+	}
+}

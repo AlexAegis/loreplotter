@@ -1,61 +1,52 @@
-/* You can add global styles to this file, and also import other style files */
-// Custom Theming for Angular Material
-// For more information: https://material.angular.io/guide/theming
+@import 'variables.scss';
 @import '~@angular/material/theming';
-// Plus imports for other components in your app.
-$ph-bg: rgba(255, 255, 255, 0.356) !default;
 
 // @import 'node_modules/placeholder-loading/src/scss/placeholder-loading';
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
 @include mat-core();
-// Typography
-/*$custom-typography: mat-typography-config(
-	$font-family: Lato,
-	$headline: mat-typography-level(24px, 48px, 400),
-	$body-1: mat-typography-level(16px, 24px, 400)
-);
-@include angular-material-typography($custom-typography);*/
 
-@import './palette.scss';
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
+@import 'theme/default.theme.scss';
+@import 'theme/light.theme.scss';
+@import 'theme/dark.theme.scss';
 
-/* You can add global styles to this file, and also import other style files */
+@import '../app/app.component.theme.scss';
+@import '../app/component/sidebar/sidebar.component.theme.scss';
+@import '../app/component/hamburger/hamburger.component.theme.scss';
+@import '../app/component/timeline/timeline.component.theme.scss';
+@import '../app/component/cursor/cursor.component.theme.scss';
+@import '../app/component/block/block.component.theme.scss';
+
+@mixin custom-components-theme($theme) {
+	@include app-component-theme($theme);
+	@include sidebar-component-theme($theme);
+	@include hamburger-component-theme($theme);
+	@include timeline-component-theme($theme);
+	@include cursor-component-theme($theme);
+	@include block-component-theme($theme);
+}
+
+.default-theme {
+	@include angular-material-theme($default-theme);
+	@include custom-components-theme($default-theme);
+}
+
+.light-theme {
+	@include angular-material-theme($light-theme);
+	@include custom-components-theme($light-theme);
+}
+
+.dark-theme {
+	@include angular-material-theme($dark-theme);
+	@include custom-components-theme($dark-theme);
+}
 
 body {
 	font-family: Roboto, 'Helvetica Neue', sans-serif;
-	// color: #fafafa;
 	overflow: hidden;
 	margin: 0;
 	user-select: none;
-	transition: color 3s;
-	/*background-image: linear-gradient(-10deg, map-get($back, 800), map-get($back, 800));*/
-}
-
-@for $i from 1 through 100 {
-	.width-#{$i} {
-		width: #{percentage($i/100)};
-	}
-
-	.height-#{$i} {
-		height: #{percentage($i/100)};
-	}
-}
-
-.fixed-bottom {
-	bottom: 0;
-	position: absolute;
-}
-.fixed-right {
-	right: 0;
-	position: absolute;
-}
-
-.hidden {
-	display: none;
 }
 
 .lit:before {
@@ -104,19 +95,6 @@ body {
 	&:active {
 		background-color: rgba(36, 36, 36, 0.7) !important;
 	}
-}
-
-.window {
-	position: fixed;
-	top: 4rem;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	height: calc(100vh - 4rem);
-}
-
-.dg.ac {
-	z-index: 9999999999999 !important;
 }
 
 .slider {

@@ -1,3 +1,5 @@
+import * as Hammer from 'hammerjs/hammer';
+
 /**
  * * Enabling other mouse buttons for the events https://stackoverflow.com/a/30053420
  * TODO: Test on other browsers

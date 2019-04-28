@@ -16,7 +16,6 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll": true
 	},
-	"typescript.quickSuggestionsForPaths": false,
 	"prettier.useTabs": true,
 	"prettier.tabWidth": 4,
 	"prettier.singleQuote": true,
@@ -49,6 +48,5 @@
 	"terminal.integrated.windowsEnableConpty": true,
 	"plantuml.diagramsRoot": "docs/",
 	"plantuml.exportOutDir": "dist/",
-	"typescript.tsdk": "node_modules\\typescript\\lib",
-	"typescriptHero.imports.organizeOnSave": true
+	"typescript.tsdk": "node_modules\\typescript\\lib"
 }

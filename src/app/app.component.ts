@@ -98,13 +98,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 		public engineService: EngineService,
 		public overlayContainer: OverlayContainer
 	) {
-		this.engineService.light$.subscribe(lum => {
-			if (lum.light <= 0.5) {
-				this.setTheme('dark');
-			} else {
-				this.setTheme('light');
-			}
-		});
+		this.setTheme('default-theme');
+		this.subscriptions.add(
+			this.engineService.light$.subscribe(lum => {
+				if (lum.light <= 0.5) {
+					this.setTheme('dark-theme');
+				} else {
+					this.setTheme('light-theme');
+				}
+			})
+		);
 	}
 
 	public title = 'Lore';
