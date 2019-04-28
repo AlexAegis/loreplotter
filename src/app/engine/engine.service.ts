@@ -161,7 +161,7 @@ export class EngineService {
 			downScaleFactor = 2;
 		}
 		this.renderer.setPixelRatio(window.devicePixelRatio / downScaleFactor);
-		this.renderer.gammaInput = true;
+		this.renderer.gammaInput = false;
 		this.renderer.gammaOutput = true;
 		this.renderer.setClearColor(0x000000, 0.0);
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -194,8 +194,8 @@ export class EngineService {
 		this.light$.subscribe(({ light }) => {
 			(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
 			glow.scale.setScalar(light * 0.65 + 0.05);
-			this.stage.ambient.intensity = light;
-			this.stage.sun.material.opacity = 1 - light;
+			this.stage.ambient.intensity = light * 0.5;
+			this.stage.sun.material.opacity = (1 - light) * 0.5;
 			this.stage.sun.directionalLight.intensity =
 				(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
 		});
@@ -225,9 +225,9 @@ export class EngineService {
 
 		this.bloomEffect = new BloomEffect({
 			blendFunction: BlendFunction.SCREEN,
-			kernelSize: KernelSize.SMALL,
+			kernelSize: KernelSize.LARGE,
 			resolutionScale: 0.5,
-			distinction: 1.0
+			distinction: 1.2
 		});
 
 		this.vignetteEffect = new VignetteEffect({

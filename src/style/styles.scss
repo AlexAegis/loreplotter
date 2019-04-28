@@ -17,6 +17,7 @@
 @import '../app/component/timeline/timeline.component.theme.scss';
 @import '../app/component/cursor/cursor.component.theme.scss';
 @import '../app/component/block/block.component.theme.scss';
+@import '../app/component/popup/popup.component.theme.scss';
 
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);
@@ -25,6 +26,7 @@
 	@include timeline-component-theme($theme);
 	@include cursor-component-theme($theme);
 	@include block-component-theme($theme);
+	@include popup-component-theme($theme);
 }
 
 .default-theme {
@@ -143,4 +145,8 @@ body {
 	> .ng5-slider .ng5-slider-tick.ng5-slider-selected {
 		background: orange;
 	}
+}
+
+.dg.ac {
+	z-index: 9999 !important;
 }

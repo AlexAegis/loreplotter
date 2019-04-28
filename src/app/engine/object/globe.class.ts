@@ -12,6 +12,7 @@ import { ActorObject } from './actor-object.class';
 import { Water } from './water.class';
 import { RxDocument } from 'rxdb';
 import { Actor } from 'src/app/model/actor.class';
+import * as dat from 'dat.gui';
 
 export class Globe extends Basic {
 	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
@@ -38,8 +39,9 @@ export class Globe extends Basic {
 		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas, this);
 
 		this.material = new THREE.MeshStandardMaterial({
-			emissive: '#CFBFAF',
-			emissiveIntensity: 0.003,
+			color: '#666666',
+			emissive: '#ffffff',
+			emissiveIntensity: 0.023,
 			displacementMap: this.displacementTexture,
 			emissiveMap: this.displacementTexture,
 			metalnessMap: this.displacementTexture,
@@ -55,6 +57,39 @@ export class Globe extends Basic {
 			// clearCoatRoughness: 0.9
 		});
 
+		class GuiConf {
+			constructor(private material) {}
+			set color(color: string) {
+				this.material.color.setHex(color);
+			}
+
+			get color() {
+				return this.material.color.getHex();
+			}
+
+			set emissive(color: string) {
+				this.material.emissive.setHex(color);
+			}
+
+			get emissive() {
+				return this.material.emissive.getHex();
+			}
+
+			set emissiveIntensity(intensity: number) {
+				this.material.emissiveIntensity = intensity;
+			}
+
+			get emissiveIntensity() {
+				return this.material.emissiveIntensity;
+			}
+
+			size: number = 0;
+		}
+		const guiObj = new GuiConf(this.material);
+		const gui = new dat.GUI();
+		gui.addColor(guiObj, 'color');
+		gui.addColor(guiObj, 'emissive');
+		gui.add(guiObj, 'emissiveIntensity', 0, 0.5, 0.001);
 		this.receiveShadow = true;
 		this.castShadow = true;
 		/*texture.onUpdate = () => {

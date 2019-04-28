@@ -5,6 +5,7 @@ import { Vector3 } from 'three';
 import { Globe } from './globe.class';
 import { RxDocument } from 'rxdb';
 import { Actor } from 'src/app/model/actor.class';
+import * as dat from 'dat.gui';
 
 export class ActorObject extends Basic {
 	public lastWorldPosition = new Vector3();
@@ -16,10 +17,7 @@ export class ActorObject extends Basic {
 		this.position.set(0, 0, 1);
 		this.rotateX(90 * THREE.Math.DEG2RAD);
 		this.material = new THREE.MeshBasicMaterial({
-			wireframe: false,
-			opacity: 0.8,
-			transparent: false,
-			color: 0xaa4444
+			color: 0x1a56e6
 		});
 		(this.geometry as any).computeFaceNormals();
 		this.geometry.computeVertexNormals();
@@ -31,6 +29,23 @@ export class ActorObject extends Basic {
 			this.updateHeightAndWorldPosAndScale();
 			this.parent.userData.override = true;
 		});
+
+		/*class GuiConf {
+			constructor(private material) {}
+			set color(color: string) {
+				this.material.color.setHex(color);
+			}
+
+			get color() {
+				return this.material.color.getHex();
+			}
+
+			size: number = 0;
+		}
+		const guiObj = new GuiConf(this.material);
+		const gui = new dat.GUI();
+		gui.addColor(guiObj, 'color');
+		gui.add(guiObj, 'size');*/
 	}
 
 	public updateHeightAndWorldPosAndScale(scalarScale?: number): void {
