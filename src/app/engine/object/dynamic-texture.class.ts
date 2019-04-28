@@ -3,7 +3,7 @@ import { Subject, race, interval, BehaviorSubject } from 'rxjs';
 import { debounceTime, debounce, throttleTime, auditTime, audit } from 'rxjs/operators';
 import * as THREE from 'three';
 import { Globe } from './globe.class';
-import { Point } from './point.class';
+import { ActorObject } from './actor-object.class';
 
 export class DynamicTexture extends CanvasTexture {
 	public drawEnabled = true;

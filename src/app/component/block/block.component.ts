@@ -14,7 +14,7 @@ import {
 	OnChanges,
 	SimpleChanges
 } from '@angular/core';
-import { take, filter, flatMap, switchMap, tap, map, finalize, withLatestFrom } from 'rxjs/operators';
+import { take, filter, flatMap, switchMap, tap, map, finalize, withLatestFrom, delay } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Actor } from 'src/app/model/actor.class';
 import { OverridableProperty } from 'src/app/model/overridable-property.class';
@@ -69,8 +69,9 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	@Input()
 	public set actor(actor: RxDocument<Actor>) {
 		this._actor = actor;
-		this.blockStart.original = this.blockStart.override = this._actor.states.first().key.unix;
-		this.blockEnd.original = this.blockEnd.override = this._actor.states.last().key.unix;
+		this._actor._userdata = { block: this };
+		this.blockStart.original = this.blockStart.override = this._actor._states.first().key.unix;
+		this.blockEnd.original = this.blockEnd.override = this._actor._states.last().key.unix;
 		this.update();
 	}
 
@@ -106,7 +107,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	) {}
 
 	public get isAtMostOneLeft(): boolean {
-		return this.actor.states.length <= 1;
+		return this.actor._states.length <= 1;
 	}
 
 	public isDestroyed = false;
@@ -201,7 +202,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		if ($event.type === 'panstart') {
 			this.isPanning = true;
 			this._originalUnixesForPan.set(node, node.key.unix);
-			const nodeIterator = this.actor.states.nodes();
+			const nodeIterator = this.actor._states.nodes();
 			const first = nodeIterator.next();
 			this.blockStart.original = first.value.key.unix;
 			const second = nodeIterator.next();
@@ -211,7 +212,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 				this._afterFirstUnix = first.value.key.unix;
 			}
 
-			const reverseNodeIterator = this.actor.states.reverseNodes();
+			const reverseNodeIterator = this.actor._states.reverseNodes();
 			const last = reverseNodeIterator.next();
 			this.blockEnd.original = last.value.key.unix;
 			const secondLast = reverseNodeIterator.next();
@@ -261,7 +262,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		}
 
 		// Edge case. Also, the block has to be at least 1 px wide
-		if (this._actor.states.length === 1) {
+		if (this._actor._states.length === 1) {
 			this.blockStart.override = rescaledUnix;
 			this.blockEnd.override = rescaledUnix + 1;
 		}
@@ -289,16 +290,14 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	@HostListener('panend', ['$event'])
 	public pan($event: any) {
 		$event.stopPropagation();
-		console.log('hello');
-		console.log($event);
 		if ($event.type === 'panstart') {
 			this.isPanning = true;
-			for (const node of this.actor.states.nodes()) {
+			for (const node of this.actor._states.nodes()) {
 				this._originalUnixesForPan.set(node, node.key.unix);
 			}
 		}
 
-		const ogFirstUnix = this._originalUnixesForPan.get(this.actor.states.nodes().next().value);
+		const ogFirstUnix = this._originalUnixesForPan.get(this.actor._states.nodes().next().value);
 		const pos = this.nodePosition(ogFirstUnix) + this.left;
 		const rescaledUnix = THREE.Math.mapLinear(
 			pos + $event.deltaX,
@@ -310,7 +309,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 		const diff = rescaledUnix - ogFirstUnix;
 		const overrides = [];
-		for (const node of this.actor.states.nodes()) {
+		for (const node of this.actor._states.nodes()) {
 			const previous = node.key.unix;
 			const ogUnix = this._originalUnixesForPan.get(node);
 			// node.key.unix = ogUnix + diff; // ! HEY You can probably remove this
@@ -321,8 +320,8 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			});
 		}
 
-		this.blockStart.override = this.actor.states.nodes().next().value.key.unix;
-		this.blockEnd.override = this.actor.states.reverseNodes().next().value.key.unix;
+		this.blockStart.override = this.actor._states.nodes().next().value.key.unix;
+		this.blockEnd.override = this.actor._states.reverseNodes().next().value.key.unix;
 		this.update();
 		this.loreService.overrideNodePosition.next({
 			actorId: this._actor.id,
@@ -341,12 +340,12 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			.atomicUpdate(a => {
 				this.resetEveryNodeToOriginalUnix();
 				this.loreService.overrideNodePosition.value.overrides.forEach(override => {
-					const delta = this.actor.states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
+					const delta = this.actor._states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
 					if (delta) {
-						this.actor.states.set(new UnixWrapper(override.new), delta);
+						this.actor._states.set(new UnixWrapper(override.new), delta);
 					}
 				});
-				a.states = this.actor.states;
+				a._states = this.actor._states;
 				return a;
 			})
 			.then(nexta => {
@@ -385,10 +384,10 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			//  TODO: Make hammer not ignore the disabled setting on buttons
 			this.blockService.selection.next(undefined);
 			this.isSaving = true;
-			this.actor.states.remove(node.key);
+			this.actor._states.remove(node.key);
 			this.cd.detectChanges();
 			this.actor
-				.atomicUpdate(a => (a.states = this.actor.states) && a)
+				.atomicUpdate(a => (a._states = this.actor._states) && a)
 				.then(a => {
 					this.isSaving = false;
 					this.update();

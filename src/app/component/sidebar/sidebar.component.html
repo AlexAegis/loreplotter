@@ -21,7 +21,9 @@
 		<h2>Actors {{ actorCount$ | async }}</h2>
 		<div class="spawnables">
 			<button mat-raised-button *ngFor="let actor of actors$ | async" (click)="select($event, actor)">
-				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> {{ actor.id }} ({{ actor.states.length }})
+				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> {{ actor.id }} ({{
+					actor?._states?.length
+				}})
 			</button>
 		</div>
 	</mat-sidenav>

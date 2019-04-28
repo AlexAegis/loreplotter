@@ -8,7 +8,7 @@ import { ClickEvent } from './../event/click-event.type';
 import { AirCurve } from './air-curve.class';
 import { Basic } from './basic.class';
 import { DynamicTexture } from './dynamic-texture.class';
-import { Point } from './point.class';
+import { ActorObject } from './actor-object.class';
 import { Water } from './water.class';
 import { RxDocument } from 'rxdb';
 import { Actor } from 'src/app/model/actor.class';
@@ -95,19 +95,19 @@ export class Globe extends Basic {
 				scan((acc, next) => (next ? next : acc)) // so that an undefined will trigger the last element again
 			)
 			.subscribe(next => {
-				this.points.forEach(point => (point as Point).updateHeightAndWorldPosAndScale(next));
+				this.points.forEach(point => (point as ActorObject).updateHeightAndWorldPosAndScale(next));
 				this.changed();
 			});
 	}
 
 	public pointUpdateAudit = new Subject<number>();
 
-	public get points(): Array<Point> {
+	public get points(): Array<ActorObject> {
 		return this.children
 			.filter(child => child.children.length === 1) // each group that has one child
 			.reduce((acc: Array<Object3D>, child) => acc.push(...child.children) && acc, []) // each of those children
 			.filter(o => o.type === 'Point') // only the Points
-			.map(o => o as Point); // as Points
+			.map(o => o as ActorObject); // as Points
 	}
 
 	// public drawSubject = new Subject<DrawEvent>();

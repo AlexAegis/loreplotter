@@ -6,7 +6,7 @@ import { Globe } from './globe.class';
 import { RxDocument } from 'rxdb';
 import { Actor } from 'src/app/model/actor.class';
 
-export class Point extends Basic {
+export class ActorObject extends Basic {
 	public lastWorldPosition = new Vector3();
 
 	constructor(public actor: RxDocument<Actor>) {

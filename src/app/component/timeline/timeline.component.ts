@@ -325,7 +325,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			this.frameEnd.total
 		);
 		const wrapper = new UnixWrapper(unix);
-		const enclosing = actor.states.enclosingNodes(wrapper);
+		const enclosing = actor._states.enclosingNodes(wrapper);
 		let finalPosition: Vector3Serializable;
 		if (enclosing.first === undefined || enclosing.last === undefined) {
 			let node = enclosing.first;
@@ -343,9 +343,9 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
 		}
 
-		actor.states.set(wrapper, new ActorDelta(undefined, finalPosition));
+		actor._states.set(wrapper, new ActorDelta(undefined, finalPosition));
 		actor
-			.atomicUpdate(a => (a.states = actor.states) && a)
+			.atomicUpdate(a => (a._states = actor._states) && a)
 			.then(a => {
 				block.isSaving = false;
 				block.actor = a;

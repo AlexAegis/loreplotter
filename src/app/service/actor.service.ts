@@ -9,7 +9,7 @@ export class ActorService {
 	constructor() {}
 
 	mergeKnowledge(actor: Actor, until: number) {
-		for (const node of actor.states.nodes()) {
+		for (const node of actor._states.nodes()) {
 		}
 	}
 }

@@ -30,7 +30,7 @@ import { Control } from './control/control.class';
 import { denormalize } from './helper/denormalize.function';
 import { DynamicTexture } from './object/dynamic-texture.class';
 import { Globe } from './object/globe.class';
-import { Point } from './object/point.class';
+import { ActorObject } from './object/actor-object.class';
 import { Stage } from './object/stage.class';
 import { atmosphereShader } from './shader/atmosphere.shader';
 
@@ -86,7 +86,7 @@ export class EngineService {
 		.subscribe(next => this.refreshPopupPosition());
 
 	public selectedByActor = new BehaviorSubject<RxDocument<Actor>>(undefined); // Selected Actor on the sidebar
-	public selected = new BehaviorSubject<Point>(undefined); // Selected Actor on map, and it's current position
+	public selected = new BehaviorSubject<ActorObject>(undefined); // Selected Actor on map, and it's current position
 	public selectedActorForwarder = this.selectedByActor
 		.pipe(
 			filter(actor => !!this.globe),
@@ -106,7 +106,7 @@ export class EngineService {
 	);
 
 	// Hover
-	public hovered = new Subject<Point>();
+	public hovered = new Subject<ActorObject>();
 	public hover$ = this.hovered.pipe(
 		distinctUntilChanged(),
 		tap(next => console.log('Hovered changed!' + next)),
@@ -121,8 +121,8 @@ export class EngineService {
 	public zoomSubject: BehaviorSubject<number> = new BehaviorSubject<number>(undefined);
 
 	// Drag
-	public drag: Point = undefined;
-	public spawnOnWorld = new BehaviorSubject<{ point: Point; position: Vector3 }>(undefined);
+	public drag: ActorObject = undefined;
+	public spawnOnWorld = new BehaviorSubject<{ point: ActorObject; position: Vector3 }>(undefined);
 
 	// Draw
 	public textureChange$ = new ReplaySubject<DynamicTexture>(1);
@@ -339,7 +339,7 @@ export class EngineService {
 				});
 			} else {
 				if (intersection.object.type === 'Point') {
-					this.selected.next(intersection.object as Point);
+					this.selected.next(intersection.object as ActorObject);
 				} else {
 					this.selected.next(undefined);
 				}
@@ -368,7 +368,7 @@ export class EngineService {
 			if (start) {
 				switch (intersection.object.type) {
 					case 'Point':
-						this.drag = <Point>intersection.object;
+						this.drag = <ActorObject>intersection.object;
 						this.control.enabled = false;
 						break;
 					case 'Globe':
@@ -422,7 +422,7 @@ export class EngineService {
 		const intersection = this.raycaster.intersectObject(this.globe, true).shift();
 
 		if (intersection && intersection.object.type === 'Point') {
-			this.hovered.next(intersection.object as Point);
+			this.hovered.next(intersection.object as ActorObject);
 		} else {
 			this.hovered.next(undefined);
 		}
@@ -466,7 +466,7 @@ export class EngineService {
 	}
 
 	public refreshPopupPosition() {
-		const point: Point = this.selected.value;
+		const point: ActorObject = this.selected.value;
 		if (point) {
 			this.popupTarget.next(denormalize(point.getWorldPosition(new Vector3()).project(this.stage.camera)));
 		} else {

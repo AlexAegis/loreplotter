@@ -14,8 +14,9 @@ export class Actor {
 	}
 	public lore: string;
 	public id: string;
-	public states: Tree<UnixWrapper, ActorDelta> = new Tree<UnixWrapper, ActorDelta>(); // Self ordering structure
-	public statesString: string;
+	public _states: Tree<UnixWrapper, ActorDelta> = new Tree<UnixWrapper, ActorDelta>(); // handled as transient
+	public states: string;
+	public _userdata: any; // handled as transient
 }
 
 export const actorSchema: RxJsonSchema = {
@@ -33,7 +34,7 @@ export const actorSchema: RxJsonSchema = {
 			type: 'string',
 			primary: true
 		},
-		statesString: {
+		states: {
 			type: 'string'
 		}
 	},

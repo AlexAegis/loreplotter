@@ -66,19 +66,21 @@ export class DatabaseService {
 				db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
 					console.log('PreSave Actor!' + actor.id);
 					if (actor !== undefined && actor !== null) {
-						if (actor.states) {
-							actor.statesString = actor.states.stringify();
-							delete actor.states;
+						if (actor._states) {
+							actor.states = actor._states.stringify();
+							delete actor._states;
 						}
+						delete actor._userdata;
 					}
 				}, true);
 				db.actor.preInsert(async function preInsertHook(this: RxCollection<Actor>, actor) {
 					console.log('preInsert Actor!' + actor.id);
 					if (actor !== undefined && actor !== null) {
-						if (actor.states) {
-							actor.statesString = actor.states.stringify();
-							delete actor.states;
+						if (actor._states) {
+							actor.states = actor._states.stringify();
+							delete actor._states;
 						}
+						delete actor._userdata;
 					}
 				}, true);
 
@@ -89,6 +91,7 @@ export class DatabaseService {
 							actor.statesString = actor.states.stringify();
 							delete actor.states;
 						}
+						delete actor._userdata;
 					}
 				}, true);
 			}),
@@ -164,58 +167,58 @@ export class DatabaseService {
 	private initData(conn: RxDatabase<RxCollections>, withName: string): Observable<any> {
 		console.log('assemble initial data');
 		const testActor1 = new Actor('1');
-		testActor1.states.set(
+		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-02').unix()),
 			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
 		);
-		testActor1.states.set(
+		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-03').unix()),
 			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
 		);
-		testActor1.states.set(
+		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-04').unix()),
 			new ActorDelta(undefined, { x: 0.39117893980613805, y: 0.386437376899397, z: 0.8346608718892985 })
 		);
-		testActor1.states.set(
+		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-05').unix()),
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
 
 		const testActor2 = new Actor('2');
-		testActor2.states.set(
+		testActor2._states.set(
 			new UnixWrapper(moment('2019-01-03').unix()),
 			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
 		);
 
 		const testActor3 = new Actor('3');
-		testActor3.states.set(
+		testActor3._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
 			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
 		);
-		testActor3.states.set(
+		testActor3._states.set(
 			new UnixWrapper(moment('2019-01-08').unix()),
 			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
 		);
 
 		const testActor4 = new Actor('4');
-		testActor4.states.set(
+		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
 			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
 		);
-		testActor4.states.set(
+		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-08').unix()),
 			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
 		);
-		testActor4.states.set(
+		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-10').unix()),
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
 		const testActor5 = new Actor('5');
-		testActor5.states.set(
+		testActor5._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
 			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
 		);
-		testActor5.states.set(
+		testActor5._states.set(
 			new UnixWrapper(moment('2019-01-10').unix()),
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
 		);
@@ -252,11 +255,11 @@ export class DatabaseService {
 	}
 
 	public actorStateMapper(actor: RxDocument<Actor>): RxDocument<Actor> {
-		if (actor.statesString) {
-			actor.states = Tree.parse<UnixWrapper, ActorDelta>(actor.statesString, UnixWrapper, ActorDelta);
-			delete actor.statesString; // Making it undefined triggers an RxError that the set of a field can't be setted
-		} else if (!actor.states) {
-			actor.states = new Tree<UnixWrapper, ActorDelta>();
+		if (actor.states) {
+			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
+			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted
+		} else if (!actor._states) {
+			actor._states = new Tree<UnixWrapper, ActorDelta>();
 		}
 		return actor;
 	}

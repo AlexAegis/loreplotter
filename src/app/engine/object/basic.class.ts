@@ -3,7 +3,7 @@ import { Object3D, Vector2, Vector3 } from 'three';
 import * as THREE from 'three';
 
 import { denormalize } from '../helper/denormalize.function';
-import { Point } from './point.class';
+import { ActorObject } from './actor-object.class';
 import { Stage } from './stage.class';
 
 export class Basic extends THREE.Mesh {

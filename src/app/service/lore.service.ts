@@ -22,7 +22,7 @@ import { Group, Quaternion, Vector3, Object3D } from 'three';
 
 import { clamp } from '../engine/helper/clamp.function';
 import { normalize } from '../engine/helper/normalize.function';
-import { Point } from '../engine/object/point.class';
+import { ActorObject } from '../engine/object/actor-object.class';
 import { Actor } from '../model/actor.class';
 import { UnixWrapper } from '../model/unix-wrapper.class';
 import { CursorComponent } from './../component/cursor/cursor.component';
@@ -88,7 +88,7 @@ export class LoreService {
 					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * THREE.Math.DEG2RAD
 				);
 
-				const enclosure = actor.states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
+				const enclosure = actor._states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 					Node<UnixWrapper, ActorDelta>
 				>;
 				if (enclosure.last === undefined && enclosure.first !== undefined) {
@@ -102,7 +102,7 @@ export class LoreService {
 					overrideNodePositions.overrides.length > 0 &&
 					overrideNodePositions.actorId === actor.id
 				) {
-					for (const node of actor.states.nodes()) {
+					for (const node of actor._states.nodes()) {
 						overrideNodePositions.overrides
 							.filter(ov => ov.previous === node.key.unix)
 							.forEach(ov => {
@@ -124,13 +124,13 @@ export class LoreService {
 				}
 
 				const t = this.progress(enclosure, cursor);
-				let actorObject = engineService.globe.getObjectByName(actor.id) as Point;
+				let actorObject = engineService.globe.getObjectByName(actor.id) as ActorObject;
 				let group: Group;
 				if (actorObject) {
 					group = actorObject.parent as Group;
 				} else {
 					group = new Group();
-					actorObject = new Point(actor);
+					actorObject = new ActorObject(actor);
 					group.add(actorObject);
 					engineService.globe.add(group);
 				}
@@ -151,7 +151,7 @@ export class LoreService {
 			});
 
 		// This subsriptions job is to create a brand new actor
-		this.spawnOnClientOffset
+		this.spawnActorOnClientOffset
 			.pipe(
 				filter(o => o !== undefined),
 				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.cursor),
@@ -159,10 +159,11 @@ export class LoreService {
 					const dropVector = this.engineService.intersection(normalize(offset.x, offset.y));
 					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 					const actor = new Actor(nextId, lore.name);
-					actor.states.set(
+					actor._states.set(
 						new UnixWrapper(cursor),
 						new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
 					);
+
 					return lore.collection.database.actor.insert(actor);
 				})
 			)
@@ -174,7 +175,7 @@ export class LoreService {
 				withLatestFrom(this.cursor),
 				switchMap(async ([{ point, position }, cursor]) => {
 					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
-					point.actor.states.set(
+					point.actor._states.set(
 						new UnixWrapper(cursor),
 						new ActorDelta(undefined, {
 							x: position.x,
@@ -182,8 +183,14 @@ export class LoreService {
 							z: position.z
 						})
 					);
-					const updatedActor = await point.actor.atomicUpdate(a => (a.states = point.actor.states) && a);
+					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
 					point.parent.userData.override = false;
+					if (point.actor._userdata && point.actor._userdata.block) {
+						point.actor._userdata.block.blockStart.original = point.actor._userdata.block.blockStart.override = point.actor._states.first().key.unix;
+						point.actor._userdata.block.blockEnd.original = point.actor._userdata.block.blockEnd.override = point.actor._states.last().key.unix;
+						point.actor._userdata.block.update();
+					}
+
 					return updatedActor;
 				})
 			)
@@ -213,7 +220,7 @@ export class LoreService {
 		shareReplay(1)
 	);
 
-	public spawnOnClientOffset = new Subject<Offset>();
+	public spawnActorOnClientOffset = new Subject<Offset>();
 	public overrideNodePosition = new BehaviorSubject<{
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;
