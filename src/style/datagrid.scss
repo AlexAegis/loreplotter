@@ -4,18 +4,18 @@
 
 $ag-icons-path: '~ag-grid-community/src/styles/ag-theme-material/icons/';
 
-$primary-color: mat-color($client-primary, 50) !important;
+$primary-color: mat-color($primary, 50) !important;
 
-$accent-color: mat-color($client-accent, 400) !important;
+$accent-color: mat-color($accent, 400) !important;
 
-$selected-color: mat-color($client-primary, 300);
+$selected-color: mat-color($primary, 300);
 
 // The color for the checked checkboxes.
 
 $ag-range-selected-color-1: rgba(32, 182, 27, 0.4) !important;
 // The selection background color.
 
-$background-color: mat-color($client-primary, 50);
+$background-color: mat-color($primary, 50);
 // The default background color.
 
 $border-color: darkgrey !important;
@@ -78,10 +78,10 @@ $header-background-image: linear-gradient(white, rgb(22, 31, 170)) !important;
 // $header-icon-size: 14px;
 // The header icon height.
 
-$hover-color: mat-color($client-primary, A200);
+$hover-color: mat-color($primary, A200);
 // The background color of the row when hovered.
 
-$icon-color: mat-color($client-primary, A700);
+$icon-color: mat-color($primary, A700);
 // The icon color.
 
 // $icon-size: 12px;

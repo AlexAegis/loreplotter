@@ -1,23 +1,24 @@
-import { EngineService } from './engine/engine.service';
 import { animate, animateChild, group, query, state, style, transition, trigger } from '@angular/animations';
+import { OverlayContainer } from '@angular/cdk/overlay';
 import {
-	AfterViewInit,
-	Component,
-	ElementRef,
-	HostListener,
-	OnInit,
-	ViewChild,
-	HostBinding,
-	OnDestroy
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostBinding,
+    HostListener,
+    OnDestroy,
+    OnInit,
+    ViewChild,
 } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
+import { Options } from 'ng5-slider';
+import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { LoreService } from 'src/app/service/lore.service';
 
 import { PlayComponent } from './component/play/play.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
-import { Subscription } from 'rxjs';
-import { Options } from 'ng5-slider';
+import { EngineService } from './engine/engine.service';
 
 @Component({
 	selector: 'app-root',
@@ -94,8 +95,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 	public constructor(
 		public media: MediaObserver,
 		public loreService: LoreService,
-		public engineService: EngineService
-	) {}
+		public engineService: EngineService,
+		public overlayContainer: OverlayContainer
+	) {
+		this.engineService.light$.subscribe(lum => {
+			if (lum.light <= 0.5) {
+				this.setTheme('dark');
+			} else {
+				this.setTheme('light');
+			}
+		});
+	}
+
 	public title = 'Lore';
 
 	public sliderOptions: Options = {
@@ -112,12 +123,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 	@ViewChild('timeline')
 	private timeline: TimelineComponent;
 
-	@HostBinding('class.darkTheme')
-	public darkTheme = true;
+	@HostBinding('class')
+	public theme = 'dark';
 
 	public mediaLarge = true;
 
 	private subscriptions = new Subscription();
+
+	setTheme(theme: string) {
+		this.overlayContainer.getContainerElement().classList.add(theme);
+		this.theme = theme;
+	}
 
 	public ngAfterViewInit(): void {}
 

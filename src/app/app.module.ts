@@ -1,13 +1,15 @@
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { createDefaultMultiBackend, SkyhookMultiBackendModule } from '@angular-skyhook/multi-backend';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { OverlayModule } from '@angular/cdk/overlay';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
+import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import * as Hammer from 'hammerjs';
+import { Ng5SliderModule } from 'ng5-slider';
+import { DeviceDetectorModule } from 'ngx-device-detector';
 import { MomentModule } from 'ngx-moment';
 import { NgScrollbarModule, SmoothScrollModule } from 'ngx-scrollbar';
 
@@ -16,20 +18,18 @@ import { AppComponent } from './app.component';
 import { BlockComponent } from './component/block/block.component';
 import { CursorComponent } from './component/cursor/cursor.component';
 import { HamburgerComponent } from './component/hamburger/hamburger.component';
+import { LightControlComponent } from './component/light-control/light-control.component';
 import { ListComponent } from './component/list/list.component';
 import { PlayComponent } from './component/play/play.component';
 import { PopupComponent } from './component/popup/popup.component';
+import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
 import { SidebarComponent } from './component/sidebar/sidebar.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
 import { RepeatDirective } from './directive/repeat.directive';
 import { EngineComponent } from './engine/engine.component';
-import { MaterialModule /*, GestureConfig */ } from './module/material.module';
-import { RoutingModule } from './module/routing.module';
-import { SceneControlsComponent } from './component/scene-controls/scene-controls.component';
 import { MyHammerConfig } from './hammer-config.class';
-import { DeviceDetectorModule } from 'ngx-device-detector';
-import { Ng5SliderModule } from 'ng5-slider';
-import { LightControlComponent } from './component/light-control/light-control.component';
+import { MaterialModule } from './module/material.module';
+import { RoutingModule } from './module/routing.module';
 
 @NgModule({
 	declarations: [
@@ -64,7 +64,8 @@ import { LightControlComponent } from './component/light-control/light-control.c
 		SkyhookMultiBackendModule,
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
 		DeviceDetectorModule.forRoot(),
-		MaterialModule
+		MaterialModule,
+		OverlayModule
 	],
 	providers: [
 		{

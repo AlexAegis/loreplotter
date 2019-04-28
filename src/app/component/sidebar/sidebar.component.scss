@@ -1,3 +1,6 @@
+@import '~@angular/material/theming';
+@import '../../../style/palette.scss';
+
 :host {
 	.spacer {
 		flex: 1 1 auto;
@@ -13,7 +16,7 @@
 	}
 
 	.mat-drawer {
-		background-color: rgba(255, 255, 255, 0.8);
+		background-color: rgba(mat-color($back), 0.5);
 	}
 
 	mat-sidenav {

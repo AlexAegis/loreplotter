@@ -26,11 +26,11 @@
 				grid-column: 1;
 			}
 			.title {
-				color: rgba($color: rgb(199, 244, 255), $alpha: 0.5);
+				// color: rgba($color: rgb(199, 244, 255), $alpha: 0.5);
 
 				grid-column: 2;
-				height: 1em;
-				font-size: 2em;
+				height: 100%;
+				font-size: 4em;
 				width: 100%;
 				text-align: left;
 				vertical-align: top;

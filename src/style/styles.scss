@@ -10,22 +10,29 @@ $ph-bg: rgba(255, 255, 255, 0.356) !default;
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
 @include mat-core();
+// Typography
+/*$custom-typography: mat-typography-config(
+	$font-family: Lato,
+	$headline: mat-typography-level(24px, 48px, 400),
+	$body-1: mat-typography-level(16px, 24px, 400)
+);
+@include angular-material-typography($custom-typography);*/
 
 @import './palette.scss';
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include angular-material-theme($client-theme);
 
 /* You can add global styles to this file, and also import other style files */
 
 body {
 	font-family: Roboto, 'Helvetica Neue', sans-serif;
-	color: #fafafa;
+	// color: #fafafa;
 	overflow: hidden;
 	margin: 0;
 	user-select: none;
-	/*background-image: linear-gradient(-10deg, map-get($client-back, 800), map-get($client-back, 800));*/
+	transition: color 3s;
+	/*background-image: linear-gradient(-10deg, map-get($back, 800), map-get($back, 800));*/
 }
 
 @for $i from 1 through 100 {

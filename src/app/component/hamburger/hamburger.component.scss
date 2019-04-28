@@ -1,4 +1,6 @@
-@import '../../../style/styles.scss';
+//@import '../../../style/styles.scss';
+@import '~@angular/material/theming';
+@import '../../../style/palette.scss';
 
 div {
 	width: 40px;
@@ -21,7 +23,7 @@ div span {
 	position: absolute;
 	height: 6px;
 	width: 100%;
-	background-color: rgb(46, 46, 46);
+	background-color: mat-color($accent);
 	border-radius: 0px;
 	opacity: 1;
 	left: 0;

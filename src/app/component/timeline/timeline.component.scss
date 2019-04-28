@@ -1,5 +1,8 @@
+@import '~@angular/material/theming';
+@import '../../../style/palette.scss';
+
 :host {
-	background-color: rgba(255, 255, 255, 0.7);
+	background-color: rgba(mat-color($back), 0.7);
 	background-image: linear-gradient(
 		rgba(0, 0, 0, 0.35),
 		rgba(10, 10, 10, 0.1),
