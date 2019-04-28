@@ -1,28 +1,6 @@
-import { BehaviorSubject } from 'rxjs';
-import * as THREE from 'three';
-import * as TWEEN from '@tweenjs/tween.js';
-import {
-	Vector2,
-	Vector3,
-	TextureLoader,
-	Scene,
-	OrthographicCamera,
-	Color,
-	Mesh,
-	AmbientLight,
-	MeshBasicMaterial,
-	IcosahedronGeometry,
-	Object3D,
-	PerspectiveCamera,
-	Group
-} from 'three';
+import { AmbientLight, Color, Group, PerspectiveCamera, Scene } from 'three';
 import { EngineService } from '../engine.service';
-import { Lensflare, LensflareElement } from 'three-full';
 import { Sun } from './sun.class';
-import { Basic } from './basic.class';
-import { Atmosphere } from './atmosphere.class';
-import { switchMap, map, auditTime } from 'rxjs/operators';
-import { tweenMap } from 'src/app/misc/tween-map.operator';
 export class Stage extends Scene {
 	public camera: PerspectiveCamera;
 	public sunGroup: Group;

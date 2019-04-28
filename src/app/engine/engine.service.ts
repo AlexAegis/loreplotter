@@ -22,8 +22,8 @@ import { OrbitControls } from 'three-full';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 
 import { PopupComponent } from '../component/popup/popup.component';
-import { tweenMap } from '../misc/tween-map.operator';
-import { withTeardown } from '../misc/with-teardown.operator';
+import { tweenMap } from '../operator/tween-map.operator';
+import { withTeardown } from '../operator/with-teardown.operator';
 import { Actor } from '../model/actor.class';
 import { SceneControlService } from './../component/scene-controls/scene-control.service';
 import { Control } from './control/control.class';
@@ -267,6 +267,8 @@ export class EngineService {
 			xRay: true
 		});
 
+		this.selectOutlineEffect.selectionLayer = 11;
+
 		this.bloomEffect.blendMode.opacity.value = 3.1;
 
 		this.godRays.dithering = true;
@@ -277,7 +279,7 @@ export class EngineService {
 			/*smaaEffect,*/
 			this.bloomEffect,
 			// 	this.toneMappingEffect,
-			// this.hoverOutlineEffect,
+			this.hoverOutlineEffect,
 			this.selectOutlineEffect,
 			this.vignetteEffect
 		);
@@ -420,7 +422,6 @@ export class EngineService {
 		const intersection = this.raycaster.intersectObject(this.globe, true).shift();
 
 		if (intersection && intersection.object.type === 'Point') {
-			console.log(intersection);
 			this.hovered.next(intersection.object as Point);
 		} else {
 			this.hovered.next(undefined);

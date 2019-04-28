@@ -30,6 +30,10 @@ import { switchMap, finalize, tap } from 'rxjs/operators';
  *   1. teardown
  *   2. activation
  *
+ * @param activation will be called when a new item enters the pipe
+ * @param teardown will be called on the previous item when a new item enters the pipe
+ *
+ * @author AlexAegis
  */
 export function withTeardown<T>(activation: (t: T) => void, teardown: (t: T) => () => void): OperatorFunction<T, T> {
 	return function tearDownOperation(source: Observable<T>): Observable<T> {

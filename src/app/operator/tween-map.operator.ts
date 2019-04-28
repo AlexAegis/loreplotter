@@ -38,6 +38,8 @@ export interface Tweenable<T> {
  * 		the tween will use the last emitted object.
  * @param pingpongAfterFinish if true, `pingpongInterrupt` will be forcibly turn on. This extends the
  * 		pingpong effect after the tween has finished. (always ignoring the from: object, except the first time)
+ *
+ * @author AlexAegis
  */
 export function tweenMap<T>(
 	duration: number = 1000,
