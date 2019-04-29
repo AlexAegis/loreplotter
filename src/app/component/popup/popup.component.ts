@@ -58,9 +58,9 @@ export class PopupComponent implements OnInit, OnDestroy {
 	constructor(private actorService: ActorService, private formBuilder: FormBuilder, public dialog: MatDialog) {
 		this.nameOfSelected$ = this.actorService.nameOfSelected$;
 		this.knowledgeOfSelected$ = this.actorService.knowledgeOfSelected$.pipe(
-			map(map => {
+			map(knowledgeMap => {
 				const res: Array<{ key: String; value: String }> = [];
-				for (const [key, value] of map.entries()) {
+				for (const [key, value] of knowledgeMap.entries()) {
 					res.push({ key, value });
 				}
 				return res;

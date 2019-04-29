@@ -193,9 +193,10 @@ export class LoreService {
 					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
 					point.parent.userData.override = false;
 					if (point.actor._userdata && point.actor._userdata.block) {
-						point.actor._userdata.block.blockStart.original = point.actor._userdata.block.blockStart.override = point.actor._states.first().key.unix;
-						point.actor._userdata.block.blockEnd.original = point.actor._userdata.block.blockEnd.override = point.actor._states.last().key.unix;
-						point.actor._userdata.block.update();
+						const b = point.actor._userdata.block;
+						b.blockStart.original = b.blockStart.override = point.actor._states.first().key.unix;
+						b.blockEnd.original = b.blockEnd.override = point.actor._states.last().key.unix;
+						b.update();
 					}
 
 					return updatedActor;
@@ -231,7 +232,7 @@ export class LoreService {
 				if (accumulator.cache.length > 20) {
 					accumulator.cache.shift();
 				}
-				const nextAvg = accumulator.cache.reduce((acc, next) => acc + next) / accumulator.cache.length;
+				const nextAvg = accumulator.cache.reduce((a, n) => a + n) / accumulator.cache.length;
 				accumulator.dampenedSpeed = Math.abs(nextAvg - accumulator.avg);
 				accumulator.avg = nextAvg;
 				accumulator.current = next;

@@ -56,7 +56,7 @@ export class Globe extends Basic {
 			// clearCoat: 0.9,
 			// clearCoatRoughness: 0.9
 		});
-
+		/*
 		class GuiConf {
 			constructor(private material) {}
 			set color(color: string) {
@@ -82,8 +82,6 @@ export class Globe extends Basic {
 			get emissiveIntensity() {
 				return this.material.emissiveIntensity;
 			}
-
-			size: number = 0;
 		}
 		const guiObj = new GuiConf(this.material);
 		const gui = new dat.GUI();
@@ -91,7 +89,7 @@ export class Globe extends Basic {
 		gui.addColor(guiObj, 'emissive');
 		gui.add(guiObj, 'emissiveIntensity', 0, 0.5, 0.001);
 		this.receiveShadow = true;
-		this.castShadow = true;
+		this.castShadow = true;*/
 		/*texture.onUpdate = () => {
 			console.log('-------- d9isp tex updated');
 		};*/
