@@ -4,7 +4,7 @@
 	$background: map-get($theme, background);
 	$primary: map-get($theme, primary);
 
-	div > span {
+	app-hamburger > div > span {
 		background-color: mat-color($primary);
 
 		filter: invert(100%);

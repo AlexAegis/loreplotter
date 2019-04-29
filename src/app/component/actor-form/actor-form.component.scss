@@ -1,0 +1,22 @@
+:host {
+	> form {
+		display: grid;
+		grid-auto-columns: 1fr 1fr;
+
+		mat-form-field {
+			margin: 1rem;
+		}
+		.name {
+			grid-column: 1 / span 2;
+			grid-row: 1;
+		}
+
+		.date {
+			grid-row: 2;
+		}
+
+		.time {
+			grid-row: 2;
+		}
+	}
+}

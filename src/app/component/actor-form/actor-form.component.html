@@ -1,10 +1,13 @@
 <form [formGroup]="actorForm">
-	<mat-form-field>
+	<mat-form-field class="name">
 		<input matInput formControlName="name" placeholder="Name" [(focus)]="focused" />
 	</mat-form-field>
-	<mat-form-field>
-		<input matInput [matDatepicker]="date" />
-		<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
-		<mat-datepicker #date></mat-datepicker>
+	<mat-form-field class="date">
+		<input matInput [matDatepicker]="datepicker" mask="0000-M0-d0" />
+		<mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+		<mat-datepicker #datepicker></mat-datepicker>
+	</mat-form-field>
+	<mat-form-field class="time">
+		<input matInput mask="Hh:m0:s0" [showMaskTyped]="true" />
 	</mat-form-field>
 </form>

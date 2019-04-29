@@ -45,7 +45,7 @@ import { UnixWrapper } from 'src/app/model/unix-wrapper.class';
 import { loreSchema } from 'src/app/model/lore.class';
 import { RxDocument } from 'rxdb';
 import { Clock } from 'three';
-import { Observable } from 'rxjs';
+import { Observable, merge } from 'rxjs';
 import { tweenMap } from 'src/app/operator/tween-map.operator';
 
 /**

@@ -32,6 +32,22 @@ import { MaterialModule } from './module/material.module';
 import { RoutingModule } from './module/routing.module';
 import { ActorFormComponent } from './component/actor-form/actor-form.component';
 import { FocusDirective } from './directive/focus.directive';
+import { NgxMaskModule } from 'ngx-mask';
+
+import { MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+
+export const APP_FORMATS = {
+	parse: {
+		dateInput: 'LL'
+	},
+	display: {
+		dateInput: 'YYYY-MM-DD',
+		monthYearLabel: 'YYYY',
+		dateA11yLabel: 'LL',
+		monthYearA11yLabel: 'YYYY'
+	}
+};
 
 @NgModule({
 	declarations: [
@@ -69,10 +85,13 @@ import { FocusDirective } from './directive/focus.directive';
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
 		DeviceDetectorModule.forRoot(),
 		MaterialModule,
-		OverlayModule
+		OverlayModule,
+		NgxMaskModule.forRoot({})
 	],
 	entryComponents: [ActorFormComponent],
 	providers: [
+		{ provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+		{ provide: MAT_DATE_FORMATS, useValue: APP_FORMATS },
 		{
 			provide: HAMMER_GESTURE_CONFIG,
 			useClass: MyHammerConfig
