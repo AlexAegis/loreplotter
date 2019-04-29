@@ -23,7 +23,7 @@ import { Subscription } from 'rxjs';
  *
  */
 @Directive({
-	selector: '[appFocus]'
+	selector: 'appFocus'
 })
 export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
 	constructor(private hostElement: ElementRef, private renderer: Renderer2, private cd: ChangeDetectorRef) {}
@@ -50,7 +50,7 @@ export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
 	ngOnInit(): void {
 		this.focusSubscription = this.focusChange.subscribe(focus => {
 			if (focus) {
-				this.renderer.invokeElementMethod(this.hostElement.nativeElement, 'focus');
+				this.hostElement.nativeElement.focus();
 			}
 		});
 

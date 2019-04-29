@@ -52,7 +52,6 @@ export const APP_FORMATS = {
 @NgModule({
 	declarations: [
 		RepeatDirective,
-		FocusDirective,
 		AppComponent,
 		AppComponent,
 		EngineComponent,
@@ -66,7 +65,8 @@ export const APP_FORMATS = {
 		PlayComponent,
 		SceneControlsComponent,
 		LightControlComponent,
-		ActorFormComponent
+		ActorFormComponent,
+		FocusDirective
 	],
 	imports: [
 		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),

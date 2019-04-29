@@ -1,6 +1,6 @@
 <form [formGroup]="actorForm">
 	<mat-form-field class="name">
-		<input matInput formControlName="name" placeholder="Name" [(appFocus)]="focused" />
+		<input matInput formControlName="name" placeholder="Name" appFocus="focused" />
 	</mat-form-field>
 	<mat-form-field class="date">
 		<input matInput [matDatepicker]="datepicker" mask="0000-M0-d0" />

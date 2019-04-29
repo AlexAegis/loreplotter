@@ -15,11 +15,11 @@
 		<app-scene-controls class="scene-control"></app-scene-controls>
 		<div class="time-control">
 			<div class="inlineFromRight">
-				<button mat-mini-fab [color]="'basic'" (tap)="engineService.speed.next(1)">1X</button>
-				<button mat-mini-fab [color]="'basic'" (tap)="engineService.speed.next(2)">2X</button>
-				<button mat-mini-fab [color]="'basic'" (tap)="engineService.speed.next(4)">4X</button>
-				<button mat-mini-fab [color]="'basic'" (tap)="engineService.speed.next(10)">10X</button>
-				<button mat-mini-fab [color]="'basic'" (tap)="engineService.speed.next(100)">100X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="setSpeed($event, 1)">1X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="setSpeed($event, 2)">2X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="setSpeed($event, 8)">8X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="setSpeed($event, 100)">100X</button>
+				<button mat-mini-fab [color]="'basic'" (click)="setSpeed($event, 1000)">1000X</button>
 			</div>
 			<div class="inlineFromRight">
 				<app-play #play (tap)="timeline.playOrPause(play.play)"></app-play>

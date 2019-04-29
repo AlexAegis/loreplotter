@@ -155,12 +155,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
 	@HostListener('window:keyup', ['$event'])
 	public keyEvent($event: KeyboardEvent) {
+		$event.preventDefault();
 		switch ($event.code) {
 			case 'Space':
 				this.play.tap();
 				this.timeline.playOrPause(this.play.play);
 				break;
 		}
+	}
+
+	public setSpeed($event: MouseEvent, speed: number) {
+		$event.preventDefault();
+		this.engineService.speed.next(speed);
 	}
 
 	public ngOnDestroy(): void {

@@ -1,7 +1,7 @@
 <button
 	mat-raised-button
 	*ngFor="let mode of sceneControlService.modes"
-	(tap)="sceneControlService.activeMode.next(mode)"
+	(click)="sceneControlService.activeMode.next(mode)"
 	[ngClass]="{ active: mode.active }"
 >
 	<fa-icon [icon]="mode.icon" [size]="iconSize"></fa-icon>

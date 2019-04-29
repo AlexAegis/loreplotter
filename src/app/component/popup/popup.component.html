@@ -2,5 +2,5 @@
 	{{ nameOfSelected$ | async }}
 	<hr class="divider" />
 	<div *ngFor="let entry of knowledgeOfSelected$ | async">{{ entry.key }}: {{ entry.value }}</div>
-	<button mat-flat-button color="accent" (tap)="edit($event)">Edit</button>
+	<button mat-flat-button color="accent" (click)="edit($event)">Edit</button>
 </div>
