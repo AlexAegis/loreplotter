@@ -269,17 +269,27 @@ export class LoreService {
 	public name(actor: Actor) {
 		return actor.id;
 	}
+
+	public autoFrameShift$ = new Subject<number>();
+
 	public play(cursorComponent: CursorComponent) {
 		this.stopSubject.next(false);
 		timer(0, 1000 / 60)
 			.pipe(
 				takeUntil(this.stopSubject.pipe(filter(val => val))),
 				filter(i => !this.overrideCursor.value),
-				map(i => this.cursor.value + this.engineService.speed.value)
+				map(i => ({ cursor: this.cursor.value, speed: this.engineService.speed.value }))
 			)
-			.subscribe(i => {
-				this.cursor.next(i);
+			.subscribe(({ cursor, speed }) => {
+				this.cursor.next(cursor + speed);
 				cursorComponent.contextChange();
+				if (speed > 0 && cursorComponent.progress > 0.8) {
+					this.autoFrameShift$.next(1);
+					// jump forward with the frame
+				} else if (speed < 0 && cursorComponent.progress < 0.2) {
+					// jump backward with the frame
+					this.autoFrameShift$.next(-1);
+				}
 			});
 	}
 

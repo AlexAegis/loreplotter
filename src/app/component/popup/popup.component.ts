@@ -2,11 +2,13 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Component, HostBinding, Input, OnInit, OnDestroy } from '@angular/core';
 import { Vector2 } from 'three';
 import { ActorService } from 'src/app/service/actor.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, combineLatest } from 'rxjs';
 import { FormBuilder } from '@angular/forms';
-import { flatMap, tap, map, filter } from 'rxjs/operators';
+import { flatMap, tap, map, filter, shareReplay, take, switchMap } from 'rxjs/operators';
 import { MatDialog } from '@angular/material';
 import { ActorFormComponent } from '../actor-form/actor-form.component';
+import { EngineService } from 'src/app/engine/engine.service';
+import { LoreService } from 'src/app/service/lore.service';
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',
@@ -55,8 +57,14 @@ export class PopupComponent implements OnInit, OnDestroy {
 	public nameOfSelected$: Observable<string>;
 	public actorForm = this.formBuilder.group({});
 
-	constructor(private actorService: ActorService, private formBuilder: FormBuilder, public dialog: MatDialog) {
-		this.nameOfSelected$ = this.actorService.nameOfSelected$;
+	constructor(
+		private actorService: ActorService,
+		private engineService: EngineService,
+		private loreService: LoreService,
+		private formBuilder: FormBuilder,
+		public dialog: MatDialog
+	) {
+		this.nameOfSelected$ = this.actorService.nameOfSelected$.pipe(shareReplay(1));
 		this.knowledgeOfSelected$ = this.actorService.knowledgeOfSelected$.pipe(
 			map(knowledgeMap => {
 				const res: Array<{ key: String; value: String }> = [];
@@ -64,7 +72,8 @@ export class PopupComponent implements OnInit, OnDestroy {
 					res.push({ key, value });
 				}
 				return res;
-			})
+			}),
+			shareReplay(1)
 		);
 		/*this.keysOfknowledgeOfSelected$ = this.knowledgeOfSelected$.pipe(
 			tap(knowledge => {
@@ -80,11 +89,22 @@ export class PopupComponent implements OnInit, OnDestroy {
 	}
 
 	public edit($event): void {
-		const dialog = this.dialog.open(ActorFormComponent);
-
-		dialog.afterClosed().subscribe(result => {
-			console.log(`Dialog result: ${result}`);
-		});
+		combineLatest([
+			this.nameOfSelected$,
+			this.knowledgeOfSelected$,
+			this.engineService.selected,
+			this.loreService.cursor$
+		])
+			.pipe(
+				take(1),
+				map(([name, knowledge, selected, cursor]) =>
+					this.dialog.open(ActorFormComponent, { data: { name, knowledge, selected, cursor } })
+				),
+				switchMap(dialog => dialog.afterClosed())
+			)
+			.subscribe(result => {
+				console.log(`Dialog result: ${result}`);
+			});
 	}
 
 	ngOnInit() {}

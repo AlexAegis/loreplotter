@@ -31,9 +31,12 @@ import { MyHammerConfig } from './hammer-config.class';
 import { MaterialModule } from './module/material.module';
 import { RoutingModule } from './module/routing.module';
 import { ActorFormComponent } from './component/actor-form/actor-form.component';
+import { FocusDirective } from './directive/focus.directive';
 
 @NgModule({
 	declarations: [
+		RepeatDirective,
+		FocusDirective,
 		AppComponent,
 		AppComponent,
 		EngineComponent,
@@ -41,7 +44,6 @@ import { ActorFormComponent } from './component/actor-form/actor-form.component'
 		SidebarComponent,
 		HamburgerComponent,
 		TimelineComponent,
-		RepeatDirective,
 		ListComponent,
 		CursorComponent,
 		BlockComponent,

@@ -7,8 +7,8 @@ import { DeltaProperty } from 'src/app/model/delta-property.class';
 @Component({
 	selector: 'app-cursor',
 	templateUrl: './cursor.component.html',
-	styleUrls: ['./cursor.component.scss']
-	// changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./cursor.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CursorComponent implements OnInit {
 	public position = new DeltaProperty();
@@ -46,7 +46,6 @@ export class CursorComponent implements OnInit {
 	}
 
 	@HostBinding('style.left.px') get positionPx(): number {
-		// console.log(this._pos);
 		return this.position.total;
 	}
 

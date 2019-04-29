@@ -1,2 +1,10 @@
-<h1>Edit actor at</h1>
-<form></form>
+<form [formGroup]="actorForm">
+	<mat-form-field>
+		<input matInput formControlName="name" placeholder="Name" [(focus)]="focused" />
+	</mat-form-field>
+	<mat-form-field>
+		<input matInput [matDatepicker]="date" />
+		<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+		<mat-datepicker #date></mat-datepicker>
+	</mat-form-field>
+</form>

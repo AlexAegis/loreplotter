@@ -1,0 +1,12 @@
+@import '~@angular/material/theming';
+
+@mixin actor-form-component-theme($theme) {
+	$primary: map-get($theme, primary);
+	$accent: map-get($theme, accent);
+	$warn: map-get($theme, warn);
+
+	app-actor-form {
+		background-color: rgba(mat-color($primary, 'darker'), 0.1);
+		color: white;
+	}
+}

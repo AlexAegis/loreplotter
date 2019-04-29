@@ -20,7 +20,18 @@ import {
 import * as TWEEN from '@tweenjs/tween.js';
 import * as moment from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
-import { take, switchMap, flatMap, filter, tap, finalize } from 'rxjs/operators';
+import {
+	take,
+	switchMap,
+	flatMap,
+	filter,
+	tap,
+	finalize,
+	auditTime,
+	map,
+	debounceTime,
+	throttleTime
+} from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { nextWhole } from 'src/app/engine/helper/nextWhole.function';
 import { DeltaProperty } from 'src/app/model/delta-property.class';
@@ -35,6 +46,7 @@ import { loreSchema } from 'src/app/model/lore.class';
 import { RxDocument } from 'rxdb';
 import { Clock } from 'three';
 import { Observable } from 'rxjs';
+import { tweenMap } from 'src/app/operator/tween-map.operator';
 
 /**
  * Timeline
@@ -81,12 +93,34 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 		this.cursor$ = this.loreService.cursor$;
 		this.calcUnitsBetween();
+
+		this.loreService.autoFrameShift$
+			.pipe(
+				throttleTime(500),
+				map(i => {
+					return {
+						from: { base: this.frameStart.total },
+						to: {
+							base: this.frameStart.total + i * this.frameLength * 0.5
+						}
+					};
+				}),
+				tweenMap(500, TWEEN.Easing.Exponential.Out, true, true),
+				auditTime(1000 / 60)
+			)
+			.subscribe(({ base }) => {
+				const diff = this.frameLength;
+				this.frameStart.base = base;
+				this.frameEnd.base = base + diff;
+				this.cursor.contextChange();
+				this.changeDetectorRef.detectChanges();
+			});
 	}
 
 	/**
 	 * Returns the frames length in unix
 	 */
-	public get frame(): number {
+	public get frameLength(): number {
 		return this.frameEnd.total - this.frameStart.total;
 	}
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
@@ -215,7 +249,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * It calculates how many units there are in the frame, and the distance between them
 	 */
 	public calcUnitsBetween(): void {
-		this.unitsBetween = this.frame / this.currentUnitSeconds;
+		this.unitsBetween = this.frameLength / this.currentUnitSeconds;
 		this.distanceBetweenUnits = this.containerWidth / this.unitsBetween;
 	}
 
@@ -275,7 +309,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 				0,
 				this.containerWidth,
 				0,
-				this.frame
+				this.frameLength
 			);
 		}
 
@@ -285,6 +319,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			this.frameEnd.bake();
 		}
 	}
+
+	public shiftBaseFrame(by: number) {}
 
 	/**
 	 * On click, jump with the cursor
