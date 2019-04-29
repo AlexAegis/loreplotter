@@ -1,22 +1,51 @@
 :host {
 	> form {
 		display: grid;
-		grid-auto-columns: 1fr 1fr;
-
+		grid-auto-columns: 1fr 3fr;
+		align-items: center;
 		mat-form-field {
 			margin: 1rem;
 		}
-		.name {
-			grid-column: 1 / span 2;
+
+		> .nameLabel {
+			grid-column: 1;
+			grid-row: 1;
+			justify-self: end;
+		}
+
+		> .name {
+			grid-column: 2;
 			grid-row: 1;
 		}
 
-		.date {
+		> .date {
 			grid-row: 2;
 		}
 
-		.time {
+		> .time {
 			grid-row: 2;
+		}
+
+		.divider {
+			grid-column: 1 / span 2;
+			grid-row: 3;
+		}
+
+		> .entries {
+			grid-column: 1 / span 2;
+			//grid-row: 4;
+			display: grid;
+
+			grid-auto-columns: 1fr 3fr;
+			align-items: center;
+
+			> .entryLabel {
+				grid-column: 1;
+			}
+
+			> .entry {
+				grid-column: 2;
+			}
 		}
 	}
 }

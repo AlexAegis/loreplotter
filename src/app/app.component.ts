@@ -20,6 +20,8 @@ import { PlayComponent } from './component/play/play.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
 import { EngineService } from './engine/engine.service';
 import { ActorService } from './service/actor.service';
+import { ActorFormComponent } from './component/actor-form/actor-form.component';
+import { MatDialog } from '@angular/material';
 
 @Component({
 	selector: 'app-root',
@@ -98,7 +100,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 		public loreService: LoreService,
 		public engineService: EngineService,
 		public actorService: ActorService,
-		public overlayContainer: OverlayContainer
+		public overlayContainer: OverlayContainer,
+		public dialog: MatDialog
 	) {
 		this.setTheme('default-theme');
 		this.subscriptions.add(
@@ -110,6 +113,19 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 				}
 			})
 		);
+
+		const dRef = this.dialog.open(ActorFormComponent, {
+			data: {
+				name: 'Eminem',
+				knowledge: [{ key: 'firstKey', value: 'firstValue' }, { key: 'secondKey', value: 'secondValue' }],
+				selected: undefined,
+				cursor: 1546513200
+			}
+		});
+		dRef.afterClosed().subscribe(result => {
+			console.log('test dialog closed');
+			console.log(result);
+		});
 	}
 
 	public title = 'Lore';
@@ -162,6 +178,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 				this.timeline.playOrPause(this.play.play);
 				break;
 		}
+	}
+
+	@HostListener('window:contextmenu', ['$event'])
+	public contextMenu($event: KeyboardEvent) {
+		$event.preventDefault();
 	}
 
 	public setSpeed($event: MouseEvent, speed: number) {

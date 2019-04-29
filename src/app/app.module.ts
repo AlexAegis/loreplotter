@@ -36,6 +36,8 @@ import { NgxMaskModule } from 'ngx-mask';
 
 import { MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { LogPipe } from './pipe/log.pipe';
+import { FormEntryComponent } from './component/form-entry/form-entry.component';
 
 export const APP_FORMATS = {
 	parse: {
@@ -66,7 +68,9 @@ export const APP_FORMATS = {
 		SceneControlsComponent,
 		LightControlComponent,
 		ActorFormComponent,
-		FocusDirective
+		FocusDirective,
+		LogPipe,
+		FormEntryComponent
 	],
 	imports: [
 		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),

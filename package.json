@@ -58,7 +58,7 @@
 		"ngx-mask": "^7.9.3",
 		"ngx-moment": "^3.4.0",
 		"ngx-scrollbar": "^4.1.1",
-		"postprocessing": "^6.3.1",
+		"postprocessing": "^6.3.2",
 		"pouchdb-adapter-idb": "^7.0.0",
 		"propagating-hammerjs": "^1.4.6",
 		"resize-observer-polyfill": "^1.5.1",

@@ -23,7 +23,7 @@ import { Subscription } from 'rxjs';
  *
  */
 @Directive({
-	selector: 'appFocus'
+	selector: '[appFocus]'
 })
 export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
 	constructor(private hostElement: ElementRef, private renderer: Renderer2, private cd: ChangeDetectorRef) {}
