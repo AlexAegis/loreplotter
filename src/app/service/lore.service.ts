@@ -3,7 +3,7 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval, timer, from, Subject, of, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, combineLatest, interval, timer, from, Subject, of, ReplaySubject, range } from 'rxjs';
 import {
 	filter,
 	flatMap,
@@ -15,7 +15,14 @@ import {
 	map,
 	mergeMap,
 	share,
-	shareReplay
+	shareReplay,
+	scan,
+	mergeScan,
+	repeat,
+	debounceTime,
+	retry,
+	expand,
+	distinctUntilChanged
 } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -198,9 +205,7 @@ export class LoreService {
 
 		this.engineService.textureChange$
 			.pipe(
-				tap(next => console.log(`tex change! ${next}`)),
 				switchMap(texture => from(new Promise<Blob>(res => texture.canvas.toBlob(res, 'image/jpeg')))),
-				tap(next => console.log(`tex as blob! ${next.size}`)),
 				withLatestFrom(this.databaseService.currentLore$),
 				switchMap(([texture, loreDoc]) =>
 					loreDoc.putAttachment({
@@ -210,15 +215,47 @@ export class LoreService {
 					})
 				)
 			)
-			.subscribe(console.log);
+			.subscribe();
 	}
 
 	public cursor = new BehaviorSubject<number>(moment('2019-01-03T12:00:00').unix()); // Unix
 	public overrideCursor = new BehaviorSubject<number>(undefined);
 	public cursor$ = combineLatest([this.cursor, this.overrideCursor]).pipe(
 		map(([c, oc]) => (oc ? oc : c)),
+		scan(
+			(
+				accumulator: { current: number; avg: number; dampenedSpeed: number; cache: Array<number> },
+				next: number
+			) => {
+				accumulator.cache.push(Math.abs(accumulator.current - next));
+				if (accumulator.cache.length > 20) {
+					accumulator.cache.shift();
+				}
+				const nextAvg = accumulator.cache.reduce((acc, next) => acc + next) / accumulator.cache.length;
+				accumulator.dampenedSpeed = Math.abs(nextAvg - accumulator.avg);
+				accumulator.avg = nextAvg;
+				accumulator.current = next;
+				return accumulator;
+			},
+			{ current: this.cursor.value, avg: this.cursor.value, dampenedSpeed: 0, cache: [0] }
+		),
+		tap(({ avg }) => this.engineService.dampenedSpeed.next(avg)),
+		map(({ current }) => current),
 		shareReplay(1)
 	);
+
+	public cursorDampener$ = this.cursor$
+		.pipe(
+			distinctUntilChanged(),
+			debounceTime(1000 / 45),
+			mergeMap(val =>
+				range(1, 20).pipe(
+					take(20),
+					map(i => val)
+				)
+			)
+		)
+		.subscribe(next => this.cursor.next(next));
 
 	public spawnActorOnClientOffset = new Subject<Offset>();
 	public overrideNodePosition = new BehaviorSubject<{

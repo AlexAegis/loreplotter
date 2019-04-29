@@ -128,10 +128,12 @@ export class EngineService {
 	public textureChange$ = new ReplaySubject<DynamicTexture>(1);
 
 	// Light Control
+
+	public dampenedSpeed = new BehaviorSubject<number>(0);
 	public manualLightControl = new BehaviorSubject<boolean>(false);
 	public manualLight = new BehaviorSubject<boolean>(true);
-	public autoLight$ = combineLatest([this.zoomSubject, this.speed]).pipe(
-		map(([zoom, speed]) => zoom <= 0.4 || Math.abs(speed) >= 2000),
+	public autoLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed]).pipe(
+		map(([zoom, speed]) => zoom <= 0.4 || Math.abs(speed) >= 4000),
 		distinctUntilChanged()
 	);
 
