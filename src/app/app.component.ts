@@ -1,14 +1,14 @@
 import { animate, animateChild, group, query, state, style, transition, trigger } from '@angular/animations';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    HostBinding,
-    HostListener,
-    OnDestroy,
-    OnInit,
-    ViewChild,
+	AfterViewInit,
+	Component,
+	ElementRef,
+	HostBinding,
+	HostListener,
+	OnDestroy,
+	OnInit,
+	ViewChild
 } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { Options } from 'ng5-slider';
@@ -19,6 +19,7 @@ import { LoreService } from 'src/app/service/lore.service';
 import { PlayComponent } from './component/play/play.component';
 import { TimelineComponent } from './component/timeline/timeline.component';
 import { EngineService } from './engine/engine.service';
+import { ActorService } from './service/actor.service';
 
 @Component({
 	selector: 'app-root',
@@ -96,6 +97,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 		public media: MediaObserver,
 		public loreService: LoreService,
 		public engineService: EngineService,
+		public actorService: ActorService,
 		public overlayContainer: OverlayContainer
 	) {
 		this.setTheme('default-theme');

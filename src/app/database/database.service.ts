@@ -166,10 +166,15 @@ export class DatabaseService {
 
 	private initData(conn: RxDatabase<RxCollections>, withName: string): Observable<any> {
 		console.log('assemble initial data');
+		const testKMA = new Map();
+		testKMA.set('Favourite color', 'blue');
+		testKMA.set('Has a cat', 'yes');
+		const testKMB = new Map();
+		testKMB.set('Favourite color', 'red');
 		const testActor1 = new Actor('1');
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-02').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, testKMA)
 		);
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-03').unix()),
@@ -181,7 +186,7 @@ export class DatabaseService {
 		);
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-05').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
+			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, testKMB)
 		);
 
 		const testActor2 = new Actor('2');
@@ -193,7 +198,7 @@ export class DatabaseService {
 		const testActor3 = new Actor('3');
 		testActor3._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
 		);
 		testActor3._states.set(
 			new UnixWrapper(moment('2019-01-08').unix()),
@@ -203,7 +208,7 @@ export class DatabaseService {
 		const testActor4 = new Actor('4');
 		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
 		);
 		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-08').unix()),
@@ -211,16 +216,16 @@ export class DatabaseService {
 		);
 		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-10').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
+			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 })
 		);
 		const testActor5 = new Actor('5');
 		testActor5._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, 'know1')
+			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
 		);
 		testActor5._states.set(
 			new UnixWrapper(moment('2019-01-10').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, 'know2')
+			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 })
 		);
 
 		const upLore = zip(

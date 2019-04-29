@@ -1,6 +1,12 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostBinding, Input, OnInit } from '@angular/core';
+import { Component, HostBinding, Input, OnInit, OnDestroy } from '@angular/core';
 import { Vector2 } from 'three';
+import { ActorService } from 'src/app/service/actor.service';
+import { Subscription, Observable } from 'rxjs';
+import { FormBuilder } from '@angular/forms';
+import { flatMap, tap, map, filter } from 'rxjs/operators';
+import { MatDialog } from '@angular/material';
+import { ActorFormComponent } from '../actor-form/actor-form.component';
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',
@@ -14,7 +20,7 @@ import { Vector2 } from 'three';
 		])
 	]
 })
-export class PopupComponent implements OnInit {
+export class PopupComponent implements OnInit, OnDestroy {
 	@Input()
 	@HostBinding('style.top.px')
 	top: number;
@@ -45,7 +51,43 @@ export class PopupComponent implements OnInit {
 		return this._pos;
 	}
 
-	constructor() {}
+	public knowledgeOfSelected$: Observable<Array<{ key: String; value: String }>>;
+	public nameOfSelected$: Observable<string>;
+	public actorForm = this.formBuilder.group({});
+
+	constructor(private actorService: ActorService, private formBuilder: FormBuilder, public dialog: MatDialog) {
+		this.nameOfSelected$ = this.actorService.nameOfSelected$;
+		this.knowledgeOfSelected$ = this.actorService.knowledgeOfSelected$.pipe(
+			map(map => {
+				const res: Array<{ key: String; value: String }> = [];
+				for (const [key, value] of map.entries()) {
+					res.push({ key, value });
+				}
+				return res;
+			})
+		);
+		/*this.keysOfknowledgeOfSelected$ = this.knowledgeOfSelected$.pipe(
+			tap(knowledge => {
+				this.actorForm = this.formBuilder.group({});
+			}),
+			map(knowledge => Object.keys(knowledge)),
+			tap(keys => {
+				keys.forEach(key => {
+					this.actorForm.addControl(key, this.formBuilder.control(''));
+				});
+			})
+		);*/
+	}
+
+	public edit($event): void {
+		const dialog = this.dialog.open(ActorFormComponent);
+
+		dialog.afterClosed().subscribe(result => {
+			console.log(`Dialog result: ${result}`);
+		});
+	}
 
 	ngOnInit() {}
+
+	ngOnDestroy(): void {}
 }

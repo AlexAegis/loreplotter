@@ -1,7 +1,6 @@
 <div [@visibility]="visibility">
-	<ng-content></ng-content>
+	{{ nameOfSelected$ | async }}
 	<hr class="divider" />
-	<button mat-flat-button>Set as master</button>
-	<button mat-flat-button>Set as slave</button>
-	<button mat-flat-button>Set as gordon</button>
+	<div *ngFor="let entry of knowledgeOfSelected$ | async">{{ entry.key }}: {{ entry.value }}</div>
+	<button mat-flat-button color="accent" (tap)="edit($event)">Edit</button>
 </div>

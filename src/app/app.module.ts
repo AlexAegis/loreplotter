@@ -30,6 +30,7 @@ import { EngineComponent } from './engine/engine.component';
 import { MyHammerConfig } from './hammer-config.class';
 import { MaterialModule } from './module/material.module';
 import { RoutingModule } from './module/routing.module';
+import { ActorFormComponent } from './component/actor-form/actor-form.component';
 
 @NgModule({
 	declarations: [
@@ -46,7 +47,8 @@ import { RoutingModule } from './module/routing.module';
 		BlockComponent,
 		PlayComponent,
 		SceneControlsComponent,
-		LightControlComponent
+		LightControlComponent,
+		ActorFormComponent
 	],
 	imports: [
 		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),
@@ -67,6 +69,7 @@ import { RoutingModule } from './module/routing.module';
 		MaterialModule,
 		OverlayModule
 	],
+	entryComponents: [ActorFormComponent],
 	providers: [
 		{
 			provide: HAMMER_GESTURE_CONFIG,
