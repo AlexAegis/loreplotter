@@ -266,11 +266,11 @@ export class LoreService {
 
 	public stopSubject = new BehaviorSubject<boolean>(false);
 
+	public autoFrameShift$ = new Subject<number>();
+
 	public name(actor: Actor) {
 		return actor.id;
 	}
-
-	public autoFrameShift$ = new Subject<number>();
 
 	public play(cursorComponent: CursorComponent) {
 		this.stopSubject.next(false);

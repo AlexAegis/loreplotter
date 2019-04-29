@@ -3,30 +3,30 @@ import {
 	OnInit,
 	Input,
 	ElementRef,
-	Renderer,
 	EventEmitter,
 	Output,
 	AfterViewInit,
 	ChangeDetectorRef,
-	OnDestroy
+	OnDestroy,
+	Renderer2
 } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 /**
  * Two way bound focus directive
  *
  * Usage:
- * <element [(focus)]="myBool">
+ * <element [(appFocus)]="foo">
  *
- * myBool can be changed to true if you want to set the elements focus.
- * If the element loses focus, myBool will be set to false.
+ * foo can be changed to true if you want to set the elements focus.
+ * If the element loses focus, foo will be set to false.
  *
  */
 @Directive({
-	selector: '[focus]'
+	selector: '[appFocus]'
 })
 export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
-	constructor(private hostElement: ElementRef, private renderer: Renderer, private cd: ChangeDetectorRef) {}
+	constructor(private hostElement: ElementRef, private renderer: Renderer2, private cd: ChangeDetectorRef) {}
 
 	private focusListener: Function;
 	private focusoutListener: Function;
@@ -35,7 +35,7 @@ export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
 	@Output()
 	focusChange = new EventEmitter<boolean>();
 
-	private _focus: boolean = false;
+	private _focus = false;
 
 	@Input()
 	set focus(focus: boolean) {

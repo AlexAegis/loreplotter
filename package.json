@@ -85,7 +85,7 @@
 		"@types/node": "^11.13.8",
 		"@types/three": "^0.103.2",
 		"@types/tween.js": "^17.2.0",
-		"@types/webpack": "^4.4.27",
+		"@types/webpack": "^4.4.29",
 		"codelyzer": "~5.0.1",
 		"compression-webpack-plugin": "^2.0.0",
 		"http-server": "^0.11.1",
