@@ -1,0 +1,87 @@
+@import '../../../../node_modules/@angular/material/theming';
+
+:host {
+	//	background-color: rgba(mat-color($back), 0.7);
+	background-image: linear-gradient(
+		rgba(0, 0, 0, 0.35),
+		rgba(10, 10, 10, 0.1),
+		rgba(92, 92, 92, 0.05),
+		rgba(92, 92, 92, 0.05),
+		rgba(170, 170, 170, 0.025)
+	);
+	height: 200px;
+	position: fixed;
+	bottom: 0;
+	overflow: hidden; // Hides the blocks and the cursor when the sidebar is expanded
+	z-index: -10;
+	.ruler {
+		// background-color: rgba(0, 0, 0, 0.05);
+		display: flex;
+		width: 100%;
+		height: 20%;
+		.header {
+			width: 6rem;
+			text-align: center;
+			align-self: center;
+			height: 100%;
+		}
+
+		.divisorContainer {
+			width: 100%;
+			height: 100%;
+			div {
+				display: inline-table;
+				position: absolute;
+			}
+
+			.divisor {
+				width: 2px;
+				// box-shadow: 0 0 3px #0000008a;
+				margin: 0;
+				height: 20%;
+
+				align-self: center;
+				transform: translateX(0);
+				opacity: 1;
+
+				.subDivisor {
+					width: 1px;
+					height: 75%;
+				}
+			}
+		}
+	}
+	.channelsContainer {
+		// position: relative;
+		// display: flex;
+		// width: 100%;
+		overflow: hidden;
+		height: 80%;
+		//display: contents;
+	}
+
+	.channels {
+		// width: 100%;
+		// display: contents;
+		// position: relative;
+	}
+
+	.channel {
+		height: 25%;
+		// box-shadow: inset 0px 0px 16px 16px rgba(70, 70, 70, 0.1);
+
+		font-size: 4rem;
+		font-family: monospace;
+		font-weight: bold;
+		padding-left: 2rem;
+		line-height: 80%;
+		overflow: hidden;
+		color: rgba(0, 0, 0, 0.1);
+	}
+
+	::ng-deep {
+		.ng-scroll-view {
+			overflow: hidden !important;
+		}
+	}
+}

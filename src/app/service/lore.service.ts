@@ -1,9 +1,8 @@
-import { Axis } from './../engine/helper/axis.class';
 import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import { BehaviorSubject, combineLatest, interval, timer, from, Subject, of, ReplaySubject, range } from 'rxjs';
+import { BehaviorSubject, combineLatest, timer, from, Subject, of, range } from 'rxjs';
 import {
 	filter,
 	flatMap,
@@ -14,50 +13,40 @@ import {
 	take,
 	map,
 	mergeMap,
-	share,
 	shareReplay,
 	scan,
-	mergeScan,
-	repeat,
 	debounceTime,
-	retry,
-	expand,
-	distinctUntilChanged,
-	pluck
+	distinctUntilChanged
 } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
 
-import { clamp } from '../engine/helper/clamp.function';
-import { normalize } from '../engine/helper/normalize.function';
-import { ActorObject } from '../engine/object/actor-object.class';
-import { Actor } from '../model/actor.class';
-import { UnixWrapper } from '../model/unix-wrapper.class';
-import { CursorComponent } from './../component/cursor/cursor.component';
-import { EngineService } from './../engine/engine.service';
+import { normalize } from '@lore/engine/helper/normalize.function';
+import { ActorObject } from '@lore/engine/object/actor-object.class';
+import { Actor, Lore } from '@app/model';
+import { UnixWrapper } from '@app/model/unix-wrapper.class';
+import { CursorComponent } from '@lore/component/cursor.component';
+import { EngineService } from '@lore/engine/engine.service';
 import { ActorDelta } from './../model/actor-delta.class';
-import { TextureDelta } from '../model/texture-delta.class';
 import * as THREE from 'three';
-import { Globe } from '../engine/object/globe.class';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { Lore } from '../model/lore.class';
 import { LoreDocumentMethods } from '../database/database';
-import { ActorFormResultData } from '../component/actor-form/actor-form.component';
+import { ActorFormResultData } from '@lore/component/actor-form.component';
 import { Vector3Serializable } from '../model/vector3-serializable.interface';
 
 const DAY_IN_SECONDS = 86400;
 /**
  * This service's goal is to consume the data comint from the database and the engine and then update both
  */
-@Injectable({
-	providedIn: 'root'
-})
+@Injectable()
 export class LoreService {
 	// best name ever
 	public slerperHelper: Group;
 	public pseudoPoint: Group;
 	public latestSlerpsWorldPositionHolder: Vector3;
 	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
+		console.log(this);
+
 		this.slerperHelper = new Group();
 		this.pseudoPoint = new Group();
 		this.pseudoPoint.position.set(0, 0, 1);

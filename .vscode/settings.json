@@ -29,7 +29,14 @@
 		"directive": "ngrx-actions",
 		"interceptor": "middleware",
 		"validator": "coverage",
-		"e2e": "test"
+		"e2e": "test",
+		"store": "Redux-store",
+		"actions": "ngrx-actions",
+		"action": "ngrx-actions",
+		"effects": "Ngrx-effects",
+		"effect": "Ngrx-effects",
+		"reducers": "ngrx-reducer",
+		"reducer": "ngrx-reducer"
 	},
 	"material-icon-theme.files.associations": {
 		"*.animation.ts": "purescript"

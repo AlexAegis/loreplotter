@@ -1,27 +1,11 @@
-import { TextureDelta } from './../model/texture-delta.class';
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
-import * as idb from 'pouchdb-adapter-idb';
 import RxDB, { RxDatabase, RxDocument, RxCollection } from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable, Subject, zip, of, timer, forkJoin } from 'rxjs';
-import {
-	filter,
-	map,
-	mergeMap,
-	shareReplay,
-	switchMap,
-	take,
-	delay,
-	tap,
-	share,
-	delayWhen,
-	flatMap,
-	catchError,
-	withLatestFrom,
-	startWith,
-	toArray
-} from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, from, Observable, zip, forkJoin } from 'rxjs';
+
+import * as idb from 'pouchdb-adapter-idb';
+import { filter, map, mergeMap, shareReplay, switchMap, tap, delayWhen } from 'rxjs/operators';
 
 import { ActorDelta } from '../model/actor-delta.class';
 import { loreSchema, Lore } from '../model/lore.class';
@@ -29,19 +13,16 @@ import { UnixWrapper } from '../model/unix-wrapper.class';
 import { Actor, actorSchema } from './../model/actor.class';
 import { RxCollections, LoreCollectionMethods, LoreDocumentMethods } from './database';
 import { Planet } from '../model/planet.class';
-import { error } from 'util';
-
-@Injectable({
-	providedIn: 'root'
-})
+@Injectable()
 export class DatabaseService {
 	constructor() {
+		console.log(this);
 		RxDB.plugin(idb);
-		this.currentLore = new BehaviorSubject<string>('TestProject');
 
+		this.currentLore = new BehaviorSubject<string>('TestProject');
 		this.connection$ = from(
 			RxDB.create<RxCollections>({
-				name: 'loredb',
+				name: 'lore',
 				adapter: 'idb'
 			})
 		).pipe(

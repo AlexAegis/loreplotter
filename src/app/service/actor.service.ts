@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { auditTime, filter, map, share } from 'rxjs/operators';
-import { EngineService } from '../engine/engine.service';
+import { EngineService } from '@app/lore/engine/engine.service';
 import { LoreService } from './lore.service';
 
-@Injectable({
-	providedIn: 'root'
-})
+@Injectable()
 export class ActorService {
 	// TODO: Also trigger on editing the actor!
 	private knowledgeAndNameTriggerOfSelected$ = combineLatest([

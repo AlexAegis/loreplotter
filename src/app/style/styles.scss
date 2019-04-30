@@ -1,0 +1,170 @@
+@import 'variables';
+@import '../../../node_modules/@angular/material/theming';
+
+// @import 'node_modules/placeholder-loading/src/scss/placeholder-loading';
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
+
+@import 'theme/default.theme';
+@import 'theme/light.theme';
+@import 'theme/dark.theme';
+
+@import '../app.component.theme';
+
+@import '../lore/component/sidebar.component.theme';
+@import '../lore/component/hamburger.component.theme';
+@import '../lore/component/timeline.component.theme';
+@import '../lore/component/cursor.component.theme';
+@import '../lore/component/block.component.theme';
+@import '../lore/component/popup.component.theme';
+@import '../lore/component/actor-form.component.theme';
+
+@mixin custom-components-theme($theme) {
+	@include app-component-theme($theme);
+	@include sidebar-component-theme($theme);
+	@include hamburger-component-theme($theme);
+	@include timeline-component-theme($theme);
+	@include cursor-component-theme($theme);
+	@include block-component-theme($theme);
+	@include popup-component-theme($theme);
+	@include actor-form-component-theme($theme);
+
+	* {
+		transition: background-color 1s;
+	}
+
+	*::after {
+		transition: background-color 1s;
+	}
+}
+
+.default-theme {
+	@include angular-material-theme($default-theme);
+	@include custom-components-theme($default-theme);
+}
+
+.light-theme {
+	@include angular-material-theme($light-theme);
+	@include custom-components-theme($light-theme);
+}
+
+.dark-theme {
+	@include angular-material-theme($dark-theme);
+	@include custom-components-theme($dark-theme);
+}
+
+body {
+	font-family: Roboto, 'Helvetica Neue', sans-serif;
+	overflow: hidden;
+	margin: 0;
+	user-select: none;
+}
+
+.lit:before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border: 0.2rem solid #6dabff; //  #6dabff
+	border-radius: 0.2rem;
+}
+
+.flashlit:before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	animation: selectFlash 2.5s;
+	transition-timing-function: ease-in-out;
+}
+
+@keyframes selectFlash {
+	from {
+		border: 0.2rem solid #6dabff; //  #6dabff
+		background-color: #6dabff33;
+	}
+	to {
+		border: 0.2rem solid #6dabff00; //  #6dabff
+		background-color: #6dabff00;
+	}
+}
+
+.scroll-bar {
+	background-color: rgba(0, 0, 0, 0.4) !important;
+	border-radius: 4px;
+}
+.scroll-thumbs {
+	background-color: rgba(0, 0, 0, 0.219) !important;
+	&:hover,
+	&:active {
+		background-color: rgba(36, 36, 36, 0.7) !important;
+	}
+}
+
+.slider {
+	width: 12rem;
+
+	> .ng5-slider .ng5-slider-bar {
+		background: #ffe4d1;
+		height: 2px;
+	}
+	> .ng5-slider .ng5-slider-selection {
+		background: orange;
+	}
+
+	> .ng5-slider .ng5-slider-pointer {
+		width: 8px;
+		height: 16px;
+		top: auto; /* to remove the default positioning */
+		bottom: 0;
+		background-color: #333;
+		border-top-left-radius: 3px;
+		border-top-right-radius: 3px;
+	}
+
+	> .ng5-slider .ng5-slider-pointer:after {
+		display: none;
+	}
+
+	> .ng5-slider .ng5-slider-bubble {
+		bottom: 14px;
+	}
+
+	> .ng5-slider .ng5-slider-limit {
+		font-weight: bold;
+		color: orange;
+	}
+
+	> .ng5-slider .ng5-slider-tick {
+		width: 1px;
+		height: 10px;
+		margin-left: 4px;
+		border-radius: 0;
+		background: #ffe4d1;
+		top: -1px;
+	}
+
+	> .ng5-slider .ng5-slider-tick.ng5-slider-selected {
+		background: orange;
+	}
+}
+
+.divider {
+	border: 0;
+	width: 100%;
+	height: 1px;
+	background-image: linear-gradient(to left, #f0f0f000, #8c8b8b, #f0f0f000);
+}
+
+.dg.ac {
+	z-index: 9999 !important;
+}

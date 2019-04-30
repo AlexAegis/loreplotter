@@ -3,7 +3,12 @@
 	"compilerOptions": {
 		"downlevelIteration": true,
 		"outDir": "../out-tsc/app",
-		"types": []
+		"types": [],
+		"paths": {
+			"@app/*": ["src/app/*"],
+			"@lore/*": ["src/app/lore/*"],
+			"@env/*": ["src/environments/*"]
+		}
 	},
 	"exclude": ["test.ts", "**/*.spec.ts"]
 }

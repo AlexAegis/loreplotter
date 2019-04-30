@@ -1,6 +1,6 @@
 {
 	"name": "loreplotter",
-	"version": "0.5.0",
+	"version": "0.6.0",
 	"author": {
 		"name": "Alex Aegis",
 		"email": "alexaegis@gmail.com",
@@ -23,6 +23,7 @@
 		"test": "ng test",
 		"test:headless": "ng test --watch=false --browsers=ChromeHeadless",
 		"lint": "ng lint",
+		"format": "npx prettier --write \"src/**/*\"",
 		"e2e": "ng e2e"
 	},
 	"private": true,
@@ -45,6 +46,10 @@
 		"@angular/pwa": "^0.13.8",
 		"@angular/router": "^7.2.14",
 		"@angular/service-worker": "^7.2.14",
+		"@ngrx/effects": "~7.4.0",
+		"@ngrx/entity": "~7.4.0",
+		"@ngrx/router-store": "~7.4.0",
+		"@ngrx/store": "~7.4.0",
 		"@fortawesome/angular-fontawesome": "^0.3.0",
 		"@fortawesome/fontawesome-svg-core": "^1.2.17",
 		"@fortawesome/free-solid-svg-icons": "^5.8.1",
@@ -78,13 +83,14 @@
 		"@angular/cli": "^7.3.8",
 		"@angular/compiler-cli": "^7.2.14",
 		"@angular/language-service": "^7.2.14",
+		"@ngrx/schematics": "~7.4.0",
+		"@ngrx/store-devtools": "~7.4.0",
 		"@types/compression-webpack-plugin": "^2.0.0",
 		"@types/dat.gui": "^0.7.2",
 		"@types/hammerjs": "^2.0.36",
 		"@types/jasmine": "^3.3.12",
 		"@types/jasminewd2": "~2.0.6",
 		"@types/node": "^11.13.8",
-		"@types/three": "^0.103.2",
 		"@types/tween.js": "^17.2.0",
 		"@types/webpack": "^4.4.29",
 		"codelyzer": "~5.0.1",
@@ -97,14 +103,13 @@
 		"karma-coverage-istanbul-reporter": "~2.0.5",
 		"karma-jasmine": "~2.0.1",
 		"karma-jasmine-html-reporter": "^1.4.2",
+		"ngrx-store-freeze": "^0.2.4",
 		"prettier": "^1.17.0",
 		"protractor": "~5.4.2",
 		"ts-node": "^8.1.0",
 		"tslint": "~5.16.0",
 		"typescript": "~3.2.4",
-		"uglifyjs-webpack-plugin": "^2.1.2",
-		"webpack": "^4.30.0",
-		"webpack-bundle-analyzer": "^3.3.2"
+		"uglifyjs-webpack-plugin": "^2.1.2"
 	},
 	"greenkeeper": {
 		"ignore": [
