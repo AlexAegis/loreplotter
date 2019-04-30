@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
 import { ActorObject } from 'src/app/engine/object/actor-object.class';
 import { Moment } from 'moment';
@@ -19,6 +19,15 @@ export interface ActorFormComponentData {
 	moment: Moment;
 	date: string;
 	time: string;
+}
+
+export interface ActorFormResultData {
+	name: string;
+	date: string;
+	time: string;
+	knowledge: Array<{ key: String; value: String; forget: boolean }>;
+	newKnowledge: Array<{ key: String; value: String }>;
+	object: ActorObject;
 }
 
 @Component({
@@ -60,6 +69,25 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 	get newKnowledgeCount(): number {
 		return this.newKnowledgeArray.controls.length - 1;
+	}
+
+	get result(): ActorFormResultData {
+		if (!!this.actorForm.controls['date'].value) {
+			this.actorForm.controls['date'].setValue(this.originalData.date);
+		}
+		if (!!this.actorForm.controls['time'].value) {
+			this.actorForm.controls['time'].setValue(this.originalData.time);
+		}
+
+		// this.actorForm.value
+		return {
+			date: this.actorForm.controls['date'].value || this.originalData.date,
+			time: this.actorForm.controls['time'].value || this.originalData.time,
+			name: this.actorForm.controls['name'].value,
+			knowledge: this.actorForm.controls['knowledge'].value,
+			newKnowledge: this.actorForm.controls['newKnowledge'].value,
+			object: this.originalData.selected
+		};
 	}
 
 	ngOnInit() {}

@@ -57,9 +57,9 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 			this.parent.push(this.control);
 		}
 		if (this.existing) {
-			this.control.controls['key'].setValue(this.existing.value);
+			this.control.controls['key'].setValue(this.existing.key);
 			this.control.addControl('forget', this.formBuilder.control(''));
-			this.control.controls['key'].setValue(false);
+			this.control.controls['forget'].setValue(false);
 		}
 	}
 

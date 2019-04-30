@@ -360,26 +360,9 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			this.frameStart.total,
 			this.frameEnd.total
 		);
-		const wrapper = new UnixWrapper(unix);
-		const enclosing = actor._states.enclosingNodes(wrapper);
-		let finalPosition: Vector3Serializable;
-		if (enclosing.first === undefined || enclosing.last === undefined) {
-			let node = enclosing.first;
-			if (!node) {
-				node = enclosing.last;
-			}
-			finalPosition = {
-				x: node.value.position.x,
-				y: node.value.position.y,
-				z: node.value.position.z
-			};
-		} else {
-			const progress = this.loreService.progress(enclosing, unix);
-			const worldPos = this.loreService.lookAtInterpolated(enclosing, progress);
-			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
-		}
+		const position = this.loreService.actorPositionAt(actor, unix);
 
-		actor._states.set(wrapper, new ActorDelta(undefined, finalPosition));
+		actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
 		actor
 			.atomicUpdate(a => (a._states = actor._states) && a)
 			.then(a => {

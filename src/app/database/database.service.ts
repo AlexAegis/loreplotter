@@ -126,7 +126,7 @@ export class DatabaseService {
 
 		this.currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
 			map(([lore, actors]) => actors.filter(actor => actor.lore === lore.name)),
-			map(actors => actors.map(this.actorStateMapper)),
+			map(actors => actors.map(this.actorStateMapper) as Array<RxDocument<Actor>>),
 			shareReplay(1)
 		);
 
@@ -259,7 +259,7 @@ export class DatabaseService {
 		return upLore;
 	}
 
-	public actorStateMapper(actor: RxDocument<Actor>): RxDocument<Actor> {
+	public actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
 		if (actor.states) {
 			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
 			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted

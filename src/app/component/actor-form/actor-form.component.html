@@ -1,20 +1,23 @@
-<h1>Edit actor</h1>
 <form [formGroup]="actorForm">
+	<h1>Edit actor</h1>
+	<div>
+		<mat-form-field class="date" floatLabel="never">
+			<mat-label>{{ originalData.date }}</mat-label>
+			<input matInput [matDatepicker]="datepicker" mask="0000-M0-d0" />
+			<mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+			<mat-datepicker #datepicker></mat-datepicker>
+		</mat-form-field>
+		<mat-form-field class="time" floatLabel="never">
+			<mat-label>{{ originalData.time }}</mat-label>
+			<input matInput formControlName="time" mask="Hh:m0:s0" />
+		</mat-form-field>
+	</div>
 	<mat-label class="nameLabel">Name:</mat-label>
 	<mat-form-field class="name" floatLabel="never">
 		<mat-label>{{ originalData.name }}</mat-label>
 		<input matInput formControlName="name" appFocus="focused" />
 	</mat-form-field>
-	<mat-form-field class="date" floatLabel="never">
-		<mat-label>{{ originalData.date }}</mat-label>
-		<input matInput [matDatepicker]="datepicker" mask="0000-M0-d0" />
-		<mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
-		<mat-datepicker #datepicker></mat-datepicker>
-	</mat-form-field>
-	<mat-form-field class="time" floatLabel="never">
-		<mat-label>{{ originalData.time }}</mat-label>
-		<input matInput formControlName="time" mask="Hh:m0:s0" />
-	</mat-form-field>
+
 	<hr class="divider" />
 	<h2>Existing knowledge:</h2>
 	<app-form-entry
@@ -38,4 +41,9 @@
 <button mat-flat-button color="accent" class="add" (click)="addNewKnowledge($event)">
 	<fa-icon [icon]="plusIcon"></fa-icon>
 </button>
-<button mat-flat-button color="accent" class="save" [disabled]="!actorForm.valid">Save</button>
+
+<button mat-flat-button color="accent" [mat-dialog-close]="result" class="save" [disabled]="!actorForm.valid">
+	Save
+</button>
+
+{{ actorForm.value | json }}

@@ -23,7 +23,7 @@ export class Water extends Basic {
 		// (this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 		this.material = new THREE.MeshPhysicalMaterial({
 			color: new Color('#63acff'), // 63acff
-			emissive: new Color('#29b6f6;'), // 2863a3
+			emissive: new Color('#29b6f6'), // 2863a3
 			emissiveIntensity: 0.004,
 			opacity: 0.7,
 			transparent: true,

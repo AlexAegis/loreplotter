@@ -22,7 +22,8 @@ import {
 	debounceTime,
 	retry,
 	expand,
-	distinctUntilChanged
+	distinctUntilChanged,
+	pluck
 } from 'rxjs/operators';
 import { DatabaseService } from 'src/app/database/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -38,9 +39,11 @@ import { ActorDelta } from './../model/actor-delta.class';
 import { TextureDelta } from '../model/texture-delta.class';
 import * as THREE from 'three';
 import { Globe } from '../engine/object/globe.class';
-import { RxAttachment } from 'rxdb';
+import { RxAttachment, RxDocument } from 'rxdb';
 import { Lore } from '../model/lore.class';
 import { LoreDocumentMethods } from '../database/database';
+import { ActorFormResultData } from '../component/actor-form/actor-form.component';
+import { Vector3Serializable } from '../model/vector3-serializable.interface';
 
 const DAY_IN_SECONDS = 86400;
 /**
@@ -217,6 +220,34 @@ export class LoreService {
 				)
 			)
 			.subscribe();
+
+		this.saveActorDelta
+			.pipe(
+				switchMap(({ object, name, date, time, knowledge, newKnowledge }) => {
+					const wrapper = new UnixWrapper(moment(`${date}T${time}`).unix());
+					const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
+					const knowledgeMap = new Map();
+					knowledge
+						.filter(({ value }) => !!value)
+						.map(k => {
+							if (k.forget) {
+								k.value = undefined;
+							}
+							return k;
+						})
+						.forEach(({ key, value }) => knowledgeMap.set(key, value));
+					newKnowledge
+						.filter(({ value }) => !!value)
+						.forEach(({ key, value }) => knowledgeMap.set(key, value));
+					return object.actor.atomicUpdate(actor => {
+						this.databaseService
+							.actorStateMapper(actor)
+							._states.set(wrapper, new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap));
+						return actor;
+					});
+				})
+			)
+			.subscribe();
 	}
 
 	public cursor = new BehaviorSubject<number>(moment('2019-01-03T12:00:00').unix()); // Unix
@@ -259,6 +290,7 @@ export class LoreService {
 		.subscribe(next => this.cursor.next(next));
 
 	public spawnActorOnClientOffset = new Subject<Offset>();
+	public saveActorDelta = new Subject<ActorFormResultData>();
 	public overrideNodePosition = new BehaviorSubject<{
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;
@@ -268,6 +300,31 @@ export class LoreService {
 
 	public autoFrameShift$ = new Subject<number>();
 
+	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
+		let finalPosition: Vector3Serializable;
+		const wrapper = new UnixWrapper(unix);
+		const enclosing = actor._states.enclosingNodes(wrapper);
+		if (enclosing.first === undefined || enclosing.last === undefined) {
+			let node = enclosing.first;
+			if (!node) {
+				node = enclosing.last;
+			}
+			finalPosition = {
+				x: node.value.position.x,
+				y: node.value.position.y,
+				z: node.value.position.z
+			};
+		} else {
+			const progress = this.progress(enclosing, unix);
+			const worldPos = this.lookAtInterpolated(enclosing, progress);
+			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
+		}
+		return finalPosition;
+	}
+
+	/**
+	 * atm, make this a pipe, also do one for color
+	 */
 	public name(actor: Actor) {
 		return actor.id;
 	}

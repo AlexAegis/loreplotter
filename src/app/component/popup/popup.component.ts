@@ -6,7 +6,7 @@ import { Subscription, Observable, combineLatest } from 'rxjs';
 import { FormBuilder } from '@angular/forms';
 import { flatMap, tap, map, filter, shareReplay, take, switchMap } from 'rxjs/operators';
 import { MatDialog } from '@angular/material';
-import { ActorFormComponent } from '../actor-form/actor-form.component';
+import { ActorFormComponent, ActorFormResultData } from '../actor-form/actor-form.component';
 import { EngineService } from 'src/app/engine/engine.service';
 import { LoreService } from 'src/app/service/lore.service';
 @Component({
@@ -102,9 +102,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 				),
 				switchMap(dialog => dialog.afterClosed())
 			)
-			.subscribe(result => {
-				console.log(`Dialog result: ${result}`);
-			});
+			.subscribe((result: ActorFormResultData) => this.loreService.saveActorDelta.next(result));
 	}
 
 	ngOnInit() {}
