@@ -96,7 +96,6 @@ export class EngineService {
 
 	public selection$ = this.selected.pipe(
 		distinctUntilChanged(),
-		tap(next => console.log('Selection changed!' + next)),
 		withTeardown(
 			item => this.selectOutlineEffect.setSelection([item]),
 			item => () => this.selectOutlineEffect.deselectObject(item) // clearSelection() // deselectObject(item)
@@ -109,7 +108,6 @@ export class EngineService {
 	public hovered = new Subject<ActorObject>();
 	public hover$ = this.hovered.pipe(
 		distinctUntilChanged(),
-		tap(next => console.log('Hovered changed!' + next)),
 		withTeardown(
 			item => this.hoverOutlineEffect.setSelection([item]),
 			item => () => this.hoverOutlineEffect.deselectObject(item) // clearSelection() // deselectObject(item)
@@ -322,7 +320,6 @@ export class EngineService {
 			.filter(i => i.object.type === 'Globe' || i.object.type === 'Point') // Ignoring arcs
 			.shift(); // only the first hit
 		if (intersection) {
-			console.log('CLICK: ' + intersection.object.type);
 			intersection.object.dispatchEvent({
 				type: 'click',
 				point: intersection.point,

@@ -53,7 +53,5 @@ export class ActorService {
 		share()
 	);
 
-	constructor(private loreService: LoreService, private engineService: EngineService) {
-		console.log(`actorService Initialized`);
-	}
+	constructor(private loreService: LoreService, private engineService: EngineService) {}
 }

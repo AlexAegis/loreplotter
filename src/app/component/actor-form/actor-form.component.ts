@@ -72,16 +72,10 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	}
 
 	get result(): ActorFormResultData {
-		if (!!this.actorForm.controls['date'].value) {
-			this.actorForm.controls['date'].setValue(this.originalData.date);
-		}
-		if (!!this.actorForm.controls['time'].value) {
-			this.actorForm.controls['time'].setValue(this.originalData.time);
-		}
-
-		// this.actorForm.value
 		return {
-			date: this.actorForm.controls['date'].value || this.originalData.date,
+			date:
+				(this.actorForm.controls['date'].value && this.actorForm.controls['date'].value.format('YYYY-MM-DD')) ||
+				this.originalData.date,
 			time: this.actorForm.controls['time'].value || this.originalData.time,
 			name: this.actorForm.controls['name'].value,
 			knowledge: this.actorForm.controls['knowledge'].value,

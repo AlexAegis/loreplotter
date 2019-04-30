@@ -195,12 +195,7 @@ export class LoreService {
 					);
 					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
 					point.parent.userData.override = false;
-					if (point.actor._userdata && point.actor._userdata.block) {
-						const b = point.actor._userdata.block;
-						b.blockStart.original = b.blockStart.override = point.actor._states.first().key.unix;
-						b.blockEnd.original = b.blockEnd.override = point.actor._states.last().key.unix;
-						b.update();
-					}
+					this.refreshBlockOfActorObject(point);
 
 					return updatedActor;
 				})
@@ -239,13 +234,16 @@ export class LoreService {
 					newKnowledge
 						.filter(({ value }) => !!value)
 						.forEach(({ key, value }) => knowledgeMap.set(key, value));
-					return object.actor.atomicUpdate(actor => {
-						this.databaseService
-							.actorStateMapper(actor)
-							._states.set(wrapper, new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap));
-						return actor;
-					});
-				})
+					const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap);
+					object.actor._states.set(wrapper, delta);
+					return from(
+						object.actor.atomicUpdate(actor => {
+							actor._states = object.actor._states;
+							return actor;
+						})
+					).pipe(map(actor => ({ actor, object })));
+				}),
+				tap(({ object }) => this.refreshBlockOfActorObject(object))
 			)
 			.subscribe();
 	}
@@ -380,5 +378,14 @@ export class LoreService {
 			0,
 			1
 		);
+	}
+
+	public refreshBlockOfActorObject(actorObject: ActorObject): void {
+		if (actorObject.actor._userdata && actorObject.actor._userdata.block) {
+			const b = actorObject.actor._userdata.block;
+			b.blockStart.original = b.blockStart.override = actorObject.actor._states.first().key.unix;
+			b.blockEnd.original = b.blockEnd.override = actorObject.actor._states.last().key.unix;
+			b.update();
+		}
 	}
 }

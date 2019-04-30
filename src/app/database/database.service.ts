@@ -61,10 +61,10 @@ export class DatabaseService {
 			),
 			tap(db => {
 				db.lore.preSave(async function preSaveHook(this: RxCollection<Lore>, lore) {
-					console.log('PreSave Lore!' + lore.name);
+					// console.log('PreSave Lore!' + lore.name);
 				}, true);
 				db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
-					console.log('PreSave Actor!' + actor.id);
+					// console.log('PreSave Actor!' + actor.id);
 					if (actor !== undefined && actor !== null) {
 						if (actor._states) {
 							actor.states = actor._states.stringify();
@@ -74,7 +74,7 @@ export class DatabaseService {
 					}
 				}, true);
 				db.actor.preInsert(async function preInsertHook(this: RxCollection<Actor>, actor) {
-					console.log('preInsert Actor!' + actor.id);
+					// console.log('preInsert Actor!' + actor.id);
 					if (actor !== undefined && actor !== null) {
 						if (actor._states) {
 							actor.states = actor._states.stringify();
@@ -85,7 +85,7 @@ export class DatabaseService {
 				}, true);
 
 				db.actor.preCreate(async function preCreateHook(this: RxCollection<Actor>, actor) {
-					console.log('preCreate Actor!' + actor.id);
+					// console.log('preCreate Actor!' + actor.id);
 					if (actor !== undefined && actor !== null) {
 						if (actor.states) {
 							actor.statesString = actor.states.stringify();
@@ -165,7 +165,6 @@ export class DatabaseService {
 	public loreCount$: Observable<number>;
 
 	private initData(conn: RxDatabase<RxCollections>, withName: string): Observable<any> {
-		console.log('assemble initial data');
 		const testKMA = new Map();
 		testKMA.set('Favourite color', 'blue');
 		testKMA.set('Has a cat', 'yes');
@@ -243,7 +242,6 @@ export class DatabaseService {
 					)
 				)
 			),
-			tap(next => console.log(`Initial project`)),
 			mergeMap(([lore, image]) =>
 				from(
 					lore.putAttachment({
@@ -252,8 +250,7 @@ export class DatabaseService {
 						type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
 					})
 				).pipe(map(att => lore))
-			),
-			tap(next => console.log(`Initial project document upserted!`))
+			)
 		);
 
 		return upLore;
