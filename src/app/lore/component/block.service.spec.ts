@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-
-import { BlockService } from './block.service';
+import { BlockService } from '@lore/service';
 
 describe('BlockService', () => {
 	beforeEach(() => TestBed.configureTestingModule({}));

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SceneControlService } from './scene-control.service';
+import { SceneControlService } from '@lore/service';
 
 describe('SceneControlService', () => {
 	beforeEach(() => TestBed.configureTestingModule({}));

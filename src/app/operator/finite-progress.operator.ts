@@ -3,7 +3,7 @@ import { tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/operators';
 
 /**
  * This loader-manager pipeline should be attached to an observable that contains
- * a finite amount of observables (preferrably using an of(), like here.)
+ * a finite amount of observables (preferably using an of(), like here.)
  *
  * Loading starts when the source completes!
  *
@@ -57,7 +57,7 @@ import { tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/operators';
  *
  * [Please check out my other loader-pipeline which can be listen to observables over-time, and raise the
  * upper boundary of the progress even mid-loading! Using that the loading (The listening to the inner observables,
- * starts immediatly, and the source doesn't have to complete!)](https://gist.github.com/AlexAegis/85705cc332d98178dd18c03b06ce1525)
+ * starts immediately, and the source doesn't have to complete!)](https://gist.github.com/AlexAegis/85705cc332d98178dd18c03b06ce1525)
  *
  * @param onStart will be called when the source observable completes
  * @param onProgress will be called when an observable inside the pipe has completed

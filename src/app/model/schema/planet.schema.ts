@@ -1,12 +1,5 @@
 import { RxJsonSchema } from 'rxdb';
 
-/**
- *
- */
-export class Planet {
-	constructor(public name?: string, public radius?: number) {}
-}
-
 export const planetSchema: RxJsonSchema = {
 	title: 'Planet',
 	description: 'Planet Object, describes a planets radius and textures',

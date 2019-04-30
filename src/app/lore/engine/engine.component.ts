@@ -1,12 +1,10 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { Vector2 } from 'three';
-
-import { DatabaseService } from '../../database/database.service';
-import { LoreService } from '../../service/lore.service';
-import { PopupComponent } from '@lore/component/popup.component';
-import { EngineService } from './engine.service';
-import { normalize } from './helper/normalize.function';
+import { PopupComponent } from '@lore/component';
+import { EngineService } from '@lore/engine/engine.service';
+import { DatabaseService, LoreService } from '@app/service';
+import { normalizeFromWindow } from '@app/function';
 
 @Component({
 	selector: 'app-engine',
@@ -39,7 +37,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 
 	public pan($event: any): void {
 		this.engineService.pan(
-			normalize($event.center.x, $event.center.y),
+			normalizeFromWindow($event.center.x, $event.center.y),
 			new Vector2($event.velocityX * 2, $event.velocityY * 2),
 			$event.button,
 			$event.type === 'panstart',
@@ -57,7 +55,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 			// Right click
 			pos = { x: $event.clientX, y: $event.clientY };
 		}
-		this.engineService.context(normalize(pos.x, pos.y));
+		this.engineService.context(normalizeFromWindow(pos.x, pos.y));
 		return false;
 	}
 
@@ -66,17 +64,17 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		switch ($event.button) {
 			case undefined:
 			case 0:
-				this.engineService.click(normalize($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
+				this.engineService.click(normalizeFromWindow($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
 				break;
 			case 2:
-				this.engineService.context(normalize($event.center.x, $event.center.y));
+				this.engineService.context(normalizeFromWindow($event.center.x, $event.center.y));
 				break;
 		}
 		this.engineService.refreshPopupPosition();
 	}
 
 	public hover($event: any) {
-		this.engineService.hover(normalize($event.clientX, $event.clientY));
+		this.engineService.hover(normalizeFromWindow($event.clientX, $event.clientY));
 	}
 
 	ngOnDestroy(): void {}

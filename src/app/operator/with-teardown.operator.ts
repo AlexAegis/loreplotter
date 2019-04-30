@@ -2,10 +2,10 @@ import { of, OperatorFunction, Observable, EMPTY, merge, NEVER } from 'rxjs';
 import { switchMap, finalize, tap } from 'rxjs/operators';
 
 /**
- * Sideffect that can tear down the previous object when a new one enters. Can handle undefined and still
+ * Side-effect that can tear down the previous object when a new one enters. Can handle undefined and still
  * do the teardown on the last element
  *
- * Neither function will ever recieve undefined values.
+ * Neither function will ever receive undefined values.
  *
  * Example:
  *

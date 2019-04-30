@@ -1,5 +1,5 @@
 /**
- * Object state accumulator that ignores undefineds
+ * Object state accumulator that ignores undefined's
  *
  * Example usage:
  *
@@ -7,21 +7,21 @@
  * const accumulator = {};
  *
  * const stateA = { a: 'value' };
- * const stateB = { a: undefined, b: 'bval' };
- * const stateC = { a: 'nextaval' };
+ * const stateB = { a: undefined, b: 'bVal' };
+ * const stateC = { a: 'nextAVal' };
  * const stateD = { a: { d: {}, g: 'lol' } };
  * const stateE = { a: { d: { e: 'asd' }, g: undefined } };
  *
  * accumulate(accumulator, stateA);
  * console.log(JSON.stringify(accumulator)); // {"a":"value"}
  * accumulate(accumulator, stateB);
- * console.log(JSON.stringify(accumulator)); // {"a":"value","b":"bval"}
+ * console.log(JSON.stringify(accumulator)); // {"a":"value","b":"bVal"}
  * accumulate(accumulator, stateC);
- * console.log(JSON.stringify(accumulator)); // {"a":"nextaval","b":"bval"}
+ * console.log(JSON.stringify(accumulator)); // {"a":"nextAVal","b":"bVal"}
  * accumulate(accumulator, stateD);
- * console.log(JSON.stringify(accumulator)); // {"a":{"d":{},"g":"lol"},"b":"bval"}
+ * console.log(JSON.stringify(accumulator)); // {"a":{"d":{},"g":"lol"},"b":"bVal"}
  * accumulate(accumulator, stateE);
- * console.log(JSON.stringify(accumulator)); // {"a":{"d":{"e":"asd"},"g":"lol"},"b":"bval"}
+ * console.log(JSON.stringify(accumulator)); // {"a":{"d":{"e":"asd"},"g":"lol"},"b":"bVal"}
  * ```
  *
  * @param accumulator the object to which the properties and sub-properties will be accumulated to

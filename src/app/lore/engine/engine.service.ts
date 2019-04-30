@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import * as TWEEN from '@tweenjs/tween.js';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import TWEEN, { Easing } from '@tweenjs/tween.js';
 import {
 	BlendFunction,
 	BloomEffect,
@@ -16,30 +16,37 @@ import {
 import { RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, ReplaySubject, range, zip, timer, Subject } from 'rxjs';
 import { distinctUntilChanged, map, share, tap, filter, auditTime, flatMap, take } from 'rxjs/operators';
-import * as THREE from 'three';
-import { Clock, Color, Raycaster, Vector2, Vector3, WebGLRenderer } from 'three';
+import {
+	AdditiveBlending,
+	BackSide,
+	BufferGeometry,
+	Clock,
+	Color,
+	Mesh,
+	Raycaster,
+	ShaderMaterial,
+	SphereBufferGeometry,
+	Vector2,
+	Vector3,
+	WebGLRenderer
+} from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
 
-import { PopupComponent } from '@lore/component/popup.component';
 import { tweenMap } from '@app/operator/tween-map.operator';
 import { withTeardown } from '@app/operator/with-teardown.operator';
-import { Actor } from '@app/model';
-import { SceneControlService } from '@lore/component/scene-control.service';
-import { Control } from './control/control.class';
-import { denormalize } from './helper/denormalize.function';
-import { DynamicTexture } from './object/dynamic-texture.class';
-import { Globe } from './object/globe.class';
-import { ActorObject } from './object/actor-object.class';
-import { Stage } from './object/stage.class';
+import { Actor } from '@app/model/data';
 import { atmosphereShader } from './shader/atmosphere.shader';
+import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
+import { Control } from '@lore/engine/control';
+import { denormalize } from '@app/function';
+import { SceneControlService } from '@lore/service';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
-(THREE.BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
-(THREE.BufferGeometry.prototype as { [k: string]: any }).disposeBoundsTree = disposeBoundsTree;
-THREE.Mesh.prototype.raycast = acceleratedRaycast;
+(BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
+(BufferGeometry.prototype as { [k: string]: any }).disposeBoundsTree = disposeBoundsTree;
+Mesh.prototype.raycast = acceleratedRaycast;
 @Injectable()
 export class EngineService {
-
 	/**
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
 	 * (Since they are shared, side effects will only happen once)
@@ -75,7 +82,6 @@ export class EngineService {
 
 	// Selection
 	public popupTarget = new BehaviorSubject<Vector2>(null);
-	public indicator: PopupComponent;
 	public refreshPopupPositionQueue = new BehaviorSubject<boolean>(undefined);
 	public refreshPopupPositionExecutor = this.refreshPopupPositionQueue
 		.pipe(
@@ -140,14 +146,14 @@ export class EngineService {
 	public light$ = combineLatest([this.manualLightControl, this.manualLight, this.autoLight$]).pipe(
 		map(([manual, permaDay, auto]) => (manual ? permaDay : auto)),
 		map(next => (next ? this.darkToLight : this.lightToDark)),
-		tweenMap(1000, TWEEN.Easing.Exponential.Out),
+		tweenMap(1000, Easing.Exponential.Out),
 		share()
 	);
 
 	public createScene(canvas: HTMLCanvasElement): void {
 		const isDesktopDevice = this.deviceService.isDesktop();
 
-		this.renderer = new THREE.WebGLRenderer({
+		this.renderer = new WebGLRenderer({
 			canvas: canvas,
 			alpha: false,
 			logarithmicDepthBuffer: true,
@@ -170,21 +176,21 @@ export class EngineService {
 		this.stage.add(this.globe);
 		this.control = new Control(this, this.stage.camera, this.renderer.domElement);
 
-		const glowMaterial = new THREE.ShaderMaterial({
+		const glowMaterial = new ShaderMaterial({
 			uniforms: {
 				c: { type: 'f', value: 0.5 },
 				p: { type: 'f', value: 12 },
-				glowColor: { type: 'c', value: new THREE.Color('#2f91ff') },
+				glowColor: { type: 'c', value: new Color('#2f91ff') },
 				viewVector: { type: 'v3', value: this.stage.camera.position }
 			},
 			vertexShader: atmosphereShader.vertexShader,
 			fragmentShader: atmosphereShader.fragmentShader,
-			side: THREE.BackSide,
-			blending: THREE.AdditiveBlending,
+			side: BackSide,
+			blending: AdditiveBlending,
 			transparent: false
 		});
 
-		const glow = new THREE.Mesh(new THREE.SphereBufferGeometry(this.globe.radius, 60, 60), glowMaterial);
+		const glow = new Mesh(new SphereBufferGeometry(this.globe.radius, 60, 60), glowMaterial);
 		glow.scale.setScalar(1.04);
 		this.stage.add(glow);
 		this.initializePostprocessing();

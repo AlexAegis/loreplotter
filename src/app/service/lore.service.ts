@@ -1,7 +1,7 @@
 import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import { BehaviorSubject, combineLatest, timer, from, Subject, of, range } from 'rxjs';
 import {
 	filter,
@@ -18,23 +18,21 @@ import {
 	debounceTime,
 	distinctUntilChanged
 } from 'rxjs/operators';
-import { DatabaseService } from 'src/app/database/database.service';
+import { DatabaseService } from '@app/service/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
 
-import { normalize } from '@lore/engine/helper/normalize.function';
-import { ActorObject } from '@lore/engine/object/actor-object.class';
-import { Actor, Lore } from '@app/model';
-import { UnixWrapper } from '@app/model/unix-wrapper.class';
-import { CursorComponent } from '@lore/component/cursor.component';
+import { ActorObject } from '@lore/engine/object';
+import { Actor, Lore, ActorDelta, Vector3Serializable } from '@app/model/data';
+import { UnixWrapper } from '@app/model/data/unix-wrapper.class';
+import { CursorComponent, ActorFormResultData } from '@lore/component';
 import { EngineService } from '@lore/engine/engine.service';
-import { ActorDelta } from './../model/actor-delta.class';
-import * as THREE from 'three';
+import {Math as ThreeMath} from 'three';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { LoreDocumentMethods } from '../database/database';
-import { ActorFormResultData } from '@lore/component/actor-form.component';
-import { Vector3Serializable } from '../model/vector3-serializable.interface';
+import { LoreDocumentMethods } from '@app/service/database';
+import { normalizeFromWindow } from '@app/function';
 
 const DAY_IN_SECONDS = 86400;
+
 /**
  * This service's goal is to consume the data comint from the database and the engine and then update both
  */
@@ -84,7 +82,7 @@ export class LoreService {
 			.subscribe(({ actor, cursor, overrideNodePositions }) => {
 				engineService.stage.sunGroup.rotation.set(0, 0, 0);
 				engineService.stage.sunGroup.rotateY(
-					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * THREE.Math.DEG2RAD
+					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
 				);
 
 				const enclosure = actor._states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
@@ -155,7 +153,7 @@ export class LoreService {
 				filter(o => o !== undefined),
 				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.cursor),
 				switchMap(([offset, lore, nextId, cursor]) => {
-					const dropVector = this.engineService.intersection(normalize(offset.x, offset.y));
+					const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
 					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 					const actor = new Actor(nextId, lore.name);
 					actor._states.set(
@@ -360,7 +358,7 @@ export class LoreService {
 	}
 
 	public progress(enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>, unix: number) {
-		return THREE.Math.mapLinear(
+		return ThreeMath.mapLinear(
 			unix,
 			enclosure.last ? enclosure.last.k.unix : -Infinity,
 			enclosure.first ? enclosure.first.k.unix : Infinity,

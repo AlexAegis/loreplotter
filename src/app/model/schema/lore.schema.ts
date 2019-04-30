@@ -1,16 +1,5 @@
-import { Planet, planetSchema } from './planet.class';
 import { RxJsonSchema } from 'rxdb';
-
-import { Actor, actorSchema } from './actor.class';
-/**
- * Has an attachment for the planets texture
- */
-export class Lore {
-	name: string;
-	actors: Array<Actor> = [];
-	locations: Array<string> = [];
-	planet: Planet;
-}
+import { planetSchema } from './planet.schema';
 
 export const loreSchema: RxJsonSchema = {
 	title: 'Lore',

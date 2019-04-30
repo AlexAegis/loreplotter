@@ -5,7 +5,7 @@ import { map, concatMap, switchMap, catchError } from 'rxjs/operators';
 
 import { LoreActions, loadLores } from '../actions';
 import { LoreService } from '@app/service/lore.service';
-import { DatabaseService } from '@app/database/database.service';
+import { DatabaseService } from '@app/service/database.service';
 
 /**
  * Lore effects

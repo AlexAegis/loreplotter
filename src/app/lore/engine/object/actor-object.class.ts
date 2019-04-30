@@ -1,21 +1,19 @@
-import * as THREE from 'three';
-
-import { Basic } from './basic.class';
-import { Vector3 } from 'three';
-import { Globe } from './globe.class';
+import { SphereBufferGeometry, Vector3, Math as ThreeMath, MeshBasicMaterial } from 'three';
 import { RxDocument } from 'rxdb';
-import { Actor } from '@app/model/actor.class';
+import { Actor } from '@app/model/data';
+import { Basic } from './basic.class';
+import { Globe } from './globe.class';
 
 export class ActorObject extends Basic {
 	public lastWorldPosition = new Vector3();
 
 	constructor(public actor: RxDocument<Actor>) {
-		super(new THREE.SphereBufferGeometry(0.05, 40, 40), undefined);
+		super(new SphereBufferGeometry(0.05, 40, 40), undefined);
 		this.name = actor.id;
 		this.type = 'Point';
 		this.position.set(0, 0, 1);
-		this.rotateX(90 * THREE.Math.DEG2RAD);
-		this.material = new THREE.MeshBasicMaterial({
+		this.rotateX(90 * ThreeMath.DEG2RAD);
+		this.material = new MeshBasicMaterial({
 			color: 0x1a56e6
 		});
 		(this.geometry as any).computeFaceNormals();

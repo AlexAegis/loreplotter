@@ -1,13 +1,12 @@
 import { Basic } from './basic.class';
-import * as THREE from 'three';
-import { SphereBufferGeometry } from 'three';
-import { Globe } from './globe.class';
+import { BackSide, Mesh, MeshPhysicalMaterial, OrthographicCamera, Scene, SphereBufferGeometry } from 'three';
+import { Globe } from '@lore/engine/object';
 
 export class Atmosphere extends Basic {
-	public mesh: THREE.Mesh;
+	public mesh: Mesh;
 
-	public scene: THREE.Scene;
-	public camera: THREE.OrthographicCamera;
+	public scene: Scene;
+	public camera: OrthographicCamera;
 
 	public time: number;
 
@@ -16,9 +15,9 @@ export class Atmosphere extends Basic {
 
 		this.geometry = new SphereBufferGeometry(planet.radius * 1.1, 80, 80);
 
-		this.material = new THREE.MeshPhysicalMaterial({
+		this.material = new MeshPhysicalMaterial({
 			color: '#6266ff',
-			side: THREE.BackSide,
+			side: BackSide,
 			transparent: true,
 			opacity: 0.02,
 			emissive: '#6266ff',

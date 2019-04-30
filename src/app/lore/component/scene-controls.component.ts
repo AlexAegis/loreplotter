@@ -1,6 +1,7 @@
-import { SceneControlService } from './scene-control.service';
+
 import { Component, OnInit } from '@angular/core';
 import { Options } from 'ng5-slider';
+import { SceneControlService } from '@lore/service';
 
 @Component({
 	selector: 'app-scene-controls',

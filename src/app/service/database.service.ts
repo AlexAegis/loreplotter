@@ -1,18 +1,16 @@
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import RxDB, { RxDatabase, RxDocument, RxCollection } from 'rxdb';
 import { BehaviorSubject, combineLatest, from, Observable, zip, forkJoin } from 'rxjs';
 
 import * as idb from 'pouchdb-adapter-idb';
 import { filter, map, mergeMap, shareReplay, switchMap, tap, delayWhen } from 'rxjs/operators';
 
-import { ActorDelta } from '../model/actor-delta.class';
-import { loreSchema, Lore } from '../model/lore.class';
-import { UnixWrapper } from '../model/unix-wrapper.class';
-import { Actor, actorSchema } from './../model/actor.class';
+import { Lore, Actor, ActorDelta, UnixWrapper, Planet } from '@app/model/data';
+import { loreSchema, actorSchema } from '@app/model/schema';
 import { RxCollections, LoreCollectionMethods, LoreDocumentMethods } from './database';
-import { Planet } from '../model/planet.class';
+
 @Injectable()
 export class DatabaseService {
 	constructor() {

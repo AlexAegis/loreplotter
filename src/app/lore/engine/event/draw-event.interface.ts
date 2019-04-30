@@ -1,7 +1,7 @@
 import { Vector2, Vector3, Face3 } from 'three';
-import { Mode } from '@lore/component/scene-control.service';
+import { Mode } from '@lore/service';
 
-export type DrawEvent = {
+export interface DrawEvent extends Event {
 	event: 'draw';
 	point: Vector3;
 	uv: Vector2;
@@ -10,4 +10,4 @@ export type DrawEvent = {
 	value: number; // [0 - 1] black to white
 	size: number;
 	final: boolean;
-} & Event;
+}

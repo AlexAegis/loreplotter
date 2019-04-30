@@ -16,12 +16,9 @@ import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { Options } from 'ng5-slider';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { LoreService } from 'src/app/service/lore.service';
-
-import { PlayComponent } from '@lore/component/play.component';
-import { TimelineComponent } from '@lore/component/timeline.component';
-import { EngineService } from '@app/lore/engine/engine.service';
-import { ActorService } from '@app/service/actor.service';
+import { LoreService, ActorService } from '@app/service';
+import { TimelineComponent, PlayComponent } from '@lore/component';
+import { EngineService } from '@app/lore/engine';
 
 @Component({
 	selector: 'app-lore',

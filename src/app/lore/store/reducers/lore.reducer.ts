@@ -1,6 +1,6 @@
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 
-import { Lore } from '@app/model';
+import { Lore } from '@app/model/data';
 import { LoreActions, loadLores } from '../actions';
 
 /**

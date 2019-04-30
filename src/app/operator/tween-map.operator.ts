@@ -12,7 +12,7 @@ export interface Tweenable<T> {
  * Can transform a `Tweenable` pipe into it's tweened values
  *
  * Example:
- * This pipe could be listened to turn the lighness level of a lamp
+ * This pipe could be listened to turn the lightness level of a lamp
  * to 1 by calling `turnLamp.next(true)`. Or turning it off by `turnLamp.next(false)`
  *
  * Because both pingpong settings are true, subsequent calls of the same boolean value

@@ -1,6 +1,7 @@
 import { AmbientLight, Color, Group, PerspectiveCamera, Scene } from 'three';
-import { EngineService } from '../engine.service';
 import { Sun } from './sun.class';
+import { EngineService } from '@lore/engine/engine.service';
+
 export class Stage extends Scene {
 	public camera: PerspectiveCamera;
 	public sunGroup: Group;

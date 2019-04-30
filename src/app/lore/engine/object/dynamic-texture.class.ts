@@ -1,6 +1,5 @@
-import { CanvasTexture, Vector2 } from 'three';
-import * as THREE from 'three';
-import { Globe } from './globe.class';
+import { CanvasTexture, Vector2, Math as ThreeMath } from 'three';
+import { Globe } from '@lore/engine/object/';
 
 export class DynamicTexture extends CanvasTexture {
 	public drawEnabled = true;
@@ -75,7 +74,7 @@ export class DynamicTexture extends CanvasTexture {
 			sampleSize,
 			sampleSize
 		);
-		return THREE.Math.mapLinear(imgd.data[0], 0, 255, 0, 1);
+		return ThreeMath.mapLinear(imgd.data[0], 0, 255, 0, 1);
 	}
 
 	public update(): void {

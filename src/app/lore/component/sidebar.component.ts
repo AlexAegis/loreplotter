@@ -4,8 +4,8 @@ import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { RxDocument } from 'rxdb';
 import { filter, flatMap } from 'rxjs/operators';
-import { DatabaseService } from '@app/database/database.service';
-import { Actor } from '@app/model/actor.class';
+import { DatabaseService } from '@app/service/database.service';
+import { Actor } from '@app/model/data/actor.class';
 import { LoreService } from '@app/service/lore.service';
 import { EngineService } from '@app/lore/engine/engine.service';
 

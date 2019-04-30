@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
-import { LoreService } from '../../service/lore.service';
-import * as THREE from 'three';
+import { LoreService } from '@app/service';
+import { Math as ThreeMath } from 'three';
 import { BehaviorSubject } from 'rxjs';
-import { DeltaProperty } from '@app/model/delta-property.class';
+import { DeltaProperty } from '@app/model';
 
 @Component({
 	selector: 'app-cursor',
@@ -17,7 +17,7 @@ export class CursorComponent implements OnInit {
 	public set containerWidth(width: number) {
 		const prevWidth = this._containerWidth || width;
 		this._containerWidth = width;
-		this.position.base = THREE.Math.mapLinear(this.position.base, 0, prevWidth, 0, this._containerWidth);
+		this.position.base = ThreeMath.mapLinear(this.position.base, 0, prevWidth, 0, this._containerWidth);
 		this.contextChange();
 	}
 
@@ -63,7 +63,7 @@ export class CursorComponent implements OnInit {
 	changed(): void {
 		if (this._frameStart && this._frameEnd) {
 			this.overrideCursor.next(
-				THREE.Math.mapLinear(this.position.total, 0, this._containerWidth, this._frameStart, this._frameEnd)
+				ThreeMath.mapLinear(this.position.total, 0, this._containerWidth, this._frameStart, this._frameEnd)
 			);
 		}
 	}
@@ -73,7 +73,7 @@ export class CursorComponent implements OnInit {
 	 */
 	contextChange(): void {
 		// if (!this.position.delta) {
-		this.position.base = THREE.Math.mapLinear(
+		this.position.base = ThreeMath.mapLinear(
 			this.loreService.cursor.value,
 			this._frameStart,
 			this._frameEnd,
@@ -103,6 +103,6 @@ export class CursorComponent implements OnInit {
 	}
 
 	get progress(): number {
-		return THREE.Math.mapLinear(this.position.total, 0, this._containerWidth, 0, 1);
+		return ThreeMath.mapLinear(this.position.total, 0, this._containerWidth, 0, 1);
 	}
 }

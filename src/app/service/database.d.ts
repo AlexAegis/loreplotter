@@ -1,13 +1,11 @@
-import { RxDatabase, RxCollection, RxJsonSchema, RxDocument } from 'rxdb';
-import { Lore } from '../model/lore.class';
-import { Actor } from '../model/actor.class';
+import { RxCollection, RxDocument } from 'rxdb';
+import { Lore, Actor } from '@app/model/data';
 import { Observable } from 'rxjs';
+
 export interface RxCollections {
 	lore: RxCollection<Lore, LoreDocumentMethods, LoreCollectionMethods>;
 	actor: RxCollection<Actor>;
 }
-
-export type LoreDocument = RxDocument<Lore, LoreDocumentMethods>;
 
 export interface LoreCollectionMethods {
 	[countAllDocuments: string]: (

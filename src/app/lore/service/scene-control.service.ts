@@ -7,8 +7,8 @@ import {
 	IconDefinition
 } from '@fortawesome/free-solid-svg-icons';
 import { BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged, share, tap } from 'rxjs/operators';
-import { withTeardown } from '@app/operator/with-teardown.operator';
+import { distinctUntilChanged, share } from 'rxjs/operators';
+import { withTeardown } from '@app/operator';
 
 export interface Modes {
 	move: Mode;

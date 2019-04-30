@@ -1,5 +1,5 @@
 import { OrbitControls } from 'three-full';
-import * as THREE from 'three';
+import { Math } from 'three';
 import { Vector3 } from 'three';
 import { EngineService } from '../engine.service';
 
@@ -17,7 +17,7 @@ export class Control extends OrbitControls {
 		this.addEventListener('change', e => {
 			// TODO: Only on zoom change
 			this.engineService.zoomSubject.next(
-				THREE.Math.mapLinear(
+				Math.mapLinear(
 					(e.target.object.position as Vector3).distanceTo(this.engineService.globe.position),
 					this.minDistance,
 					this.maxDistance,

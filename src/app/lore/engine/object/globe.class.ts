@@ -1,20 +1,19 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { auditTime, scan } from 'rxjs/operators';
-import { Mode } from '@lore/component/scene-control.service';
-import * as THREE from 'three';
+import { Mode } from '@lore/service';
+import { BufferGeometry, Line, LineBasicMaterial, Material, MeshStandardMaterial, SphereBufferGeometry } from 'three';
 import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
-import { DrawEvent } from '../event/draw-event.type';
-import { ClickEvent } from '../event/click-event.type';
-import { AirCurve } from './air-curve.class';
+import { DrawEvent , ClickEvent } from '@lore/engine/event';
+import { RxDocument } from 'rxdb';
+import { Actor } from '@app/model/data';
 import { Basic } from './basic.class';
+import { Water } from './water.class';
 import { DynamicTexture } from './dynamic-texture.class';
 import { ActorObject } from './actor-object.class';
-import { Water } from './water.class';
-import { RxDocument } from 'rxdb';
-import { Actor } from '@app/model/actor.class';
+import { AirCurve } from './air-curve.class';
 
 export class Globe extends Basic {
-	public material: THREE.Material; // Type override, this field exists on the THREE.Mesh already
+	public material: Material; // Type override, this field exists on the THREE.Mesh already
 	public water: Water;
 
 	public displacementTexture: DynamicTexture;
@@ -37,7 +36,7 @@ export class Globe extends Basic {
 
 		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas, this);
 
-		this.material = new THREE.MeshStandardMaterial({
+		this.material = new MeshStandardMaterial({
 			color: '#666666',
 			emissive: '#ffffff',
 			emissiveIntensity: 0.023,
@@ -93,7 +92,7 @@ export class Globe extends Basic {
 			console.log('-------- d9isp tex updated');
 		};*/
 
-		this.geometry = new THREE.SphereBufferGeometry(radius, 512, 512);
+		this.geometry = new SphereBufferGeometry(radius, 512, 512);
 
 		// this.geometry.normalizeNormals();
 
@@ -209,13 +208,13 @@ export class Globe extends Basic {
 		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
 		// const curve = new THREE.LineCurve3(from, to);
 		const points = airCurve.getPoints(50);
-		const geometry = new THREE.BufferGeometry().setFromPoints(points);
+		const geometry = new BufferGeometry().setFromPoints(points);
 		this.castShadow = true;
 		this.receiveShadow = true;
-		const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+		const material = new LineBasicMaterial({ color: 0xff0000 });
 
 		// Create the final object to add to the scene
-		const curveObject = new THREE.Line(geometry, material);
+		const curveObject = new Line(geometry, material);
 		// TODO Shader that from an uniform variable can change its length (0 to 1)
 
 		this.add(curveObject);

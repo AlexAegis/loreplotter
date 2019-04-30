@@ -1,8 +1,7 @@
-import { Shader } from 'three';
-import * as THREE from 'three';
+import { Shader, TextureLoader } from 'three';
 
 export const globeShader: Shader = {
-	uniforms: { texture: { value: new THREE.TextureLoader().load(`assets/world.jpg`) } },
+	uniforms: { texture: { value: new TextureLoader().load(`assets/world.jpg`) } },
 	vertexShader: `
 		varying vec3 vNormal;
 		varying vec2 vUv;

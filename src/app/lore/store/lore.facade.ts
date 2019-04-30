@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
-import { Lore } from '@app/model';
+import { Lore } from '@app/model/data';
 import { State } from './reducers';
 import { loreQuery } from './selectors';
 import { LoreActions, loadLores } from './actions';

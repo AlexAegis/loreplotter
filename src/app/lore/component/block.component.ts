@@ -1,4 +1,3 @@
-import { BlockService } from './block.service';
 import { Node } from '@alexaegis/avl';
 import {
 	ChangeDetectionStrategy,
@@ -14,15 +13,14 @@ import {
 	OnChanges,
 	SimpleChanges
 } from '@angular/core';
-import { DatabaseService } from '@app/database/database.service';
-import { Actor } from '@app/model/actor.class';
+import { DatabaseService, LoreService } from '@app/service';
+import { BlockService } from '@lore/service';
+import { Actor } from '@app/model/data';
 import { OverridableProperty } from '@app/model/overridable-property.class';
-import { LoreService } from '@app/service/lore.service';
 
-import { ActorDelta } from '@app/model/actor-delta.class';
-import { UnixWrapper } from '@app/model/unix-wrapper.class';
+import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import * as THREE from 'three';
+import { Math as ThreeMath } from 'three';
 import { RxDocument } from 'rxdb';
 
 @Component({
@@ -164,14 +162,14 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.frameEnd !== undefined &&
 			this.containerWidth !== undefined
 		) {
-			this.left = THREE.Math.mapLinear(
+			this.left = ThreeMath.mapLinear(
 				this.blockStart.value,
 				this.frameStart,
 				this.frameEnd,
 				0,
 				this.containerWidth
 			);
-			const right = THREE.Math.mapLinear(
+			const right = ThreeMath.mapLinear(
 				this.blockEnd.value,
 				this.frameStart,
 				this.frameEnd,
@@ -186,7 +184,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 	public nodePosition(unix: number): number {
 		return this.width > 0 // If the width is 0, eg.: there's only one node, there's no point in mapping anything, it would produce a NaN
-			? THREE.Math.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width)
+			? ThreeMath.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width)
 			: 0;
 	}
 
@@ -223,7 +221,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		const ogUnix = this._originalUnixesForPan.get(node);
 		const previous = node.key.unix;
 		const pos = this.nodePosition(ogUnix) + this.left;
-		const rescaledUnix = THREE.Math.mapLinear(
+		const rescaledUnix = ThreeMath.mapLinear(
 			pos + $event.deltaX,
 			0,
 			this.containerWidth,
@@ -297,7 +295,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 		const ogFirstUnix = this._originalUnixesForPan.get(this.actor._states.nodes().next().value);
 		const pos = this.nodePosition(ogFirstUnix) + this.left;
-		const rescaledUnix = THREE.Math.mapLinear(
+		const rescaledUnix = ThreeMath.mapLinear(
 			pos + $event.deltaX,
 			0,
 			this.containerWidth,

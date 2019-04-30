@@ -1,6 +1,6 @@
-import { BlockService } from './block.service';
+import { BlockService } from '../service/block.service';
 import { BlockComponent } from './block.component';
-import { Actor } from '@app/model/actor.class';
+import { Actor } from '@app/model/data/actor.class';
 import {
 	AfterViewInit,
 	ChangeDetectorRef,
@@ -13,28 +13,21 @@ import {
 	ViewChildren,
 	QueryList
 } from '@angular/core';
-import * as TWEEN from '@tweenjs/tween.js';
-import * as moment from 'moment';
+import { Easing, Tween } from '@tweenjs/tween.js';
+import moment from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
-import {
-	tap,
-	auditTime,
-	map,
-	throttleTime
-} from 'rxjs/operators';
-import { DatabaseService } from '@app/database/database.service';
-import { nextWhole } from '@app/lore/engine/helper/nextWhole.function';
+import { tap, auditTime, map, throttleTime } from 'rxjs/operators';
+import { DatabaseService } from '@app/service/database.service';
 import { DeltaProperty } from '@app/model/delta-property.class';
 import { LoreService } from '@app/service/lore.service';
-
+import { Math as ThreeMath } from 'three';
 import { CursorComponent } from './cursor.component';
 import { NgScrollbar } from 'ngx-scrollbar';
-import * as THREE from 'three';
-import { ActorDelta } from '@app/model/actor-delta.class';
-import { UnixWrapper } from '@app/model/unix-wrapper.class';
+import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { RxDocument } from 'rxdb';
 import { Observable } from 'rxjs';
-import { tweenMap } from '@app/operator/tween-map.operator';
+import { tweenMap } from '@app/operator';
+import { nextWhole } from '@app/function';
 
 /**
  * Timeline
@@ -93,7 +86,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 						}
 					};
 				}),
-				tweenMap(500, TWEEN.Easing.Exponential.Out, true, true),
+				tweenMap(500, Easing.Exponential.Out, true, true),
 				auditTime(1000 / 60)
 			)
 			.subscribe(({ base }) => {
@@ -201,9 +194,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	// @HostListener('mousewheel', ['$event'])
 	scrollHandler($event: any) {
 		const direction = this.normalize($event.deltaY); // -1 or 1
-		let prog = this.cursor.progress; // [0-1]
 
-		prog = THREE.Math.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
+		const prog = ThreeMath.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
 		/*console.log(
 			`prog: ${prog} currentUnitUpperlimit: ${this.currentUnitDivision} nextUnitDivision: ${
 				this.nextUnitDivision
@@ -247,7 +239,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	public dist(i: number): number {
 		const time = nextWhole(this.frameStart.total, this.currentUnitSeconds, i + 1);
 		return (
-			THREE.Math.mapLinear(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
+			ThreeMath.mapLinear(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
 			this.distanceBetweenUnits * 0.042 - // TODO: Change this magic number into something reasonable (although it works)
 			this.distanceBetweenUnits
 		);
@@ -292,7 +284,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		if (this.panTypeAtStart === 'vertical') {
 			this.scrollRef.scrollYTo(this.scrollOnStart - $event.deltaY);
 		} else {
-			this.frameStart.delta = this.frameEnd.delta = -THREE.Math.mapLinear(
+			this.frameStart.delta = this.frameEnd.delta = -ThreeMath.mapLinear(
 				$event.deltaX,
 				0,
 				this.containerWidth,
@@ -319,9 +311,9 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	public easeCursorTo(position: number) {
-		new TWEEN.Tween(this.cursor.position)
+		new Tween(this.cursor.position)
 			.to({ base: position }, 220)
-			.easing(TWEEN.Easing.Exponential.Out)
+			.easing(Easing.Exponential.Out)
 			.onUpdate(a => {
 				this.cursor.changed();
 			})
@@ -341,7 +333,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent) {
 		$event.stopPropagation();
 		block.isSaving = true;
-		const unix = THREE.Math.mapLinear(
+		const unix = ThreeMath.mapLinear(
 			$event.center.x - this.el.nativeElement.offsetLeft,
 			0,
 			this.containerWidth,

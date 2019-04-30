@@ -1,15 +1,13 @@
-import { Color, TextureLoader, Texture } from 'three';
-import * as THREE from 'three';
-
+import { Color, TextureLoader, Texture, RepeatWrapping, SphereBufferGeometry, MeshPhysicalMaterial } from 'three';
 import { Basic } from './basic.class';
 
 export class Water extends Basic {
 	public type = 'Water';
 	public texture: Texture;
 	constructor(private radius: number = 0.98) {
-		super(new THREE.SphereBufferGeometry(radius, 128, 128), undefined);
+		super(new SphereBufferGeometry(radius, 128, 128), undefined);
 		this.texture = new TextureLoader().load(`assets/textures/water/ripple.gif`, tex => {
-			tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+			tex.wrapS = tex.wrapT = RepeatWrapping;
 			tex.offset.set(0, 0);
 			tex.repeat.set(100, 100);
 			tex.anisotropy = 4;
@@ -21,7 +19,7 @@ export class Water extends Basic {
 		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
 
 		// (this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
-		this.material = new THREE.MeshPhysicalMaterial({
+		this.material = new MeshPhysicalMaterial({
 			color: new Color('#63acff'), // 63acff
 			emissive: new Color('#29b6f6'), // 2863a3
 			emissiveIntensity: 0.004,

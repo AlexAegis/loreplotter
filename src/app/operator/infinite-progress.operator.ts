@@ -1,10 +1,10 @@
-import { of, Subject, Observable, OperatorFunction } from 'rxjs';
-import { delay, tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/operators';
+import { of, Observable, OperatorFunction } from 'rxjs';
+import { tap, map, mergeScan, finalize } from 'rxjs/operators';
 
 /**
  * Over-time loader. This pipeline can be attached to a non-ending observable, though, you can't rely
  * on the `finalize()` operator for checking if the loading is done or not.
- * The observables you supply into it should be completeable.
+ * The observables you supply into it should be completable.
  *
  * This can be extremely useful when you want that each of the 'loader' start as soon as possible, but still keep
  * track of the progress. At the last `tap()` you can always see when one loader finishes that how many observables
@@ -27,7 +27,7 @@ import { delay, tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/oper
  *	 infiniteProgress(
  *		 ({ index, count, observable }) => console.log(`New member with index: ${index}!, So far ${count}!`),
  *		 ({ total, done, result, index }) =>
- *			 console.log(`${index}. finished! Progess: ${done}/${total}, result: ${result}`),
+ *			 console.log(`${index}. finished! Progress: ${done}/${total}, result: ${result}`),
  *		 () => console.log(`You can only see me if the source completes!`)
  *	 )
  * ).subscribe();
@@ -57,14 +57,14 @@ import { delay, tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/oper
  * ```bash
  * New member with index: 0!, So far 1!
  * New member with index: 1!, So far 2!
- * 0. finished! Progess: 1/2, result: true
+ * 0. finished! Progress: 1/2, result: true
  * New member with index: 2!, So far 3!
  * New member with index: 3!, So far 4!
- * 2. finished! Progess: 2/4, result: true
- * 1. finished! Progess: 3/4, result: true
+ * 2. finished! Progress: 2/4, result: true
+ * 1. finished! Progress: 3/4, result: true
  * New member with index: 4!, So far 5!
- * 3. finished! Progess: 4/5, result: true
- * 4. finished! Progess: 5/5, result: true
+ * 3. finished! Progress: 4/5, result: true
+ * 4. finished! Progress: 5/5, result: true
  * You can only see me if the source completes!
  * ```
  *
@@ -100,15 +100,15 @@ export function infiniteProgress<T>(
 						map(next => {
 							acc.result = next;
 							acc.index = index;
-							acc.finised.push(count);
+							acc.finished.push(count);
 							return acc;
 						})
 					);
 				},
-				{ finised: [], total: 0, index: 0, result: undefined as T }
+				{ finished: [], total: 0, index: 0, result: undefined as T }
 			),
-			map(({ finised, total, result, index }) => ({
-				done: finised.length,
+			map(({ finished, total, result, index }) => ({
+				done: finished.length,
 				total,
 				result,
 				index
