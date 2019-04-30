@@ -18,13 +18,14 @@
 		"ng": "ng",
 		"start": "ng serve --poll=2000 --aot --sourceMap=true --host 0.0.0.0",
 		"build": "ng build --prod --aot --stats-json --base-href \"/loreplotter/\"",
-		"stats": "webpack-bundle-analyzer dist/loreplotter/stats.json",
 		"start:prod": "http-server ./dist/ -c-1 --gzip -o http://localhost:8080/loreplotter",
 		"test": "ng test",
 		"test:headless": "ng test --watch=false --browsers=ChromeHeadless",
 		"lint": "ng lint",
+		"e2e": "ng e2e",
 		"format": "npx prettier --write \"src/**/*\"",
-		"e2e": "ng e2e"
+		"build:stats": "npm run build --stats-json",
+		"start:stats": "webpack-bundle-analyzer dist/loreplotter/stats.json"
 	},
 	"private": true,
 	"dependencies": {

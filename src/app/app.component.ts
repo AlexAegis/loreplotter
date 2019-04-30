@@ -8,7 +8,7 @@ import { Router, Event, ChildActivationEnd } from '@angular/router';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
-	private loaded: boolean;
+	public loaded: boolean;
 
 	public constructor(private router: Router) {
 		this.loaded = false;
