@@ -150,7 +150,6 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	 * I'm marking the object as destroyed so the tear-down mechanic in the block-service would skip it's operation
 	 */
 	ngOnDestroy(): void {
-		console.log('block destorye');
 		this.isDestroyed = true;
 	}
 
@@ -262,7 +261,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.blockStart.override = rescaledUnix;
 			this.blockEnd.override = rescaledUnix + 1;
 		}
-		if (previous !== NaN && rescaledUnix !== NaN) {
+		if (!isNaN(previous) && !isNaN(rescaledUnix)) {
 			// node.key.unix = rescaledUnix; // ! HEY You can probably remove this
 			this.loreService.overrideNodePosition.next({
 				actorId: this.actor.id,
@@ -344,11 +343,11 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 				a._states = this.actor._states;
 				return a;
 			})
-			.then(nexta => {
+			.then(actor => {
 				this.loreService.overrideNodePosition.next(undefined);
 				this._originalUnixesForPan.clear();
 				this.isSaving = false;
-				this.actor = nexta;
+				this.actor = actor;
 			});
 	}
 
@@ -384,7 +383,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.cd.detectChanges();
 			this.actor
 				.atomicUpdate(a => (a._states = this.actor._states) && a)
-				.then(a => {
+				.then(() => {
 					this.isSaving = false;
 					this.update();
 				});

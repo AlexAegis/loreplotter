@@ -71,8 +71,11 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 				store.push(ev);
 				storeIndex = store.length - 1;
 			}
-		} else if (eventType & ((Hammer as any).INPUT_END | (Hammer as any).INPUT_CANCEL)) {
-			removePointer = true;
+		} else {
+			// noinspection JSBitwiseOperatorUsage
+			if (eventType & ((Hammer as any).INPUT_END | (Hammer as any).INPUT_CANCEL)) {
+				removePointer = true;
+			}
 		}
 
 		// it not found, so the pointer hasn't been down (so it's probably a hover)

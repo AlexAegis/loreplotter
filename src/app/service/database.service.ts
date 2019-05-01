@@ -1,15 +1,15 @@
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 import moment from 'moment';
-import RxDB, { RxDatabase, RxDocument, RxCollection } from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable, zip, forkJoin } from 'rxjs';
+import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
+import { BehaviorSubject, combineLatest, forkJoin, from, Observable, zip } from 'rxjs';
 
 import * as idb from 'pouchdb-adapter-idb';
-import { filter, map, mergeMap, shareReplay, switchMap, tap, delayWhen } from 'rxjs/operators';
+import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 
-import { Lore, Actor, ActorDelta, UnixWrapper, Planet } from '@app/model/data';
-import { loreSchema, actorSchema } from '@app/model/schema';
-import { RxCollections, LoreCollectionMethods, LoreDocumentMethods } from './database';
+import { Actor, ActorDelta, Lore, Planet, UnixWrapper } from '@app/model/data';
+import { actorSchema, loreSchema } from '@app/model/schema';
+import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
 
 @Injectable()
 export class DatabaseService {
@@ -40,7 +40,7 @@ export class DatabaseService {
 			),
 			tap(db => {
 				db.lore.preSave(async function preSaveHook(this: RxCollection<Lore>, lore) {
-					// console.log('PreSave Lore!' + lore.name);
+					console.log('PreSave Lore!' + lore.name);
 				}, true);
 				db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
 					// console.log('PreSave Actor!' + actor.id);
@@ -105,7 +105,7 @@ export class DatabaseService {
 
 		this.currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
 			map(([lore, actors]) => actors.filter(actor => actor.lore === lore.name)),
-			map(actors => actors.map(this.actorStateMapper) as Array<RxDocument<Actor>>),
+			map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
 			shareReplay(1)
 		);
 
@@ -142,6 +142,16 @@ export class DatabaseService {
 
 	public lores$: Observable<RxDocument<Lore>[]>;
 	public loreCount$: Observable<number>;
+
+	static actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
+		if (actor.states) {
+			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
+			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted
+		} else if (!actor._states) {
+			actor._states = new Tree<UnixWrapper, ActorDelta>();
+		}
+		return actor;
+	}
 
 	private initData(conn: RxDatabase<RxCollections>, withName: string): Observable<any> {
 		const testKMA = new Map();
@@ -206,7 +216,7 @@ export class DatabaseService {
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 })
 		);
 
-		const upLore = zip(
+		return zip(
 			conn.lore.upsert({
 				name: withName,
 				locations: ['City17', 'City14'],
@@ -214,7 +224,7 @@ export class DatabaseService {
 			}),
 			from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
 		).pipe(
-			delayWhen(([lore, image]) =>
+			delayWhen(() =>
 				forkJoin(
 					[testActor1, testActor2, testActor3, testActor4, testActor5].map(
 						actor => (actor.lore = withName) && conn.actor.upsert(actor)
@@ -228,20 +238,8 @@ export class DatabaseService {
 						data: image, // (string|Blob|Buffer) data of the attachment
 						type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
 					})
-				).pipe(map(att => lore))
+				).pipe(map(() => lore))
 			)
 		);
-
-		return upLore;
-	}
-
-	public actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
-		if (actor.states) {
-			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
-			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted
-		} else if (!actor._states) {
-			actor._states = new Tree<UnixWrapper, ActorDelta>();
-		}
-		return actor;
 	}
 }

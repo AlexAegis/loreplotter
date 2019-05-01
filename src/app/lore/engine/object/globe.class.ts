@@ -1,7 +1,7 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { auditTime, scan } from 'rxjs/operators';
 import { Mode } from '@lore/service';
-import { BufferGeometry, Line, LineBasicMaterial, Material, MeshStandardMaterial, SphereBufferGeometry } from 'three';
+import { BufferGeometry, Line, LineBasicMaterial, Material, Mesh, MeshStandardMaterial, SphereBufferGeometry } from 'three';
 import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
 import { DrawEvent , ClickEvent } from '@lore/engine/event';
 import { RxDocument } from 'rxdb';
@@ -181,14 +181,14 @@ export class Globe extends Basic {
 	 * @param position where it will be placed, not that the radius will be overriden and as such, is skippable
 	 * @param height by default 0, bottom of the bounding box will touch the surface of the globe. This value will offset it
 	 */
-	put(object: THREE.Mesh, position: Spherical, height: number = 0): void {
+	put(object: Mesh, position: Spherical, height: number = 0): void {
 		position.radius = this.radius + height + object.geometry.boundingBox.max.y;
 		object.position.setFromSpherical(position);
 		object.lookAt(this.position);
 		this.add(object);
 	}
 
-	putAlt(object: THREE.Mesh, cartesian: Vector3): void {
+	putAlt(object: Mesh, cartesian: Vector3): void {
 		const group = new Group();
 
 		group.lookAt(cartesian);

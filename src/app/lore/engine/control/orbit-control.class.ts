@@ -10,10 +10,11 @@ const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
 //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
 /**
- * This file is based on the OrbitControls example at [three-full](https://github.com/Itee/three-full/blob/dev/sources/controls/OrbitControls.js)
- * Which is a library of free to use Three extensions that are originally meant to be copyable.
+ * This file is based on the OrbitControls example at
+ * [three-full](https://github.com/Itee/three-full/blob/dev/sources/controls/OrbitControls.js)
+ * Which is a library of free to use Three extensions that are originally meant to be copied.
  * The three and three-full libraries are not three-shakeable so I decided to copy (and refactor) this class
- * since this was the only one I was using.
+ * since this was the only one I was using. This saved me almost 2 megabytes.
  */
 export class OrbitControls extends EventDispatcher {
 	static STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY_PAN: 4 };

@@ -1,4 +1,4 @@
-import { BlockService } from '../service/block.service';
+import { BlockService } from '@lore/service';
 import { BlockComponent } from './block.component';
 import { Actor } from '@app/model/data/actor.class';
 import {

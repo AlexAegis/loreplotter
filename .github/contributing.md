@@ -1,11 +1,11 @@
-# Contributing to Inversify
+# Contributing to Loreplotter
 
 ## Setup
 
 1 - Clone your fork of the repository:
 
 ```sh
-git clone https://github.com/AlexAegis/elte-appdev.git
+git clone https://github.com/AlexAegis/loreplotter.git
 ```
 
 ## Guidelines

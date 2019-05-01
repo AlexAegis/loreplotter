@@ -10,8 +10,8 @@ export const atmosphereShader: Shader = {
 	void main()
 	{
 		vec3 vNormal = normalize( normalMatrix * normal );
-		vec3 vNormel = normalize( normalMatrix * viewVector );
-		intensity = pow( c - dot(vNormal, vNormel), p );
+		vec3 vNormalView = normalize( normalMatrix * viewVector );
+		intensity = pow( c - dot(vNormal, vNormalView), p );
 
 		gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 	}`,
