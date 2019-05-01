@@ -14,11 +14,15 @@ import {
 } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { Options } from 'ng5-slider';
-import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import { LoreService, ActorService } from '@app/service';
+import { Observable, Subscription } from 'rxjs';
+import { filter, map, take } from 'rxjs/operators';
+import { DatabaseService, LoreService } from '@app/service';
 import { TimelineComponent, PlayComponent } from '@lore/component';
 import { EngineService } from '@app/lore/engine';
+import { faEllipsisH, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { RxDocument } from 'rxdb';
+import { Lore } from '@app/model/data';
+import { LoreFacade } from '@lore/store/lore.facade';
 
 @Component({
 	selector: 'app-lore',
@@ -93,14 +97,18 @@ import { EngineService } from '@app/lore/engine';
 	]
 })
 export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
+
+	public currentLoreName$: Observable<string>;
 	public constructor(
 		public media: MediaObserver,
 		public loreService: LoreService,
 		public engineService: EngineService,
-		public actorService: ActorService,
+		private databaseService: DatabaseService,
 		public overlayContainer: OverlayContainer,
-		private changeDetector: ChangeDetectorRef
+		private changeDetector: ChangeDetectorRef,
+		private loreFacade: LoreFacade
 	) {
+		this.currentLoreName$ = this.databaseService.currentLore$.pipe(map(lore => lore.name));
 		this.setTheme('default-theme');
 		this.subscriptions.add(
 			this.engineService.light$.subscribe(lum => {
@@ -109,13 +117,18 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 				} else {
 					this.setTheme('light-theme');
 				}
-				this.changeDetector.detectChanges();
-				this.changeDetector.markForCheck();
 			})
 		);
+
+		this.loreFacade.lores$.subscribe(e => {
+			console.log('Something came in the lores$ select!!!');
+			console.log(e);
+		});
 	}
 
 	public title = 'Lore';
+
+	public menuIcon = faEllipsisH;
 
 	public sliderOptions: Options = {
 		floor: -6400,
@@ -134,7 +147,6 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	@HostBinding('class')
 	public theme = 'dark';
 
-	public mediaLarge = true;
 
 	private subscriptions = new Subscription();
 
@@ -143,17 +155,12 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		this.theme = theme;
 	}
 
-	public ngAfterViewInit(): void {}
+	public ngAfterViewInit(): void {
+		this.changeDetector.markForCheck();
+	}
 
 	public ngOnInit(): void {
-		this.subscriptions.add(
-			this.media
-				.asObservable()
-				.pipe(filter(a => a && a.length > 0))
-				.subscribe((changes: MediaChange[]) => {
-					this.mediaLarge = changes[0].mqAlias === 'xl';
-				})
-		);
+		this.loreFacade.loadAll();
 	}
 
 	@HostListener('window:keyup', ['$event'])
@@ -180,4 +187,18 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	public ngOnDestroy(): void {
 		this.subscriptions.unsubscribe();
 	}
+
+	public createLore($event: any) {
+		console.log('creating lore! Button!');
+		this.loreFacade.create(new Lore('ReduxLore'));
+	}
+
+	public loadLores($event: any) {
+		console.log('loading lores! Button!');
+		this.loreFacade.lores$.pipe(take(1)).subscribe(e => {
+			console.log('lores$ in component');
+			console.log(e);
+		});
+	}
+
 }

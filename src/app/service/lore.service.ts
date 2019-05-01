@@ -2,7 +2,7 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import moment from 'moment';
-import { BehaviorSubject, combineLatest, timer, from, Subject, of, range } from 'rxjs';
+import { BehaviorSubject, combineLatest, timer, from, Subject, of, range, Observable } from 'rxjs';
 import {
 	filter,
 	flatMap,
@@ -34,7 +34,7 @@ import { normalizeFromWindow } from '@app/function';
 const DAY_IN_SECONDS = 86400;
 
 /**
- * This service's goal is to consume the data comint from the database and the engine and then update both
+ * This service's goal is to consume the data coming from the database and the engine and then update both
  */
 @Injectable()
 export class LoreService {
@@ -374,5 +374,20 @@ export class LoreService {
 			b.blockEnd.original = b.blockEnd.override = actorObject.actor._states.last().key.unix;
 			b.update();
 		}
+	}
+
+	/**
+	 * Creates a new lore object in the database
+	 * TODO: Refactor this service and move the non data-manipulating methods somewhere else
+	 * @param lore to be created
+	 */
+	public create(lore: Lore): Observable<RxDocument<Lore, LoreDocumentMethods>> {
+	console.log('create in serviccce');
+		// return of(lore as any).pipe(tap(e => console.log('TAPPED INTOI!!')), tap(e => console.log(e)));
+		return this.databaseService.database$.pipe(switchMap(connection => {
+			console.log('issuing insert of lore object in the lore service');
+			console.log(lore);
+			return connection.lore.insert(lore);
+		}));
 	}
 }

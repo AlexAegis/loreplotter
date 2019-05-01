@@ -11,9 +11,9 @@ import { LoreStoreModule } from '@lore/store';
 @NgModule({
 	imports: [
 		StoreModule.forRoot(reducers, { metaReducers }),
+		EffectsModule.forRoot([]),
 		StoreRouterConnectingModule,
 		StoreDevtoolsModule.instrument({ logOnly: environment.production }),
-		EffectsModule.forRoot([]),
 		LoreStoreModule
 	]
 })

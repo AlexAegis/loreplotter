@@ -55,21 +55,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
 			.pipe(filter(a => a && a.length > 0))
 			.subscribe((changes: MediaChange[]) => {
 				this.mediaQueryAlias = changes[0].mqAlias;
-				this.opened = changes[0].mqAlias === 'xl';
-				this.over = changes[0].mqAlias === 'xl' ? 'side' : 'over';
+				this.opened = this.mediaLarge;
+				this.over = this.opened ? 'side' : 'over';
 			});
-
 	}
 
-	ngOnInit(): void {
-		this.media
-		.asObservable()
-		.pipe(flatMap(a => a))
-		.subscribe((change: MediaChange) => {
-			this.opened = change.mqAlias === 'xl';
-			this.over = change.mqAlias === 'xl' ? 'side' : 'over';
-		});
+	get mediaLarge(): boolean {
+		return this.mediaQueryAlias === 'xl';
 	}
+
+	ngOnInit(): void {}
 
 	select($event, actor: RxDocument<Actor>): void {
 		this.engineService.selectedByActor.next(actor);

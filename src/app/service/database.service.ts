@@ -13,114 +13,102 @@ import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './dat
 
 @Injectable()
 export class DatabaseService {
-	constructor() {
-		console.log(this);
-		RxDB.plugin(idb);
+	currentLore = new BehaviorSubject<string>('TestProject');
 
-		this.currentLore = new BehaviorSubject<string>('TestProject');
-		this.connection$ = from(
-			RxDB.create<RxCollections>({
-				name: 'lore',
-				adapter: 'idb'
-			})
-		).pipe(
-			delayWhen(db =>
-				zip(
-					db.collection<RxCollection<Lore, LoreDocumentMethods, LoreCollectionMethods>>({
-						name: 'lore',
-						schema: loreSchema,
-						statics: this.loreCollectionMethods,
-						methods: this.loreDocumentMethods as any
-					}),
-					db.collection<RxCollection<Actor, LoreDocumentMethods, LoreCollectionMethods>>({
-						name: 'actor',
-						schema: actorSchema
-					})
-				)
-			),
-			tap(db => {
-				db.lore.preSave(async function preSaveHook(this: RxCollection<Lore>, lore) {
-					console.log('PreSave Lore!' + lore.name);
-				}, true);
-				db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
-					// console.log('PreSave Actor!' + actor.id);
-					if (actor !== undefined && actor !== null) {
-						if (actor._states) {
-							actor.states = actor._states.stringify();
-							delete actor._states;
-						}
-						delete actor._userdata;
-					}
-				}, true);
-				db.actor.preInsert(async function preInsertHook(this: RxCollection<Actor>, actor) {
-					// console.log('preInsert Actor!' + actor.id);
-					if (actor !== undefined && actor !== null) {
-						if (actor._states) {
-							actor.states = actor._states.stringify();
-							delete actor._states;
-						}
-						delete actor._userdata;
-					}
-				}, true);
-
-				db.actor.preCreate(async function preCreateHook(this: RxCollection<Actor>, actor) {
-					// console.log('preCreate Actor!' + actor.id);
-					if (actor !== undefined && actor !== null) {
-						if (actor.states) {
-							actor.statesString = actor.states.stringify();
-							delete actor.states;
-						}
-						delete actor._userdata;
-					}
-				}, true);
-			}),
-			delayWhen(db => this.initData(db, this.currentLore.value)), // TODO This should read, but set the currentLore's value
-			shareReplay(1)
-		);
-
-		this.currentLore$ = combineLatest([this.currentLore, this.connection$]).pipe(
-			switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
-			filter(lore => !!lore),
-			shareReplay(1)
-		);
-
-		this.lores$ = this.connection$.pipe(
-			switchMap(conn => conn.lore.find().$),
-			shareReplay(1)
-		);
-
-		this.loreCount$ = this.lores$.pipe(map(lores => lores.length));
-
-		this.allActors$ = this.connection$.pipe(
-			switchMap(conn => conn.actor.find().$),
-			shareReplay(1)
-		);
-
-		this.nextActorId$ = this.allActors$.pipe(
-			map(
-				actors =>
-					`${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`
+	public database$ = from(
+		RxDB.create<RxCollections>({
+			name: 'lore',
+			adapter: 'idb'
+		})
+	).pipe(
+		delayWhen(db =>
+			zip(
+				db.collection<RxCollection<Lore, LoreDocumentMethods, LoreCollectionMethods>>({
+					name: 'lore',
+					schema: loreSchema,
+					statics: this.loreCollectionMethods,
+					methods: this.loreDocumentMethods as any
+				}),
+				db.collection<RxCollection<Actor, LoreDocumentMethods, LoreCollectionMethods>>({
+					name: 'actor',
+					schema: actorSchema
+				})
 			)
-		);
+		),
+		tap(db => {
+			db.lore.preSave(async function preSaveHook(this: RxCollection<Lore>, lore) {
+				console.log('PreSave Lore!' + lore.name);
+			}, true);
+			db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
+				// console.log('PreSave Actor!' + actor.id);
+				if (actor !== undefined && actor !== null) {
+					if (actor._states) {
+						actor.states = actor._states.stringify();
+						delete actor._states;
+					}
+					delete actor._userdata;
+				}
+			}, true);
+			db.actor.preInsert(async function preInsertHook(this: RxCollection<Actor>, actor) {
+				// console.log('preInsert Actor!' + actor.id);
+				if (actor !== undefined && actor !== null) {
+					if (actor._states) {
+						actor.states = actor._states.stringify();
+						delete actor._states;
+					}
+					delete actor._userdata;
+				}
+			}, true);
 
-		this.currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
-			map(([lore, actors]) => actors.filter(actor => actor.lore === lore.name)),
-			map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
-			shareReplay(1)
-		);
+			db.actor.preCreate(async function preCreateHook(this: RxCollection<Actor>, actor) {
+				// console.log('preCreate Actor!' + actor.id);
+				if (actor !== undefined && actor !== null) {
+					if (actor.states) {
+						actor.statesString = actor.states.stringify();
+						delete actor.states;
+					}
+					delete actor._userdata;
+				}
+			}, true);
+		}),
+		delayWhen(db => this.initData(db, this.currentLore.value)), // TODO This should read, but set the currentLore's value
+		shareReplay(1)
+	);
 
-		this.actorCount$ = this.currentLoreActors$.pipe(
-			map(actors => actors.length),
-			shareReplay(1)
-		);
-	}
+	currentLore$ = combineLatest([this.currentLore, this.database$]).pipe(
+		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
+		filter(lore => !!lore),
+		shareReplay(1)
+	);
 
-	public connection$: Observable<RxDatabase<RxCollections>>;
-	public currentLore: BehaviorSubject<string>;
-	public currentLore$: Observable<RxDocument<Lore, LoreDocumentMethods>>;
-	public allActors$: Observable<Array<RxDocument<Actor>>>;
-	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
-	public nextActorId$: Observable<string>;
+	lores$ = this.database$.pipe(
+		switchMap(conn => conn.lore.find().$),
+		shareReplay(1)
+	);
+
+	loreCount$ = this.lores$.pipe(map(lores => lores.length));
+
+	allActors$ = this.database$.pipe(
+		switchMap(conn => conn.actor.find().$),
+		shareReplay(1)
+	);
+
+	nextActorId$ = this.allActors$.pipe(
+		map(actors => `${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`)
+	);
+
+	currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
+		map(([lore, actors]) => actors.filter(actor => actor.lore === lore.name)),
+		map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
+		shareReplay(1)
+	);
+
+	actorCount$ = this.currentLoreActors$.pipe(
+		map(actors => actors.length),
+		shareReplay(1)
+	);
+
+	constructor() {}
 
 	private loreDocumentMethods: LoreDocumentMethods = {
 		collectActors: function(
@@ -137,11 +125,6 @@ export class DatabaseService {
 			return (await this.find().exec()).length;
 		}
 	};
-
-	public actorCount$: Observable<number>;
-
-	public lores$: Observable<RxDocument<Lore>[]>;
-	public loreCount$: Observable<number>;
 
 	static actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
 		if (actor.states) {

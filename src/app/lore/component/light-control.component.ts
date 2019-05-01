@@ -1,7 +1,8 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { EngineService } from '@app/lore/engine/engine.service';
-import { trigger, state, transition, style, animate } from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { faMoon, faSun, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+
 @Component({
 	selector: 'app-light-control',
 	templateUrl: './light-control.component.html',

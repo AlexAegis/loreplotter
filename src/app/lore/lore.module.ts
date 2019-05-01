@@ -1,6 +1,6 @@
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { EngineComponent } from '@app/lore/engine';
 import { MaterialModule, SharedModule } from '@app/shared';
 import { LoreRoutingModule } from '@lore/routes/lore-routing.module';
@@ -21,6 +21,7 @@ import {
 import { FocusDirective, RepeatDirective } from '@app/directive';
 import { NgxMaskModule } from 'ngx-mask';
 import { LoreComponent } from './lore.component';
+import { DatabaseService } from '@app/service';
 
 export const APP_FORMATS = {
 	parse: {
@@ -60,6 +61,9 @@ export const APP_FORMATS = {
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
 		NgxMaskModule.forRoot({})
 	],
-	entryComponents: [ActorFormComponent]
+	entryComponents: [ActorFormComponent],
+	providers: [
+
+	]
 })
 export class LoreModule {}

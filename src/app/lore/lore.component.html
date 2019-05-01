@@ -1,10 +1,26 @@
 <mat-toolbar color="back">
 	<mat-toolbar-row id="mainBar">
-		<app-hamburger *ngIf="!mediaLarge" @leave [(open)]="sidebar.opened"></app-hamburger>
+		<app-hamburger *ngIf="!sidebar.mediaLarge" @leave [(open)]="sidebar.opened"></app-hamburger>
 
 		<button class="title" mat-button [routerLink]="['']" matRipple disableRipple [matRippleRadius]="800">
 			{{ title }}
 		</button>
+
+		<mat-menu #appMenu="matMenu">
+			<button mat-menu-item (click)="createLore($event)">Create</button>
+			<button mat-menu-item (click)="loadLores($event)">ListToConsole</button>
+			<hr class="divider" />
+			<button mat-menu-item>Help</button>
+			<button mat-menu-item>GitHub</button>
+		</mat-menu>
+
+		<span class="menuButton">
+			Current project: {{ currentLoreName$ | async}}
+			<button mat-icon-button [matMenuTriggerFor]="appMenu" >
+			<fa-icon [icon]="menuIcon" ></fa-icon>
+		</button>
+		</span>
+
 	</mat-toolbar-row>
 </mat-toolbar>
 
