@@ -8,9 +8,16 @@ import {
 	createLoreSuccess,
 	createLoreFailure,
 	loadLoresSuccess,
-	loadLoresFailure, updateLore, deleteLoreSuccess, deleteLore, updateLoreFailure, updateLoreSuccess, deleteLoreFailure
+	loadLoresFailure,
+	updateLore,
+	deleteLoreSuccess,
+	deleteLore,
+	updateLoreFailure,
+	updateLoreSuccess,
+	deleteLoreFailure,
+	changeSelectedLore,
+	changeSelectedLoreSuccess, changeSelectedLoreFailure
 } from '../actions';
-import { RxDocument } from 'rxdb';
 
 /**
  * State ID
@@ -22,6 +29,7 @@ export const STATE_ID = 'lore';
  */
 export interface State extends EntityState<Partial<Lore>> {
 	loading: boolean;
+	selected: Partial<Lore>;
 }
 
 // const initialState: Partial<State> = { loading: false };
@@ -39,7 +47,8 @@ export const actorAdapter: EntityAdapter<Partial<Actor>> = createEntityAdapter<P
  * Initial state
  */
 export const initialState: State = loreAdapter.getInitialState({
-	loading: false
+	loading: false,
+	selected: { name: 'Example' }
 });
 
 /**
@@ -68,7 +77,6 @@ export function reducer(state: State = initialState, action: LoreActions): State
 		}
 		// create
 		case createLore.type: {
-
 			return { ...state, loading: true };
 		}
 		case createLoreSuccess.type: {
@@ -98,6 +106,17 @@ export function reducer(state: State = initialState, action: LoreActions): State
 			return loreAdapter.removeOne(id, { ...state, loading: false });
 		}
 		case deleteLoreFailure.type: {
+			return { ...state, loading: false };
+		}
+		// Change selected lore
+		case changeSelectedLore.type: {
+			return { ...state, loading: true  };
+		}
+		case changeSelectedLoreSuccess.type: {
+			const { payload } = action;
+			return { ...state, loading: false , selected: payload };
+		}
+		case changeSelectedLoreFailure.type: {
 			return { ...state, loading: false };
 		}
 		default: {

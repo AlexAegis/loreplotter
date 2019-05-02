@@ -22,7 +22,7 @@ import { EngineService } from '@app/lore/engine';
 import { faEllipsisH, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { RxDocument } from 'rxdb';
 import { Lore } from '@app/model/data';
-import { LoreFacade } from '@lore/store/lore.facade';
+import { StoreFacade } from '@lore/store/store-facade.service';
 
 @Component({
 	selector: 'app-lore',
@@ -98,7 +98,8 @@ import { LoreFacade } from '@lore/store/lore.facade';
 })
 export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 
-	public currentLoreName$: Observable<string>;
+	public selectedLore$: Observable<Partial<Lore>>;
+	public lores$: Observable<Array<Partial<Lore>>>;
 	public constructor(
 		public media: MediaObserver,
 		public loreService: LoreService,
@@ -106,9 +107,10 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		private databaseService: DatabaseService,
 		public overlayContainer: OverlayContainer,
 		private changeDetector: ChangeDetectorRef,
-		private loreFacade: LoreFacade
+		private loreFacade: StoreFacade
 	) {
-		this.currentLoreName$ = this.databaseService.currentLore$.pipe(map(lore => lore.name));
+		this.selectedLore$ = this.loreFacade.selectedLore$;
+		this.lores$ = this.loreFacade.lores$;
 		this.setTheme('default-theme');
 		this.subscriptions.add(
 			this.engineService.light$.subscribe(lum => {
@@ -193,12 +195,8 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		this.loreFacade.create(new Lore('ReduxLore'));
 	}
 
-	public loadLores($event: any) {
-		console.log('loading lores! Button!');
-		this.loreFacade.lores$.pipe(take(1)).subscribe(e => {
-			console.log('lores$ in component');
-			console.log(e);
-		});
+	public selectLore(lore: Partial<Lore>) {
+		this.loreFacade.selectLore(lore);
 	}
 
 }

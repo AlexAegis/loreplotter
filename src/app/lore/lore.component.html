@@ -10,12 +10,11 @@
 			<button mat-menu-item (click)="createLore($event)">Create</button>
 			<button mat-menu-item (click)="loadLores($event)">ListToConsole</button>
 			<hr class="divider" />
-			<button mat-menu-item>Help</button>
-			<button mat-menu-item>GitHub</button>
+			<button mat-menu-item *ngFor="let lore of (lores$ | async)" (click)="selectLore(lore)">{{ lore.name }}</button>
 		</mat-menu>
 
 		<span class="menuButton">
-			Current project: {{ currentLoreName$ | async}}
+			Current project: {{ (selectedLore$ | async).name }}
 			<button mat-icon-button [matMenuTriggerFor]="appMenu" >
 			<fa-icon [icon]="menuIcon" ></fa-icon>
 		</button>

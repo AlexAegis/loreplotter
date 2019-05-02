@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { of, concat, merge } from 'rxjs';
-import { map, switchMap, catchError, tap, flatMap, take } from 'rxjs/operators';
+import { of, concat, merge, iif } from 'rxjs';
+import { map, switchMap, catchError, tap, flatMap, take, distinct, distinctUntilChanged, withLatestFrom, mergeMap } from 'rxjs/operators';
 
 import {
 	createLore,
@@ -13,11 +13,14 @@ import {
 	Payload,
 	updateLoreSuccess,
 	voidOperation,
-	loadLoresFailure
+	loadLoresFailure, changeSelectedLore, changeSelectedLoreFailure, changeSelectedLoreSuccess
 } from '../actions';
 import { LoreService } from '@app/service/lore.service';
 import { DatabaseService } from '@app/service/database.service';
 import { Lore } from '@app/model/data';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Store } from '@ngrx/store';
+import { State } from '@lore/store/reducers';
 
 /**
  * Lore effects
@@ -28,7 +31,9 @@ import { Lore } from '@app/model/data';
 export class LoreEffect {
 	constructor(
 		private actions$: Actions<LoreActions>,
+		private store: Store<State>,
 		private loreService: LoreService,
+		private storeFacade: StoreFacade,
 		private databaseService: DatabaseService
 	) {}
 
@@ -70,14 +75,36 @@ export class LoreEffect {
 	 * Create
 	 */
 	@Effect()
-	createLore$ = this.actions$.pipe(
+	public createLore$ = this.actions$.pipe(
 		ofType(createLore.type),
+		distinctUntilChanged(),
 		switchMap(({ payload }: Payload<Lore>) =>
 			this.loreService.create(payload).pipe(
 				map(a => voidOperation()), // The successful result will be handled by the listeners on the database
-				catchError(error => of(createLoreFailure({ error })))
+				catchError(error => of(createLoreFailure({ payload: error })))
 			)
 		)
 	);
+
+	/**
+	 * withLatestFrom(this.store), // Accessing the current
+	 * Create
+	 */
+	@Effect()
+	public changeCurrentLore$ = this.actions$.pipe(
+		ofType(changeSelectedLore.type),
+		withLatestFrom(this.storeFacade.lores$),
+		map(([{ payload }, lores]) => {
+			const l = lores.filter(lore => lore.name === payload.name);
+			if (l.length === 0) {
+				throw new Error('No lores with this name');
+			} else {
+				return l.shift();
+			}
+		}),
+		map(lore => changeSelectedLoreSuccess({ payload: lore })),
+		catchError(error => of(changeSelectedLoreFailure({ payload: error })))
+	);
+
 
 }

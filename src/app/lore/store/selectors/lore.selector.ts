@@ -1,20 +1,24 @@
 import { createFeatureSelector, createSelector, } from '@ngrx/store';
-
-import { State, STATE_ID } from '../reducers';
-import { loreAdapter } from '@lore/store/reducers';
+import { State, STATE_ID, loreAdapter } from '@lore/store/reducers';
 
 /**
  * Selectors
  */
 const { selectAll } = loreAdapter.getSelectors();
+
 const getLoreState = createFeatureSelector<State>(STATE_ID);
+
+const getLores = createSelector(
+	getLoreState,
+	selectAll
+);
 const getLoading = createSelector(
 	getLoreState,
 	state => state.loading
 );
-const getLores = createSelector(
+const getSelected = createSelector(
 	getLoreState,
-	selectAll
+	state => state.selected
 );
 
 /**
@@ -22,5 +26,6 @@ const getLores = createSelector(
  */
 export const loreQuery = {
 	getLoading,
-	getLores
+	getLores,
+	getSelected,
 };

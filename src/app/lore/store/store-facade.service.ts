@@ -18,12 +18,14 @@ import {
 	updateLoreSuccess,
 	createLoreFailure,
 	createLoreSuccess,
-	deleteLoreFailure
+	deleteLoreFailure,
+	changeSelectedLore
 } from './actions';
 
 @Injectable()
-export class LoreFacade {
+export class StoreFacade {
 	public lores$ = this.store.pipe(select(loreQuery.getLores));
+	public selectedLore$ = this.store.pipe(select(loreQuery.getSelected));
 	public loadLoresSuccess$ = this.actions$.pipe(ofType(loadLoresSuccess.type));
 	public loadLoresFail$ = this.actions$.pipe(ofType(loadLoresFailure.type));
 	public createLoresSuccess$ = this.actions$.pipe(ofType(createLoreSuccess.type));
@@ -59,4 +61,7 @@ export class LoreFacade {
 		this.store.dispatch(deleteLore({ id }));
 	}
 
+	public selectLore(lore: Partial<Lore>) {
+		this.store.dispatch(changeSelectedLore({ payload: lore }));
+	}
 }
