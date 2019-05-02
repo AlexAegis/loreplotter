@@ -1,21 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
-import { map, concatMap, switchMap, catchError, tap } from 'rxjs/operators';
+import { of, concat, merge } from 'rxjs';
+import { map, switchMap, catchError, tap, flatMap, take } from 'rxjs/operators';
 
 import {
 	createLore,
+	loadLoresSuccess,
 	createLoreFailure,
 	createLoreSuccess,
-	loadLores,
-	loadLoresFailure,
-	loadLoresSuccess,
-	LoreActions, Payload
+	deleteLoreSuccess,
+	LoreActions,
+	Payload,
+	updateLoreSuccess,
+	voidOperation,
+	loadLoresFailure
 } from '../actions';
 import { LoreService } from '@app/service/lore.service';
 import { DatabaseService } from '@app/service/database.service';
-import { RxDocument } from 'rxdb';
-import { LoreDocumentMethods } from '@app/service';
 import { Lore } from '@app/model/data';
 
 /**
@@ -32,24 +33,38 @@ export class LoreEffect {
 	) {}
 
 	/**
-	 * Load lores
+	 * Database listeners on the Lore Document
 	 *
-	 * Loads the lores from the database
+	 * Automatically issue the load style effects straight from the database
 	 */
-	@Effect()
-	loadLores$ = this.actions$.pipe(
-		ofType(loadLores.type),
-		tap(e => console.log('load lores!')),
-		tap(e => console.log(e)),
-		switchMap(() => {
-			return this.databaseService.lores$.pipe(
-				map(result => result.map(LoreEffect.loreStripper)),
-				tap(e => console.log(e)),
-				map(result => loadLoresSuccess({ lores: result })),
-				catchError(error => of(loadLoresFailure({ error })))
-			);
-		})
+	private initialLores$ = this.databaseService.database$.pipe(
+		switchMap(db => db.lore.find().$),
+		take(1),
+		map(lores => lores.map(lore => lore.toJSON())),
+		map(lores => loadLoresSuccess({ payload: lores })),
+		catchError(error => of(loadLoresFailure({ payload: error })))
 	);
+
+	private insertedLores$ = this.databaseService.database$.pipe(
+		switchMap(db => db.lore.insert$),
+		map(change => change.data.v),
+		map(lore => createLoreSuccess({ payload: lore }))
+	);
+
+	private updatedLores$ = this.databaseService.database$.pipe(
+		switchMap(db => db.lore.update$),
+		map(change => change.data.v),
+		map(lore => updateLoreSuccess({ payload: { id: lore.name, changes: lore } }))
+	);
+
+	private deletedLores$ = this.databaseService.database$.pipe(
+		switchMap(db => db.lore.remove$),
+		map(change => change.data.v),
+		map(lore => deleteLoreSuccess(lore))
+	);
+
+	@Effect()
+	public allLores$ = concat(this.initialLores$, merge(this.insertedLores$, this.updatedLores$, this.deletedLores$));
 
 	/**
 	 * Create
@@ -57,26 +72,12 @@ export class LoreEffect {
 	@Effect()
 	createLore$ = this.actions$.pipe(
 		ofType(createLore.type),
-		switchMap(({ payload }: Payload<Lore>) => {
-			console.log('CreateLore effect is in action!');
-			console.log(payload);
-			return this.loreService.create(payload).pipe(
-				tap(result => console.log('LORE CREATED')),
-				tap(result => console.log(result)),
-				map(LoreEffect.loreStripper),
-				map(lore => createLoreSuccess(lore)),
+		switchMap(({ payload }: Payload<Lore>) =>
+			this.loreService.create(payload).pipe(
+				map(a => voidOperation()), // The successful result will be handled by the listeners on the database
 				catchError(error => of(createLoreFailure({ error })))
-			);
-		}),
-		tap(e => console.log('somethings fishy')),
-		tap(e => console.log(e))
+			)
+		)
 	);
 
-	private static loreStripper(doc: RxDocument<Lore, LoreDocumentMethods>): Partial<Lore> {
-		return { name: doc.name };
-	}
-/*
-	private static loreStripper({ name, planet }: RxDocument<Lore, LoreDocumentMethods>): Partial<Lore> {
-		return { name, planet };
-	}*/
 }

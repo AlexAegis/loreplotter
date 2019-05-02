@@ -36,13 +36,6 @@ export class LoreFacade {
 	constructor(private store: Store<State>, private actions$: Actions<LoreActions>) {}
 
 	/**
-	 * Load all lores into the store
-	 */
-	public loadAll() {
-		this.store.dispatch(loadLores());
-	}
-
-	/**
 	 * Create
 	 * @param lore Lore
 	 */

@@ -382,8 +382,6 @@ export class LoreService {
 	 * @param lore to be created
 	 */
 	public create(lore: Lore): Observable<RxDocument<Lore, LoreDocumentMethods>> {
-	console.log('create in serviccce');
-		// return of(lore as any).pipe(tap(e => console.log('TAPPED INTOI!!')), tap(e => console.log(e)));
 		return this.databaseService.database$.pipe(switchMap(connection => {
 			console.log('issuing insert of lore object in the lore service');
 			console.log(lore);

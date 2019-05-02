@@ -160,7 +160,7 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	}
 
 	public ngOnInit(): void {
-		this.loreFacade.loadAll();
+		// this.loreFacade.loadAll();
 	}
 
 	@HostListener('window:keyup', ['$event'])

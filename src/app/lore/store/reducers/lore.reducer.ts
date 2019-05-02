@@ -60,8 +60,8 @@ export function reducer(state: State = initialState, action: LoreActions): State
 			return { ...state, loading: true };
 		}
 		case loadLoresSuccess.type: {
-			const { lores } = action.payload;
-			return loreAdapter.addAll(lores, { ...state, loading: false });
+			const { payload } = action;
+			return loreAdapter.addAll(payload, { ...state, loading: false });
 		}
 		case loadLoresFailure.type: {
 			return { ...state, loading: false };
@@ -72,7 +72,8 @@ export function reducer(state: State = initialState, action: LoreActions): State
 			return { ...state, loading: true };
 		}
 		case createLoreSuccess.type: {
-			return loreAdapter.addOne(action, { ...state, loading: false });
+			const { payload } = action;
+			return loreAdapter.addOne(payload, { ...state, loading: false });
 		}
 		case createLoreFailure.type: {
 			return { ...state, loading: false };
@@ -82,8 +83,8 @@ export function reducer(state: State = initialState, action: LoreActions): State
 			return { ...state, loading: true };
 		}
 		case updateLoreSuccess.type: {
-			const { todo } = action.payload;
-			return loreAdapter.updateOne(todo, { ...state, loading: false });
+			const { payload } = action.payload;
+			return loreAdapter.updateOne(payload, { ...state, loading: false });
 		}
 		case updateLoreFailure.type: {
 			return { ...state, loading: false };
