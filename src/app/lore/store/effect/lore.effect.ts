@@ -1,7 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { of, concat, merge, iif } from 'rxjs';
-import { map, switchMap, catchError, tap, flatMap, take, distinct, distinctUntilChanged, withLatestFrom, mergeMap } from 'rxjs/operators';
+import {
+	map,
+	switchMap,
+	catchError,
+	tap,
+	flatMap,
+	take,
+	distinct,
+	distinctUntilChanged,
+	withLatestFrom,
+	mergeMap
+} from 'rxjs/operators';
 
 import {
 	createLore,
@@ -10,17 +21,21 @@ import {
 	createLoreSuccess,
 	deleteLoreSuccess,
 	LoreActions,
-	Payload,
 	updateLoreSuccess,
 	voidOperation,
-	loadLoresFailure, changeSelectedLore, changeSelectedLoreFailure, changeSelectedLoreSuccess
+	loadLoresFailure,
+	changeSelectedLore,
+	changeSelectedLoreFailure,
+	changeSelectedLoreSuccess,
+	AllActions
 } from '../actions';
 import { LoreService } from '@app/service/lore.service';
 import { DatabaseService } from '@app/service/database.service';
 import { Lore } from '@app/model/data';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Store } from '@ngrx/store';
-import { State } from '@lore/store/reducers';
+import { FeatureState } from '@lore/store/reducers';
+import { Payload } from '@lore/store/actions/payload.inderface';
 
 /**
  * Lore effects
@@ -31,7 +46,7 @@ import { State } from '@lore/store/reducers';
 export class LoreEffect {
 	constructor(
 		private actions$: Actions<LoreActions>,
-		private store: Store<State>,
+		private store: Store<FeatureState>,
 		private loreService: LoreService,
 		private storeFacade: StoreFacade,
 		private databaseService: DatabaseService
@@ -87,24 +102,17 @@ export class LoreEffect {
 	);
 
 	/**
-	 * withLatestFrom(this.store), // Accessing the current
 	 * Create
 	 */
 	@Effect()
 	public changeCurrentLore$ = this.actions$.pipe(
 		ofType(changeSelectedLore.type),
 		withLatestFrom(this.storeFacade.lores$),
-		map(([{ payload }, lores]) => {
-			const l = lores.filter(lore => lore.name === payload.name);
-			if (l.length === 0) {
-				throw new Error('No lores with this name');
-			} else {
-				return l.shift();
-			}
-		}),
+		map(
+			([{ payload }, lores]) =>
+				lores.find(lore => lore.name === payload.name) || new Error('No lores with this name')
+		),
 		map(lore => changeSelectedLoreSuccess({ payload: lore })),
 		catchError(error => of(changeSelectedLoreFailure({ payload: error })))
 	);
-
-
 }

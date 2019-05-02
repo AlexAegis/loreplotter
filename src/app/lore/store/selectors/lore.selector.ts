@@ -1,12 +1,19 @@
-import { createFeatureSelector, createSelector, } from '@ngrx/store';
-import { State, STATE_ID, loreAdapter } from '@lore/store/reducers';
+import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { loreAdapter, FeatureState } from '@lore/store/reducers';
+import { State } from '@app/store/reducers';
+import { getFeatureState } from '@lore/store/selectors/app-lore.selector';
+
 
 /**
  * Selectors
  */
 const { selectAll } = loreAdapter.getSelectors();
 
-const getLoreState = createFeatureSelector<State>(STATE_ID);
+
+const getLoreState = createSelector(
+	getFeatureState,
+	(state) => state.lores
+);
 
 const getLores = createSelector(
 	getLoreState,
@@ -27,5 +34,13 @@ const getSelected = createSelector(
 export const loreQuery = {
 	getLoading,
 	getLores,
-	getSelected,
+	getSelected
 };
+/*
+const getlorestest = getLores({
+	lores: { ids: ['0'], entities: { 0: {name: 'hello'}}, loading: false, selected: undefined },
+	scene: { loading: false, playSpeed: 0 }
+});
+
+console.log('getlorestest');
+console.log(getlorestest);*/

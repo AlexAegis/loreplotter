@@ -8,7 +8,6 @@
 
 		<mat-menu #appMenu="matMenu">
 			<button mat-menu-item (click)="createLore($event)">Create</button>
-			<button mat-menu-item (click)="loadLores($event)">ListToConsole</button>
 			<hr class="divider" />
 			<button mat-menu-item *ngFor="let lore of (lores$ | async)" (click)="selectLore(lore)">{{ lore.name }}</button>
 		</mat-menu>
@@ -26,25 +25,8 @@
 <app-sidebar #sidebar>
 	<div class="controls" [ngStyle]="{ 'left.px': timeline.el.nativeElement.offsetLeft }">
 		<app-scene-controls class="scene-control"></app-scene-controls>
-		<div class="time-control">
-			<div class="inlineFromRight">
-				<button mat-mini-fab color="basic" (click)="setSpeed($event, 1)">1X</button>
-				<button mat-mini-fab color="basic" (click)="setSpeed($event, 2)">2X</button>
-				<button mat-mini-fab color="basic" (click)="setSpeed($event, 8)">8X</button>
-				<button mat-mini-fab color="basic" (click)="setSpeed($event, 100)">100X</button>
-				<button mat-mini-fab color="basic" (click)="setSpeed($event, 1000)">1000X</button>
-			</div>
-			<div class="inlineFromRight">
-				<app-play #play (tap)="timeline.playOrPause(play.play)"></app-play>
-				<div class="slider">
-					<ng5-slider
-						[value]="engineService.speed.value"
-						(valueChange)="engineService.speed.next($event)"
-						[options]="sliderOptions"
-					></ng5-slider>
-				</div>
-			</div>
-		</div>
+		<!--<app-speed-control class="time-control"></app-speed-control>-->
+
 		<app-light-control class="light-control"></app-light-control>
 	</div>
 

@@ -161,9 +161,7 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		this.changeDetector.markForCheck();
 	}
 
-	public ngOnInit(): void {
-		// this.loreFacade.loadAll();
-	}
+	public ngOnInit(): void {}
 
 	@HostListener('window:keyup', ['$event'])
 	public keyEvent($event: KeyboardEvent) {
@@ -179,11 +177,6 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	@HostListener('window:contextmenu', ['$event'])
 	public contextMenu($event: KeyboardEvent) {
 		$event.preventDefault();
-	}
-
-	public setSpeed($event: MouseEvent, speed: number) {
-		$event.preventDefault();
-		// this.engineService.speed.next(speed);
 	}
 
 	public ngOnDestroy(): void {

@@ -3,8 +3,8 @@ import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
 import { Lore } from '@app/model/data';
-import { State } from './reducers';
-import { loreQuery } from './selectors';
+import { LoreState, FeatureState, AppState } from './reducers';
+import { loreQuery, sceneQuery } from './selectors';
 import {
 	LoreActions,
 	loadLores,
@@ -19,11 +19,12 @@ import {
 	createLoreFailure,
 	createLoreSuccess,
 	deleteLoreFailure,
-	changeSelectedLore
+	changeSelectedLore, AllActions, setPlaySpeed
 } from './actions';
 
 @Injectable()
 export class StoreFacade {
+	// lore
 	public lores$ = this.store.pipe(select(loreQuery.getLores));
 	public selectedLore$ = this.store.pipe(select(loreQuery.getSelected));
 	public loadLoresSuccess$ = this.actions$.pipe(ofType(loadLoresSuccess.type));
@@ -34,8 +35,16 @@ export class StoreFacade {
 	public updateLoresFail$ = this.actions$.pipe(ofType(updateLoreFailure.type));
 	public deleteLoresSuccess$ = this.actions$.pipe(ofType(deleteLoreSuccess.type));
 	public deleteLoresFail$ = this.actions$.pipe(ofType(deleteLoreFailure.type));
+	// scene
+	public playSpeed$ = this.store.pipe(select(sceneQuery.getPlaySpeed)); // this.actions$.pipe();
 
-	constructor(private store: Store<State>, private actions$: Actions<LoreActions>) {}
+	constructor(private store: Store<AppState>, private actions$: Actions<AllActions>) {
+
+		this.lores$.subscribe(a => {
+			console.log('ASDASDAS');
+			console.log(a);
+		});
+	}
 
 	/**
 	 * Create
@@ -63,5 +72,9 @@ export class StoreFacade {
 
 	public selectLore(lore: Partial<Lore>) {
 		this.store.dispatch(changeSelectedLore({ payload: lore }));
+	}
+
+	public setPlaySpeed(speed: number) {
+		this.store.dispatch(setPlaySpeed({ payload: speed }));
 	}
 }

@@ -3,6 +3,7 @@ import * as fromRouter from '@ngrx/router-store';
 import { storeFreeze } from 'ngrx-store-freeze';
 
 import { environment } from '@env/environment';
+import { FeatureState } from '@lore/store/reducers';
 
 /**
  * Root state
@@ -33,7 +34,7 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
 		return result;
 	};
 }
-
+// TODO Add rehydrator
 /**
  * Meta reducers
  */

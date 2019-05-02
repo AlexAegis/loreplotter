@@ -6,7 +6,6 @@ import { EffectsModule } from '@ngrx/effects';
 
 import { environment } from '@env/environment';
 import { reducers, metaReducers } from './reducers';
-import { LoreStoreModule } from '@lore/store';
 
 @NgModule({
 	imports: [
@@ -14,7 +13,6 @@ import { LoreStoreModule } from '@lore/store';
 		EffectsModule.forRoot([]),
 		StoreRouterConnectingModule,
 		StoreDevtoolsModule.instrument({ logOnly: environment.production }),
-		LoreStoreModule
 	]
 })
 export class AppStoreModule {}

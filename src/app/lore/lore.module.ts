@@ -22,6 +22,8 @@ import { FocusDirective, RepeatDirective } from '@app/directive';
 import { NgxMaskModule } from 'ngx-mask';
 import { LoreComponent } from './lore.component';
 import { DatabaseService } from '@app/service';
+import { SpeedControlComponent } from './component/speed-control.component';
+import { LoreStoreModule } from '@lore/store';
 
 export const APP_FORMATS = {
 	parse: {
@@ -52,7 +54,8 @@ export const APP_FORMATS = {
 		FormEntryComponent,
 		LoreComponent,
 		FocusDirective,
-		RepeatDirective
+		RepeatDirective,
+		SpeedControlComponent
 	],
 	imports: [
 		SharedModule,

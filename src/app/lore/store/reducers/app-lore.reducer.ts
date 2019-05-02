@@ -16,51 +16,73 @@ import {
 	updateLoreSuccess,
 	deleteLoreFailure,
 	changeSelectedLore,
-	changeSelectedLoreSuccess, changeSelectedLoreFailure
+	changeSelectedLoreSuccess, changeSelectedLoreFailure, SceneActions
 } from '../actions';
+import { ActionReducerMap, combineReducers, compose } from '@ngrx/store';
+import { setPlaySpeed, setPlaySpeedFailure, setPlaySpeedSuccess } from '@lore/store/actions/scene.actions';
+import { State } from '@app/store/reducers';
 
 /**
- * State ID
+ * Extending the root state with the lazy-feature module's own root-level entry
  */
-export const STATE_ID = 'lore';
+export interface AppState extends State {
+	'app-lore': FeatureState;
+}
+
+export interface FeatureState {
+	lores: LoreState;
+	scene: SceneState;
+}
 
 /**
- * State
+ * LoreState
  */
-export interface State extends EntityState<Partial<Lore>> {
+export interface LoreState extends EntityState<Partial<Lore>> {
 	loading: boolean;
 	selected: Partial<Lore>;
 }
 
-// const initialState: Partial<State> = { loading: false };
+export interface SceneState {
+	loading: boolean;
+	playSpeed: number;
+}
+
+// const initialLoreState: Partial<LoreState> = { loading: false };
 /**
  * Adapter
  */
 export const loreAdapter: EntityAdapter<Partial<Lore>> = createEntityAdapter<Partial<Lore>>({
 	selectId: lore => lore.name
 });
-export const actorAdapter: EntityAdapter<Partial<Actor>> = createEntityAdapter<Partial<Actor>>({
-	selectId: actor => actor.id
-});
 
 /**
  * Initial state
  */
-export const initialState: State = loreAdapter.getInitialState({
+export const initialLoreState: LoreState = loreAdapter.getInitialState({
 	loading: false,
 	selected: { name: 'Example' }
 });
+
+export const initialSceneState: SceneState = {
+	loading: false,
+	playSpeed: 0
+};
+
+export const initialState: FeatureState = {
+	lores: initialLoreState,
+	scene: initialSceneState
+};
 
 /**
  * Reducer
  *
  * This is what keeps the application state updated whenever an action happens
  *
- * @param state State
+ * @param state LoreState
  * @param action Action
  */
-export function reducer(state: State = initialState, action: LoreActions): State {
-	console.log('Reducer in action!');
+export function appLoreReducer(state: LoreState = initialLoreState, action: LoreActions): LoreState {
+	console.log('Lore Reducer in action!');
 	console.log(state);
 	console.log(action);
 	switch (action.type) {
@@ -124,3 +146,29 @@ export function reducer(state: State = initialState, action: LoreActions): State
 		}
 	}
 }
+
+export function sceneReducer(state: SceneState = initialSceneState, action: SceneActions): SceneState {
+	console.log('SceneReducer in action!');
+	console.log(state);
+	console.log(action);
+	switch (action.type) {
+		case setPlaySpeed.type: {
+			return { ...state, loading: true };
+		}
+		case setPlaySpeedSuccess.type: {
+			const { payload } = action;
+			return { ...state, playSpeed: payload, loading: false };
+		}
+		case setPlaySpeedFailure.type: {
+			return { ...state, loading: false };
+		}
+		default: {
+			return state;
+		}
+	}
+}
+
+export const reducers: ActionReducerMap<FeatureState> = {
+	lores: appLoreReducer,
+	scene: sceneReducer
+};

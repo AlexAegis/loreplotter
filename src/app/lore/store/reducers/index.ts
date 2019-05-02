@@ -1,1 +1,1 @@
-export * from './lore.reducer';
+export * from './app-lore.reducer';
