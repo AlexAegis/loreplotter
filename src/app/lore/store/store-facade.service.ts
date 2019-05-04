@@ -80,8 +80,8 @@ export class StoreFacade {
 	public interactionMode$ = this.store$.pipe(select(sceneQuery.getInteractionMode));
 	public drawSize$ = this.store$.pipe(select(sceneQuery.getDrawSize));
 	public drawHeight$ = this.store$.pipe(select(sceneQuery.getDrawHeight));
-	public autoLight$ = this.store$.pipe(select(sceneQuery.getAutoLight));
-	public manualLightAlwaysOn$ = this.store$.pipe(select(sceneQuery.getManualLightAlwaysOn));
+	public manualLight$ = this.store$.pipe(select(sceneQuery.isManualLight));
+	public manualLightAlwaysOn$ = this.store$.pipe(select(sceneQuery.isManualLightAlwaysOn));
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 

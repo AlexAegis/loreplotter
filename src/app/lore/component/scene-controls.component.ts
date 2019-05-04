@@ -29,8 +29,6 @@ export class SceneControlsComponent implements OnInit {
 		this.drawSize$ = this.storeFacade.drawSize$;
 	}
 
-	public iconSize = 'lg';
-
 	public heightSliderOptions: Options = {
 		floor: 0,
 		step: 0.01,
@@ -40,7 +38,8 @@ export class SceneControlsComponent implements OnInit {
 	public sizeSliderOptions: Options = {
 		floor: 1,
 		step: 0.01,
-		ceil: 1000
+		ceil: 1000,
+		logScale: true
 	};
 	ngOnInit() {}
 

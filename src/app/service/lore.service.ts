@@ -11,9 +11,7 @@ import {
 	tap,
 	take,
 	map,
-	mergeMap,
-	shareReplay,
-	scan, bufferCount, bufferTime
+	mergeMap
 } from 'rxjs/operators';
 import { DatabaseService } from '@app/service/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -40,9 +38,11 @@ export class LoreService {
 	public slerperHelper: Group;
 	public pseudoPoint: Group;
 	public latestSlerpsWorldPositionHolder: Vector3;
+	public cursorUnix$: Observable<number>;
+
 	constructor(private engineService: EngineService, private databaseService: DatabaseService, private storeFacade: StoreFacade) {
 		console.log('LoreService created');
-
+		this.cursorUnix$ = this.storeFacade.cursorUnix$;
 
 		this.slerperHelper = new Group();
 		this.pseudoPoint = new Group();
@@ -68,7 +68,7 @@ export class LoreService {
 			});
 
 		// This subscriber's job is end map each actors state end the map based on the current cursor
-		combineLatest([this.databaseService.currentLoreActors$, this.dampenedCursor$, this.overrideNodePosition])
+		combineLatest([this.databaseService.currentLoreActors$, this.cursorUnix$, this.overrideNodePosition])
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
 					actors.map(actor => ({
@@ -150,7 +150,7 @@ export class LoreService {
 		this.spawnActorOnClientOffset
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.dampenedCursor$),
+				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.storeFacade.cursorUnix$),
 				switchMap(([offset, lore, nextId, cursor]) => {
 					const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
 					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
@@ -234,46 +234,12 @@ export class LoreService {
 			.subscribe();
 	}
 
-
-	public dampenedCursor$ = this.storeFacade.cursorUnix$.pipe(
-		scan(
-			(
-				accumulator: { original: number; current: number; avg: number; dampenedSpeed: number; cache: Array<number> },
-				next: number
-			) => {
-				if (accumulator.current === undefined) {
-					accumulator.current = next;
-				}
-				if (accumulator.avg === undefined) {
-					accumulator.avg = next;
-				}
-				accumulator.cache.push(Math.abs(accumulator.current - next));
-				if (accumulator.cache.length > 20) {
-					accumulator.cache.shift();
-				}
-				const nextAvg = accumulator.cache.reduce((a, n) => a + n) / accumulator.cache.length;
-				accumulator.dampenedSpeed = Math.abs(nextAvg - accumulator.avg);
-				accumulator.avg = nextAvg;
-				accumulator.current = next;
-				return accumulator;
-			},
-			{ current: undefined, avg: undefined, dampenedSpeed: 0, cache: [0] }
-		),
-		tap(({ avg }) => this.engineService.dampenedSpeed.next(avg)),
-		map(({ current }) => current),
-		shareReplay(1)
-	);
-
 	public spawnActorOnClientOffset = new Subject<Offset>();
 	public saveActorDelta = new Subject<ActorFormResultData>();
 	public overrideNodePosition = new BehaviorSubject<{
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;
 	}>(undefined);
-
-	public stopSubject = new BehaviorSubject<boolean>(false);
-
-	public autoFrameShift$ = new Subject<number>();
 
 	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
 		let finalPosition: Vector3Serializable;

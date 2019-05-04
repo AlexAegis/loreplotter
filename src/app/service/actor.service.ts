@@ -3,16 +3,18 @@ import { combineLatest } from 'rxjs';
 import { auditTime, filter, map, share } from 'rxjs/operators';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { LoreService } from './lore.service';
+import { StoreFacade } from '@lore/store/store-facade.service';
 
 @Injectable()
 export class ActorService {
+	constructor(private loreService: LoreService, private engineService: EngineService, private storeFacade: StoreFacade) {}
 	// TODO: Also trigger on editing the actor!
 	private knowledgeAndNameTriggerOfSelected$ = combineLatest([
 		this.engineService.selected.pipe(
 			filter(actorObject => actorObject !== undefined),
 			map(actorObject => actorObject.actor)
 		),
-		this.loreService.dampenedCursor$
+		this.storeFacade.cursorUnix$
 	]).pipe(
 		auditTime(1000 / 60),
 		share()
@@ -51,5 +53,4 @@ export class ActorService {
 		share()
 	);
 
-	constructor(private loreService: LoreService, private engineService: EngineService) {}
 }

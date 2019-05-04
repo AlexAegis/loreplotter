@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material';
 import { ActorFormComponent, ActorFormResultData } from './actor-form.component';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { LoreService } from '@app/service/lore.service';
+import { StoreFacade } from '@lore/store/store-facade.service';
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',
@@ -62,7 +63,8 @@ export class PopupComponent implements OnInit, OnDestroy {
 		private engineService: EngineService,
 		private loreService: LoreService,
 		private formBuilder: FormBuilder,
-		public dialog: MatDialog
+		public dialog: MatDialog,
+		private storeFacade: StoreFacade
 	) {
 		this.nameOfSelected$ = this.actorService.nameOfSelected$.pipe(shareReplay(1));
 		this.knowledgeOfSelected$ = this.actorService.knowledgeOfSelected$.pipe(
@@ -93,7 +95,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 			this.nameOfSelected$,
 			this.knowledgeOfSelected$,
 			this.engineService.selected,
-			this.loreService.dampenedCursor$
+			this.storeFacade.cursorUnix$
 		])
 			.pipe(
 				take(1),

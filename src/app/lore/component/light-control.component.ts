@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { EngineService } from '@app/lore/engine/engine.service';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { faMoon, faSun, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
 
@@ -25,11 +24,11 @@ import { Observable } from 'rxjs';
 })
 export class LightControlComponent implements OnInit {
 	public manualLightAlwaysOn$: Observable<boolean>;
-	public autoLight$: Observable<boolean>;
+	public manualLight$: Observable<boolean>;
 
 	constructor(public storeFacade: StoreFacade, private cd: ChangeDetectorRef) {
 		this.manualLightAlwaysOn$ = this.storeFacade.manualLightAlwaysOn$;
-		this.autoLight$ = this.storeFacade.autoLight$;
+		this.manualLight$ = this.storeFacade.manualLight$;
 	}
 
 	public faMoon = faMoon;

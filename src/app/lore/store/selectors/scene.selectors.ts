@@ -91,12 +91,12 @@ const getDrawHeight = createSelector(
 	state => state.drawHeight
 );
 
-const getAutoLight = createSelector(
+const isManualLight = createSelector(
 	getSceneState,
-	state => state.autoLight
+	state => state.manualLight
 );
 
-const getManualLightAlwaysOn = createSelector(
+const isManualLightAlwaysOn = createSelector(
 	getSceneState,
 	state => state.manualLightAlwaysOn
 );
@@ -115,6 +115,6 @@ export const sceneQuery = {
 	getInteractionMode,
 	getDrawSize,
 	getDrawHeight,
-	getAutoLight,
-	getManualLightAlwaysOn
+	isManualLight,
+	isManualLightAlwaysOn
 };

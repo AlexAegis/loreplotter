@@ -3,7 +3,7 @@
 		#cursor
 		id="cursor"
 		[containerWidth]="containerWidth"
-		>{{ cursor$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}</app-cursor
+		>{{ cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}</app-cursor
 	>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
 		<div *appRepeat="let c; from: unitsBetween + 1" class="divisor"
@@ -18,7 +18,7 @@
 </div>
 
 <div class="channelsContainer">
-	<ng-scrollbar class="channels" [viewClass]="noOverflow">
+	<ng-scrollbar class="channels" viewClass="noOverflow">
 		<div
 			class="channel"
 			*ngFor="let actor of actors$ | async as actors"

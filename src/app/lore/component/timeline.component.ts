@@ -12,46 +12,30 @@ import {
 	ViewChild,
 	ViewChildren,
 	QueryList,
-	ChangeDetectionStrategy
+	ChangeDetectionStrategy,
+	OnDestroy
 } from '@angular/core';
-import { Easing, Tween } from '@tweenjs/tween.js';
+import { Easing } from '@tweenjs/tween.js';
 import moment from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
 import {
 	tap,
-	auditTime,
 	map,
-	throttleTime,
-	takeUntil,
-	first,
-	takeLast,
 	withLatestFrom,
-	delayWhen,
 	share,
-	throttle,
-	audit,
-	skipWhile,
-	takeWhile,
-	debounce,
-	filter,
-	mergeMap,
-	take,
-	mapTo,
-	last
 } from 'rxjs/operators';
 import { DatabaseService } from '@app/service/database.service';
-import { DeltaProperty } from '@app/model/delta-property.class';
 import { LoreService } from '@app/service/lore.service';
 import { Math as ThreeMath } from 'three';
 import { CursorComponent } from './cursor.component';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
+import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { tweenMap } from '@app/operator';
 import { nextWhole } from '@app/function';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { findLast } from '@angular/compiler/src/directive_resolver';
+import { toUnit } from '@app/function/to-unit.function';
 
 /**
  * Timeline
@@ -70,7 +54,10 @@ import { findLast } from '@angular/compiler/src/directive_resolver';
 	styleUrls: ['./timeline.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent implements OnInit, AfterViewInit {
+export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
+	private subscriptions = new Subscription();
+	public cursorUnix$: Observable<number>;
+
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
@@ -80,7 +67,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		private storeFacade: StoreFacade,
 		private changeDetectorRef: ChangeDetectorRef
 	) {
-		this.cursor$ = this.loreService.dampenedCursor$;
+		this.cursorUnix$ = this.storeFacade.cursorUnix$;
 	}
 
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
@@ -106,12 +93,11 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostBinding('style.width') get widthCalc(): string {
 		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
 	}
+
 	@ViewChildren(BlockComponent)
 	public blocks: QueryList<BlockComponent>;
 
-	public cursor$: Observable<number>;
-	noOverflow = 'noOverflow';
-
+	// public cursor$: Observable<number>;
 	public unitsBetween = 100; // This property holds how many main divisions there is on the timeline,
 
 	// eg.: how many of the current scale's unit, fits into it.
@@ -152,36 +138,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	private easeCursorTo = new Subject<number>();
 
-	private easeCursorToSubscription = this.easeCursorTo
-		.pipe(
-			withLatestFrom(
-				this.storeFacade.cursorUnix$,
-				this.storeFacade.frameStart$,
-				this.storeFacade.frameEnd$,
-				this.containerWidth
-			),
-			map(([position, cursor, frameStart, frameEnd, containerWidth]) => ({
-				from: { cursor: cursor },
-				to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, frameStart, frameEnd) }
-			})),
-			tweenMap({
-				duration: 220,
-				easing: Easing.Exponential.Out,
-				pingpongInterrupt: true,
-				pingpongAfterFinish: false,
-				sendUndefined: true,
-				doOnNext: next => {
-					if (next) {
-						this.storeFacade.setCursorOverride(next.cursor);
-					}
-				},
-				doOnComplete: () => {
-					this.storeFacade.bakeCursorOverride();
-				}
-			})
-		)
-		.subscribe();
-
 	public firstDist$ = combineLatest([this.storeFacade.frame$, this.containerWidth]).pipe(
 		map(([frame, containerWidth]) => {
 			this.unitsBetween = frame.length / this.currentUnitSeconds;
@@ -198,49 +154,10 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	public nodeSpawner = new Subject<{ $event: any; actor: RxDocument<Actor>; block: BlockComponent }>();
 
-	public spawnNodeSubsciption = this.nodeSpawner
-		.pipe(
-			tap(({ $event }) => $event.stopPropagation()),
-			withLatestFrom(this.storeFacade.frame$, this.containerWidth),
-			map(([{ $event, actor, block }, frame, containerWidth]) => {
-				const unix = ThreeMath.mapLinear(
-					$event.center.x - this.el.nativeElement.offsetLeft,
-					0,
-					containerWidth,
-					frame.start,
-					frame.end
-				);
-
-				const position = this.loreService.actorPositionAt(actor, unix);
-				// Todo make this save a sideeffect and control the block with that
-				actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
-				block.isSaving = true;
-				actor
-					.atomicUpdate(a => (a._states = actor._states) && a)
-					.then(a => {
-						block.isSaving = false;
-						block.actor = a;
-					});
-			})
-		)
-		.subscribe();
-
 	public frameShifter = new Subject<number>();
-	public frameShifterSubscription = this.frameShifter
-		.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
-		.subscribe(([shift, frame, containerWidth]) => {
-			if (shift !== undefined) {
-				this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
-			} else {
-				this.storeFacade.bakeFrame();
-			}
-		});
 
-	static normalize(value: number) {
-		return value === 0 ? 0 : value / Math.abs(value);
-	}
 
-	ngAfterViewInit(): void {
+	public ngAfterViewInit(): void {
 		this.containerWidth.next(this.el.nativeElement.offsetWidth); // Initial value
 		// ResizeObserver is not really supported outside of chrome.
 		// It can also make the app crash on MacOS, here is a workaround: https://github.com/que-etc/resize-observer-polyfill/issues/36
@@ -264,8 +181,8 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 * @param $event mouseEvent
 	 */
 	// @HostListener('mousewheel', ['$event'])
-	scrollHandler($event: any) {
-		const direction = TimelineComponent.normalize($event.deltaY); // -1 or 1
+	public scrollHandler($event: any): void {
+		const direction = toUnit($event.deltaY); // -1 or 1
 
 		const prog = ThreeMath.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
 		/*console.log(
@@ -293,9 +210,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			start: -direction * prog * this.currentUnitSeconds,
 			end: direction * (1 - prog) * this.currentUnitSeconds
 		});
-
-		// this.cursor.changed();
-		// this.cursor.contextChange();
 	}
 
 	/**
@@ -305,7 +219,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		return this.distanceBetweenUnits * i;
 	}
 
-	public subDist(i: number) {
+	public subDist(i: number): number {
 		return (this.distanceBetweenUnits / this.currentUnitDivision) * (i + 1);
 	}
 
@@ -327,7 +241,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostListener('panup', ['$event'])
 	@HostListener('pandown', ['$event'])
 	@HostListener('panend', ['$event'])
-	public shift($event: any) {
+	public shift($event: any): void {
 		$event.stopPropagation();
 		this.blockService.selection.next(undefined);
 		if ($event.type === 'panstart') {
@@ -356,18 +270,95 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	/**
 	 * On click, jump with the cursor
 	 */
-	public tap($event: any) {
+	public tap($event: any): void {
 		$event.stopPropagation();
 		this.easeCursorTo.next($event.center.x - this.el.nativeElement.offsetLeft);
 	}
 
-	ngOnInit() {}
+	public ngOnInit(): void {
+		this.subscriptions.add(
+			this.easeCursorTo
+				.pipe(
+					withLatestFrom(
+						this.storeFacade.cursorUnix$,
+						this.storeFacade.frameStart$,
+						this.storeFacade.frameEnd$,
+						this.containerWidth
+					),
+					map(([position, cursor, frameStart, frameEnd, containerWidth]) => ({
+						from: { cursor: cursor },
+						to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, frameStart, frameEnd) }
+					})),
+					tweenMap({
+						duration: 220,
+						easing: Easing.Exponential.Out,
+						pingpongInterrupt: true,
+						pingpongAfterFinish: false,
+						sendUndefined: true,
+						doOnNext: next => {
+							if (next) {
+								this.storeFacade.setCursorOverride(next.cursor);
+							}
+						},
+						doOnComplete: () => {
+							this.storeFacade.bakeCursorOverride();
+						}
+					})
+				)
+				.subscribe()
+		);
 
-	spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent) {
+		this.subscriptions.add(
+			this.frameShifter
+				.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
+				.subscribe(([shift, frame, containerWidth]) => {
+					if (shift !== undefined) {
+						this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
+					} else {
+						this.storeFacade.bakeFrame();
+					}
+				})
+		);
+
+		this.subscriptions.add(
+			this.nodeSpawner
+				.pipe(
+					tap(({ $event }) => $event.stopPropagation()),
+					withLatestFrom(this.storeFacade.frame$, this.containerWidth),
+					map(([{ $event, actor, block }, frame, containerWidth]) => {
+						const unix = ThreeMath.mapLinear(
+							$event.center.x - this.el.nativeElement.offsetLeft,
+							0,
+							containerWidth,
+							frame.start,
+							frame.end
+						);
+
+						const position = this.loreService.actorPositionAt(actor, unix);
+						// Todo make this save a sideeffect and control the block with that
+						actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
+						block.isSaving = true;
+						actor
+							.atomicUpdate(a => (a._states = actor._states) && a)
+							.then(a => {
+								block.isSaving = false;
+								block.actor = a;
+							});
+					})
+				)
+				.subscribe()
+		);
+	}
+
+	public ngOnDestroy(): void {
+		this.subscriptions.unsubscribe();
+	}
+
+	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent): void {
 		this.nodeSpawner.next({ $event, actor, block });
 	}
 
-	toPx(number: number) {
+	public toPx(number: number): string {
 		return `${number}px`;
 	}
 }

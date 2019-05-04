@@ -14,8 +14,20 @@ import {
 	VignetteEffect
 } from 'postprocessing';
 import { RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, ReplaySubject, range, zip, timer, Subject } from 'rxjs';
-import { distinctUntilChanged, map, share, tap, filter, auditTime, flatMap, take } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, ReplaySubject, range, zip, timer, Subject, merge, of } from 'rxjs';
+import {
+	distinctUntilChanged,
+	map,
+	share,
+	tap,
+	filter,
+	auditTime,
+	flatMap,
+	take,
+	bufferTime,
+	shareReplay,
+	scan, debounceTime, repeat, switchMap, mergeMap, delay
+} from 'rxjs/operators';
 import {
 	AdditiveBlending,
 	BackSide,
@@ -48,12 +60,9 @@ import { InteractionMode } from '@lore/store/reducers';
 Mesh.prototype.raycast = acceleratedRaycast;
 @Injectable()
 export class EngineService {
-
 	private interactionMode: InteractionMode;
 	private drawHeight: number;
 	private drawSize: number;
-	private autoLight: boolean;
-	private manualLightAlwaysOn: boolean;
 	/**
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
@@ -71,14 +80,6 @@ export class EngineService {
 		this.storeFacade.drawSize$.subscribe(drawSize => {
 			this.drawSize = drawSize;
 		});
-		this.storeFacade.autoLight$.subscribe(autoLight => {
-			this.autoLight = autoLight;
-		});
-		this.storeFacade.manualLightAlwaysOn$.subscribe(manualLightAlwaysOn => {
-			this.manualLightAlwaysOn = manualLightAlwaysOn;
-		});
-
-		console.log(this);
 	}
 	// Rendering
 	public clock = new Clock(); // Clock for the renderer
@@ -153,8 +154,46 @@ export class EngineService {
 
 	// Light Control
 
-	public dampenedSpeed = new BehaviorSubject<number>(0);
-	public zoomSpeedLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed]).pipe(
+	public dampen$ = this.storeFacade.cursorUnix$.pipe(
+		debounceTime(120),
+		mergeMap(unix => of(unix).pipe(delay(1000 / 60), repeat(20)))
+	);
+
+	public dampenedSpeed$ = merge(this.storeFacade.cursorUnix$, this.dampen$).pipe(
+		scan(
+			(
+				accumulator: {
+					original: number;
+					current: number;
+					avg: number;
+					dampenedSpeed: number;
+					cache: Array<number>;
+				},
+				next: number
+			) => {
+				if (accumulator.current === undefined) {
+					accumulator.current = next;
+				}
+				if (accumulator.avg === undefined) {
+					accumulator.avg = next;
+				}
+				accumulator.cache.push(Math.abs(accumulator.current - next));
+				if (accumulator.cache.length > 20) {
+					accumulator.cache.shift();
+				}
+				const nextAvg = accumulator.cache.reduce((a, n) => a + n) / accumulator.cache.length;
+				accumulator.dampenedSpeed = Math.abs(nextAvg - accumulator.avg);
+				accumulator.avg = nextAvg;
+				accumulator.current = next;
+				return accumulator;
+			},
+			{ current: undefined, avg: undefined, dampenedSpeed: 0, cache: [0] }
+		),
+		map(({ avg }) => avg),
+		shareReplay(1)
+	);
+
+	public zoomSpeedLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed$]).pipe(
 		map(([zoom, speed]) => zoom <= 0.4 || Math.abs(speed) >= 4000),
 		distinctUntilChanged()
 	);
@@ -162,7 +201,11 @@ export class EngineService {
 	private darkToLight = { from: { light: 0 }, to: { light: 1 } };
 	private lightToDark = { from: { light: 1 }, to: { light: 0 } };
 
-	public light$ = combineLatest([this.storeFacade.autoLight$, this.storeFacade.manualLightAlwaysOn$, this.zoomSpeedLight$]).pipe(
+	public light$ = combineLatest([
+		this.storeFacade.manualLight$,
+		this.storeFacade.manualLightAlwaysOn$,
+		this.zoomSpeedLight$
+	]).pipe(
 		map(([manual, permaDay, zoom]) => (manual ? permaDay : zoom)),
 		map(next => (next ? this.darkToLight : this.lightToDark)),
 		tweenMap({ duration: 1000, easing: Easing.Exponential.Out }),

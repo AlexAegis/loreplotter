@@ -47,7 +47,7 @@ export interface SceneState {
 	interactionMode: InteractionMode;
 	drawSize: number;
 	drawHeight: number;
-	autoLight: boolean;
+	manualLight: boolean;
 	manualLightAlwaysOn: boolean;
 }
 
@@ -82,7 +82,7 @@ export const initialSceneState: SceneState = {
 	interactionMode: 'move',
 	drawSize: 10,
 	drawHeight: 1,
-	autoLight: false,
+	manualLight: true,
 	manualLightAlwaysOn: false,
 };
 
@@ -181,13 +181,13 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 			return { ...state, drawHeight: action.payload };
 		}
 		case setAutoLight.type: {
-			return { ...state, autoLight: action.payload };
+			return { ...state, manualLight: action.payload };
 		}
 		case setManualLightAlwaysOn.type: {
 			return { ...state, manualLightAlwaysOn: action.payload };
 		}
 		case toggleAutoLight.type: {
-			return { ...state, autoLight: !state.autoLight };
+			return { ...state, manualLight: !state.manualLight };
 		}
 		case toggleManualLightAlwaysOn.type: {
 			return { ...state, manualLightAlwaysOn: !state.manualLightAlwaysOn };
