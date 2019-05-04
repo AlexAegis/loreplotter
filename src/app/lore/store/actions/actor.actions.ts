@@ -3,7 +3,7 @@ import { Actor } from '@app/model/data';
 import { Update } from '@ngrx/entity';
 import { Payload } from '@lore/store/actions';
 
-export const loadActors = createAction(`[Actor] Load`, (payload: Payload<Array<Actor>>): Payload<Array<Actor>> => payload);
+export const loadActors = createAction(`[Actor] Load`, (payload: Payload<string>): Payload<string> => payload);
 
 export const loadActorsSuccess = createAction(
 	`[Actor] Load Success`,
@@ -38,7 +38,17 @@ export const deleteActor = createAction(`[Actor] Delete`, (payload = {}) => ({ p
 export const deleteActorSuccess = createAction(`[Actor] Delete Success`, (payload = {}) => ({ payload }));
 export const deleteActorFailure = createAction(`[Actor] Delete Failure`, (payload: Payload<Error>) => ({ payload }));
 
-export const changeSelectedActor = createAction(`[Actor] Change Selected`, (payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => (
-	payload
-));
+export const changeSelectedActor = createAction(
+	`[Actor] Change Selected`,
+	(payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => payload
+);
 
+export const moveNode = createAction(
+	`[Block] Move Node`,
+	(payload: Payload<{ original: number; from: number; to: number }>): Payload<{ original: number; from: number; to: number }> => payload
+);
+
+export const moveNodeFinal = createAction(
+	`[Block] Move Node Final`,
+	(payload: Payload<{ original: number; from: number; to: number }>): Payload<{ original: number; from: number; to: number }> => payload
+);

@@ -11,7 +11,7 @@ import {
 	Output,
 	OnDestroy,
 	OnChanges,
-	SimpleChanges
+	SimpleChanges, AfterViewInit
 } from '@angular/core';
 import { DatabaseService, LoreService } from '@app/service';
 import { BlockService } from '@lore/service';
@@ -23,8 +23,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Math as ThreeMath } from 'three';
 import { RxDocument } from 'rxdb';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { combineLatest, Observable, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'app-block',
@@ -32,7 +31,7 @@ import { map } from 'rxjs/operators';
 	styleUrls: ['./block.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlockComponent implements OnInit, OnChanges, OnDestroy {
+export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;
@@ -45,11 +44,24 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		return this.isSaving ? 'none' : 'all';
 	}
 
+	@Input()
+	containerWidthListener: Observable<number>;
+
+	@Input()
+	public set containerWidth(containerWidth: number) {
+		console.log('contwid: ' + containerWidth);
+		this._containerWidth = containerWidth;
+		this.update();
+	}
+
+	public get containerWidth(): number {
+		return this._containerWidth;
+	}
 
 	@Input()
 	public set actors(actors: Array<RxDocument<Actor>>) {
 		this._actors = actors;
-		// this.update();
+		this.update();
 	}
 
 	public get actors(): Array<RxDocument<Actor>> {
@@ -62,39 +74,43 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		this._actor._userdata = { block: this };
 		this.blockStart.original = this.blockStart.override = this._actor._states.first().key.unix;
 		this.blockEnd.original = this.blockEnd.override = this._actor._states.last().key.unix;
-		// this.update();
+		this.update();
 	}
 
 	public get actor(): RxDocument<Actor> {
 		return this._actor;
 	}
 
+	@Input()
+	public set frameStart(frameStart: number) {
+		this._frameStart = frameStart;
+		this.update();
+	}
+
+	public get frameStart(): number {
+		return this._frameStart;
+	}
+
+	@Input()
+	public set frameEnd(frameEnd: number) {
+		this._frameEnd = frameEnd;
+		this.update();
+	}
+
+	public get frameEnd(): number {
+		return this._frameEnd;
+	}
+
 	constructor(
-		public databaseService: DatabaseService,
 		public loreService: LoreService,
 		public blockService: BlockService,
 		private storeFacade: StoreFacade,
 		public cd: ChangeDetectorRef
-	) {
-		this.frame$ = this.storeFacade.frame$;
-		// this.update(); on next
-		// TODO Refactor
-		/*this.frame$.subscribe(frame => {
-			this.frameStart = frame.start;
-			this.frameEnd = frame.end;
-			this.update();
-		});*/
-	}
+	) {}
 
 	public get isAtMostOneLeft(): boolean {
 		return this.actor._states.length <= 1;
 	}
-
-	@Input()
-	public containerWidth: Observable<number>;
-
-
-	public frame$: Observable<{start: number, end: number, length: number}>;
 
 	public isDestroyed = false;
 	public faTrash = faTrash; // Node remove icon
@@ -106,6 +122,8 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Output()
 	public jump = new EventEmitter<number>();
+
+	public _containerWidth: number;
 
 	private _actor: RxDocument<Actor>;
 	private blockStart = new OverridableProperty<number>(undefined); // in unix
@@ -127,39 +145,9 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
 
-	public updateSubscriber = combineLatest([this.frame$, this.containerWidth]).pipe(
-		map(([frame, containerWidth]) => {
-			if (
-				this.blockStart !== undefined &&
-				this.blockEnd !== undefined
-			) {
-				this.left = ThreeMath.mapLinear(
-					this.blockStart.override || this.blockStart.original,
-					frame.start,
-					frame.end,
-					0,
-					containerWidth
-				);
-				const right = ThreeMath.mapLinear(
-					this.blockEnd.override || this.blockEnd.original,
-					frame.start,
-					frame.end,
-					0,
-					containerWidth
-				);
-				this.width = right - this.left;
-			}
-			this.cd.markForCheck();
-			this.cd.detectChanges();
-		})
-	).subscribe();
-
-	public removeSubject = new Subject<{$event: MouseEvent, node: Node<UnixWrapper, ActorDelta>}>();
-	private removeSubjectSubscription = this.removeSubject.pipe();
-
 	public clearBlockOverrides() {
-		this.blockStart.original = undefined;
-		this.blockEnd.original = undefined;
+		this.blockStart.clear();
+		this.blockEnd.clear();
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {}
@@ -171,28 +159,48 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		this.isDestroyed = true;
 	}
 
-
+	public update(): void {
+		if (
+			this.blockStart !== undefined &&
+			this.blockEnd !== undefined &&
+			this.frameStart !== undefined &&
+			this.frameEnd !== undefined &&
+			this.containerWidth !== undefined
+		) {
+			this.left = ThreeMath.mapLinear(
+				this.blockStart.value,
+				this.frameStart,
+				this.frameEnd,
+				0,
+				this.containerWidth
+			);
+			const right = ThreeMath.mapLinear(
+				this.blockEnd.value,
+				this.frameStart,
+				this.frameEnd,
+				0,
+				this.containerWidth
+			);
+			this.width = right - this.left;
+		}
+		this.cd.markForCheck();
+		this.cd.detectChanges();
+	}
 
 	public nodePosition(unix: number): number {
 		return this.width > 0 // If the width is 0, eg.: there's only one node, there's no point in mapping anything, it would produce a NaN
-			? ThreeMath.mapLinear(
-					unix,
-					this.blockStart.override || this.blockStart.original,
-					this.blockEnd.override || this.blockEnd.original,
-					0,
-					this.width
-			  )
+			? ThreeMath.mapLinear(unix, this.blockStart.value, this.blockEnd.value, 0, this.width)
 			: 0;
 	}
 
 	/**
-	 * This method is for moving the nodes in a block end change the time of an event.
-	 * To avoid unnecessary writes and reads start the database, during the pan, this is only an override
-	 * and the actual writing happens only when the pan ends end the final position.
+	 * This method is for moving the nodes in a block to change the time of an event.
+	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
+	 * and the actual writing happens only when the pan ends to the final position.
 	 */
 	public panNode($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
-		/*if ($event.type === 'panstart') {
+		if ($event.type === 'panstart') {
 			this.isPanning = true;
 			this._originalUnixesForPan.set(node, node.key.unix);
 			const nodeIterator = this.actor._states.nodes();
@@ -254,7 +262,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.blockEnd.override = lastLimit;
 		}
 
-		// Edge case. Also, the block has end be at least 1 px wide
+		// Edge case. Also, the block has to be at least 1 px wide
 		if (this._actor._states.length === 1) {
 			this.blockStart.override = rescaledUnix;
 			this.blockEnd.override = rescaledUnix + 1;
@@ -272,7 +280,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 			this.isPanning = false;
 			this.finalizeNewPositions();
 			this.update();
-		}*/
+		}
 	}
 
 	@HostListener('panstart', ['$event'])
@@ -283,7 +291,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 	@HostListener('panend', ['$event'])
 	public pan($event: any) {
 		$event.stopPropagation();
-		/*if ($event.type === 'panstart') {
+		if ($event.type === 'panstart') {
 			this.isPanning = true;
 			for (const node of this.actor._states.nodes()) {
 				this._originalUnixesForPan.set(node, node.key.unix);
@@ -324,7 +332,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		if ($event.type === 'panend') {
 			this.isPanning = false;
 			this.finalizeNewPositions();
-		}*/
+		}
 	}
 
 	private finalizeNewPositions() {
@@ -370,6 +378,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 		this.selection = undefined;
 		this.cd.detectChanges();
 	}
+
 	public remove($event: any, node: Node<UnixWrapper, ActorDelta>) {
 		$event.stopPropagation();
 		if (!this.isAtMostOneLeft) {
@@ -382,10 +391,21 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy {
 				.atomicUpdate(a => (a._states = this.actor._states) && a)
 				.then(() => {
 					this.isSaving = false;
-					// this.update();
+					this.update();
 				});
 		}
 	}
 
 	ngOnInit() {}
+
+	ngAfterViewInit(): void {
+		this.storeFacade.frame$.subscribe(frame => {
+			this._frameStart = frame.start;
+			this._frameEnd = frame.end;
+			this.update();
+		});
+		this.containerWidthListener.subscribe(width => {
+			this.containerWidth = width;
+		});
+	}
 }

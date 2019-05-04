@@ -153,7 +153,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	// eg.: how many of the current scale's unit, fits into it.
 	public distanceBetweenUnits: number;
 	// The resizeObserver keeps this property updated and call the change calculation
-	public containerWidth = new Subject<number>();
+	public containerWidth = new ReplaySubject<number>(1);
 	currentUnitIndex = 3;
 	units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
 		{ unitName: 'second', frame: 1000, seconds: moment.duration(1, 'second').asSeconds() },

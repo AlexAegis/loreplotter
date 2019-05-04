@@ -10,10 +10,11 @@ import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'r
 import { Actor, ActorDelta, Lore, Planet, UnixWrapper } from '@app/model/data';
 import { actorSchema, loreSchema } from '@app/model/schema';
 import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
+import { StoreFacade } from '@lore/store/store-facade.service';
 
 @Injectable()
 export class DatabaseService {
-	currentLore = new BehaviorSubject<string>('TestProject');
+	// currentLore = new BehaviorSubject<string>('TestProject');
 
 	public database$ = from(
 		RxDB.create<RxCollections>({
@@ -71,12 +72,12 @@ export class DatabaseService {
 				}
 			}, true);
 		}),
-		delayWhen(db => this.initData(db, this.currentLore.value)), // TODO This should read, but set the currentLore's value
+		delayWhen(db => this.initData(db)), // TODO This should read, but set the currentLore's value
 		shareReplay(1)
 	);
 
-	currentLore$ = combineLatest([this.currentLore, this.database$]).pipe(
-		switchMap(([name, conn]) => conn.lore.findOne({ name: name }).$),
+	currentLore$ = combineLatest([this.storeFacade.selectedLore$, this.database$]).pipe(
+		switchMap(([selected, conn]) => conn.lore.findOne({ id: selected.id }).$),
 		filter(lore => !!lore),
 		shareReplay(1)
 	);
@@ -98,7 +99,7 @@ export class DatabaseService {
 	);
 
 	currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
-		map(([lore, actors]) => actors.filter(actor => actor.lore === lore.name)),
+		map(([lore, actors]) => actors.filter(actor => actor.loreId === lore.id)),
 		map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
 		shareReplay(1)
 	);
@@ -108,7 +109,7 @@ export class DatabaseService {
 		shareReplay(1)
 	);
 
-	constructor() {}
+	constructor(private storeFacade: StoreFacade) {}
 
 	private loreDocumentMethods: LoreDocumentMethods = {
 		collectActors: function(
@@ -136,7 +137,7 @@ export class DatabaseService {
 		return actor;
 	}
 
-	private initData(conn: RxDatabase<RxCollections>, withName: string): Observable<any> {
+	private initData(conn: RxDatabase<RxCollections>): Observable<any> {
 		const testKMA = new Map();
 		testKMA.set('Favourite color', 'blue');
 		testKMA.set('Has a cat', 'yes');
@@ -199,9 +200,12 @@ export class DatabaseService {
 			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 })
 		);
 
+		const loreId = '0';
+		const loreName = 'Example';
 		return zip(
 			conn.lore.upsert({
-				name: withName,
+				id: loreId,
+				name: loreName,
 				locations: ['City17', 'City14'],
 				planet: new Planet('Earth', 1)
 			}),
@@ -210,7 +214,7 @@ export class DatabaseService {
 			delayWhen(() =>
 				forkJoin(
 					[testActor1, testActor2, testActor3, testActor4, testActor5].map(
-						actor => (actor.lore = withName) && conn.actor.upsert(actor)
+						actor => (actor.loreId = loreId) && conn.actor.upsert(actor)
 					)
 				)
 			),

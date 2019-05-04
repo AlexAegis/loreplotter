@@ -11,7 +11,7 @@ import {
 	distinct,
 	distinctUntilChanged,
 	withLatestFrom,
-	mergeMap
+	mergeMap, takeLast
 } from 'rxjs/operators';
 
 import {
@@ -27,7 +27,7 @@ import {
 	changeSelectedLore,
 	changeSelectedLoreFailure,
 	changeSelectedLoreSuccess,
-	AllActions
+	AllActions, loadActors
 } from '../actions';
 import { LoreService } from '@app/service/lore.service';
 import { DatabaseService } from '@app/service/database.service';
@@ -45,7 +45,7 @@ import { Payload } from '@lore/store/actions/payload.interface';
 @Injectable()
 export class LoreEffects {
 	constructor(
-		private actions$: Actions<LoreActions>,
+		private actions$: Actions<AllActions>,
 		private store: Store<FeatureState>,
 		private loreService: LoreService,
 		private storeFacade: StoreFacade,
@@ -58,9 +58,8 @@ export class LoreEffects {
 	 * Automatically issue the load style effects straight start the database
 	 */
 	private initialLores$ = this.databaseService.database$.pipe(
-		switchMap(db => db.lore.find().$),
-		take(1),
-		map(lores => lores.map(lore => lore.toJSON())),
+		switchMap(db => db.lore.find().$.pipe(take(1))),
+		map(lores => lores.map(lore => ({ name: lore.name, id: lore.id, planet: { radius: lore.planet.radius, name: lore.planet.name }, locations: lore.locations } as Lore))),
 		map(lores => loadLoresSuccess({ payload: lores })),
 		catchError(error => of(loadLoresFailure({ payload: error })))
 	);
@@ -86,6 +85,14 @@ export class LoreEffects {
 	@Effect()
 	public allLores$ = concat(this.initialLores$, merge(this.insertedLores$, this.updatedLores$, this.deletedLores$));
 
+
+	@Effect()
+	public updateSelectedLore$ = this.actions$.pipe(
+		ofType(loadLoresSuccess.type),
+		flatMap(({ payload }) => payload),
+		take(1),
+		map((lore) => changeSelectedLore({ payload: lore }))
+	);
 	/**
 	 * Create
 	 */
@@ -101,9 +108,6 @@ export class LoreEffects {
 		)
 	);
 
-	/**
-	 * Create
-	 */
 	@Effect()
 	public changeCurrentLore$ = this.actions$.pipe(
 		ofType(changeSelectedLore.type),
@@ -115,4 +119,13 @@ export class LoreEffects {
 		map(lore => changeSelectedLoreSuccess({ payload: lore })),
 		catchError(error => of(changeSelectedLoreFailure({ payload: error })))
 	);
+
+
+	@Effect()
+	public changedCurrentLore$ = this.actions$.pipe(
+		ofType(changeSelectedLoreSuccess.type),
+		map(({ payload }) => loadActors({ payload: payload.id })),
+	);
+
+
 }

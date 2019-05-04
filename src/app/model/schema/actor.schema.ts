@@ -7,17 +7,17 @@ export const actorSchema: RxJsonSchema = {
 	keyCompression: true,
 	type: 'object',
 	properties: {
-		lore: {
-			type: 'string',
-			ref: 'lore'
-		},
 		id: {
 			type: 'string',
 			primary: true
+		},
+		loreId: {
+			type: 'string',
+			ref: 'lore'
 		},
 		states: {
 			type: 'string'
 		}
 	},
-	required: ['id']
+	required: ['id', 'loreId']
 };

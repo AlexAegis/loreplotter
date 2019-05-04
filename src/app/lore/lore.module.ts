@@ -25,6 +25,7 @@ import { SpeedControlComponent } from './component/speed-control.component';
 import { LoreStoreModule } from '@lore/store';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
 import { BlockService, SceneControlService } from '@lore/service';
+import { NodeComponent } from './component/node.component';
 
 export const APP_FORMATS = {
 	parse: {
@@ -56,7 +57,8 @@ export const APP_FORMATS = {
 		LoreComponent,
 		FocusDirective,
 		RepeatDirective,
-		SpeedControlComponent
+		SpeedControlComponent,
+		NodeComponent
 	],
 	imports: [
 		LoreStoreModule,

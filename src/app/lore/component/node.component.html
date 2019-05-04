@@ -1,0 +1,29 @@
+<p>
+  node works!
+</p>
+<!--
+
+<div
+	class="node"
+	*ngFor="let node of actor?._states?.nodes()"
+	[ngStyle]="{ 'left.px': nodePosition(node?.key?.unix) }"
+	(panstart)="panNode($event, node)"
+	(panup)="panNode($event, node)"
+	(pandown)="panNode($event, node)"
+	(panleft)="panNode($event, node)"
+	(panright)="panNode($event, node)"
+	(panend)="panNode($event, node)"
+	(tap)="tap($event, node)"
+>
+	<button
+		class="remove"
+		mat-icon-button
+		*ngIf="node === selection"
+		(click)="remove($event, node)"
+		[disabled]="isAtMostOneLeft"
+	>
+		<fa-icon [icon]="faTrash" [size]="'lg'"></fa-icon>
+	</button>
+</div>
+
+-->

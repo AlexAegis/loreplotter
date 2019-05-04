@@ -88,8 +88,7 @@ function cursorReducer(cursor: CursorState, action: SceneActions) {
 }
 
 function frameReducer(frame: FrameState, action: SceneActions): FrameState {
-	// console.log('FRAAAAAAAAAAAAAAAAAAMEREDUUUCE');
-	// console.log(action.type);
+
 	switch (action.type) {
 		case setFrameTo.type: {
 			return {

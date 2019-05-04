@@ -16,7 +16,7 @@ import {
  */
 export interface LoreState extends EntityState<Partial<Lore>> {
 	loading: boolean;
-	selected: Partial<Lore>;
+	selected: string;
 }
 
 
@@ -25,7 +25,7 @@ export interface LoreState extends EntityState<Partial<Lore>> {
  * Adapter
  */
 export const loreAdapter: EntityAdapter<Partial<Lore>> = createEntityAdapter<Partial<Lore>>({
-	selectId: lore => lore.name
+	selectId: lore => lore.id
 });
 
 /**
@@ -33,7 +33,7 @@ export const loreAdapter: EntityAdapter<Partial<Lore>> = createEntityAdapter<Par
  */
 export const initialLoreState: LoreState = loreAdapter.getInitialState({
 	loading: false,
-	selected: { name: 'Example' }
+	selected: '0'
 });
 
 
@@ -47,9 +47,6 @@ export const initialLoreState: LoreState = loreAdapter.getInitialState({
  * @param action Action
  */
 export function loreReducer(state: LoreState = initialLoreState, action: LoreActions): LoreState {
-	// console.log('Lore Reducer in action!');
-	// console.log(state);
-	// console.log(action);
 	switch (action.type) {
 		// initial load
 		case loadLores.type: {
@@ -101,7 +98,7 @@ export function loreReducer(state: LoreState = initialLoreState, action: LoreAct
 		}
 		case changeSelectedLoreSuccess.type: {
 			const { payload } = action;
-			return { ...state, loading: false , selected: payload };
+			return { ...state, loading: false , selected: payload.id };
 		}
 		case changeSelectedLoreFailure.type: {
 			return { ...state, loading: false };

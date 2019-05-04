@@ -35,15 +35,22 @@ import {
 	setFrameEndTo,
 	setFrameTo,
 	changeFrameBy,
-	changeCursorBy
+	changeCursorBy,
+	moveNode
 } from './actions';
-import { first } from 'rxjs/operators';
+import { filter, first, map, mapTo, mergeMap, share, shareReplay, tap } from 'rxjs/operators';
+import { actorQuery } from '@lore/store/selectors/actor.selectors';
+import { combineLatest } from 'rxjs';
 
 @Injectable()
 export class StoreFacade {
-	// lore
-	public lores$ = this.store.pipe(select(loreQuery.getLores));
-	public selectedLore$ = this.store.pipe(select(loreQuery.getSelected));
+	// Project
+	public lores$ = this.store$.pipe(select(loreQuery.getLores));
+	public selectedLoreId$ = this.store$.pipe(select(loreQuery.getSelectedId));
+	public selectedLore$ = this.store$.pipe(
+		select(loreQuery.getSelected),
+		filter(selected => selected !== undefined)
+	);
 	public loadLoresSuccess$ = this.actions$.pipe(ofType(loadLoresSuccess.type));
 	public loadLoresFail$ = this.actions$.pipe(ofType(loadLoresFailure.type));
 	public createLoresSuccess$ = this.actions$.pipe(ofType(createLoreSuccess.type));
@@ -52,18 +59,20 @@ export class StoreFacade {
 	public updateLoresFail$ = this.actions$.pipe(ofType(updateLoreFailure.type));
 	public deleteLoresSuccess$ = this.actions$.pipe(ofType(deleteLoreSuccess.type));
 	public deleteLoresFail$ = this.actions$.pipe(ofType(deleteLoreFailure.type));
-	// scene from store
-	public playSpeed$ = this.store.pipe(select(sceneQuery.getPlaySpeed));
-	public isPlaying$ = this.store.pipe(select(sceneQuery.isPlaying));
-	public cursorUnix$ = this.store.pipe(select(sceneQuery.getCursorUnix));
-	public cursorUnixOverride$ = this.store.pipe(select(sceneQuery.getCursorUnixOverride));
-	public cursorBasePosition$ = this.store.pipe(select(sceneQuery.getCursorBasePosition));
-	public cursorPosition$ = this.store.pipe(select(sceneQuery.getCursorPosition));
-	public frame$ = this.store.pipe(select(sceneQuery.getFrame));
-	public frameStart$ = this.store.pipe(select(sceneQuery.getFrameStart));
-	public frameEnd$ = this.store.pipe(select(sceneQuery.getFrameEnd));
+	// Scene
+	public playSpeed$ = this.store$.pipe(select(sceneQuery.getPlaySpeed));
+	public isPlaying$ = this.store$.pipe(select(sceneQuery.isPlaying));
+	public cursorUnix$ = this.store$.pipe(select(sceneQuery.getCursorUnix));
+	public cursorUnixOverride$ = this.store$.pipe(select(sceneQuery.getCursorUnixOverride));
+	public cursorBasePosition$ = this.store$.pipe(select(sceneQuery.getCursorBasePosition));
+	public cursorPosition$ = this.store$.pipe(select(sceneQuery.getCursorPosition));
+	public frame$ = this.store$.pipe(select(sceneQuery.getFrame));
+	public frameStart$ = this.store$.pipe(select(sceneQuery.getFrameStart));
+	public frameEnd$ = this.store$.pipe(select(sceneQuery.getFrameEnd));
+	// Actors
+	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 
-	constructor(private store: Store<AppState>, private actions$: Actions<AllActions>) {
+	constructor(private store$: Store<AppState>, private actions$: Actions<AllActions>) {
 		console.log('StoreFacade created');
 	}
 
@@ -72,7 +81,7 @@ export class StoreFacade {
 	 * @param lore Lore
 	 */
 	public create(lore: Lore) {
-		this.store.dispatch(createLore({ lore }));
+		this.store$.dispatch(createLore({ lore }));
 	}
 
 	/**
@@ -80,7 +89,7 @@ export class StoreFacade {
 	 * @param lore Lore
 	 */
 	public update(lore: Lore) {
-		this.store.dispatch(updateLore({ payload: { id: '', changes: lore } }));
+		this.store$.dispatch(updateLore({ payload: { id: '', changes: lore } }));
 	}
 
 	/**
@@ -88,15 +97,15 @@ export class StoreFacade {
 	 * @param id ID
 	 */
 	public delete(id: string) {
-		this.store.dispatch(deleteLore({ id }));
+		this.store$.dispatch(deleteLore({ id }));
 	}
 
 	public selectLore(lore: Partial<Lore>) {
-		this.store.dispatch(changeSelectedLore({ payload: lore }));
+		this.store$.dispatch(changeSelectedLore({ payload: lore }));
 	}
 
 	public setPlaySpeed(speed: number) {
-		this.store.dispatch(setPlaySpeed({ payload: speed }));
+		this.store$.dispatch(setPlaySpeed({ payload: speed }));
 	}
 
 	/**
@@ -104,63 +113,67 @@ export class StoreFacade {
 	 */
 	public togglePlay() {
 		this.isPlaying$.pipe(first()).subscribe(isPlaying => {
-			this.store.dispatch(setPlaying({ payload: !isPlaying }));
+			this.store$.dispatch(setPlaying({ payload: !isPlaying }));
 		});
 	}
 
 	public bakeCursorOverride() {
-		this.store.dispatch(bakeCursorOverride({ payload: true }));
+		this.store$.dispatch(bakeCursorOverride({ payload: true }));
 	}
 
 	public setCursorOverride(to: number) {
-		this.store.dispatch(changeCursorOverrideTo({ payload: to }));
+		this.store$.dispatch(changeCursorOverrideTo({ payload: to }));
 	}
 
 	public setCursor(to: number) {
-		this.store.dispatch(changeCursorOverrideTo({ payload: to }));
+		this.store$.dispatch(changeCursorOverrideTo({ payload: to }));
 	}
 
 	public setFrameStart(to: number) {
-		this.store.dispatch(setFrameStartTo({ payload: to }));
+		this.store$.dispatch(setFrameStartTo({ payload: to }));
 	}
 
 	public setFrameEnd(to: number) {
-		this.store.dispatch(setFrameEndTo({ payload: to }));
+		this.store$.dispatch(setFrameEndTo({ payload: to }));
 	}
 
-	public setFrame(to: { start: number, end: number }) {
-		this.store.dispatch(setFrameTo({ payload: to }));
+	public setFrame(to: { start: number; end: number }) {
+		this.store$.dispatch(setFrameTo({ payload: to }));
 	}
 
 	public setFrameStartDelta(to: number) {
-		this.store.dispatch(setFrameStartDeltaTo({ payload: to }));
+		this.store$.dispatch(setFrameStartDeltaTo({ payload: to }));
 	}
 
 	public setFrameEndDelta(to: number) {
-		this.store.dispatch(setFrameEndDeltaTo({ payload: to }));
+		this.store$.dispatch(setFrameEndDeltaTo({ payload: to }));
 	}
 
 	public setFrameDelta(startTo: number, endTo: number = startTo) {
-		this.store.dispatch(setFrameDeltaTo({ payload: { start: startTo, end: endTo } }));
+		this.store$.dispatch(setFrameDeltaTo({ payload: { start: startTo, end: endTo } }));
 	}
 
 	public bakeFrame() {
-		this.store.dispatch(bakeFrame({ payload: true }));
+		this.store$.dispatch(bakeFrame({ payload: true }));
 	}
 
 	public bakeFrameStart() {
-		this.store.dispatch(bakeFrameStart({ payload: true }));
+		this.store$.dispatch(bakeFrameStart({ payload: true }));
 	}
 
 	public bakeFrameEnd() {
-		this.store.dispatch(bakeFrameEnd({ payload: true }));
+		this.store$.dispatch(bakeFrameEnd({ payload: true }));
 	}
 
-	public changeFrameBy(to: { start: number, end: number}) {
-		this.store.dispatch(changeFrameBy({ payload: to }));
+	public changeFrameBy(to: { start: number; end: number }) {
+		this.store$.dispatch(changeFrameBy({ payload: to }));
 	}
 
 	public changeCursorBy(speed: number) {
-		this.store.dispatch(changeCursorBy({ payload: speed }));
+		this.store$.dispatch(changeCursorBy({ payload: speed }));
+	}
+
+	public moveNode(original: number, from: number, to: number) {
+		this.store$.dispatch(moveNode({ payload: { original, from, to } }));
 	}
 }

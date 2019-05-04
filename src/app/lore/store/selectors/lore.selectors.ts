@@ -1,30 +1,52 @@
 import { createSelector } from '@ngrx/store';
 import { loreAdapter } from '@lore/store/reducers';
 import { getFeatureState } from '@lore/store/selectors/app-lore.selectors';
-
+import { Dictionary } from '@ngrx/entity';
+import { Lore } from '@app/model/data';
 
 /**
  * Selectors
  */
-const { selectAll } = loreAdapter.getSelectors();
-
+const { selectAll, selectEntities } = loreAdapter.getSelectors();
 
 const getLoreState = createSelector(
 	getFeatureState,
-	(state) => state.lores
+	state => state.lores
 );
 
 const getLores = createSelector(
 	getLoreState,
 	selectAll
 );
+
+const getLoreEntities = createSelector(
+	getLoreState,
+	selectEntities
+);
+
 const getLoading = createSelector(
 	getLoreState,
 	state => state.loading
 );
-const getSelected = createSelector(
+
+const getSelectedId = createSelector(
 	getLoreState,
 	state => state.selected
+);
+
+
+const getSelected = createSelector(
+	getLoreState,
+	state => state.entities[state.selected]
+);
+
+const getLoreEntityById = createSelector(
+	getLoreEntities,
+	(entities: Dictionary<Lore>, props: { id: string }) => {
+		const res = entities[props.id];
+		console.log(res);
+		return res;
+	}
 );
 
 /**
@@ -33,5 +55,7 @@ const getSelected = createSelector(
 export const loreQuery = {
 	getLoading,
 	getLores,
-	getSelected
+	getSelectedId,
+	getSelected,
+	getLoreEntityById
 };

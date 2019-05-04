@@ -20,6 +20,7 @@ import { EngineService } from '@app/lore/engine';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { Lore } from '@app/model/data';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import { tap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore',
@@ -114,10 +115,10 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		private databaseService: DatabaseService,
 		public overlayContainer: OverlayContainer,
 		private changeDetector: ChangeDetectorRef,
-		private loreFacade: StoreFacade
+		private storeFacade: StoreFacade
 	) {
-		this.selectedLore$ = this.loreFacade.selectedLore$;
-		this.lores$ = this.loreFacade.lores$;
+		this.selectedLore$ = this.storeFacade.selectedLore$;
+		this.lores$ = this.storeFacade.lores$;
 		this.setTheme('default-theme');
 		this.subscriptions.add(
 			this.engineService.light$.subscribe(lum => {
@@ -146,12 +147,15 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		$event.preventDefault();
 		switch ($event.code) {
 			case 'Space':
-				this.loreFacade.togglePlay();
+				this.storeFacade.togglePlay();
 				break;
-			case '0':
+			case 'Backquote':
 				// TODO: set speed
+				console.log('TEST SENT');
+				this.storeFacade.moveNode(10, 20, 30);
 				break;
 			default:
+				console.log($event.code);
 				break;
 		}
 	}
@@ -166,6 +170,6 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	}
 
 	public selectLore(lore: Partial<Lore>): void {
-		this.loreFacade.selectLore(lore);
+		this.storeFacade.selectLore(lore);
 	}
 }

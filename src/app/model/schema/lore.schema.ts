@@ -8,9 +8,12 @@ export const loreSchema: RxJsonSchema = {
 	keyCompression: true,
 	type: 'object',
 	properties: {
-		name: {
+		id: {
 			type: 'string',
 			primary: true
+		},
+		name: {
+			type: 'string',
 		},
 		locations: {
 			type: 'array',
@@ -25,5 +28,5 @@ export const loreSchema: RxJsonSchema = {
 	attachments: {
 		encrypted: false
 	},
-	required: ['name']
+	required: ['id', 'name']
 };

@@ -1,12 +1,21 @@
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { Actor } from '@app/model/data';
+import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import {
-	ActorActions, loadActors,
+	ActorActions,
+	loadActors,
+	loadActorsFailure,
+	loadActorsSuccess,
 	loadLores,
 	loadLoresFailure,
 	loadLoresSuccess,
-	LoreActions, updateLore, updateLoreFailure, updateLoreSuccess
+	LoreActions,
+	moveNode,
+	updateLore,
+	updateLoreFailure,
+	updateLoreSuccess
 } from '@lore/store/actions';
+import { Node } from '@alexaegis/avl';
+import { loreAdapter } from '@lore/store/reducers/lore.reducer';
 
 export interface BlockState {
 	leftMost: number;
@@ -15,7 +24,7 @@ export interface BlockState {
 
 export interface ActorState extends EntityState<Partial<Actor>> {
 	loading: boolean;
-	selected: Partial<Actor>;
+	selected: string;
 	block: BlockState;
 }
 
@@ -38,8 +47,6 @@ export const initialActorState: ActorState = actorAdapter.getInitialState({
 	}
 });
 
-
-
 /**
  * Reducer
  *
@@ -51,6 +58,18 @@ export function actorReducer(state: ActorState = initialActorState, action: Acto
 		case loadActors.type: {
 			return { ...state, loading: true };
 		}
+		case loadActorsSuccess.type: {
+			console.log(action);
+			const { payload } = action;
+			console.log(payload);
+			return actorAdapter.addAll(payload, { ...state, loading: false });
+		}
+		case loadActorsFailure.type: {
+			return { ...state, loading: false };
+		}
+		/*case moveNode.type: {
+			return actorAdapter.updateOne({ changes: { _userdata: 'asd' }, id: '1' }, { ...state });
+		}*/
 
 		default: {
 			return state;

@@ -4,6 +4,7 @@ import { Actor, Planet } from '@app/model/data';
  */
 export class Lore {
 	constructor(public name: string) {}
+	public id: string;
 	public locations: Array<string> = [];
 	public planet: Planet;
 }
