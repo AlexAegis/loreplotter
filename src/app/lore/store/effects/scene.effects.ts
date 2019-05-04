@@ -1,34 +1,30 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-
+import { Math as ThreeMath } from 'three';
 import {
-	createLore,
 	_play,
 	SceneActions,
 	changeCursorBy,
 	setPlaying,
 	_stop,
-	changeFrameBy,
-	setContainerWidth,
-	_timelineRefresh
+	setFrameTo
 } from '../actions';
 import { LoreService } from '@app/service/lore.service';
-import { DatabaseService } from '@app/service/database.service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Store } from '@ngrx/store';
 import { FeatureState } from '@lore/store/reducers';
 import {
-	distinctUntilChanged,
+	auditTime,
 	filter,
 	map,
-	mapTo,
-	switchMap,
 	switchMapTo,
 	takeUntil,
-	tap,
+	throttleTime,
 	withLatestFrom
 } from 'rxjs/operators';
-import { merge, Observable, partition, timer } from 'rxjs';
+import { timer } from 'rxjs';
+import { tweenMap } from '@app/operator';
+import { Easing } from '@tweenjs/tween.js';
 
 /**
  * Lore effects
@@ -58,13 +54,52 @@ export class SceneEffects {
 		map(payload => _stop(payload))
 	);
 
-	@Effect()
-	public doPlay$ = this.actions$.pipe(
+	private doPlay$ = this.actions$.pipe(
 		ofType(_play.type),
 		withLatestFrom(this.storeFacade.cursorUnixOverride$),
 		filter(([time, override]) => !override),
 		switchMapTo(timer(0, 1000 / 60).pipe(takeUntil(this.actions$.pipe(ofType(_stop.type))))),
-		withLatestFrom(this.storeFacade.playSpeed$),
-		map(([time, speed]) => changeCursorBy({ payload: speed }))
+		withLatestFrom(this.storeFacade.playSpeed$)
+	);
+
+	@Effect()
+	public playCursor = this.doPlay$.pipe(map(([time, speed]) => changeCursorBy({ payload: speed })));
+
+	@Effect()
+	public autoFrame = this.doPlay$.pipe(
+		withLatestFrom(this.storeFacade.frame$, this.storeFacade.cursorUnix$),
+		map(([[time, speed], frame, cursor]) => ({
+			frame,
+			speed,
+			progress: ThreeMath.mapLinear(cursor, frame.start, frame.end, 0, 1)
+		})),
+		map(({ frame, speed, progress }) => {
+			if (speed > 0 && progress > 0.85) {
+				return { frame, direction: 1 };
+			} else if (speed < 0 && progress < 0.15) {
+				return { frame, direction: -1 };
+			} else {
+				return undefined;
+			}
+		}),
+		filter(autoJumpDirection => autoJumpDirection !== undefined),
+		throttleTime(500),
+		map(({ frame, direction }) => {
+			return {
+				from: { base: frame.start, length: frame.length },
+				to: {
+					base: frame.start + direction * frame.length * 0.5,
+					length: frame.length
+				}
+			};
+		}),
+		tweenMap({
+			duration: 500,
+			easing: Easing.Exponential.Out,
+			pingpongInterrupt: true,
+			pingpongAfterFinish: true
+		}),
+		auditTime(1000 / 60),
+		map(({ base, length }) => setFrameTo({payload: {start: base, end: base+length}}))
 	);
 }

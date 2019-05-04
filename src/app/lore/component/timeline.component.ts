@@ -81,42 +81,6 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		private changeDetectorRef: ChangeDetectorRef
 	) {
 		this.cursor$ = this.loreService.dampenedCursor$;
-		/*	cursorCo  mponent.contextChange();
-						if (speed > 0 && cursorComponent.progress > 0.8) {
-							this.autoFrameShift$.next(1);
-							// jump forward with the frame
-						 } else if (speed < 0 && cursorComponent.progress < 0.2) {
-							// jump backward with the frame
-							this.autoFrameShift$.next(-1);
-						}*/
-
-		this.loreService.autoFrameShift$
-			.pipe(
-				throttleTime(500),
-				withLatestFrom(this.storeFacade.frame$),
-				map(([i, frame]) => {
-					return {
-						from: { base: frame.start, length: frame.length },
-						to: {
-							base: frame.start + i * frame.length * 0.5,
-							length: frame.length
-						}
-					};
-				}),
-				tweenMap({
-					duration: 500,
-					easing: Easing.Exponential.Out,
-					pingpongInterrupt: true,
-					pingpongAfterFinish: true
-				}),
-				auditTime(1000 / 60)
-			)
-			.subscribe(({ base, length }) => {
-				this.storeFacade.setFrame({ start: base, end: base + length });
-
-				// this.cursor.contextChange();
-				this.changeDetectorRef.markForCheck();
-			});
 	}
 
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
