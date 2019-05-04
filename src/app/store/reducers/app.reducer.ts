@@ -1,7 +1,9 @@
 import { environment } from '@env/environment';
+import { APP_LORE_FEATURE_STATE_ID } from '@lore/store';
 import * as fromRouter from '@ngrx/router-store';
 import { ActionReducer, ActionReducerMap, MetaReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
+import { localStorageSync } from 'ngrx-store-localstorage';
 
 /**
  * Root state
@@ -32,8 +34,18 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
 		return result;
 	};
 }
-// TODO Add rehydrator
+
+const persistant = {
+	APP_LORE_FEATURE_STATE_ID: {
+		lores: [],
+
+	}
+}
+
+export function localStorageSyncReducer(reducer: ActionReducer<State>): ActionReducer<State> {
+	return localStorageSync({keys: [APP_LORE_FEATURE_STATE_ID], rehydrate: true })(reducer);
+}
 /**
  * Meta reducers
  */
-export const metaReducers: MetaReducer<State>[] = !environment.production ? [logger, storeFreeze] : [];
+export const metaReducers: MetaReducer<State>[] = [localStorageSyncReducer, ...(!environment.production ? [logger, storeFreeze] : [])];

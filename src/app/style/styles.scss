@@ -21,6 +21,8 @@
 @import '../lore/component/block.component.theme';
 @import '../lore/component/popup.component.theme';
 @import '../lore/component/actor-form.component.theme';
+@import '../lore/component/scene-controls.component.theme';
+
 
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);
@@ -32,6 +34,7 @@
 	@include block-component-theme($theme);
 	@include popup-component-theme($theme);
 	@include actor-form-component-theme($theme);
+	@include scene-controls-component-theme($theme);
 
 	* {
 		transition: background-color 1s;

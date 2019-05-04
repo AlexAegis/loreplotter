@@ -1,0 +1,16 @@
+@import '~@angular/material/theming';
+
+@mixin scene-controls-component-theme($theme) {
+	$primary: map-get($theme, primary);
+	$accent: map-get($theme, accent);
+	$warn: map-get($theme, warn);
+
+	app-scene-controls {
+		color: mat-color($primary);
+		.active {
+			background-color: mat-color($accent);
+		}
+
+	}
+
+}

@@ -6,15 +6,17 @@
 	$warn: map-get($theme, warn);
 
 	app-cursor {
+		opacity: 0.9;
 		background-color: mat-color($accent);
 		box-shadow: 0 0 4px 4px rgba(mat-color($accent, 'lighter'), 0.05);
 		> div {
-			color: mat-color($primary);
-			background-color: mat-color($primary, 'darker');
+			color: mat-color($primary, 'lighter');
+			background-color: mat-color($accent);
+			filter: saturate(1.1) contrast(1.1);
 		}
 
 		> div::after {
-			background-color: mat-color($primary, 'darker');
+			background-color: mat-color($accent);
 		}
 	}
 

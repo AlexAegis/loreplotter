@@ -3,7 +3,6 @@
 	top: 0;
 	display: inline-block;
 	margin: 0.2rem;
-	color: white;
 
 	> * {
 		margin-right: 0.4rem;
@@ -21,7 +20,4 @@
 		margin-top: 1rem;
 	}
 
-	.active {
-		background-color: greenyellow;
-	}
 }
