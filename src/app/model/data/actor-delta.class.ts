@@ -1,6 +1,5 @@
-import { jsonMember, jsonObject, toJson, jsonMapMember } from 'typedjson';
-
 import { Vector3Serializable } from '@app/model/data';
+import { jsonMapMember, jsonMember, jsonObject, toJson } from 'typedjson';
 
 @jsonObject
 @toJson

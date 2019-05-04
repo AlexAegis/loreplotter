@@ -1,5 +1,5 @@
+import { Actor, Lore } from '@app/model/data';
 import { RxCollection, RxDocument } from 'rxdb';
-import { Lore, Actor } from '@app/model/data';
 import { Observable } from 'rxjs';
 
 export interface RxCollections {

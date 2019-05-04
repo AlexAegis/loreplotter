@@ -1,7 +1,7 @@
-import { createAction } from '@ngrx/store';
 import { Actor } from '@app/model/data';
-import { Update } from '@ngrx/entity';
 import { Payload } from '@lore/store/actions';
+import { Update } from '@ngrx/entity';
+import { createAction } from '@ngrx/store';
 
 export const loadActors = createAction(`[Actor] Load`, (payload: Payload<string>): Payload<string> => payload);
 
@@ -45,10 +45,14 @@ export const changeSelectedActor = createAction(
 
 export const moveNode = createAction(
 	`[Block] Move Node`,
-	(payload: Payload<{ original: number; from: number; to: number }>): Payload<{ original: number; from: number; to: number }> => payload
+	(
+		payload: Payload<{ original: number; from: number; to: number }>
+	): Payload<{ original: number; from: number; to: number }> => payload
 );
 
 export const moveNodeFinal = createAction(
 	`[Block] Move Node Final`,
-	(payload: Payload<{ original: number; from: number; to: number }>): Payload<{ original: number; from: number; to: number }> => payload
+	(
+		payload: Payload<{ original: number; from: number; to: number }>
+	): Payload<{ original: number; from: number; to: number }> => payload
 );

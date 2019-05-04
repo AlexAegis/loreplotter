@@ -1,7 +1,7 @@
-import { createAction } from '@ngrx/store';
 import { Lore } from '@app/model/data';
-import { Update } from '@ngrx/entity';
 import { Payload } from '@lore/store/actions';
+import { Update } from '@ngrx/entity';
+import { createAction } from '@ngrx/store';
 
 // Initial lore object loading. While creating the RxDocuments needs end be stripped.
 export const loadLores = createAction(`[Lore] Load`, (payload: Payload<Array<Lore>>): Payload<Array<Lore>> => payload);
@@ -40,13 +40,15 @@ export const deleteLore = createAction(`[Lore] Delete`, (payload = {}) => ({ pay
 export const deleteLoreSuccess = createAction(`[Lore] Delete Success`, (payload = {}) => ({ payload }));
 export const deleteLoreFailure = createAction(`[Lore] Delete Failure`, (payload: Payload<Error>) => ({ payload }));
 
-export const changeSelectedLore = createAction(`[Lore] Change Selected`, (payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => (
-	payload
-));
+export const changeSelectedLore = createAction(
+	`[Lore] Change Selected`,
+	(payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => payload
+);
 
-export const changeSelectedLoreSuccess = createAction(`[Lore] Change Selected Success`, (payload: Payload<Partial<Lore>>) => (
-	payload
-));
+export const changeSelectedLoreSuccess = createAction(
+	`[Lore] Change Selected Success`,
+	(payload: Payload<Partial<Lore>>) => payload
+);
 export const changeSelectedLoreFailure = createAction(`[Lore] Change Selected Failure`, (payload: Payload<Error>) => ({
 	payload
 }));

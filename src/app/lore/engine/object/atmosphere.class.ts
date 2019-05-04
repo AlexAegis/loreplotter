@@ -1,6 +1,6 @@
-import { Basic } from './basic.class';
-import { BackSide, Mesh, MeshPhysicalMaterial, OrthographicCamera, Scene, SphereBufferGeometry } from 'three';
 import { Globe } from '@lore/engine/object';
+import { BackSide, Mesh, MeshPhysicalMaterial, OrthographicCamera, Scene, SphereBufferGeometry } from 'three';
+import { Basic } from './basic.class';
 
 export class Atmosphere extends Basic {
 	public mesh: Mesh;

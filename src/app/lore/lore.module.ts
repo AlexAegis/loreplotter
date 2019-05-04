@@ -1,31 +1,29 @@
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { FocusDirective, RepeatDirective } from '@app/directive';
 import { EngineComponent, EngineService } from '@app/lore/engine';
+import { ActorService, DatabaseService, LoreService } from '@app/service';
 import { MaterialModule, SharedModule } from '@app/shared';
-import { LoreRoutingModule } from '@lore/routes/lore-routing.module';
 import {
 	ActorFormComponent,
-	FormEntryComponent,
-	PlayComponent,
-	ListComponent,
-	PopupComponent,
-	SceneControlsComponent,
-	TimelineComponent,
-	SidebarComponent,
 	BlockComponent,
 	CursorComponent,
+	FormEntryComponent,
 	HamburgerComponent,
-	LightControlComponent
+	LightControlComponent,
+	PlayComponent,
+	PopupComponent,
+	SceneControlsComponent,
+	SidebarComponent,
+	TimelineComponent
 } from '@lore/component';
-import { FocusDirective, RepeatDirective } from '@app/directive';
-import { NgxMaskModule } from 'ngx-mask';
-import { LoreComponent } from './lore.component';
-import { SpeedControlComponent } from './component/speed-control.component';
-import { LoreStoreModule } from '@lore/store';
-import { ActorService, DatabaseService, LoreService } from '@app/service';
+import { LoreRoutingModule } from '@lore/routes/lore-routing.module';
 import { BlockService } from '@lore/service';
-import { NodeComponent } from './component/node.component';
+import { LoreStoreModule } from '@lore/store';
+import { NgxMaskModule } from 'ngx-mask';
+import { SpeedControlComponent } from './component/speed-control.component';
+import { LoreComponent } from './lore.component';
 
 export const APP_FORMATS = {
 	parse: {
@@ -46,7 +44,6 @@ export const APP_FORMATS = {
 		SidebarComponent,
 		HamburgerComponent,
 		TimelineComponent,
-		ListComponent,
 		CursorComponent,
 		BlockComponent,
 		PlayComponent,
@@ -57,8 +54,7 @@ export const APP_FORMATS = {
 		LoreComponent,
 		FocusDirective,
 		RepeatDirective,
-		SpeedControlComponent,
-		NodeComponent
+		SpeedControlComponent
 	],
 	imports: [
 		LoreStoreModule,
@@ -69,12 +65,6 @@ export const APP_FORMATS = {
 		NgxMaskModule.forRoot({})
 	],
 	entryComponents: [ActorFormComponent],
-	providers: [
-		LoreService,
-		EngineService,
-		DatabaseService,
-		ActorService,
-		BlockService
-	]
+	providers: [LoreService, EngineService, DatabaseService, ActorService, BlockService]
 })
 export class LoreModule {}

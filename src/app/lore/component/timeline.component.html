@@ -1,17 +1,17 @@
 <div class="ruler" (mousewheel)="scrollHandler($event)">
-	<app-cursor
-		#cursor
-		id="cursor"
-		[containerWidth]="containerWidth"
-		>{{ cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}</app-cursor
-	>
+	<app-cursor #cursor id="cursor" [containerWidth]="containerWidth">{{
+		cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm'
+	}}</app-cursor>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
-		<div *appRepeat="let c; from: unitsBetween + 1" class="divisor"
-			 [ngStyle]="{ 'left': toPx((firstDist$ | async) + deltaDist(c)) }">
+		<div
+			*appRepeat="let c; from: unitsBetween + 1"
+			class="divisor"
+			[ngStyle]="{ left: toPx((firstDist$ | async) + deltaDist(c)) }"
+		>
 			<div
 				*appRepeat="let m; from: currentUnitDivision - 1"
 				class="subDivisor"
-				[ngStyle]="{ 'left': toPx(subDist(m)) }"
+				[ngStyle]="{ left: toPx(subDist(m)) }"
 			></div>
 		</div>
 	</div>
@@ -19,11 +19,7 @@
 
 <div class="channelsContainer">
 	<ng-scrollbar class="channels" viewClass="noOverflow">
-		<div
-			class="channel"
-			*ngFor="let actor of actors$ | async as actors"
-			(tap)="spawnNode($event, actor, block)"
-		>
+		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)">
 			{{ loreService.name(actor) }}
 			<app-block
 				#block
@@ -32,9 +28,7 @@
 				[containerWidthListener]="containerWidth"
 				(jump)="easeCursorTo.next($event)"
 			>
-
 			</app-block>
 		</div>
 	</ng-scrollbar>
 </div>
-

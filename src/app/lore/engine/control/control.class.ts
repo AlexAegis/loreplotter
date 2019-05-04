@@ -1,10 +1,13 @@
-import { Math as ThreeMath, OrthographicCamera, PerspectiveCamera } from 'three';
-import { Vector3 } from 'three';
 import { EngineService } from '@lore/engine';
 import { OrbitControls } from '@lore/engine/control/orbit-control.class';
+import { Math as ThreeMath, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
 
 export class Control extends OrbitControls {
-	public constructor(private engineService: EngineService, camera: PerspectiveCamera | OrthographicCamera, canvas: HTMLCanvasElement) {
+	public constructor(
+		private engineService: EngineService,
+		camera: PerspectiveCamera | OrthographicCamera,
+		canvas: HTMLCanvasElement
+	) {
 		super(camera, canvas);
 		this.enableDamping = true;
 		this.enableZoom = true;
@@ -30,4 +33,3 @@ export class Control extends OrbitControls {
 		});
 	}
 }
-

@@ -1,16 +1,16 @@
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
-import moment from 'moment';
-import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, forkJoin, from, Observable, zip } from 'rxjs';
-
-import * as idb from 'pouchdb-adapter-idb';
-import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 import { Actor, ActorDelta, Lore, Planet, UnixWrapper } from '@app/model/data';
 import { actorSchema, loreSchema } from '@app/model/schema';
-import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import moment from 'moment';
+
+import * as idb from 'pouchdb-adapter-idb';
+import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
+import { combineLatest, forkJoin, from, Observable, zip } from 'rxjs';
+import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
 
 @Injectable()
 export class DatabaseService {

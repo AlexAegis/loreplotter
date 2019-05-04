@@ -1,53 +1,50 @@
 import { Injectable } from '@angular/core';
-import { Store, select } from '@ngrx/store';
-import { Actions, ofType } from '@ngrx/effects';
 
 import { Lore } from '@app/model/data';
-import { LoreState, FeatureState, AppState, InteractionMode } from './reducers';
-import { loreQuery, sceneQuery } from './selectors';
+import { actorQuery } from '@lore/store/selectors/actor.selectors';
+import { Actions, ofType } from '@ngrx/effects';
+import { select, Store } from '@ngrx/store';
+import { filter, first } from 'rxjs/operators';
 import {
-	LoreActions,
-	loadLores,
+	AllActions,
+	bakeCursorOverride,
+	bakeFrame,
+	bakeFrameEnd,
+	bakeFrameStart,
+	changeCursorBy,
+	changeCursorOverrideTo,
+	changeFrameBy,
+	changeSelectedLore,
 	createLore,
-	updateLore,
-	deleteLore,
-	loadLoresFailure,
-	loadLoresSuccess,
-	deleteLoreSuccess,
-	updateLoreFailure,
-	updateLoreSuccess,
 	createLoreFailure,
 	createLoreSuccess,
+	deleteLore,
 	deleteLoreFailure,
-	changeSelectedLore,
-	AllActions,
-	setPlaySpeed,
-	setPlaying,
-	bakeCursorOverride,
-	changeCursorOverrideTo,
-	setFrameStartTo,
-	setFrameStartDeltaTo,
-	setFrameEndDeltaTo,
-	setFrameDeltaTo,
-	bakeFrame,
-	bakeFrameStart,
-	bakeFrameEnd,
-	setFrameEndTo,
-	setFrameTo,
-	changeFrameBy,
-	changeCursorBy,
+	deleteLoreSuccess,
+	loadLoresFailure,
+	loadLoresSuccess,
 	moveNode,
-	setInteractionMode,
 	setAutoLight,
 	setDrawHeight,
 	setDrawSize,
+	setFrameDeltaTo,
+	setFrameEndDeltaTo,
+	setFrameEndTo,
+	setFrameStartDeltaTo,
+	setFrameStartTo,
+	setFrameTo,
+	setInteractionMode,
 	setManualLightAlwaysOn,
+	setPlaying,
+	setPlaySpeed,
+	toggleAutoLight,
 	toggleManualLightAlwaysOn,
-	toggleAutoLight
+	updateLore,
+	updateLoreFailure,
+	updateLoreSuccess
 } from './actions';
-import { filter, first, map, mapTo, mergeMap, share, shareReplay, tap } from 'rxjs/operators';
-import { actorQuery } from '@lore/store/selectors/actor.selectors';
-import { combineLatest } from 'rxjs';
+import { AppState, InteractionMode } from './reducers';
+import { loreQuery, sceneQuery } from './selectors';
 
 @Injectable()
 export class StoreFacade {

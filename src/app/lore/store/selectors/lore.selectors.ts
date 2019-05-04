@@ -1,8 +1,8 @@
-import { createSelector } from '@ngrx/store';
+import { Lore } from '@app/model/data';
 import { loreAdapter } from '@lore/store/reducers';
 import { getFeatureState } from '@lore/store/selectors/app-lore.selectors';
 import { Dictionary } from '@ngrx/entity';
-import { Lore } from '@app/model/data';
+import { createSelector } from '@ngrx/store';
 
 /**
  * Selectors
@@ -33,7 +33,6 @@ const getSelectedId = createSelector(
 	getLoreState,
 	state => state.selected
 );
-
 
 const getSelected = createSelector(
 	getLoreState,

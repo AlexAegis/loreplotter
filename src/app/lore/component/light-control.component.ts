@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
@@ -49,5 +49,4 @@ export class LightControlComponent implements OnInit {
 		this.cd.detectChanges();
 		this.cd.markForCheck();
 	}
-
 }

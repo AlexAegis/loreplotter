@@ -1,16 +1,28 @@
-import { Subject, BehaviorSubject } from 'rxjs';
-import { auditTime, scan } from 'rxjs/operators';
-import { BufferGeometry, Line, LineBasicMaterial, Material, Mesh, MeshStandardMaterial, SphereBufferGeometry } from 'three';
-import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
-import { DrawEvent , ClickEvent } from '@lore/engine/event';
-import { RxDocument } from 'rxdb';
 import { Actor } from '@app/model/data';
-import { Basic } from './basic.class';
-import { Water } from './water.class';
-import { DynamicTexture } from './dynamic-texture.class';
+import { ClickEvent, DrawEvent } from '@lore/engine/event';
+import { InteractionMode } from '@lore/store/reducers';
+import { RxDocument } from 'rxdb';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { auditTime, scan } from 'rxjs/operators';
+import {
+	BufferGeometry,
+	Group,
+	Line,
+	LineBasicMaterial,
+	Material,
+	Mesh,
+	MeshStandardMaterial,
+	Object3D,
+	SphereBufferGeometry,
+	Spherical,
+	Vector2,
+	Vector3
+} from 'three';
 import { ActorObject } from './actor-object.class';
 import { AirCurve } from './air-curve.class';
-import { InteractionMode } from '@lore/store/reducers';
+import { Basic } from './basic.class';
+import { DynamicTexture } from './dynamic-texture.class';
+import { Water } from './water.class';
 
 export class Globe extends Basic {
 	public material: Material; // Type override, this field exists on the THREE.Mesh already

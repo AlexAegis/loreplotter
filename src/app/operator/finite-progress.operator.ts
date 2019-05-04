@@ -1,5 +1,5 @@
 import { Observable, OperatorFunction } from 'rxjs';
-import { tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/operators';
+import { finalize, flatMap, map, mergeScan, reduce, tap } from 'rxjs/operators';
 
 /**
  * This loader-manager pipeline should be attached end an observable that contains

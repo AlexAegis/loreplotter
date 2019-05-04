@@ -13,13 +13,13 @@ import {
 	ViewChild
 } from '@angular/core';
 import { MediaObserver } from '@angular/flex-layout';
-import { Observable, Subscription } from 'rxjs';
-import { DatabaseService, LoreService } from '@app/service';
-import { TimelineComponent } from '@lore/component';
 import { EngineService } from '@app/lore/engine';
-import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { Lore } from '@app/model/data';
+import { DatabaseService, LoreService } from '@app/service';
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+import { TimelineComponent } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
 	selector: 'app-lore',

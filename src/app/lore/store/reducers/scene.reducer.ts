@@ -1,30 +1,30 @@
+import { DeltaProperty, OverridableProperty } from '@app/model';
 import {
-	SceneActions,
-	changeCursorBy,
-	setPlaying,
-	setPlaySpeed,
-	changeCursorOverrideTo,
 	bakeCursorOverride,
-	setFrameTo,
-	setFrameStartTo,
-	setFrameEndTo,
-	setFrameDeltaTo,
-	setFrameStartDeltaTo,
-	setFrameEndDeltaTo,
 	bakeFrame,
 	bakeFrameEnd,
 	bakeFrameStart,
+	changeCursorBy,
+	changeCursorOverrideTo,
 	changeFrameBy,
-	setInteractionMode,
+	SceneActions,
 	setAutoLight,
 	setDrawHeight,
 	setDrawSize,
+	setFrameDeltaTo,
+	setFrameEndDeltaTo,
+	setFrameEndTo,
+	setFrameStartDeltaTo,
+	setFrameStartTo,
+	setFrameTo,
+	setInteractionMode,
 	setManualLightAlwaysOn,
-	toggleManualLightAlwaysOn,
-	toggleAutoLight
+	setPlaying,
+	setPlaySpeed,
+	toggleAutoLight,
+	toggleManualLightAlwaysOn
 } from '@lore/store/actions';
 import moment from 'moment';
-import { DeltaProperty, OverridableProperty } from '@app/model';
 
 export interface FrameState {
 	start: Partial<DeltaProperty>;
@@ -83,10 +83,8 @@ export const initialSceneState: SceneState = {
 	drawSize: 10,
 	drawHeight: 1,
 	manualLight: true,
-	manualLightAlwaysOn: false,
+	manualLightAlwaysOn: false
 };
-
-
 
 function cursorReducer(cursor: CursorState, action: SceneActions) {
 	switch (action.type) {
@@ -98,14 +96,14 @@ function cursorReducer(cursor: CursorState, action: SceneActions) {
 		}
 		case bakeCursorOverride.type: {
 			return { ...cursor, unix: { ...cursor.unix, original: cursor.unix.override, override: undefined } };
-		}default: {
+		}
+		default: {
 			return cursor;
 		}
 	}
 }
 
 function frameReducer(frame: FrameState, action: SceneActions): FrameState {
-
 	switch (action.type) {
 		case setFrameTo.type: {
 			return {
@@ -195,7 +193,7 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 		case changeCursorBy.type:
 		case changeCursorOverrideTo.type:
 		case bakeCursorOverride.type: {
-			return  { ...state, cursor: cursorReducer(state.cursor, action) };
+			return { ...state, cursor: cursorReducer(state.cursor, action) };
 		}
 		case setFrameTo.type:
 		case setFrameStartTo.type:

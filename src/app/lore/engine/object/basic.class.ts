@@ -1,6 +1,6 @@
 import { EventEmitter, Output } from '@angular/core';
-import { BufferGeometry, Geometry, Material, Mesh, Object3D, Vector2 } from 'three';
 import { Stage } from '@lore/engine/object/';
+import { BufferGeometry, Geometry, Material, Mesh, Object3D, Vector2 } from 'three';
 
 export class Basic extends Mesh {
 	@Output()

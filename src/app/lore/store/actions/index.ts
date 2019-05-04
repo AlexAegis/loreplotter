@@ -1,7 +1,6 @@
 import { createAction, union } from '@ngrx/store';
-
-import * as loreActions from './lore.actions';
 import * as actorActions from './actor.actions';
+import * as loreActions from './lore.actions';
 import * as sceneActions from './scene.actions';
 
 const allLoreActions = union(loreActions);

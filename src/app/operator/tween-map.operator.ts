@@ -1,7 +1,6 @@
-import { Observable, OperatorFunction, BehaviorSubject } from 'rxjs';
-import { mergeMap, filter } from 'rxjs/operators';
-
-import { Tween, Easing } from '@tweenjs/tween.js';
+import { Easing, Tween } from '@tweenjs/tween.js';
+import { BehaviorSubject, Observable, OperatorFunction } from 'rxjs';
+import { filter, mergeMap } from 'rxjs/operators';
 
 export interface Tweenable<T> {
 	from: T;

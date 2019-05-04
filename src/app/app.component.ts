@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { Router, Event, ChildActivationEnd } from '@angular/router';
+import { ChildActivationEnd, Event, Router } from '@angular/router';
 
 @Component({
 	selector: 'app-root',

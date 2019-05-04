@@ -1,5 +1,5 @@
-import { CanvasTexture, Vector2, Math as ThreeMath } from 'three';
 import { Globe } from '@lore/engine/object/';
+import { CanvasTexture, Math as ThreeMath, Vector2 } from 'three';
 
 export class DynamicTexture extends CanvasTexture {
 	public drawEnabled = true;

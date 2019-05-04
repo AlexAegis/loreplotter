@@ -1,21 +1,6 @@
+import { Actor } from '@app/model/data';
+import { ActorActions, loadActors, loadActorsFailure, loadActorsSuccess } from '@lore/store/actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
-import {
-	ActorActions,
-	loadActors,
-	loadActorsFailure,
-	loadActorsSuccess,
-	loadLores,
-	loadLoresFailure,
-	loadLoresSuccess,
-	LoreActions,
-	moveNode,
-	updateLore,
-	updateLoreFailure,
-	updateLoreSuccess
-} from '@lore/store/actions';
-import { Node } from '@alexaegis/avl';
-import { loreAdapter } from '@lore/store/reducers/lore.reducer';
 
 export interface BlockState {
 	leftMost: number;

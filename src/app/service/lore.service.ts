@@ -1,31 +1,21 @@
 import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
-import moment from 'moment';
-import { BehaviorSubject, combineLatest, from, Subject, of, Observable } from 'rxjs';
-import {
-	filter,
-	flatMap,
-	switchMap,
-	withLatestFrom,
-	tap,
-	take,
-	map,
-	mergeMap
-} from 'rxjs/operators';
-import { DatabaseService } from '@app/service/database.service';
-import { Group, Quaternion, Vector3, Object3D } from 'three';
-
-import { ActorObject } from '@lore/engine/object';
-import { Actor, Lore, ActorDelta, Vector3Serializable } from '@app/model/data';
+import { normalizeFromWindow } from '@app/function';
+import { Actor, ActorDelta, Lore, Vector3Serializable } from '@app/model/data';
 import { UnixWrapper } from '@app/model/data/unix-wrapper.class';
+import { LoreDocumentMethods } from '@app/service/database';
+import { DatabaseService } from '@app/service/database.service';
 import { ActorFormResultData } from '@lore/component/actor-form.component';
 import { EngineService } from '@lore/engine/engine.service';
-import {Math as ThreeMath} from 'three';
-import { RxAttachment, RxDocument } from 'rxdb';
-import { LoreDocumentMethods } from '@app/service/database';
-import { normalizeFromWindow } from '@app/function';
+
+import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import moment from 'moment';
+import { RxAttachment, RxDocument } from 'rxdb';
+import { BehaviorSubject, combineLatest, from, Observable, of, Subject } from 'rxjs';
+import { filter, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
+import { Group, Math as ThreeMath, Object3D, Quaternion, Vector3 } from 'three';
 
 const DAY_IN_SECONDS = 86400;
 
@@ -40,7 +30,11 @@ export class LoreService {
 	public latestSlerpsWorldPositionHolder: Vector3;
 	public cursorUnix$: Observable<number>;
 
-	constructor(private engineService: EngineService, private databaseService: DatabaseService, private storeFacade: StoreFacade) {
+	constructor(
+		private engineService: EngineService,
+		private databaseService: DatabaseService,
+		private storeFacade: StoreFacade
+	) {
 		console.log('LoreService created');
 		this.cursorUnix$ = this.storeFacade.cursorUnix$;
 
@@ -150,7 +144,11 @@ export class LoreService {
 		this.spawnActorOnClientOffset
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.storeFacade.cursorUnix$),
+				withLatestFrom(
+					this.databaseService.currentLore$,
+					this.databaseService.nextActorId$,
+					this.storeFacade.cursorUnix$
+				),
 				switchMap(([offset, lore, nextId, cursor]) => {
 					const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
 					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
@@ -317,10 +315,12 @@ export class LoreService {
 	 * @param lore end be created
 	 */
 	public create(lore: Lore): Observable<RxDocument<Lore, LoreDocumentMethods>> {
-		return this.databaseService.database$.pipe(switchMap(connection => {
-			console.log('issuing insert of lore object in the lore service');
-			console.log(lore);
-			return connection.lore.insert(lore);
-		}));
+		return this.databaseService.database$.pipe(
+			switchMap(connection => {
+				console.log('issuing insert of lore object in the lore service');
+				console.log(lore);
+				return connection.lore.insert(lore);
+			})
+		);
 	}
 }

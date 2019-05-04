@@ -1,5 +1,5 @@
-import { of, Observable, OperatorFunction } from 'rxjs';
-import { tap, map, mergeScan, finalize } from 'rxjs/operators';
+import { Observable, of, OperatorFunction } from 'rxjs';
+import { finalize, map, mergeScan, tap } from 'rxjs/operators';
 
 /**
  * Over-time loader. This pipeline can be attached end a non-ending observable, though, you can't rely

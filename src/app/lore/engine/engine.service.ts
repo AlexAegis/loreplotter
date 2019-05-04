@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
-import { DeviceDetectorService } from 'ngx-device-detector';
+import { denormalize } from '@app/function';
+import { Actor } from '@app/model/data';
+
+import { tweenMap } from '@app/operator/tween-map.operator';
+import { withTeardown } from '@app/operator/with-teardown.operator';
+import { Control } from '@lore/engine/control';
+import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
+import { InteractionMode } from '@lore/store/reducers';
+import { StoreFacade } from '@lore/store/store-facade.service';
 import TWEEN, { Easing } from '@tweenjs/tween.js';
+import { DeviceDetectorService } from 'ngx-device-detector';
 import {
 	BlendFunction,
 	BloomEffect,
@@ -14,19 +23,22 @@ import {
 	VignetteEffect
 } from 'postprocessing';
 import { RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, ReplaySubject, range, zip, timer, Subject, merge, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, merge, of, range, ReplaySubject, Subject, timer, zip } from 'rxjs';
 import {
-	distinctUntilChanged,
-	map,
-	share,
-	tap,
-	filter,
 	auditTime,
+	debounceTime,
+	delay,
+	distinctUntilChanged,
+	filter,
 	flatMap,
-	take,
-	bufferTime,
+	map,
+	mergeMap,
+	repeat,
+	scan,
+	share,
 	shareReplay,
-	scan, debounceTime, repeat, switchMap, mergeMap, delay
+	take,
+	tap
 } from 'rxjs/operators';
 import {
 	AdditiveBlending,
@@ -43,16 +55,7 @@ import {
 	WebGLRenderer
 } from 'three';
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh';
-
-import { tweenMap } from '@app/operator/tween-map.operator';
-import { withTeardown } from '@app/operator/with-teardown.operator';
-import { Actor } from '@app/model/data';
 import { atmosphereShader } from './shader/atmosphere.shader';
-import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
-import { Control } from '@lore/engine/control';
-import { denormalize } from '@app/function';
-import { StoreFacade } from '@lore/store/store-facade.service';
-import { InteractionMode } from '@lore/store/reducers';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -156,7 +159,12 @@ export class EngineService {
 
 	public dampen$ = this.storeFacade.cursorUnix$.pipe(
 		debounceTime(120),
-		mergeMap(unix => of(unix).pipe(delay(1000 / 60), repeat(20)))
+		mergeMap(unix =>
+			of(unix).pipe(
+				delay(1000 / 60),
+				repeat(20)
+			)
+		)
 	);
 
 	public dampenedSpeed$ = merge(this.storeFacade.cursorUnix$, this.dampen$).pipe(

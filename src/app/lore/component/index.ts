@@ -9,4 +9,3 @@ export * from './sidebar.component';
 export * from './scene-controls.component';
 export * from './popup.component';
 export * from './play.component';
-export * from './list.component';

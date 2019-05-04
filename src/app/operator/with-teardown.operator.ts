@@ -1,5 +1,5 @@
-import { of, OperatorFunction, Observable, EMPTY, merge, NEVER } from 'rxjs';
-import { switchMap, finalize, tap } from 'rxjs/operators';
+import { EMPTY, merge, NEVER, Observable, of, OperatorFunction } from 'rxjs';
+import { finalize, switchMap, tap } from 'rxjs/operators';
 
 /**
  * Side-effect that can tear down the previous object when a new one enters. Can handle undefined and still

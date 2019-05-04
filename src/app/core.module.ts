@@ -2,14 +2,13 @@ import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
-import { MyHammerConfig } from '@app/hammer-config.class';
-import { APP_FORMATS } from '@lore/lore.module';
-import { AppStoreModule } from '@app/store/app-store.module';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '@env/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { MyHammerConfig } from '@app/hammer-config.class';
+import { AppStoreModule } from '@app/store/app-store.module';
+import { environment } from '@env/environment';
+import { APP_FORMATS } from '@lore/lore.module';
 import { DeviceDetectorModule } from 'ngx-device-detector';
-
 
 /**
  * CoreModule
@@ -33,7 +32,7 @@ import { DeviceDetectorModule } from 'ngx-device-detector';
 		{
 			provide: HAMMER_GESTURE_CONFIG,
 			useClass: MyHammerConfig
-		},
+		}
 	]
 })
 export class CoreModule {

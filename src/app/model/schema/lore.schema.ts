@@ -13,7 +13,7 @@ export const loreSchema: RxJsonSchema = {
 			primary: true
 		},
 		name: {
-			type: 'string',
+			type: 'string'
 		},
 		locations: {
 			type: 'array',

@@ -3,4 +3,5 @@
  */
 
 import * as propagating from 'propagating-hammerjs';
+
 Hammer = propagating(Hammer);

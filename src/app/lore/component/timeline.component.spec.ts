@@ -1,8 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { AppModule } from 'src/app/app.module';
 
 import { TimelineComponent } from './timeline.component';
-import { AppModule } from 'src/app/app.module';
-import { MaterialModule } from 'src/app/shared/material.module';
 
 describe('TimelineComponent', () => {
 	let component: TimelineComponent;

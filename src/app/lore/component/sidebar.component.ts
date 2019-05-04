@@ -1,13 +1,13 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
+import { EngineService } from '@app/lore/engine/engine.service';
+import { Actor } from '@app/model/data/actor.class';
+import { DatabaseService } from '@app/service/database.service';
+import { LoreService } from '@app/service/lore.service';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { RxDocument } from 'rxdb';
-import { filter, flatMap } from 'rxjs/operators';
-import { DatabaseService } from '@app/service/database.service';
-import { Actor } from '@app/model/data/actor.class';
-import { LoreService } from '@app/service/lore.service';
-import { EngineService } from '@app/lore/engine/engine.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-sidebar',

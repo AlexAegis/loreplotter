@@ -1,13 +1,13 @@
 import {
-	Directive,
-	OnInit,
-	Input,
-	ElementRef,
-	EventEmitter,
-	Output,
 	AfterViewInit,
 	ChangeDetectorRef,
+	Directive,
+	ElementRef,
+	EventEmitter,
+	Input,
 	OnDestroy,
+	OnInit,
+	Output,
 	Renderer2
 } from '@angular/core';
 import { Subscription } from 'rxjs';

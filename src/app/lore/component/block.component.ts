@@ -1,5 +1,6 @@
 import { Node } from '@alexaegis/avl';
 import {
+	AfterViewInit,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
@@ -7,23 +8,21 @@ import {
 	HostBinding,
 	HostListener,
 	Input,
+	OnChanges,
+	OnDestroy,
 	OnInit,
 	Output,
-	OnDestroy,
-	OnChanges,
-	SimpleChanges, AfterViewInit
+	SimpleChanges
 } from '@angular/core';
-import { DatabaseService, LoreService } from '@app/service';
-import { BlockService } from '@lore/service';
-import { Actor } from '@app/model/data';
+import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { OverridableProperty } from '@app/model/overridable-property.class';
-
-import { ActorDelta, UnixWrapper } from '@app/model/data';
+import { LoreService } from '@app/service';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Math as ThreeMath } from 'three';
-import { RxDocument } from 'rxdb';
+import { BlockService } from '@lore/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import { RxDocument } from 'rxdb';
 import { Observable } from 'rxjs';
+import { Math as ThreeMath } from 'three';
 
 @Component({
 	selector: 'app-block',

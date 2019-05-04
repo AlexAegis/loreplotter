@@ -1,6 +1,6 @@
-import { SphereBufferGeometry, Vector3, Math as ThreeMath, MeshBasicMaterial } from 'three';
-import { RxDocument } from 'rxdb';
 import { Actor } from '@app/model/data';
+import { RxDocument } from 'rxdb';
+import { Math as ThreeMath, MeshBasicMaterial, SphereBufferGeometry, Vector3 } from 'three';
 import { Basic } from './basic.class';
 import { Globe } from './globe.class';
 

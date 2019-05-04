@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { faPause, faPlay, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
-import { faPause, faPlay, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
 	selector: 'app-play',

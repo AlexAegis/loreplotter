@@ -1,15 +1,16 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, HostBinding, Input, OnInit, OnDestroy } from '@angular/core';
-import { Vector2 } from 'three';
-import { ActorService } from '@app/service/actor.service';
-import { Observable, combineLatest } from 'rxjs';
+import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
-import { map, shareReplay, take, switchMap } from 'rxjs/operators';
 import { MatDialog } from '@angular/material';
-import { ActorFormComponent, ActorFormResultData } from './actor-form.component';
 import { EngineService } from '@app/lore/engine/engine.service';
+import { ActorService } from '@app/service/actor.service';
 import { LoreService } from '@app/service/lore.service';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import { combineLatest, Observable } from 'rxjs';
+import { map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { Vector2 } from 'three';
+import { ActorFormComponent, ActorFormResultData } from './actor-form.component';
+
 @Component({
 	selector: 'app-popup',
 	templateUrl: './popup.component.html',

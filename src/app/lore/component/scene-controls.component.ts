@@ -1,13 +1,9 @@
-
 import { Component, OnInit } from '@angular/core';
-import { Options } from 'ng5-slider';
-import {
-	faArrowsAlt,
-	faPencilAlt,
-} from '@fortawesome/free-solid-svg-icons';
-import { StoreFacade } from '@lore/store/store-facade.service';
-import { Observable } from 'rxjs';
+import { faArrowsAlt, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import { InteractionMode } from '@lore/store/reducers';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Options } from 'ng5-slider';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'app-scene-controls',
@@ -15,7 +11,6 @@ import { InteractionMode } from '@lore/store/reducers';
 	styleUrls: ['./scene-controls.component.scss']
 })
 export class SceneControlsComponent implements OnInit {
-
 	public interactionMode$: Observable<InteractionMode>;
 	public drawHeight$: Observable<number>;
 	public drawSize$: Observable<number>;

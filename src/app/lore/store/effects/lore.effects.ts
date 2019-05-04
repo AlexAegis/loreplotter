@@ -1,41 +1,30 @@
 import { Injectable } from '@angular/core';
+import { Lore } from '@app/model/data';
+import { DatabaseService } from '@app/service/database.service';
+import { LoreService } from '@app/service/lore.service';
+import { Payload } from '@lore/store/actions/payload.interface';
+import { FeatureState } from '@lore/store/reducers';
+import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { of, concat, merge, iif } from 'rxjs';
-import {
-	map,
-	switchMap,
-	catchError,
-	tap,
-	flatMap,
-	take,
-	distinct,
-	distinctUntilChanged,
-	withLatestFrom,
-	mergeMap, takeLast
-} from 'rxjs/operators';
+import { Store } from '@ngrx/store';
+import { concat, merge, of } from 'rxjs';
+import { catchError, distinctUntilChanged, flatMap, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 
 import {
-	createLore,
-	loadLoresSuccess,
-	createLoreFailure,
-	createLoreSuccess,
-	deleteLoreSuccess,
-	LoreActions,
-	updateLoreSuccess,
-	voidOperation,
-	loadLoresFailure,
+	AllActions,
 	changeSelectedLore,
 	changeSelectedLoreFailure,
 	changeSelectedLoreSuccess,
-	AllActions, loadActors
+	createLore,
+	createLoreFailure,
+	createLoreSuccess,
+	deleteLoreSuccess,
+	loadActors,
+	loadLoresFailure,
+	loadLoresSuccess,
+	updateLoreSuccess,
+	voidOperation
 } from '../actions';
-import { LoreService } from '@app/service/lore.service';
-import { DatabaseService } from '@app/service/database.service';
-import { Lore } from '@app/model/data';
-import { StoreFacade } from '@lore/store/store-facade.service';
-import { Store } from '@ngrx/store';
-import { FeatureState } from '@lore/store/reducers';
-import { Payload } from '@lore/store/actions/payload.interface';
 
 /**
  * Lore effects
@@ -59,7 +48,17 @@ export class LoreEffects {
 	 */
 	private initialLores$ = this.databaseService.database$.pipe(
 		switchMap(db => db.lore.find().$.pipe(take(1))),
-		map(lores => lores.map(lore => ({ name: lore.name, id: lore.id, planet: { radius: lore.planet.radius, name: lore.planet.name }, locations: lore.locations } as Lore))),
+		map(lores =>
+			lores.map(
+				lore =>
+					({
+						name: lore.name,
+						id: lore.id,
+						planet: { radius: lore.planet.radius, name: lore.planet.name },
+						locations: lore.locations
+					} as Lore)
+			)
+		),
 		map(lores => loadLoresSuccess({ payload: lores })),
 		catchError(error => of(loadLoresFailure({ payload: error })))
 	);
@@ -85,13 +84,12 @@ export class LoreEffects {
 	@Effect()
 	public allLores$ = concat(this.initialLores$, merge(this.insertedLores$, this.updatedLores$, this.deletedLores$));
 
-
 	@Effect()
 	public updateSelectedLore$ = this.actions$.pipe(
 		ofType(loadLoresSuccess.type),
 		flatMap(({ payload }) => payload),
 		take(1),
-		map((lore) => changeSelectedLore({ payload: lore }))
+		map(lore => changeSelectedLore({ payload: lore }))
 	);
 	/**
 	 * Create
@@ -120,12 +118,9 @@ export class LoreEffects {
 		catchError(error => of(changeSelectedLoreFailure({ payload: error })))
 	);
 
-
 	@Effect()
 	public changedCurrentLore$ = this.actions$.pipe(
 		ofType(changeSelectedLoreSuccess.type),
-		map(({ payload }) => loadActors({ payload: payload.id })),
+		map(({ payload }) => loadActors({ payload: payload.id }))
 	);
-
-
 }

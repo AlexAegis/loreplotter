@@ -1,6 +1,5 @@
+import { async, TestBed } from '@angular/core/testing';
 import { AppModule } from 'src/app/app.module';
-
-import { TestBed, async } from '@angular/core/testing';
 import { EngineComponent } from './engine.component';
 
 describe('EngineComponent', () => {

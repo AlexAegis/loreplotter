@@ -7,29 +7,30 @@
 		</button>
 
 		<mat-menu #appMenu="matMenu">
-			<button mat-menu-item >Create</button>
+			<button mat-menu-item>Create</button>
 			<hr class="divider" />
-			<button mat-menu-item *ngFor="let lore of (lores$ | async)" (click)="selectLore(lore)">{{ lore.name }}</button>
+			<button mat-menu-item *ngFor="let lore of lores$ | async" (click)="selectLore(lore)">
+				{{ lore.name }}
+			</button>
 		</mat-menu>
 
 		<span class="menuButton">
 			Current project: {{ (selectedLore$ | async)?.name }}
-			<button mat-icon-button [matMenuTriggerFor]="appMenu" >
-			<fa-icon [icon]="menuIcon" ></fa-icon>
-		</button>
+			<button mat-icon-button [matMenuTriggerFor]="appMenu">
+				<fa-icon [icon]="menuIcon"></fa-icon>
+			</button>
 		</span>
-
 	</mat-toolbar-row>
 </mat-toolbar>
 
 <app-sidebar #sidebar>
-<div class="controls" >
-    <app-scene-controls class="scene-control"></app-scene-controls>
-    <app-speed-control class="time-control"></app-speed-control>
-    <app-light-control class="light-control"></app-light-control>
-</div>
+	<div class="controls">
+		<app-scene-controls class="scene-control"></app-scene-controls>
+		<app-speed-control class="time-control"></app-speed-control>
+		<app-light-control class="light-control"></app-light-control>
+	</div>
 
-    <app-timeline #timeline matRipple [matRippleColor]="'#12121206'"></app-timeline>
+	<app-timeline #timeline matRipple [matRippleColor]="'#12121206'"></app-timeline>
 
 	<!--
         [ngStyle]="{ 'left.px': timeline.el.nativeElement.offsetLeft }"
@@ -38,4 +39,3 @@
 </app-sidebar>
 
 <app-engine></app-engine>
-

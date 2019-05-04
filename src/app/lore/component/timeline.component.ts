@@ -1,41 +1,36 @@
-import { BlockService } from '@lore/service';
-import { BlockComponent } from './block.component';
-import { Actor } from '@app/model/data/actor.class';
 import {
 	AfterViewInit,
+	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	ElementRef,
 	HostBinding,
 	HostListener,
+	OnDestroy,
 	OnInit,
-	ViewChild,
-	ViewChildren,
 	QueryList,
-	ChangeDetectionStrategy,
-	OnDestroy
+	ViewChild,
+	ViewChildren
 } from '@angular/core';
-import { Easing } from '@tweenjs/tween.js';
-import moment from 'moment';
-import ResizeObserver from 'resize-observer-polyfill';
-import {
-	tap,
-	map,
-	withLatestFrom,
-	share,
-} from 'rxjs/operators';
+import { nextWhole } from '@app/function';
+import { toUnit } from '@app/function/to-unit.function';
+import { ActorDelta, UnixWrapper } from '@app/model/data';
+import { Actor } from '@app/model/data/actor.class';
+import { tweenMap } from '@app/operator';
 import { DatabaseService } from '@app/service/database.service';
 import { LoreService } from '@app/service/lore.service';
-import { Math as ThreeMath } from 'three';
-import { CursorComponent } from './cursor.component';
+import { BlockService } from '@lore/service';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Easing } from '@tweenjs/tween.js';
+import moment from 'moment';
 import { NgScrollbar } from 'ngx-scrollbar';
-import { ActorDelta, UnixWrapper } from '@app/model/data';
+import ResizeObserver from 'resize-observer-polyfill';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
-import { tweenMap } from '@app/operator';
-import { nextWhole } from '@app/function';
-import { StoreFacade } from '@lore/store/store-facade.service';
-import { toUnit } from '@app/function/to-unit.function';
+import { map, share, tap, withLatestFrom } from 'rxjs/operators';
+import { Math as ThreeMath } from 'three';
+import { BlockComponent } from './block.component';
+import { CursorComponent } from './cursor.component';
 
 /**
  * Timeline
@@ -155,7 +150,6 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 	public nodeSpawner = new Subject<{ $event: any; actor: RxDocument<Actor>; block: BlockComponent }>();
 
 	public frameShifter = new Subject<number>();
-
 
 	public ngAfterViewInit(): void {
 		this.containerWidth.next(this.el.nativeElement.offsetWidth); // Initial value

@@ -1,30 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
-import { Math as ThreeMath } from 'three';
-import {
-	_play,
-	SceneActions,
-	changeCursorBy,
-	setPlaying,
-	_stop,
-	setFrameTo
-} from '../actions';
-import { LoreService } from '@app/service/lore.service';
-import { StoreFacade } from '@lore/store/store-facade.service';
-import { Store } from '@ngrx/store';
-import { FeatureState } from '@lore/store/reducers';
-import {
-	auditTime,
-	filter,
-	map, mergeMapTo,
-	switchMapTo,
-	takeUntil,
-	throttleTime,
-	withLatestFrom
-} from 'rxjs/operators';
-import { timer } from 'rxjs';
 import { tweenMap } from '@app/operator';
+import { LoreService } from '@app/service/lore.service';
+import { FeatureState } from '@lore/store/reducers';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { Easing } from '@tweenjs/tween.js';
+import { timer } from 'rxjs';
+import { auditTime, filter, map, switchMapTo, takeUntil, throttleTime, withLatestFrom } from 'rxjs/operators';
+import { Math as ThreeMath } from 'three';
+import { _play, _stop, changeCursorBy, SceneActions, setFrameTo, setPlaying } from '../actions';
 
 /**
  * Lore effects
@@ -100,6 +85,6 @@ export class SceneEffects {
 			pingpongAfterFinish: true
 		}),
 		auditTime(1000 / 60),
-		map(({ base, length }) => setFrameTo({payload: {start: base, end: base+length}}))
+		map(({ base, length }) => setFrameTo({ payload: { start: base, end: base + length } }))
 	);
 }

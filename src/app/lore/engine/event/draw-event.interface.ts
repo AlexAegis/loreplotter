@@ -1,5 +1,5 @@
-import { Vector2, Vector3, Face3 } from 'three';
 import { InteractionMode } from '@lore/store/reducers';
+import { Face3, Vector2, Vector3 } from 'three';
 
 export interface DrawEvent extends Event {
 	event: 'draw';

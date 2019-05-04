@@ -1,4 +1,5 @@
-import { Actor, Planet } from '@app/model/data';
+import { Planet } from '@app/model/data';
+
 /**
  * Has an attachment for the planets texture
  */

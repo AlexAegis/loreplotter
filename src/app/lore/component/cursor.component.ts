@@ -9,10 +9,10 @@ import {
 	Input,
 	OnInit
 } from '@angular/core';
-import { Math as ThreeMath } from 'three';
-import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
 import { filter, map, withLatestFrom } from 'rxjs/operators';
+import { Math as ThreeMath } from 'three';
 
 @Component({
 	selector: 'app-cursor',
@@ -21,13 +21,12 @@ import { filter, map, withLatestFrom } from 'rxjs/operators';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CursorComponent implements OnInit, AfterViewInit {
-
 	/**
 	 * Still needed to protect agains out of bounds problems
 	 *
 	 * @param width of the parent container
 	 */
-	@Input('containerWidth')
+	@Input()
 	public containerWidth: Subject<number>;
 
 	public frame$: Observable<{ start: number; end: number; length: number }>;
@@ -69,13 +68,7 @@ export class CursorComponent implements OnInit, AfterViewInit {
 				), // Out of bounds check
 				withLatestFrom(this.frame$),
 				map(([[pos, containerWidth], frame]) => {
-					return ThreeMath.mapLinear(
-						this.panStartPosition + pos,
-						0,
-						containerWidth,
-						frame.start,
-						frame.end
-					);
+					return ThreeMath.mapLinear(this.panStartPosition + pos, 0, containerWidth, frame.start, frame.end);
 				})
 			)
 			.subscribe(cursoroverride => {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { Observable } from 'rxjs';
 import { Options } from 'ng5-slider';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'app-speed-control',

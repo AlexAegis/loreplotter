@@ -1,15 +1,23 @@
-import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { Lore } from '@app/model/data';
 import {
-	changeSelectedLore, changeSelectedLoreFailure, changeSelectedLoreSuccess,
+	changeSelectedLore,
+	changeSelectedLoreFailure,
+	changeSelectedLoreSuccess,
 	createLore,
 	createLoreFailure,
-	createLoreSuccess, deleteLore, deleteLoreFailure, deleteLoreSuccess,
+	createLoreSuccess,
+	deleteLore,
+	deleteLoreFailure,
+	deleteLoreSuccess,
 	loadLores,
 	loadLoresFailure,
 	loadLoresSuccess,
-	LoreActions, updateLore, updateLoreFailure, updateLoreSuccess
+	LoreActions,
+	updateLore,
+	updateLoreFailure,
+	updateLoreSuccess
 } from '@lore/store/actions';
+import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 
 /**
  * LoreState
@@ -18,7 +26,6 @@ export interface LoreState extends EntityState<Partial<Lore>> {
 	loading: boolean;
 	selected: string;
 }
-
 
 // const initialLoreState: Partial<LoreState> = { loading: false };
 /**
@@ -35,8 +42,6 @@ export const initialLoreState: LoreState = loreAdapter.getInitialState({
 	loading: false,
 	selected: '0'
 });
-
-
 
 /**
  * Reducer
@@ -94,11 +99,11 @@ export function loreReducer(state: LoreState = initialLoreState, action: LoreAct
 		}
 		// Change selected lore
 		case changeSelectedLore.type: {
-			return { ...state, loading: true  };
+			return { ...state, loading: true };
 		}
 		case changeSelectedLoreSuccess.type: {
 			const { payload } = action;
-			return { ...state, loading: false , selected: payload.id };
+			return { ...state, loading: false, selected: payload.id };
 		}
 		case changeSelectedLoreFailure.type: {
 			return { ...state, loading: false };

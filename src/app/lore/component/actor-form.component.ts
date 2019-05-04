@@ -1,11 +1,12 @@
-import { Component, OnInit, Inject, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
-import { FormBuilder, FormGroup, FormControl, FormArray } from '@angular/forms';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { MAT_DIALOG_DATA } from '@angular/material';
 import { ActorObject } from '@app/lore/engine/object/actor-object.class';
-import { Moment } from 'moment';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import * as moment from 'moment';
-import { faPlus, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { Moment } from 'moment';
 import { FormEntryComponent } from './form-entry.component';
+
 /**
  * Contains the initial data of the dialog
  */

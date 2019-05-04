@@ -1,14 +1,11 @@
+import { ClickEvent } from '@lore/engine/event';
 import { DirectionalLight, MeshPhongMaterial, SphereBufferGeometry } from 'three';
 import { Basic } from './basic.class';
-import { DynamicTexture } from './dynamic-texture.class';
-import { ClickEvent } from '@lore/engine/event';
 
 export class Sun extends Basic {
 	public type = 'Sun';
 	public material: MeshPhongMaterial; // Type override, this field exists on the THREE.Mesh already
 
-	public displacementTexture: DynamicTexture;
-	public emissionTexture: DynamicTexture;
 	public directionalLight: DirectionalLight;
 	public directionalLightBaseIntensity = 0.6;
 	public constructor(public radius: number = 0.6) {

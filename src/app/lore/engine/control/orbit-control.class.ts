@@ -1,4 +1,4 @@
-import { EventDispatcher, Vector3, Quaternion, Spherical, Vector2, PerspectiveCamera, OrthographicCamera } from 'three';
+import { EventDispatcher, OrthographicCamera, PerspectiveCamera, Quaternion, Spherical, Vector2, Vector3 } from 'three';
 
 const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
 
@@ -272,7 +272,7 @@ export class OrbitControls extends EventDispatcher {
 	// event handlers - FSM: listen for events and reset state
 	//
 
-	static onMouseDown (scope: OrbitControls) {
+	static onMouseDown(scope: OrbitControls) {
 		return function _onMouseDown(event) {
 			if (scope.enabled === false) {
 				return;
@@ -397,7 +397,7 @@ export class OrbitControls extends EventDispatcher {
 		};
 	}
 
-	static onMouseWheel (scope: OrbitControls) {
+	static onMouseWheel(scope: OrbitControls) {
 		return function _onMouseWheel(event) {
 			if (
 				scope.enabled === false ||
@@ -418,7 +418,7 @@ export class OrbitControls extends EventDispatcher {
 		};
 	}
 
-	static onKeyDown (scope: OrbitControls) {
+	static onKeyDown(scope: OrbitControls) {
 		return function _onKeyDown(event) {
 			if (scope.enabled === false || scope.enableKeys === false || scope.enablePan === false) {
 				return;
@@ -428,8 +428,7 @@ export class OrbitControls extends EventDispatcher {
 		};
 	}
 
-
-	static onTouchMove (scope: OrbitControls) {
+	static onTouchMove(scope: OrbitControls) {
 		return function _onTouchMove(event) {
 			if (scope.enabled === false) {
 				return;

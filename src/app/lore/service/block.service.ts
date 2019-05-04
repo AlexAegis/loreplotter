@@ -1,10 +1,10 @@
-import { ActorDelta, UnixWrapper } from '@app/model/data';
-import { BehaviorSubject, Subscription } from 'rxjs';
-import { Injectable, OnDestroy } from '@angular/core';
-import { distinctUntilChanged, share } from 'rxjs/operators';
 import { Node } from '@alexaegis/avl';
+import { Injectable, OnDestroy } from '@angular/core';
+import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { withTeardown } from '@app/operator';
 import { BlockComponent } from '@lore/component';
+import { BehaviorSubject, Subscription } from 'rxjs';
+import { distinctUntilChanged, share } from 'rxjs/operators';
 
 @Injectable()
 export class BlockService implements OnDestroy {

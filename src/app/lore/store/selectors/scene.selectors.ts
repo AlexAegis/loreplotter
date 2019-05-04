@@ -1,5 +1,5 @@
+import { AppState, FeatureState } from '@lore/store/reducers';
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { FeatureState, AppState } from '@lore/store/reducers';
 
 const getFeatureState = createFeatureSelector<AppState, FeatureState>('app-lore');
 

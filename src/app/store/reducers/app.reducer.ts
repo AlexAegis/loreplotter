@@ -1,9 +1,7 @@
-import { ActionReducer, ActionReducerMap, MetaReducer } from '@ngrx/store';
-import * as fromRouter from '@ngrx/router-store';
-import { storeFreeze } from 'ngrx-store-freeze';
-
 import { environment } from '@env/environment';
-import { FeatureState } from '@lore/store/reducers';
+import * as fromRouter from '@ngrx/router-store';
+import { ActionReducer, ActionReducerMap, MetaReducer } from '@ngrx/store';
+import { storeFreeze } from 'ngrx-store-freeze';
 
 /**
  * Root state

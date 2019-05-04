@@ -8,10 +8,6 @@
 <div class="inlineFromRight">
 	<app-play #play></app-play>
 	<div class="slider">
-		<ng5-slider
-			[value]="speed$ | async"
-			(valueChange)="setSpeed($event)"
-			[options]="sliderOptions"
-		></ng5-slider>
+		<ng5-slider [value]="speed$ | async" (valueChange)="setSpeed($event)" [options]="sliderOptions"></ng5-slider>
 	</div>
 </div>

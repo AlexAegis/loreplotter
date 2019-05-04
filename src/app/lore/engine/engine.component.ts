@@ -1,10 +1,10 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
-import { Vector2 } from 'three';
+import { normalizeFromWindow } from '@app/function';
+import { DatabaseService, LoreService } from '@app/service';
 import { PopupComponent } from '@lore/component';
 import { EngineService } from '@lore/engine/engine.service';
-import { DatabaseService, LoreService } from '@app/service';
-import { normalizeFromWindow } from '@app/function';
+import { Vector2 } from 'three';
 
 @Component({
 	selector: 'app-engine',
@@ -64,7 +64,10 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		switch ($event.button) {
 			case undefined:
 			case 0:
-				this.engineService.click(normalizeFromWindow($event.center.x, $event.center.y), $event.srcEvent.shiftKey);
+				this.engineService.click(
+					normalizeFromWindow($event.center.x, $event.center.y),
+					$event.srcEvent.shiftKey
+				);
 				break;
 			case 2:
 				this.engineService.context(normalizeFromWindow($event.center.x, $event.center.y));

@@ -1,4 +1,4 @@
-import { Color, TextureLoader, Texture, RepeatWrapping, SphereBufferGeometry, MeshPhysicalMaterial } from 'three';
+import { Color, MeshPhysicalMaterial, RepeatWrapping, SphereBufferGeometry, Texture, TextureLoader } from 'three';
 import { Basic } from './basic.class';
 
 export class Water extends Basic {

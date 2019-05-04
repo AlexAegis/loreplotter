@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { faCommentSlash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
