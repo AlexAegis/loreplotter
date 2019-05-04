@@ -1,5 +1,5 @@
 import { State } from '@app/store/reducers';
-import { AllActions } from '@lore/store/actions';
+import { FeatureActions } from '@lore/store/actions';
 import { actorReducer, ActorState } from '@lore/store/reducers/actor.reducer';
 import { loreReducer, LoreState } from '@lore/store/reducers/lore.reducer';
 import { sceneReducer, SceneState } from '@lore/store/reducers/scene.reducer';
@@ -18,7 +18,7 @@ export interface FeatureState {
 	actor: ActorState;
 }
 
-export const reducers: ActionReducerMap<FeatureState, AllActions> = {
+export const reducers: ActionReducerMap<FeatureState, FeatureActions> = {
 	lores: loreReducer,
 	scene: sceneReducer,
 	actor: actorReducer

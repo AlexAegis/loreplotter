@@ -6,7 +6,7 @@ export class TextureDelta {
 	@jsonMember
 	public textureDataURL: string;
 
-	constructor(textureDataURL?: string) {
+	public constructor(textureDataURL?: string) {
 		this.textureDataURL = textureDataURL;
 	}
 }

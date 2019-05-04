@@ -6,12 +6,12 @@ import {
 	ElementRef,
 	HostBinding,
 	HostListener,
-	OnDestroy,
 	OnInit,
 	QueryList,
 	ViewChild,
 	ViewChildren
 } from '@angular/core';
+import { BaseDirective } from '@app/component/base-component.class';
 import { nextWhole } from '@app/function';
 import { toUnit } from '@app/function/to-unit.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
@@ -26,7 +26,7 @@ import moment from 'moment';
 import { NgScrollbar } from 'ngx-scrollbar';
 import ResizeObserver from 'resize-observer-polyfill';
 import { RxDocument } from 'rxdb';
-import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
 import { map, share, tap, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 import { BlockComponent } from './block.component';
@@ -49,11 +49,10 @@ import { CursorComponent } from './cursor.component';
 	styleUrls: ['./timeline.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
-	private subscriptions = new Subscription();
+export class TimelineComponent extends BaseDirective implements OnInit, AfterViewInit {
 	public cursorUnix$: Observable<number>;
 
-	constructor(
+	public constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
 		public loreService: LoreService,
@@ -62,45 +61,46 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 		private storeFacade: StoreFacade,
 		private changeDetectorRef: ChangeDetectorRef
 	) {
-		this.cursorUnix$ = this.storeFacade.cursorUnix$;
+		super();
+		this.cursorUnix$ = this.storeFacade.cursor$;
 	}
 
-	get currentUnit(): moment.unitOfTime.DurationConstructor {
+	public get currentUnit(): moment.unitOfTime.DurationConstructor {
 		return this.units[this.currentUnitIndex].unitName;
 	}
 
-	get currentUnitSeconds(): number {
+	public get currentUnitSeconds(): number {
 		return this.units[this.currentUnitIndex].seconds;
 	}
 
-	get currentUnitDivision(): number {
+	public get currentUnitDivision(): number {
 		return this.units[this.currentUnitIndex].frame;
 	}
 
-	get previousUnitDivision(): number {
+	public get previousUnitDivision(): number {
 		return this.currentUnitIndex > 0 ? this.units[this.currentUnitIndex - 1].frame : -Infinity;
 	}
 
-	get nextUnitDivision(): number {
+	public get nextUnitDivision(): number {
 		return this.currentUnitIndex < this.units.length - 1 ? this.units[this.currentUnitIndex + 1].frame : Infinity;
 	}
 
-	@HostBinding('style.width') get widthCalc(): string {
+	@HostBinding('style.width')
+	public get widthCalc(): string {
 		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
 	}
 
 	@ViewChildren(BlockComponent)
 	public blocks: QueryList<BlockComponent>;
 
-	// public cursor$: Observable<number>;
 	public unitsBetween = 100; // This property holds how many main divisions there is on the timeline,
 
 	// eg.: how many of the current scale's unit, fits into it.
 	public distanceBetweenUnits: number;
 	// The resizeObserver keeps this property updated and call the change calculation
 	public containerWidth = new ReplaySubject<number>(1);
-	currentUnitIndex = 3;
-	units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
+	public currentUnitIndex = 3;
+	public units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
 		{ unitName: 'second', frame: 1000, seconds: moment.duration(1, 'second').asSeconds() },
 		{ unitName: 'minute', frame: 60, seconds: moment.duration(1, 'minute').asSeconds() },
 		{ unitName: 'hour', frame: 60, seconds: moment.duration(1, 'hour').asSeconds() },
@@ -110,11 +110,12 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 		{ unitName: 'year', frame: 12, seconds: moment.duration(1, 'year').asSeconds() }
 	];
 
-	@ViewChild('divisorContainer') divisorContainer: ElementRef;
+	@ViewChild('divisorContainer')
+	public divisorContainer: ElementRef;
 
-	@ViewChild('cursor') cursor: CursorComponent;
+	@ViewChild('cursor')
+	public cursor: CursorComponent;
 
-	// TODO: Into sideeffect
 	public actors$ = this.databaseService.currentLoreActors$.pipe(
 		tap(next => {
 			this.blocks.forEach(block => {
@@ -270,11 +271,11 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	public ngOnInit(): void {
-		this.subscriptions.add(
+		this.teardown(
 			this.easeCursorTo
 				.pipe(
 					withLatestFrom(
-						this.storeFacade.cursorUnix$,
+						this.storeFacade.cursor$,
 						this.storeFacade.frameStart$,
 						this.storeFacade.frameEnd$,
 						this.containerWidth
@@ -302,7 +303,7 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 				.subscribe()
 		);
 
-		this.subscriptions.add(
+		this.teardown(
 			this.frameShifter
 				.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
 				.subscribe(([shift, frame, containerWidth]) => {
@@ -314,7 +315,7 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 				})
 		);
 
-		this.subscriptions.add(
+		this.teardown(
 			this.nodeSpawner
 				.pipe(
 					tap(({ $event }) => $event.stopPropagation()),
@@ -342,10 +343,6 @@ export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
 				)
 				.subscribe()
 		);
-	}
-
-	public ngOnDestroy(): void {
-		this.subscriptions.unsubscribe();
 	}
 
 	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent): void {

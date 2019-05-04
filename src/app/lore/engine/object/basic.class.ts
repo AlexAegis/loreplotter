@@ -4,7 +4,7 @@ import { BufferGeometry, Geometry, Material, Mesh, Object3D, Vector2 } from 'thr
 
 export class Basic extends Mesh {
 	@Output()
-	positionChange = new EventEmitter<Vector2>();
+	public positionChange = new EventEmitter<Vector2>();
 
 	public constructor(geometry?: Geometry | BufferGeometry, material?: Material) {
 		super(geometry, material);
@@ -18,5 +18,5 @@ export class Basic extends Mesh {
 		return <Stage>o;
 	}
 
-	public changed() {}
+	public changed(): void {}
 }

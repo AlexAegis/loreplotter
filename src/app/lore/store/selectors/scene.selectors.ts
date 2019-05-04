@@ -28,24 +28,14 @@ const getCursorState = createSelector(
 	state => state.cursor
 );
 
-const getCursorUnix = createSelector(
+const getCursor = createSelector(
 	getCursorState,
 	state => state.unix.override || state.unix.original
 );
 
-const getCursorUnixOverride = createSelector(
+const getCursorOverride = createSelector(
 	getCursorState,
 	state => state.unix.override
-);
-
-const getCursorBasePosition = createSelector(
-	getCursorState,
-	state => state.position.base
-);
-
-const getCursorPosition = createSelector(
-	getCursorState,
-	state => state.position.base + (state.position.delta || 0)
 );
 
 const getFrameState = createSelector(
@@ -108,10 +98,8 @@ export const sceneQuery = {
 	getFrame,
 	getFrameStart,
 	getFrameEnd,
-	getCursorUnix,
-	getCursorUnixOverride,
-	getCursorBasePosition,
-	getCursorPosition,
+	getCursor,
+	getCursorOverride,
 	getInteractionMode,
 	getDrawSize,
 	getDrawHeight,

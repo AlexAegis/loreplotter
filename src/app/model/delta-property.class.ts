@@ -6,12 +6,12 @@ export class DeltaProperty {
 		return this.base + this.delta;
 	}
 
-	public bake(threshold?: number) {
+	public bake(threshold?: number): void {
 		this.base = this.total % (threshold !== undefined ? threshold : Infinity);
 		this.delta = 0;
 	}
 
-	public switch() {
+	public switch(): void {
 		this.base = this.delta;
 		this.delta = 0;
 	}

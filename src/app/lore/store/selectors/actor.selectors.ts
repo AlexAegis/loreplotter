@@ -50,18 +50,3 @@ export const actorQuery = {
 	getActorEntityById,
 	getSelected
 };
-
-/*
-export const {
-	// select the array of user ids
-	selectIds: selectUserIds,
-
-	// select the dictionary of user entities
-	selectEntities: selectUserEntities,
-
-	// select the array of users
-	selectAll: selectAllUsers,
-
-	// select the total user count
-	selectTotal: selectUserTotal,
-} = adapter.getSelectors();*/

@@ -14,11 +14,11 @@ export class PlayComponent implements OnInit {
 
 	public icon: IconDefinition;
 
-	constructor(private storeFacade: StoreFacade, private changeDetector: ChangeDetectorRef) {
+	public constructor(private storeFacade: StoreFacade, private changeDetector: ChangeDetectorRef) {
 		this.isPlaying$ = this.storeFacade.isPlaying$;
 	}
 
-	public ngOnInit() {
+	public ngOnInit(): void {
 		this.isPlaying$.subscribe(isPlaying => {
 			this.icon = isPlaying ? faPause : faPlay;
 			this.changeDetector.markForCheck();

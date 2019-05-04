@@ -9,30 +9,30 @@ import { faCommentSlash, faTimes } from '@fortawesome/free-solid-svg-icons';
 })
 export class FormEntryComponent implements OnInit, AfterViewInit {
 	@Input()
-	parent: FormArray;
+	public parent: FormArray;
 
 	@Input()
-	index: number;
+	public index: number;
 
 	@Input()
-	existing: { key: String; value: String };
+	public existing: { key: String; value: String };
 
 	@Input()
-	control: FormGroup;
+	public control: FormGroup;
 
-	forgetIcon = faCommentSlash;
-	removeIcon = faTimes;
+	public forgetIcon = faCommentSlash;
+	public removeIcon = faTimes;
 
 	private hiddenValue: any;
 
-	static create(formBuilder: FormBuilder): FormGroup {
+	public static create(formBuilder: FormBuilder): FormGroup {
 		return formBuilder.group({
 			key: ['', [Validators.required]],
 			value: ['']
 		});
 	}
 
-	changeForget($event) {
+	public changeForget($event): void {
 		this.control.controls['forget'].setValue(!(this.control.controls['forget'] as FormControl).value);
 		if ((this.control.controls['forget'] as FormControl).value) {
 			this.hiddenValue = (this.control.controls['value'] as FormControl).value;
@@ -45,13 +45,13 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 		}
 	}
 
-	constructor(private formBuilder: FormBuilder) {}
+	public constructor(private formBuilder: FormBuilder) {}
 
-	remove($event) {
+	public remove($event): void {
 		this.parent.removeAt(this.index);
 	}
 
-	ngOnInit() {
+	public ngOnInit(): void {
 		if (!this.control) {
 			this.control = FormEntryComponent.create(this.formBuilder);
 			this.parent.push(this.control);
@@ -63,5 +63,5 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 		}
 	}
 
-	ngAfterViewInit() {}
+	public ngAfterViewInit(): void {}
 }

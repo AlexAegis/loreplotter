@@ -8,7 +8,7 @@ export class Stage extends Scene {
 	public sun: Sun;
 	public ambient: AmbientLight;
 
-	constructor(public engineService: EngineService) {
+	public constructor(public engineService: EngineService) {
 		super();
 
 		this.name = 'stage';

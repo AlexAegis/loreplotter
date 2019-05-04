@@ -1,6 +1,7 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
+import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { Actor } from '@app/model/data/actor.class';
 import { DatabaseService } from '@app/service/database.service';
@@ -12,69 +13,81 @@ import { filter } from 'rxjs/operators';
 @Component({
 	selector: 'app-sidebar',
 	templateUrl: './sidebar.component.html',
-	styleUrls: ['./sidebar.component.scss']
+	styleUrls: ['./sidebar.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SidebarComponent implements OnInit, OnDestroy {
-	over = 'side';
-	expandHeight = '42px';
-	collapseHeight = '42px';
-	displayMode = 'flat';
-	maleIcon = faMale;
-	maleIconSize = 'lg';
+export class SidebarComponent extends BaseDirective implements AfterViewInit, OnInit {
+	public over = 'side';
+	public maleIcon = faMale;
+	public maleIconSize = 'lg';
 	@Input()
-	disabled = false;
+	public disabled = false;
 
-	opened = false;
+	private _opened = false;
 
-	actorSource = this.dnd.dragSource('Actor', {
+	public get opened(): boolean {
+		return this._opened;
+	}
+
+	public set opened(opened: boolean) {
+		this._opened = opened;
+		this.changeDetector.markForCheck();
+	}
+
+	public actorSource = this.dnd.dragSource('Actor', {
 		beginDrag: () => {
 			this.opened = this.mediaQueryAlias === 'xl';
 			return {};
 		}
 	});
 
-	actorCount$ = this.databaseService.actorCount$;
-	actors$ = this.databaseService.currentLoreActors$;
+	public actorCount$ = this.databaseService.actorCount$;
+	public actors$ = this.databaseService.currentLoreActors$;
 
-	mediaQueryAlias: string;
+	public mediaQueryAlias: string;
 
-	constructor(
+	public constructor(
 		private media: MediaObserver,
 		private dnd: SkyhookDndService,
 		public loreService: LoreService,
 		public databaseService: DatabaseService,
-		public engineService: EngineService
+		public engineService: EngineService,
+		private changeDetector: ChangeDetectorRef
 	) {
-		this.actorSource
-			.listen(a => a)
-			.subscribe(a => {
-				console.log(`dragging ${a.isDragging()}`);
-			});
-		this.media
-			.asObservable()
-			.pipe(filter(a => a && a.length > 0))
-			.subscribe((changes: MediaChange[]) => {
-				this.mediaQueryAlias = changes[0].mqAlias;
-				this.opened = this.mediaLarge;
-				this.over = this.opened ? 'side' : 'over';
-			});
+		super();
 	}
 
-	get mediaLarge(): boolean {
+	public get mediaLarge(): boolean {
 		return this.mediaQueryAlias === 'xl';
 	}
 
-	ngOnInit(): void {}
+	public ngOnInit(): void {}
 
-	select($event, actor: RxDocument<Actor>): void {
+	public ngAfterViewInit(): void {
+		this.teardown(
+			this.actorSource
+				.listen(a => a)
+				.subscribe(a => {
+					// console.log(`dragging ${a.isDragging()}`);
+				})
+		);
+		this.teardown(
+			this.media
+				.asObservable()
+				.pipe(filter(a => a && a.length > 0))
+				.subscribe((changes: MediaChange[]) => {
+					this.mediaQueryAlias = changes[0].mqAlias;
+					this.opened = this.mediaLarge;
+					this.over = this.opened ? 'side' : 'over';
+					this.changeDetector.markForCheck();
+				})
+		);
+	}
+	public select($event, actor: RxDocument<Actor>): void {
 		this.engineService.selectedByActor.next(actor);
 	}
 
-	ngOnDestroy() {
-		this.actorSource.unsubscribe();
-	}
-
-	onCloseStart(): void {
+	public onCloseStart(): void {
 		this.opened = false;
 	}
 }

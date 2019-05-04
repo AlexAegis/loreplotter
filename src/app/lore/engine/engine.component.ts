@@ -1,5 +1,5 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
-import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
 import { normalizeFromWindow } from '@app/function';
 import { DatabaseService, LoreService } from '@app/service';
 import { PopupComponent } from '@lore/component';
@@ -9,30 +9,30 @@ import { Vector2 } from 'three';
 @Component({
 	selector: 'app-engine',
 	templateUrl: './engine.component.html',
-	styleUrls: ['./engine.component.scss']
+	styleUrls: ['./engine.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EngineComponent implements AfterViewInit, OnDestroy {
+export class EngineComponent implements AfterViewInit {
 	@ViewChild('canvas')
-	canvas: ElementRef;
+	public canvas: ElementRef;
 
 	@ViewChild('indicator')
-	indicator: PopupComponent;
+	public indicator: PopupComponent;
 
-	drop = this.dnd.dropTarget('Actor', {
+	public drop = this.dnd.dropTarget('Actor', {
 		drop: monitor => this.loreService.spawnActorOnClientOffset.next(monitor.getClientOffset())
 	});
 
-	constructor(
+	public constructor(
 		public engineService: EngineService,
 		public db: DatabaseService,
 		public loreService: LoreService,
 		private dnd: SkyhookDndService
 	) {}
 
-	ngAfterViewInit(): void {
+	public ngAfterViewInit(): void {
 		this.engineService.createScene(this.canvas.nativeElement);
 		this.engineService.animate();
-		console.log(this);
 	}
 
 	public pan($event: any): void {
@@ -59,7 +59,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		return false;
 	}
 
-	public tap($event: any) {
+	public tap($event: any): void {
 		$event.stopPropagation();
 		switch ($event.button) {
 			case undefined:
@@ -76,9 +76,7 @@ export class EngineComponent implements AfterViewInit, OnDestroy {
 		this.engineService.refreshPopupPosition();
 	}
 
-	public hover($event: any) {
+	public hover($event: any): void {
 		this.engineService.hover(normalizeFromWindow($event.clientX, $event.clientY));
 	}
-
-	ngOnDestroy(): void {}
 }

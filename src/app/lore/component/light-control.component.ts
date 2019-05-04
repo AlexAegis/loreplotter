@@ -26,7 +26,7 @@ export class LightControlComponent implements OnInit {
 	public manualLightAlwaysOn$: Observable<boolean>;
 	public manualLight$: Observable<boolean>;
 
-	constructor(public storeFacade: StoreFacade, private cd: ChangeDetectorRef) {
+	public constructor(public storeFacade: StoreFacade, private cd: ChangeDetectorRef) {
 		this.manualLightAlwaysOn$ = this.storeFacade.manualLightAlwaysOn$;
 		this.manualLight$ = this.storeFacade.manualLight$;
 	}
@@ -34,16 +34,16 @@ export class LightControlComponent implements OnInit {
 	public faMoon = faMoon;
 	public faSun = faSun;
 
-	ngOnInit() {}
+	public ngOnInit(): void {}
 
-	public toggleManualLightAlwaysOn($event: any) {
+	public toggleManualLightAlwaysOn($event: any): void {
 		$event.preventDefault();
 		this.storeFacade.toggleManualLightAlwaysOn();
 		this.cd.detectChanges();
 		this.cd.markForCheck();
 	}
 
-	public toggleAutoLight($event: any) {
+	public toggleAutoLight($event: any): void {
 		$event.preventDefault();
 		this.storeFacade.toggleAutoLight();
 		this.cd.detectChanges();

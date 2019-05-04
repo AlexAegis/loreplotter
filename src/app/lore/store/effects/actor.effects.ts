@@ -7,7 +7,7 @@ import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
 import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 
-import { AllActions, loadActors, loadActorsFailure, loadActorsSuccess } from '../actions';
+import { FeatureActions, loadActors, loadActorsFailure, loadActorsSuccess } from '../actions';
 
 /**
  * Lore effects
@@ -16,8 +16,8 @@ import { AllActions, loadActors, loadActorsFailure, loadActorsSuccess } from '..
  */
 @Injectable()
 export class ActorEffects {
-	constructor(
-		private actions$: Actions<AllActions>,
+	public constructor(
+		private actions$: Actions<FeatureActions>,
 		private store: Store<FeatureState>,
 		private databaseService: DatabaseService
 	) {}
@@ -28,7 +28,7 @@ export class ActorEffects {
 	 * Automatically issue the load style effects straight start the database
 	 */
 	@Effect()
-	private loadActors$ = this.actions$.pipe(
+	public loadActors$ = this.actions$.pipe(
 		ofType(loadActors.type),
 		mergeMap(({ payload }) =>
 			this.databaseService.database$.pipe(switchMap(db => db.actor.find({ loreId: payload }).$))

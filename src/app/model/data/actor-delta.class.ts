@@ -10,7 +10,7 @@ export class ActorDelta {
 	public position: Vector3Serializable;
 	@jsonMapMember(String, String)
 	public knowledge: Map<String, String>;
-	constructor(name?: string, position?: Vector3Serializable, knowledge: Map<String, String> = new Map()) {
+	public constructor(name?: string, position?: Vector3Serializable, knowledge: Map<String, String> = new Map()) {
 		this.name = name;
 		this.position = position;
 		this.knowledge = knowledge;

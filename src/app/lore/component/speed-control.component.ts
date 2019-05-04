@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Options } from 'ng5-slider';
 import { Observable } from 'rxjs';
@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
 @Component({
 	selector: 'app-speed-control',
 	templateUrl: './speed-control.component.html',
-	styleUrls: ['./speed-control.component.scss']
+	styleUrls: ['./speed-control.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SpeedControlComponent implements OnInit {
 	public speed$: Observable<number>;
@@ -16,13 +17,14 @@ export class SpeedControlComponent implements OnInit {
 		ceil: 6400
 	};
 
-	constructor(private storeFacade: StoreFacade) {
+	public constructor(private storeFacade: StoreFacade, private changeDetector: ChangeDetectorRef) {
 		this.speed$ = this.storeFacade.playSpeed$;
 	}
 
-	ngOnInit() {}
+	public ngOnInit(): void {}
 
-	public setSpeed(speed: number) {
+	public setSpeed(speed: number): void {
 		this.storeFacade.setPlaySpeed(speed);
+		this.changeDetector.markForCheck();
 	}
 }

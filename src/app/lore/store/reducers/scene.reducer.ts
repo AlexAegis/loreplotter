@@ -20,9 +20,12 @@ import {
 	setInteractionMode,
 	setManualLightAlwaysOn,
 	setPlaying,
+	setPlayingFailure,
+	setPlayingSuccess,
 	setPlaySpeed,
 	toggleAutoLight,
-	toggleManualLightAlwaysOn
+	toggleManualLightAlwaysOn,
+	togglePlaying
 } from '@lore/store/actions';
 import moment from 'moment';
 
@@ -33,7 +36,6 @@ export interface FrameState {
 
 export interface CursorState {
 	unix: Partial<OverridableProperty>;
-	position: Partial<DeltaProperty>;
 }
 
 export type InteractionMode = 'draw' | 'move' | 'raise' | 'lower';
@@ -57,23 +59,19 @@ export const initialSceneState: SceneState = {
 	playing: false,
 	cursor: {
 		unix: {
-			original: moment('2019-01-03T12:00:00').unix(),
+			original: moment().unix(),
 			override: undefined
-		},
-		position: {
-			base: 0,
-			delta: undefined
 		}
 	},
 	frame: {
 		start: {
-			base: moment('2019-01-03T12:00:00')
+			base: moment()
 				.subtract(2, 'week')
 				.unix(),
 			delta: undefined
 		},
 		end: {
-			base: moment('2019-01-03T12:00:00')
+			base: moment()
 				.add(2, 'week')
 				.unix(),
 			delta: undefined
@@ -167,7 +165,16 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 			return { ...state, playSpeed: action.payload };
 		}
 		case setPlaying.type: {
-			return { ...state, playing: action.payload };
+			return { ...state, loading: true };
+		}
+		case setPlayingSuccess.type: {
+			return { ...state, playing: action.payload, loading: false };
+		}
+		case setPlayingFailure.type: {
+			return { ...state, loading: false };
+		}
+		case togglePlaying.type: {
+			return { ...state, playing: !state.playing };
 		}
 		case setInteractionMode.type: {
 			return { ...state, interactionMode: action.payload };

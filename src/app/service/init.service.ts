@@ -7,11 +7,14 @@ import RxDB from 'rxdb';
  */
 @Injectable()
 export class InitService {
-	public async init() {
-		return 0;
+
+	private success = true;
+
+	public async init(): Promise<boolean> {
+		return this.success;
 	}
 
-	constructor() {
+	public constructor() {
 		RxDB.plugin(idb);
 	}
 }

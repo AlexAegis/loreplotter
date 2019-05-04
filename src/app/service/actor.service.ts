@@ -7,7 +7,7 @@ import { LoreService } from './lore.service';
 
 @Injectable()
 export class ActorService {
-	constructor(
+	public constructor(
 		private loreService: LoreService,
 		private engineService: EngineService,
 		private storeFacade: StoreFacade
@@ -18,7 +18,7 @@ export class ActorService {
 			filter(actorObject => actorObject !== undefined),
 			map(actorObject => actorObject.actor)
 		),
-		this.storeFacade.cursorUnix$
+		this.storeFacade.cursor$
 	]).pipe(
 		auditTime(1000 / 60),
 		share()

@@ -10,7 +10,7 @@ import {
 	Output,
 	Renderer2
 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { BaseDirective } from '@app/component/base-component.class';
 
 /**
  * Two way bound focus directive
@@ -25,34 +25,35 @@ import { Subscription } from 'rxjs';
 @Directive({
 	selector: '[appFocus]'
 })
-export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
-	constructor(private hostElement: ElementRef, private renderer: Renderer2, private cd: ChangeDetectorRef) {}
+export class FocusDirective extends BaseDirective implements OnInit, AfterViewInit, OnDestroy {
+	public constructor(private hostElement: ElementRef, private renderer: Renderer2, private cd: ChangeDetectorRef) {
+		super();
+	}
 
 	private focusListener: Function;
 	private focusoutListener: Function;
-	private focusSubscription: Subscription;
 
 	@Output()
-	focusChange = new EventEmitter<boolean>();
+	public focusChange = new EventEmitter<boolean>();
 
 	private _focus = false;
 
 	@Input()
-	set focus(focus: boolean) {
+	public set focus(focus: boolean) {
 		this._focus = focus;
 		this.focusChange.emit(this.focus);
 	}
 
-	get focus(): boolean {
+	public get focus(): boolean {
 		return this._focus;
 	}
 
-	ngOnInit(): void {
-		this.focusSubscription = this.focusChange.subscribe(focus => {
+	public ngOnInit(): void {
+		this.teardown(this.focusChange.subscribe(focus => {
 			if (focus) {
 				this.hostElement.nativeElement.focus();
 			}
-		});
+		}));
 
 		this.focusListener = this.renderer.listen(this.hostElement.nativeElement, 'focus', () => {
 			this.focus = true;
@@ -67,13 +68,13 @@ export class FocusDirective implements OnInit, AfterViewInit, OnDestroy {
 	/**
 	 * Initial state. If not emitted, the directive won't work until manual change of the input
 	 */
-	ngAfterViewInit(): void {
+	public ngAfterViewInit(): void {
 		this.focusChange.emit(this.focus);
 	}
 
-	ngOnDestroy(): void {
+	public ngOnDestroy(): void {
+		super.ngOnDestroy();
 		this.focusListener();
 		this.focusoutListener();
-		this.focusSubscription.unsubscribe();
 	}
 }

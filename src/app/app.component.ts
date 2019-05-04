@@ -1,5 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ChildActivationEnd, Event, Router } from '@angular/router';
+import { BaseDirective } from '@app/component/base-component.class';
 
 @Component({
 	selector: 'app-root',
@@ -7,23 +8,20 @@ import { ChildActivationEnd, Event, Router } from '@angular/router';
 	styleUrls: ['./app.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
+export class AppComponent extends BaseDirective implements OnInit, OnDestroy {
+	public title = 'Lore';
 	public loaded: boolean;
-
 	public constructor(private router: Router) {
+		super();
 		this.loaded = false;
-		this.router.events.pipe().subscribe((event: Event) => {
-			if (event instanceof ChildActivationEnd) {
-				this.loaded = true;
-			}
-		});
+		this.teardown(
+			this.router.events.pipe().subscribe((event: Event) => {
+				if (event instanceof ChildActivationEnd) {
+					this.loaded = true;
+				}
+			})
+		);
 	}
 
-	public title = 'Lore';
-
-	ngAfterViewInit(): void {}
-
-	ngOnDestroy(): void {}
-
-	ngOnInit(): void {}
+	public ngOnInit(): void {}
 }

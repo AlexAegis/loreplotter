@@ -157,7 +157,7 @@ export class EngineService {
 
 	// Light Control
 
-	public dampen$ = this.storeFacade.cursorUnix$.pipe(
+	public dampen$ = this.storeFacade.cursor$.pipe(
 		debounceTime(120),
 		mergeMap(unix =>
 			of(unix).pipe(
@@ -167,7 +167,7 @@ export class EngineService {
 		)
 	);
 
-	public dampenedSpeed$ = merge(this.storeFacade.cursorUnix$, this.dampen$).pipe(
+	public dampenedSpeed$ = merge(this.storeFacade.cursor$, this.dampen$).pipe(
 		scan(
 			(
 				accumulator: {

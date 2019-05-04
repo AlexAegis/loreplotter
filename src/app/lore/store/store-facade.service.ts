@@ -4,9 +4,8 @@ import { Lore } from '@app/model/data';
 import { actorQuery } from '@lore/store/selectors/actor.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
-import { filter, first } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import {
-	AllActions,
 	bakeCursorOverride,
 	bakeFrame,
 	bakeFrameEnd,
@@ -21,6 +20,7 @@ import {
 	deleteLore,
 	deleteLoreFailure,
 	deleteLoreSuccess,
+	FeatureActions,
 	loadLoresFailure,
 	loadLoresSuccess,
 	moveNode,
@@ -35,10 +35,10 @@ import {
 	setFrameTo,
 	setInteractionMode,
 	setManualLightAlwaysOn,
-	setPlaying,
 	setPlaySpeed,
 	toggleAutoLight,
 	toggleManualLightAlwaysOn,
+	togglePlaying,
 	updateLore,
 	updateLoreFailure,
 	updateLoreSuccess
@@ -66,10 +66,8 @@ export class StoreFacade {
 	// Scene
 	public playSpeed$ = this.store$.pipe(select(sceneQuery.getPlaySpeed));
 	public isPlaying$ = this.store$.pipe(select(sceneQuery.isPlaying));
-	public cursorUnix$ = this.store$.pipe(select(sceneQuery.getCursorUnix));
-	public cursorUnixOverride$ = this.store$.pipe(select(sceneQuery.getCursorUnixOverride));
-	public cursorBasePosition$ = this.store$.pipe(select(sceneQuery.getCursorBasePosition));
-	public cursorPosition$ = this.store$.pipe(select(sceneQuery.getCursorPosition));
+	public cursor$ = this.store$.pipe(select(sceneQuery.getCursor));
+	public cursorOverride$ = this.store$.pipe(select(sceneQuery.getCursorOverride));
 	public frame$ = this.store$.pipe(select(sceneQuery.getFrame));
 	public frameStart$ = this.store$.pipe(select(sceneQuery.getFrameStart));
 	public frameEnd$ = this.store$.pipe(select(sceneQuery.getFrameEnd));
@@ -82,136 +80,118 @@ export class StoreFacade {
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 
-	constructor(private store$: Store<AppState>, private actions$: Actions<AllActions>) {
-		console.log('StoreFacade created');
-	}
+	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
 
-	/**
-	 * Create
-	 * @param lore Lore
-	 */
-	public create(lore: Lore) {
+	public create(lore: Lore): void {
 		this.store$.dispatch(createLore({ lore }));
 	}
 
-	/**
-	 * Update
-	 * @param lore Lore
-	 */
-	public update(lore: Lore) {
+	public update(lore: Lore): void {
 		this.store$.dispatch(updateLore({ payload: { id: '', changes: lore } }));
 	}
 
-	/**
-	 * Delete
-	 * @param id ID
-	 */
-	public delete(id: string) {
+
+	public delete(id: string): void {
 		this.store$.dispatch(deleteLore({ id }));
 	}
 
-	public selectLore(lore: Partial<Lore>) {
+	public selectLore(lore: Partial<Lore>): void {
 		this.store$.dispatch(changeSelectedLore({ payload: lore }));
 	}
 
-	public setPlaySpeed(speed: number) {
+	public setPlaySpeed(speed: number): void {
 		this.store$.dispatch(setPlaySpeed({ payload: speed }));
 	}
 
-	/**
-	 * Simplify
-	 */
-	public togglePlay() {
-		this.isPlaying$.pipe(first()).subscribe(isPlaying => {
-			this.store$.dispatch(setPlaying({ payload: !isPlaying }));
-		});
+	public togglePlay(): void {
+		this.store$.dispatch(togglePlaying({ payload: undefined }));
 	}
 
-	public bakeCursorOverride() {
+	public bakeCursorOverride(): void {
 		this.store$.dispatch(bakeCursorOverride({ payload: true }));
 	}
 
-	public setCursorOverride(to: number) {
+	public setCursorOverride(to: number): void {
 		this.store$.dispatch(changeCursorOverrideTo({ payload: to }));
 	}
 
-	public setCursor(to: number) {
+	public setCursor(to: number): void {
 		this.store$.dispatch(changeCursorOverrideTo({ payload: to }));
 	}
 
-	public setFrameStart(to: number) {
+	public setFrameStart(to: number): void {
 		this.store$.dispatch(setFrameStartTo({ payload: to }));
 	}
 
-	public setFrameEnd(to: number) {
+	public setFrameEnd(to: number): void {
 		this.store$.dispatch(setFrameEndTo({ payload: to }));
 	}
 
-	public setFrame(to: { start: number; end: number }) {
+	public setFrame(to: { start: number; end: number }): void {
 		this.store$.dispatch(setFrameTo({ payload: to }));
 	}
 
-	public setFrameStartDelta(to: number) {
+	public setFrameStartDelta(to: number): void {
 		this.store$.dispatch(setFrameStartDeltaTo({ payload: to }));
 	}
 
-	public setFrameEndDelta(to: number) {
+	public setFrameEndDelta(to: number): void {
 		this.store$.dispatch(setFrameEndDeltaTo({ payload: to }));
 	}
 
-	public setFrameDelta(startTo: number, endTo: number = startTo) {
+	public setFrameDelta(startTo: number, endTo: number = startTo): void {
 		this.store$.dispatch(setFrameDeltaTo({ payload: { start: startTo, end: endTo } }));
 	}
 
-	public bakeFrame() {
+	public bakeFrame(): void {
 		this.store$.dispatch(bakeFrame({ payload: true }));
 	}
 
-	public bakeFrameStart() {
+	public bakeFrameStart(): void {
 		this.store$.dispatch(bakeFrameStart({ payload: true }));
 	}
 
-	public bakeFrameEnd() {
+	public bakeFrameEnd(): void {
 		this.store$.dispatch(bakeFrameEnd({ payload: true }));
 	}
 
-	public changeFrameBy(to: { start: number; end: number }) {
+	public changeFrameBy(to: { start: number; end: number }): void {
 		this.store$.dispatch(changeFrameBy({ payload: to }));
 	}
 
-	public changeCursorBy(speed: number) {
+	public changeCursorBy(speed: number): void {
 		this.store$.dispatch(changeCursorBy({ payload: speed }));
 	}
 
-	public moveNode(original: number, from: number, to: number) {
+	public moveNode(original: number, from: number, to: number): void {
 		this.store$.dispatch(moveNode({ payload: { original, from, to } }));
 	}
 
-	public setInteractionMode(mode: InteractionMode) {
+	public setInteractionMode(mode: InteractionMode): void {
 		this.store$.dispatch(setInteractionMode({ payload: mode }));
 	}
 
-	public setDrawSize(size: number) {
+	public setDrawSize(size: number): void {
 		this.store$.dispatch(setDrawSize({ payload: size }));
 	}
 
-	public setDrawHeight(height: number) {
+	public setDrawHeight(height: number): void {
 		this.store$.dispatch(setDrawHeight({ payload: height }));
 	}
 
-	public setAutoLight(on: boolean) {
+	public setAutoLight(on: boolean): void {
 		this.store$.dispatch(setAutoLight({ payload: on }));
 	}
 
-	public setManualLightAlwaysOn(on: boolean) {
+	public setManualLightAlwaysOn(on: boolean): void {
 		this.store$.dispatch(setManualLightAlwaysOn({ payload: on }));
 	}
 
-	public toggleManualLightAlwaysOn() {
+	public toggleManualLightAlwaysOn(): void {
 		this.store$.dispatch(toggleManualLightAlwaysOn());
 	}
 
-	public toggleAutoLight() {
+	public toggleAutoLight(): void {
 		this.store$.dispatch(toggleAutoLight());
 	}
 }

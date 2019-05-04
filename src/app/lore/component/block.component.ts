@@ -8,12 +8,11 @@ import {
 	HostBinding,
 	HostListener,
 	Input,
-	OnChanges,
 	OnDestroy,
 	OnInit,
-	Output,
-	SimpleChanges
+	Output
 } from '@angular/core';
+import { BaseDirective } from '@app/component/base-component.class';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { OverridableProperty } from '@app/model/overridable-property.class';
 import { LoreService } from '@app/service';
@@ -30,7 +29,8 @@ import { Math as ThreeMath } from 'three';
 	styleUrls: ['./block.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
+
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;
@@ -44,11 +44,10 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 	}
 
 	@Input()
-	containerWidthListener: Observable<number>;
+	public containerWidthListener: Observable<number>;
 
 	@Input()
 	public set containerWidth(containerWidth: number) {
-		console.log('contwid: ' + containerWidth);
 		this._containerWidth = containerWidth;
 		this.update();
 	}
@@ -105,7 +104,9 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 		public blockService: BlockService,
 		private storeFacade: StoreFacade,
 		public cd: ChangeDetectorRef
-	) {}
+	) {
+		super();
+	}
 
 	public get isAtMostOneLeft(): boolean {
 		return this.actor._states.length <= 1;
@@ -143,20 +144,6 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 	// So the block will never be smaller then it should
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
-
-	public clearBlockOverrides() {
-		this.blockStart.clear();
-		this.blockEnd.clear();
-	}
-
-	ngOnChanges(changes: SimpleChanges): void {}
-
-	/**
-	 * I'm marking the object as destroyed so the tear-down mechanic in the block-service would skip it's operation
-	 */
-	ngOnDestroy(): void {
-		this.isDestroyed = true;
-	}
 
 	public update(): void {
 		if (
@@ -288,7 +275,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 	@HostListener('panup', ['$event'])
 	@HostListener('pandown', ['$event'])
 	@HostListener('panend', ['$event'])
-	public pan($event: any) {
+	public pan($event: any): void {
 		$event.stopPropagation();
 		if ($event.type === 'panstart') {
 			this.isPanning = true;
@@ -334,7 +321,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 		}
 	}
 
-	private finalizeNewPositions() {
+	private finalizeNewPositions(): void {
 		this.isSaving = true;
 		this.actor
 			.atomicUpdate(a => {
@@ -362,12 +349,12 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 		}
 	}
 
-	public tap($event: any, node: Node<UnixWrapper, ActorDelta>) {
+	public tap($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
 		this.blockService.selection.next({ block: this, node: node });
 	}
 
-	public select(node: Node<UnixWrapper, ActorDelta>) {
+	public select(node: Node<UnixWrapper, ActorDelta>): void {
 		this.selection = node;
 		this.jump.next(this.nodePosition(node.key.unix) + this.left);
 		this.cd.detectChanges();
@@ -378,7 +365,7 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 		this.cd.detectChanges();
 	}
 
-	public remove($event: any, node: Node<UnixWrapper, ActorDelta>) {
+	public remove($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
 		if (!this.isAtMostOneLeft) {
 			//  TODO: Make hammer not ignore the disabled setting on buttons
@@ -395,16 +382,28 @@ export class BlockComponent implements OnInit, OnChanges, OnDestroy, AfterViewIn
 		}
 	}
 
-	ngOnInit() {}
+	public ngOnInit() {}
 
-	ngAfterViewInit(): void {
-		this.storeFacade.frame$.subscribe(frame => {
-			this._frameStart = frame.start;
-			this._frameEnd = frame.end;
-			this.update();
-		});
-		this.containerWidthListener.subscribe(width => {
-			this.containerWidth = width;
-		});
+	public ngAfterViewInit(): void {
+		this.teardown(
+			this.storeFacade.frame$.subscribe(frame => {
+				this._frameStart = frame.start;
+				this._frameEnd = frame.end;
+				this.update();
+			})
+		);
+		this.teardown(
+			this.containerWidthListener.subscribe(width => {
+				this.containerWidth = width;
+			})
+		);
+	}
+
+	/**
+	 * I'm marking the object as destroyed so the tear-down mechanic in the block-service would skip it's operation
+	 */
+	public ngOnDestroy(): void {
+		super.ngOnDestroy();
+		this.isDestroyed = true;
 	}
 }

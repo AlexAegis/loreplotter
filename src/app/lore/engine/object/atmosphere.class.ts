@@ -10,7 +10,7 @@ export class Atmosphere extends Basic {
 
 	public time: number;
 
-	constructor(private planet: Globe) {
+	public constructor(private planet: Globe) {
 		super();
 
 		this.geometry = new SphereBufferGeometry(planet.radius * 1.1, 80, 80);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { faArrowsAlt, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
 import { InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -8,7 +8,8 @@ import { Observable } from 'rxjs';
 @Component({
 	selector: 'app-scene-controls',
 	templateUrl: './scene-controls.component.html',
-	styleUrls: ['./scene-controls.component.scss']
+	styleUrls: ['./scene-controls.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SceneControlsComponent implements OnInit {
 	public interactionMode$: Observable<InteractionMode>;
@@ -17,12 +18,6 @@ export class SceneControlsComponent implements OnInit {
 
 	public moveIcon = faArrowsAlt;
 	public drawIcon = faPencilAlt;
-
-	constructor(private storeFacade: StoreFacade) {
-		this.interactionMode$ = this.storeFacade.interactionMode$;
-		this.drawHeight$ = this.storeFacade.drawHeight$;
-		this.drawSize$ = this.storeFacade.drawSize$;
-	}
 
 	public heightSliderOptions: Options = {
 		floor: 0,
@@ -36,7 +31,14 @@ export class SceneControlsComponent implements OnInit {
 		ceil: 1000,
 		logScale: true
 	};
-	ngOnInit() {}
+
+	public constructor(private storeFacade: StoreFacade) {
+		this.interactionMode$ = this.storeFacade.interactionMode$;
+		this.drawHeight$ = this.storeFacade.drawHeight$;
+		this.drawSize$ = this.storeFacade.drawSize$;
+	}
+
+	public ngOnInit() {}
 
 	public setDrawSize(to: number): void {
 		this.storeFacade.setDrawSize(to);

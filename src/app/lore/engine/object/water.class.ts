@@ -4,7 +4,7 @@ import { Basic } from './basic.class';
 export class Water extends Basic {
 	public type = 'Water';
 	public texture: Texture;
-	constructor(private radius: number = 0.98) {
+	public constructor(private radius: number = 0.98) {
 		super(new SphereBufferGeometry(radius, 128, 128), undefined);
 		this.texture = new TextureLoader().load(`assets/textures/water/ripple.gif`, tex => {
 			tex.wrapS = tex.wrapT = RepeatWrapping;

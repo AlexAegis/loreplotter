@@ -7,7 +7,7 @@ import { Globe } from './globe.class';
 export class ActorObject extends Basic {
 	public lastWorldPosition = new Vector3();
 
-	constructor(public actor: RxDocument<Actor>) {
+	public constructor(public actor: RxDocument<Actor>) {
 		super(new SphereBufferGeometry(0.05, 40, 40), undefined);
 		this.name = actor.id;
 		this.type = 'Point';

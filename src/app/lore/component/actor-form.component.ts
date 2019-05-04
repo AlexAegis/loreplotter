@@ -38,8 +38,8 @@ export interface ActorFormResultData {
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActorFormComponent implements OnInit, AfterViewInit {
-	focused = true;
-	plusIcon = faPlus;
+	public focused = true;
+	public plusIcon = faPlus;
 
 	public actorForm = this.formBuilder.group({
 		name: this.formBuilder.control(''),
@@ -51,7 +51,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 	public knowledgeArray: FormArray = this.actorForm.controls.knowledge as FormArray;
 	public newKnowledgeArray: FormArray = this.actorForm.controls.newKnowledge as FormArray;
-	constructor(
+	public constructor(
 		@Inject(MAT_DIALOG_DATA) public originalData: ActorFormComponentData,
 		private formBuilder: FormBuilder
 	) {
@@ -60,19 +60,19 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.originalData.time = this.originalData.moment.format('HH:mm:ss');
 	}
 
-	addNewKnowledge($event): void {
+	public addNewKnowledge($event): void {
 		this.newKnowledgeArray.push(FormEntryComponent.create(this.formBuilder));
 	}
 
-	get filledNewKnowledgeCount(): number {
+	public get filledNewKnowledgeCount(): number {
 		return this.newKnowledgeArray.controls.filter(control => !!(control as FormGroup).controls['key'].value).length;
 	}
 
-	get newKnowledgeCount(): number {
+	public get newKnowledgeCount(): number {
 		return this.newKnowledgeArray.controls.length - 1;
 	}
 
-	get result(): ActorFormResultData {
+	public get result(): ActorFormResultData {
 		return {
 			date:
 				(this.actorForm.controls['date'].value && this.actorForm.controls['date'].value.format('YYYY-MM-DD')) ||
@@ -85,7 +85,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		};
 	}
 
-	ngOnInit() {}
+	public ngOnInit() {}
 
-	ngAfterViewInit() {}
+	public ngAfterViewInit() {}
 }

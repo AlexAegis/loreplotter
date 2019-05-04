@@ -1,11 +1,11 @@
 import { Curve, Vector3 } from 'three';
 
 export class AirCurve extends Curve<Vector3> {
-	constructor(private from: Vector3, private to: Vector3) {
+	public constructor(private from: Vector3, private to: Vector3) {
 		super();
 	}
 
-	getPoint(t) {
+	public getPoint(t): Vector3 {
 		const angle = this.from.angleTo(this.to);
 		return new Vector3()
 			.addVectors(

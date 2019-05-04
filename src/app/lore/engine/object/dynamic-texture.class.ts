@@ -2,7 +2,6 @@ import { Globe } from '@lore/engine/object/';
 import { CanvasTexture, Math as ThreeMath, Vector2 } from 'three';
 
 export class DynamicTexture extends CanvasTexture {
-	public drawEnabled = true;
 	public constructor(
 		defaultTexture?: string,
 		defaultColor?: string,
@@ -13,7 +12,7 @@ export class DynamicTexture extends CanvasTexture {
 		this.canvas = canvas;
 		this.canvasContext = canvas.getContext('2d');
 		this.canvasContext.imageSmoothingEnabled = true;
-		// this.anisotropy = 2;
+		this.anisotropy = 2;
 
 		if (defaultTexture) {
 			this.loadFromDataURL(defaultTexture);
@@ -52,15 +51,9 @@ export class DynamicTexture extends CanvasTexture {
 		};
 	}
 	public draw(color: string, x: number, y: number, size: number, height?: number): void {
-		// if (this.drawEnabled) {
 		this.canvasContext.fillStyle = color;
 		this.canvasContext.fillRect(x, y, size, height !== undefined ? height : (size * Math.PI) / 1.9);
 		this.needsUpdate = true;
-
-		// 	console.log('DRAW');
-		// this.update();
-		// this.updateQueue.next(true);
-		// }
 	}
 
 	/**
@@ -79,7 +72,6 @@ export class DynamicTexture extends CanvasTexture {
 
 	public update(): void {
 		this.image.src = this.canvas.toDataURL();
-		// 	this.canvas.image
 		this.needsUpdate = true;
 	}
 }

@@ -8,18 +8,18 @@ import {
 	ElementRef,
 	HostBinding,
 	HostListener,
-	OnDestroy,
 	OnInit,
 	ViewChild
 } from '@angular/core';
 import { MediaObserver } from '@angular/flex-layout';
+import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine';
 import { Lore } from '@app/model/data';
 import { DatabaseService, LoreService } from '@app/service';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { TimelineComponent } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'app-lore',
@@ -93,7 +93,7 @@ import { Observable, Subscription } from 'rxjs';
 		])
 	]
 })
-export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
+export class LoreComponent extends BaseDirective implements AfterViewInit, OnInit {
 	@ViewChild('container')
 	private container: ElementRef;
 	@ViewChild('timeline')
@@ -105,7 +105,6 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	public lores$: Observable<Array<Partial<Lore>>>;
 	public title = 'Lore';
 	public menuIcon = faEllipsisH;
-	private subscriptions = new Subscription();
 
 	public constructor(
 		public media: MediaObserver,
@@ -116,10 +115,11 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		private changeDetector: ChangeDetectorRef,
 		private storeFacade: StoreFacade
 	) {
+		super();
 		this.selectedLore$ = this.storeFacade.selectedLore$;
 		this.lores$ = this.storeFacade.lores$;
 		this.setTheme('default-theme');
-		this.subscriptions.add(
+		this.teardown(
 			this.engineService.light$.subscribe(lum => {
 				if (lum.light <= 0.5) {
 					this.setTheme('dark-theme');
@@ -162,10 +162,6 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 	@HostListener('window:contextmenu', ['$event'])
 	public contextMenu($event: KeyboardEvent): void {
 		$event.preventDefault();
-	}
-
-	public ngOnDestroy(): void {
-		this.subscriptions.unsubscribe();
 	}
 
 	public selectLore(lore: Partial<Lore>): void {

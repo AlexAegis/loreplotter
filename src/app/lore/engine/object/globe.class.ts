@@ -29,7 +29,6 @@ export class Globe extends Basic {
 	public water: Water;
 
 	public displacementTexture: DynamicTexture;
-	public emissionTexture: DynamicTexture;
 
 	public displacementBias = -0.0345;
 	public displacementScale = 0.15;
@@ -106,8 +105,6 @@ export class Globe extends Basic {
 
 		this.geometry = new SphereBufferGeometry(radius, 512, 512);
 
-		// this.geometry.normalizeNormals();
-
 		(this.geometry as any).computeFaceNormals();
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
@@ -155,7 +152,7 @@ export class Globe extends Basic {
 
 	// public drawSubject = new Subject<DrawEvent>();
 
-	public drawTo(uv: Vector2, mode: InteractionMode, value: number, size: number) {
+	public drawTo(uv: Vector2, mode: InteractionMode, value: number, size: number): void {
 		const x = uv.x * this.displacementTexture.canvas.width;
 		const y = (1 - uv.y) * this.displacementTexture.canvas.height;
 		value *= 255; // upscale normalized value end rgb range
@@ -170,14 +167,14 @@ export class Globe extends Basic {
 	 * @param position where it will be placed, not that the radius will be overriden and as such, is skippable
 	 * @param height by default 0, bottom of the bounding box will touch the surface of the globe. This value will offset it
 	 */
-	put(object: Mesh, position: Spherical, height: number = 0): void {
+	public put(object: Mesh, position: Spherical, height: number = 0): void {
 		position.radius = this.radius + height + object.geometry.boundingBox.max.y;
 		object.position.setFromSpherical(position);
 		object.lookAt(this.position);
 		this.add(object);
 	}
 
-	putAlt(object: Mesh, cartesian: Vector3): void {
+	public putWithAnchor(object: Mesh, cartesian: Vector3): void {
 		const group = new Group();
 
 		group.lookAt(cartesian);
@@ -193,7 +190,7 @@ export class Globe extends Basic {
 	 * http://stemkoski.github.io/Three.js/Earth-LatLon.html
 	 * Later change it so it puts down some meshes rather than a line
 	 */
-	putCurve(from: Vector3, to: Vector3): AirCurve {
+	public putCurve(from: Vector3, to: Vector3): AirCurve {
 		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
 		// const curve = new THREE.LineCurve3(start, end);
 		const points = airCurve.getPoints(50);
@@ -210,7 +207,7 @@ export class Globe extends Basic {
 		return airCurve;
 	}
 
-	findPointByActor(actor: RxDocument<Actor>): any {
+	public findPointByActor(actor: RxDocument<Actor>): ActorObject {
 		return this.points.filter(point => point.actor.id === actor.id).shift();
 	}
 }

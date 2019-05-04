@@ -1,6 +1,7 @@
 import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
+import { BaseDirective } from '@app/component/base-component.class';
 import { normalizeFromWindow } from '@app/function';
 import { Actor, ActorDelta, Lore, Vector3Serializable } from '@app/model/data';
 import { UnixWrapper } from '@app/model/data/unix-wrapper.class';
@@ -23,20 +24,15 @@ const DAY_IN_SECONDS = 86400;
  * This service's goal is end consume the data coming start the database and the engine and then update both
  */
 @Injectable()
-export class LoreService {
-	// best name ever
-	public slerperHelper: Group;
-	public pseudoPoint: Group;
-	public latestSlerpsWorldPositionHolder: Vector3;
-	public cursorUnix$: Observable<number>;
+export class LoreService extends BaseDirective {
 
 	constructor(
 		private engineService: EngineService,
 		private databaseService: DatabaseService,
 		private storeFacade: StoreFacade
 	) {
-		console.log('LoreService created');
-		this.cursorUnix$ = this.storeFacade.cursorUnix$;
+		super();
+		this.cursorUnix$ = this.storeFacade.cursor$;
 
 		this.slerperHelper = new Group();
 		this.pseudoPoint = new Group();
@@ -44,7 +40,7 @@ export class LoreService {
 		this.slerperHelper.add(this.pseudoPoint);
 		this.latestSlerpsWorldPositionHolder = new Vector3();
 		// Only the initial texture is preloaded
-		this.databaseService.currentLore$
+		this.teardown(this.databaseService.currentLore$
 			.pipe(
 				take(1),
 				mergeMap(lore =>
@@ -59,10 +55,10 @@ export class LoreService {
 				engineService.globe.radius = lore.planet.radius;
 				engineService.globe.displacementTexture.loadFromBlob(att);
 				engineService.refreshPopupPosition();
-			});
+			}));
 
 		// This subscriber's job is end map each actors state end the map based on the current cursor
-		combineLatest([this.databaseService.currentLoreActors$, this.cursorUnix$, this.overrideNodePosition])
+		this.teardown(combineLatest([this.databaseService.currentLoreActors$, this.cursorUnix$, this.overrideNodePosition])
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
 					actors.map(actor => ({
@@ -113,7 +109,7 @@ export class LoreService {
 					}
 				}
 
-				const t = this.progress(enclosure, cursor);
+				const t = LoreService.progress(enclosure, cursor);
 				let actorObject = engineService.globe.getObjectByName(actor.id) as ActorObject;
 				let group: Group;
 				if (actorObject) {
@@ -138,16 +134,16 @@ export class LoreService {
 				}
 
 				engineService.refreshPopupPosition();
-			});
+			}));
 
 		// This subsriptions job is end create a brand new actor
-		this.spawnActorOnClientOffset
+		this.teardown(this.spawnActorOnClientOffset
 			.pipe(
 				filter(o => o !== undefined),
 				withLatestFrom(
 					this.databaseService.currentLore$,
 					this.databaseService.nextActorId$,
-					this.storeFacade.cursorUnix$
+					this.storeFacade.cursor$
 				),
 				switchMap(([offset, lore, nextId, cursor]) => {
 					const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
@@ -161,12 +157,12 @@ export class LoreService {
 					return lore.collection.database.actor.insert(actor);
 				})
 			)
-			.subscribe();
+			.subscribe());
 
-		this.engineService.spawnOnWorld
+		this.teardown(this.engineService.spawnOnWorld
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.storeFacade.cursorUnix$),
+				withLatestFrom(this.storeFacade.cursor$),
 				switchMap(async ([{ point, position }, cursor]) => {
 					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 					point.actor._states.set(
@@ -179,14 +175,14 @@ export class LoreService {
 					);
 					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
 					point.parent.userData.override = false;
-					this.refreshBlockOfActorObject(point);
+					LoreService.refreshBlockOfActorObject(point);
 
 					return updatedActor;
 				})
 			)
-			.subscribe();
+			.subscribe());
 
-		this.engineService.textureChange$
+		this.teardown(this.engineService.textureChange$
 			.pipe(
 				switchMap(texture => from(new Promise<Blob>(res => texture.canvas.toBlob(res, 'image/jpeg')))),
 				withLatestFrom(this.databaseService.currentLore$),
@@ -198,9 +194,9 @@ export class LoreService {
 					})
 				)
 			)
-			.subscribe();
+			.subscribe());
 
-		this.saveActorDelta
+		this.teardown(this.saveActorDelta
 			.pipe(
 				switchMap(({ object, name, date, time, knowledge, newKnowledge }) => {
 					const wrapper = new UnixWrapper(moment(`${date}T${time}`).unix());
@@ -227,10 +223,15 @@ export class LoreService {
 						})
 					).pipe(map(actor => ({ actor, object })));
 				}),
-				tap(({ object }) => this.refreshBlockOfActorObject(object))
+				tap(({ object }) => LoreService.refreshBlockOfActorObject(object))
 			)
-			.subscribe();
+			.subscribe());
 	}
+	// best name ever
+	public slerperHelper: Group;
+	public pseudoPoint: Group;
+	public latestSlerpsWorldPositionHolder: Vector3;
+	public cursorUnix$: Observable<number>;
 
 	public spawnActorOnClientOffset = new Subject<Offset>();
 	public saveActorDelta = new Subject<ActorFormResultData>();
@@ -238,6 +239,25 @@ export class LoreService {
 		actorId: string;
 		overrides: Array<{ original: number; previous: number; new: number }>;
 	}>(undefined);
+
+	static progress(enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>, unix: number) {
+		return ThreeMath.mapLinear(
+			unix,
+			enclosure.last ? enclosure.last.k.unix : -Infinity,
+			enclosure.first ? enclosure.first.k.unix : Infinity,
+			0,
+			1
+		);
+	}
+
+	static refreshBlockOfActorObject(actorObject: ActorObject): void {
+		if (actorObject.actor._userdata && actorObject.actor._userdata.block) {
+			const b = actorObject.actor._userdata.block;
+			b.blockStart.original = b.blockStart.override = actorObject.actor._states.first().key.unix;
+			b.blockEnd.original = b.blockEnd.override = actorObject.actor._states.last().key.unix;
+			b.update();
+		}
+	}
 
 	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
 		let finalPosition: Vector3Serializable;
@@ -254,7 +274,7 @@ export class LoreService {
 				z: node.value.position.z
 			};
 		} else {
-			const progress = this.progress(enclosing, unix);
+			const progress = LoreService.progress(enclosing, unix);
 			const worldPos = this.lookAtInterpolated(enclosing, progress);
 			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
 		}
@@ -288,25 +308,6 @@ export class LoreService {
 			o.updateWorldMatrix(false, true); // The childrens worldpositions won't update unless I call this
 		}
 		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
-	}
-
-	public progress(enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>, unix: number) {
-		return ThreeMath.mapLinear(
-			unix,
-			enclosure.last ? enclosure.last.k.unix : -Infinity,
-			enclosure.first ? enclosure.first.k.unix : Infinity,
-			0,
-			1
-		);
-	}
-
-	public refreshBlockOfActorObject(actorObject: ActorObject): void {
-		if (actorObject.actor._userdata && actorObject.actor._userdata.block) {
-			const b = actorObject.actor._userdata.block;
-			b.blockStart.original = b.blockStart.override = actorObject.actor._states.first().key.unix;
-			b.blockEnd.original = b.blockEnd.override = actorObject.actor._states.last().key.unix;
-			b.update();
-		}
 	}
 
 	/**

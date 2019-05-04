@@ -44,18 +44,11 @@ export function actorReducer(state: ActorState = initialActorState, action: Acto
 			return { ...state, loading: true };
 		}
 		case loadActorsSuccess.type: {
-			console.log(action);
-			const { payload } = action;
-			console.log(payload);
-			return actorAdapter.addAll(payload, { ...state, loading: false });
+			return actorAdapter.addAll(action.payload, { ...state, loading: false });
 		}
 		case loadActorsFailure.type: {
 			return { ...state, loading: false };
 		}
-		/*case moveNode.type: {
-			return actorAdapter.updateOne({ changes: { _userdata: 'asd' }, id: '1' }, { ...state });
-		}*/
-
 		default: {
 			return state;
 		}

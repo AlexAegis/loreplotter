@@ -11,7 +11,6 @@ import { concat, merge, of } from 'rxjs';
 import { catchError, distinctUntilChanged, flatMap, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 
 import {
-	AllActions,
 	changeSelectedLore,
 	changeSelectedLoreFailure,
 	changeSelectedLoreSuccess,
@@ -19,6 +18,7 @@ import {
 	createLoreFailure,
 	createLoreSuccess,
 	deleteLoreSuccess,
+	FeatureActions,
 	loadActors,
 	loadLoresFailure,
 	loadLoresSuccess,
@@ -33,8 +33,8 @@ import {
  */
 @Injectable()
 export class LoreEffects {
-	constructor(
-		private actions$: Actions<AllActions>,
+	public constructor(
+		private actions$: Actions<FeatureActions>,
 		private store: Store<FeatureState>,
 		private loreService: LoreService,
 		private storeFacade: StoreFacade,

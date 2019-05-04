@@ -1,47 +1,67 @@
 import { Injectable } from '@angular/core';
 import { tweenMap } from '@app/operator';
-import { LoreService } from '@app/service/lore.service';
 import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Easing } from '@tweenjs/tween.js';
-import { timer } from 'rxjs';
-import { auditTime, filter, map, switchMapTo, takeUntil, throttleTime, withLatestFrom } from 'rxjs/operators';
+import { of, timer } from 'rxjs';
+import { auditTime, catchError, filter, map, mergeMapTo, switchMapTo, takeUntil, throttleTime, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
-import { _play, _stop, changeCursorBy, SceneActions, setFrameTo, setPlaying } from '../actions';
+import {
+	_play,
+	_stop,
+	changeCursorBy,
+	SceneActions,
+	setFrameTo,
+	setPlaying,
+	setPlayingFailure,
+	setPlayingSuccess,
+	togglePlaying
+} from '../actions';
 
 /**
- * Lore effects
- *
- * Whenever an action happens, these effects are what executing the tasks that you 'assign' end them here
+ * Scene effects
  */
 @Injectable()
 export class SceneEffects {
-	constructor(
+	public constructor(
 		private actions$: Actions<SceneActions>,
 		private store: Store<FeatureState>,
-		private loreService: LoreService,
 		private storeFacade: StoreFacade
 	) {}
 
 	@Effect()
-	public play$ = this.actions$.pipe(
+	public setPlay$ = this.actions$.pipe(
 		ofType(setPlaying.type),
+		map(payload => setPlayingSuccess(payload)),
+		catchError(payload => of(setPlayingFailure({ payload: payload })))
+	);
+
+	@Effect()
+	public toggle$ = this.actions$.pipe(
+		ofType(togglePlaying.type),
+		mergeMapTo(this.storeFacade.isPlaying$),
+		map(payload => setPlayingSuccess({ payload }))
+	);
+
+	@Effect()
+	public play$ = this.actions$.pipe(
+		ofType(setPlayingSuccess.type),
 		filter(({ payload }) => !!payload),
 		map(payload => _play(payload))
 	);
 
 	@Effect()
 	public stop$ = this.actions$.pipe(
-		ofType(setPlaying.type),
+		ofType(setPlayingSuccess.type),
 		filter(({ payload }) => !payload),
 		map(payload => _stop(payload))
 	);
 
 	private doPlay$ = this.actions$.pipe(
 		ofType(_play.type),
-		withLatestFrom(this.storeFacade.cursorUnixOverride$),
+		withLatestFrom(this.storeFacade.cursorOverride$),
 		filter(([time, override]) => !override),
 		switchMapTo(timer(0, 1000 / 60).pipe(takeUntil(this.actions$.pipe(ofType(_stop.type))))),
 		withLatestFrom(this.storeFacade.playSpeed$)
@@ -52,7 +72,7 @@ export class SceneEffects {
 
 	@Effect()
 	public autoFrame = this.doPlay$.pipe(
-		withLatestFrom(this.storeFacade.frame$, this.storeFacade.cursorUnix$),
+		withLatestFrom(this.storeFacade.frame$, this.storeFacade.cursor$),
 		map(([[time, speed], frame, cursor]) => ({
 			frame,
 			speed,

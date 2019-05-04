@@ -12,6 +12,7 @@
 @import 'theme/dark.theme';
 
 @import '../app.component.theme';
+@import '../component/loading.component.theme';
 
 @import '../lore/component/sidebar.component.theme';
 @import '../lore/component/hamburger.component.theme';
@@ -23,6 +24,7 @@
 
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);
+	@include loading-component-theme($theme);
 	@include sidebar-component-theme($theme);
 	@include hamburger-component-theme($theme);
 	@include timeline-component-theme($theme);

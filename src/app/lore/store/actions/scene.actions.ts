@@ -5,6 +5,18 @@ import { createAction } from '@ngrx/store';
 export const setPlaySpeed = createAction(`[Scene] Set Speed`, (payload: Payload<number>): Payload<number> => payload);
 
 export const setPlaying = createAction(`[Scene] Set Playing`, (payload: Payload<boolean>): Payload<boolean> => payload);
+export const setPlayingSuccess = createAction(
+	`[Scene] Set Playing Success`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);
+export const setPlayingFailure = createAction(`[Scene] Set Playing Failure`, (payload: Payload<Error>) => ({
+	payload
+}));
+
+export const togglePlaying = createAction(
+	`[Scene] Toggle Playing`,
+	(payload: Payload<undefined>): Payload<undefined> => payload
+);
 
 export const _play = createAction(`[Scene] Play`, (payload: Payload<boolean>): Payload<boolean> => payload);
 export const _stop = createAction(`[Scene] Stop`, (payload: Payload<boolean>): Payload<boolean> => payload);

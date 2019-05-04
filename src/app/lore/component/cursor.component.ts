@@ -1,16 +1,7 @@
-import {
-	AfterViewInit,
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	Component,
-	ElementRef,
-	HostBinding,
-	HostListener,
-	Input,
-	OnInit
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostBinding, HostListener, Input, OnInit } from '@angular/core';
+import { BaseDirective } from '@app/component/base-component.class';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
 import { filter, map, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 
@@ -20,7 +11,7 @@ import { Math as ThreeMath } from 'three';
 	styleUrls: ['./cursor.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CursorComponent implements OnInit, AfterViewInit {
+export class CursorComponent extends BaseDirective implements OnInit {
 	/**
 	 * Still needed to protect agains out of bounds problems
 	 *
@@ -34,18 +25,16 @@ export class CursorComponent implements OnInit, AfterViewInit {
 
 	public progress$: Observable<number>;
 
-	public progressSubscription: Subscription;
-
 	@HostBinding('style.left.%')
 	public progress;
 
 	public panStartPosition: number;
 	private shifter = new Subject<number>();
-	private shifterSubscription: Subscription;
 
 	constructor(private storeFacade: StoreFacade, private cd: ChangeDetectorRef, private el: ElementRef) {
+		super();
 		this.frame$ = this.storeFacade.frame$;
-		this.cursorUnix$ = this.storeFacade.cursorUnix$;
+		this.cursorUnix$ = this.storeFacade.cursor$;
 	}
 
 	public ngOnInit() {
@@ -53,11 +42,11 @@ export class CursorComponent implements OnInit, AfterViewInit {
 			map(([{ start, end }, unix]) => ThreeMath.mapLinear(unix, start, end, 0, 1))
 		);
 
-		this.progressSubscription = this.progress$.subscribe(next => {
+		this.teardown(this.progress$.subscribe(next => {
 			this.progress = next * 100;
-		});
+		}));
 
-		this.shifterSubscription = this.shifter
+		this.teardown(this.shifter
 			.pipe(
 				withLatestFrom(this.containerWidth),
 				filter(
@@ -73,7 +62,7 @@ export class CursorComponent implements OnInit, AfterViewInit {
 			)
 			.subscribe(cursoroverride => {
 				this.storeFacade.setCursorOverride(cursoroverride);
-			});
+			}));
 	}
 
 	@HostListener('panstart', ['$event'])
@@ -93,5 +82,4 @@ export class CursorComponent implements OnInit, AfterViewInit {
 		}
 	}
 
-	public ngAfterViewInit(): void {}
 }

@@ -14,8 +14,6 @@ import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './dat
 
 @Injectable()
 export class DatabaseService {
-	// currentLore = new BehaviorSubject<string>('TestProject');
-
 	public database$ = from(
 		RxDB.create<RxCollections>({
 			name: 'lore',
@@ -76,40 +74,42 @@ export class DatabaseService {
 		shareReplay(1)
 	);
 
-	currentLore$ = combineLatest([this.storeFacade.selectedLore$, this.database$]).pipe(
+	public currentLore$ = combineLatest([this.storeFacade.selectedLore$, this.database$]).pipe(
 		switchMap(([selected, conn]) => conn.lore.findOne({ id: selected.id }).$),
 		filter(lore => !!lore),
 		shareReplay(1)
 	);
 
-	lores$ = this.database$.pipe(
+	public lores$ = this.database$.pipe(
 		switchMap(conn => conn.lore.find().$),
 		shareReplay(1)
 	);
 
-	loreCount$ = this.lores$.pipe(map(lores => lores.length));
-
-	allActors$ = this.database$.pipe(
+	public allActors$ = this.database$.pipe(
 		switchMap(conn => conn.actor.find().$),
 		shareReplay(1)
 	);
 
-	nextActorId$ = this.allActors$.pipe(
+	public nextActorId$ = this.allActors$.pipe(
 		map(actors => `${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`)
 	);
 
-	currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
+	public nextLoreId$ = this.lores$.pipe(
+		map(lores => `${lores.map(lore => Number(lore.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`)
+	);
+
+	public currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
 		map(([lore, actors]) => actors.filter(actor => actor.loreId === lore.id)),
 		map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
 		shareReplay(1)
 	);
 
-	actorCount$ = this.currentLoreActors$.pipe(
+	public actorCount$ = this.currentLoreActors$.pipe(
 		map(actors => actors.length),
 		shareReplay(1)
 	);
 
-	constructor(private storeFacade: StoreFacade) {}
+	public constructor(private storeFacade: StoreFacade) {}
 
 	private loreDocumentMethods: LoreDocumentMethods = {
 		collectActors: function(
@@ -127,7 +127,7 @@ export class DatabaseService {
 		}
 	};
 
-	static actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
+	public static actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
 		if (actor.states) {
 			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
 			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted

@@ -7,7 +7,7 @@ import { CanLoad, Route, Router } from '@angular/router';
 export class LazyGuard implements CanLoad {
 	private _valid = true;
 
-	constructor(private router: Router) {}
+	public constructor(private router: Router) {}
 
 	// checks if we can load the route concerning LifeInsurance
 	public canLoad(route: Route): boolean {

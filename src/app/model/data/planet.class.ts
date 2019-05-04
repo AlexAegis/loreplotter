@@ -2,5 +2,5 @@
  *
  */
 export class Planet {
-	constructor(public name?: string, public radius?: number) {}
+	public constructor(public name?: string, public radius?: number) {}
 }
