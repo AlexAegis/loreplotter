@@ -39,7 +39,8 @@ import { atmosphereShader } from './shader/atmosphere.shader';
 import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
 import { Control } from '@lore/engine/control';
 import { denormalize } from '@app/function';
-import { SceneControlService } from '@lore/service';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { InteractionMode } from '@lore/store/reducers';
 
 // Injecting the three-mesh-bvh functions for significantly faster ray-casting
 (BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
@@ -47,13 +48,36 @@ import { SceneControlService } from '@lore/service';
 Mesh.prototype.raycast = acceleratedRaycast;
 @Injectable()
 export class EngineService {
+
+	private interactionMode: InteractionMode;
+	private drawHeight: number;
+	private drawSize: number;
+	private autoLight: boolean;
+	private manualLightAlwaysOn: boolean;
 	/**
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
-	constructor(public sceneControlService: SceneControlService, private deviceService: DeviceDetectorService) {
+	constructor(private deviceService: DeviceDetectorService, private storeFacade: StoreFacade) {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
+
+		this.storeFacade.interactionMode$.subscribe(interactionMode => {
+			this.interactionMode = interactionMode;
+		});
+		this.storeFacade.drawHeight$.subscribe(drawHeight => {
+			this.drawHeight = drawHeight;
+		});
+		this.storeFacade.drawSize$.subscribe(drawSize => {
+			this.drawSize = drawSize;
+		});
+		this.storeFacade.autoLight$.subscribe(autoLight => {
+			this.autoLight = autoLight;
+		});
+		this.storeFacade.manualLightAlwaysOn$.subscribe(manualLightAlwaysOn => {
+			this.manualLightAlwaysOn = manualLightAlwaysOn;
+		});
+
 		console.log(this);
 	}
 	// Rendering
@@ -76,9 +100,6 @@ export class EngineService {
 	public stage: Stage;
 	public control: Control;
 	public globe: Globe;
-
-	// Playback
-	public speed = new BehaviorSubject<number>(3600 / 6); // Current speed of the playback in seconds
 
 	// Selection
 	public popupTarget = new BehaviorSubject<Vector2>(null);
@@ -133,9 +154,7 @@ export class EngineService {
 	// Light Control
 
 	public dampenedSpeed = new BehaviorSubject<number>(0);
-	public manualLightControl = new BehaviorSubject<boolean>(false);
-	public manualLight = new BehaviorSubject<boolean>(true);
-	public autoLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed]).pipe(
+	public zoomSpeedLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed]).pipe(
 		map(([zoom, speed]) => zoom <= 0.4 || Math.abs(speed) >= 4000),
 		distinctUntilChanged()
 	);
@@ -143,8 +162,8 @@ export class EngineService {
 	private darkToLight = { from: { light: 0 }, to: { light: 1 } };
 	private lightToDark = { from: { light: 1 }, to: { light: 0 } };
 
-	public light$ = combineLatest([this.manualLightControl, this.manualLight, this.autoLight$]).pipe(
-		map(([manual, permaDay, auto]) => (manual ? permaDay : auto)),
+	public light$ = combineLatest([this.storeFacade.autoLight$, this.storeFacade.manualLightAlwaysOn$, this.zoomSpeedLight$]).pipe(
+		map(([manual, permaDay, zoom]) => (manual ? permaDay : zoom)),
 		map(next => (next ? this.darkToLight : this.lightToDark)),
 		tweenMap({ duration: 1000, easing: Easing.Exponential.Out }),
 		share()
@@ -330,16 +349,16 @@ export class EngineService {
 				point: intersection.point,
 				shift: shift
 			});
-			if (this.sceneControlService.isDraw()) {
+			if (this.interactionMode === 'draw') {
 				intersection.object.dispatchEvent({
-					type: 'draw',
+					type: this.interactionMode,
 					point: intersection.point,
 					shift: shift,
 					uv: intersection.uv,
 					face: intersection.face,
-					mode: this.sceneControlService.activeMode.value,
-					value: this.sceneControlService.valueSlider.value,
-					size: this.sceneControlService.sizeSlider.value
+					mode: this.interactionMode,
+					value: this.drawHeight,
+					size: this.drawSize
 				});
 			} else {
 				if (intersection.object.type === 'Point') {
@@ -363,7 +382,7 @@ export class EngineService {
 	}
 
 	public pan(coord: Vector2, velocity: Vector2, button: number, start: boolean, end: boolean) {
-		this.control.enabled = this.sceneControlService.isMoving();
+		this.control.enabled = this.interactionMode === 'move';
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		const intersections = this.raycaster.intersectObject(this.globe, true);
 		const intersectionsFiltered = intersections.filter(i => i.object.type === 'Globe' || i.object.type === 'Point'); // Ignoring arcs
@@ -392,15 +411,15 @@ export class EngineService {
 				});
 			}
 
-			if (this.sceneControlService.isDraw()) {
+			if (this.interactionMode === 'draw') {
 				intersection.object.dispatchEvent({
-					type: 'draw',
+					type: this.interactionMode,
 					point: intersection.point,
 					uv: intersection.uv,
 					face: intersection.face,
-					mode: this.sceneControlService.activeMode.value,
-					value: this.sceneControlService.valueSlider.value,
-					size: this.sceneControlService.sizeSlider.value,
+					mode: this.interactionMode,
+					value: this.drawHeight,
+					size: this.drawSize,
 					final: end
 				});
 			}

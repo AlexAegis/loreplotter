@@ -1,6 +1,10 @@
 :host {
 	margin-left: 0.5rem;
+	button {
+		z-index: 10;
+	}
 	div {
+		z-index: 5;
 		display: inline-flex;
 		> button {
 			margin-left: 1rem;

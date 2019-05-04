@@ -20,7 +20,6 @@ import { EngineService } from '@app/lore/engine';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { Lore } from '@app/model/data';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { tap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore',

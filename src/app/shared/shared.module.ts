@@ -9,10 +9,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { SkyhookMultiBackendModule } from '@angular-skyhook/multi-backend';
-import { LoreStoreModule } from '@lore/store';
-import { ActorService, DatabaseService, LoreService } from '@app/service';
-import { EngineService } from '@lore/engine';
-import { BlockService, SceneControlService } from '@lore/service';
 
 const modules = [
 	CommonModule,

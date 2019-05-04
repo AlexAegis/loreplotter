@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { EngineService } from '@app/lore/engine/engine.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { faMoon, faSun, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Observable } from 'rxjs';
 
 @Component({
 	selector: 'app-light-control',
@@ -22,29 +24,31 @@ import { faMoon, faSun, IconDefinition } from '@fortawesome/free-solid-svg-icons
 	]
 })
 export class LightControlComponent implements OnInit {
-	constructor(public engineService: EngineService, private cd: ChangeDetectorRef) {}
+	public manualLightAlwaysOn$: Observable<boolean>;
+	public autoLight$: Observable<boolean>;
+
+	constructor(public storeFacade: StoreFacade, private cd: ChangeDetectorRef) {
+		this.manualLightAlwaysOn$ = this.storeFacade.manualLightAlwaysOn$;
+		this.autoLight$ = this.storeFacade.autoLight$;
+	}
 
 	public faMoon = faMoon;
 	public faSun = faSun;
 
 	ngOnInit() {}
 
-	public togglePermaDay($event: any) {
+	public toggleManualLightAlwaysOn($event: any) {
 		$event.preventDefault();
-		this.engineService.manualLight.next(!this.engineService.manualLight.value);
+		this.storeFacade.toggleManualLightAlwaysOn();
 		this.cd.detectChanges();
 		this.cd.markForCheck();
 	}
 
-	public toggleManualLight($event: any) {
-		console.log(this.engineService);
+	public toggleAutoLight($event: any) {
 		$event.preventDefault();
-		this.engineService.manualLightControl.next(!this.engineService.manualLightControl.value);
+		this.storeFacade.toggleAutoLight();
 		this.cd.detectChanges();
 		this.cd.markForCheck();
 	}
 
-	public get toggleIcon(): IconDefinition {
-		return this.engineService.manualLight.value ? this.faSun : this.faMoon;
-	}
 }

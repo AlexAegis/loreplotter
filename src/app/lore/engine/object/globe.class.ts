@@ -1,6 +1,5 @@
 import { Subject, BehaviorSubject } from 'rxjs';
 import { auditTime, scan } from 'rxjs/operators';
-import { Mode } from '@lore/service';
 import { BufferGeometry, Line, LineBasicMaterial, Material, Mesh, MeshStandardMaterial, SphereBufferGeometry } from 'three';
 import { Group, Object3D, Spherical, Vector2, Vector3 } from 'three';
 import { DrawEvent , ClickEvent } from '@lore/engine/event';
@@ -11,6 +10,7 @@ import { Water } from './water.class';
 import { DynamicTexture } from './dynamic-texture.class';
 import { ActorObject } from './actor-object.class';
 import { AirCurve } from './air-curve.class';
+import { InteractionMode } from '@lore/store/reducers';
 
 export class Globe extends Basic {
 	public material: Material; // Type override, this field exists on the THREE.Mesh already
@@ -143,35 +143,12 @@ export class Globe extends Basic {
 
 	// public drawSubject = new Subject<DrawEvent>();
 
-	public drawTo(uv: Vector2, mode: Mode, value: number, size: number) {
+	public drawTo(uv: Vector2, mode: InteractionMode, value: number, size: number) {
 		const x = uv.x * this.displacementTexture.canvas.width;
 		const y = (1 - uv.y) * this.displacementTexture.canvas.height;
-		/*const data = this.canvasContext.getImageData(x, y, 1, 1).data;
-		const diff = 5;
-		const raised = `rgba(${data[0] + diff}, ${data[1] + diff}, ${data[2] + diff}, ${data[3]})`;*/
 		value *= 255; // upscale normalized value end rgb range
 		const greyScaleColor = `rgb(${value},${value},${value})`;
 		this.displacementTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
-
-		/*
-		let emissionR = 60;
-		let emissionG = 60;
-		let emissionB = 60;
-
-		if (value > 120 && value <= 140) {
-			emissionR = 70;
-			emissionG = 170;
-			emissionB = 70;
-		} else if (value > 140 && value <= 200) {
-			emissionR = 30;
-			emissionG = 30;
-			emissionB = 30;
-		} else if (value > 200) {
-			emissionR = value;
-			emissionG = value;
-			emissionB = value;
-		}*/
-		// this.emissionTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
 	}
 
 	/**

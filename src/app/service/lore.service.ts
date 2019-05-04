@@ -13,7 +13,7 @@ import {
 	map,
 	mergeMap,
 	shareReplay,
-	scan
+	scan, bufferCount, bufferTime
 } from 'rxjs/operators';
 import { DatabaseService } from '@app/service/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';

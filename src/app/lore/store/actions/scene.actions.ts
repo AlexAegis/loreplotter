@@ -1,5 +1,6 @@
 import { createAction } from '@ngrx/store';
 import { Payload } from '@lore/store/actions/payload.interface';
+import { InteractionMode } from '@lore/store/reducers';
 
 export const setPlaySpeed = createAction(`[Scene] Set Speed`, (payload: Payload<number>): Payload<number> => payload);
 
@@ -61,12 +62,37 @@ export const changeFrameBy = createAction(
 	(payload: Payload<{ start: number; end: number }>): Payload<{ start: number; end: number }> => payload
 );
 
-export const setContainerWidth = createAction(
-	`[Scene] Set Container Width`,
+export const setInteractionMode = createAction(
+	`[Scene] Set Interaction Mode`,
+	(payload: Payload<InteractionMode>): Payload<InteractionMode> => payload
+);
+
+export const setDrawSize = createAction(
+	`[Scene] Set Draw Size`,
 	(payload: Payload<number>): Payload<number> => payload
 );
 
-export const _timelineRefresh = createAction(
-	`[Scene] Timeline Refresh`,
+export const setDrawHeight = createAction(
+	`[Scene] Set Draw Height`,
 	(payload: Payload<number>): Payload<number> => payload
+);
+
+export const setAutoLight = createAction(
+	`[Scene] Set Auto Light`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);
+
+export const setManualLightAlwaysOn = createAction(
+	`[Scene] Set Manual Light Always On`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);
+
+export const toggleAutoLight = createAction(
+	`[Scene] Toggle Auto Light`,
+	(): Payload<undefined> => ({ payload: undefined })
+);
+
+export const toggleManualLightAlwaysOn = createAction(
+	`[Scene] Toggle Manual Light Always On`,
+	(): Payload<undefined> => ({ payload: undefined })
 );

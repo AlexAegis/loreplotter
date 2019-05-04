@@ -24,7 +24,7 @@ import { LoreComponent } from './lore.component';
 import { SpeedControlComponent } from './component/speed-control.component';
 import { LoreStoreModule } from '@lore/store';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
-import { BlockService, SceneControlService } from '@lore/service';
+import { BlockService } from '@lore/service';
 import { NodeComponent } from './component/node.component';
 
 export const APP_FORMATS = {
@@ -74,8 +74,7 @@ export const APP_FORMATS = {
 		EngineService,
 		DatabaseService,
 		ActorService,
-		BlockService,
-		SceneControlService,
+		BlockService
 	]
 })
 export class LoreModule {}

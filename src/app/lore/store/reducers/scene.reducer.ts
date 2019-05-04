@@ -14,7 +14,14 @@ import {
 	bakeFrame,
 	bakeFrameEnd,
 	bakeFrameStart,
-	changeFrameBy
+	changeFrameBy,
+	setInteractionMode,
+	setAutoLight,
+	setDrawHeight,
+	setDrawSize,
+	setManualLightAlwaysOn,
+	toggleManualLightAlwaysOn,
+	toggleAutoLight
 } from '@lore/store/actions';
 import moment from 'moment';
 import { DeltaProperty, OverridableProperty } from '@app/model';
@@ -29,13 +36,19 @@ export interface CursorState {
 	position: Partial<DeltaProperty>;
 }
 
+export type InteractionMode = 'draw' | 'move' | 'raise' | 'lower';
+
 export interface SceneState {
 	loading: boolean;
 	playSpeed: number;
 	playing: boolean;
 	cursor: CursorState;
 	frame: FrameState;
-	// timelineContainerWidth: number;
+	interactionMode: InteractionMode;
+	drawSize: number;
+	drawHeight: number;
+	autoLight: boolean;
+	manualLightAlwaysOn: boolean;
 }
 
 export const initialSceneState: SceneState = {
@@ -65,8 +78,12 @@ export const initialSceneState: SceneState = {
 				.unix(),
 			delta: undefined
 		}
-	}
-	// timelineContainerWidth: window.innerWidth
+	},
+	interactionMode: 'move',
+	drawSize: 10,
+	drawHeight: 1,
+	autoLight: false,
+	manualLightAlwaysOn: false,
 };
 
 
@@ -147,9 +164,6 @@ function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 }
 
 export function sceneReducer(state: SceneState = initialSceneState, action: SceneActions): SceneState {
-	// console.log('SceneReducer in action!');
-	// console.log(state);
-	// console.log(action);
 	switch (action.type) {
 		case setPlaySpeed.type: {
 			return { ...state, playSpeed: action.payload };
@@ -157,14 +171,32 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 		case setPlaying.type: {
 			return { ...state, playing: action.payload };
 		}
+		case setInteractionMode.type: {
+			return { ...state, interactionMode: action.payload };
+		}
+		case setDrawSize.type: {
+			return { ...state, drawSize: action.payload };
+		}
+		case setDrawHeight.type: {
+			return { ...state, drawHeight: action.payload };
+		}
+		case setAutoLight.type: {
+			return { ...state, autoLight: action.payload };
+		}
+		case setManualLightAlwaysOn.type: {
+			return { ...state, manualLightAlwaysOn: action.payload };
+		}
+		case toggleAutoLight.type: {
+			return { ...state, autoLight: !state.autoLight };
+		}
+		case toggleManualLightAlwaysOn.type: {
+			return { ...state, manualLightAlwaysOn: !state.manualLightAlwaysOn };
+		}
 		case changeCursorBy.type:
 		case changeCursorOverrideTo.type:
 		case bakeCursorOverride.type: {
 			return  { ...state, cursor: cursorReducer(state.cursor, action) };
 		}
-		/*case setContainerWidth.type: {
-			return { ...state, timelineContainerWidth: action.payload };
-		}*/
 		case setFrameTo.type:
 		case setFrameStartTo.type:
 		case setFrameEndTo.type:
@@ -178,9 +210,6 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 			return { ...state, frame: frameReducer(state.frame, action) };
 		}
 		default: {
-			/*if (!action.type.startsWith(`_`)) {
-				console.log(`No reducer defined for non-effect-only action: ${action.type}`);
-			}*/
 			return state;
 		}
 	}

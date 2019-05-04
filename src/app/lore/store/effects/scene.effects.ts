@@ -16,7 +16,7 @@ import { FeatureState } from '@lore/store/reducers';
 import {
 	auditTime,
 	filter,
-	map,
+	map, mergeMapTo,
 	switchMapTo,
 	takeUntil,
 	throttleTime,

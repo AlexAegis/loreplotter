@@ -3,7 +3,7 @@ import { Store, select } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
 
 import { Lore } from '@app/model/data';
-import { LoreState, FeatureState, AppState } from './reducers';
+import { LoreState, FeatureState, AppState, InteractionMode } from './reducers';
 import { loreQuery, sceneQuery } from './selectors';
 import {
 	LoreActions,
@@ -36,7 +36,14 @@ import {
 	setFrameTo,
 	changeFrameBy,
 	changeCursorBy,
-	moveNode
+	moveNode,
+	setInteractionMode,
+	setAutoLight,
+	setDrawHeight,
+	setDrawSize,
+	setManualLightAlwaysOn,
+	toggleManualLightAlwaysOn,
+	toggleAutoLight
 } from './actions';
 import { filter, first, map, mapTo, mergeMap, share, shareReplay, tap } from 'rxjs/operators';
 import { actorQuery } from '@lore/store/selectors/actor.selectors';
@@ -69,6 +76,12 @@ export class StoreFacade {
 	public frame$ = this.store$.pipe(select(sceneQuery.getFrame));
 	public frameStart$ = this.store$.pipe(select(sceneQuery.getFrameStart));
 	public frameEnd$ = this.store$.pipe(select(sceneQuery.getFrameEnd));
+
+	public interactionMode$ = this.store$.pipe(select(sceneQuery.getInteractionMode));
+	public drawSize$ = this.store$.pipe(select(sceneQuery.getDrawSize));
+	public drawHeight$ = this.store$.pipe(select(sceneQuery.getDrawHeight));
+	public autoLight$ = this.store$.pipe(select(sceneQuery.getAutoLight));
+	public manualLightAlwaysOn$ = this.store$.pipe(select(sceneQuery.getManualLightAlwaysOn));
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 
@@ -175,5 +188,33 @@ export class StoreFacade {
 
 	public moveNode(original: number, from: number, to: number) {
 		this.store$.dispatch(moveNode({ payload: { original, from, to } }));
+	}
+
+	public setInteractionMode(mode: InteractionMode) {
+		this.store$.dispatch(setInteractionMode({ payload: mode }));
+	}
+
+	public setDrawSize(size: number) {
+		this.store$.dispatch(setDrawSize({ payload: size }));
+	}
+
+	public setDrawHeight(height: number) {
+		this.store$.dispatch(setDrawHeight({ payload: height }));
+	}
+
+	public setAutoLight(on: boolean) {
+		this.store$.dispatch(setAutoLight({ payload: on }));
+	}
+
+	public setManualLightAlwaysOn(on: boolean) {
+		this.store$.dispatch(setManualLightAlwaysOn({ payload: on }));
+	}
+
+	public toggleManualLightAlwaysOn() {
+		this.store$.dispatch(toggleManualLightAlwaysOn());
+	}
+
+	public toggleAutoLight() {
+		this.store$.dispatch(toggleAutoLight());
 	}
 }

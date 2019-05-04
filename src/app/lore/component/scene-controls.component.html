@@ -1,24 +1,30 @@
 <button
 	mat-raised-button
-	*ngFor="let mode of sceneControlService.modes"
-	(click)="sceneControlService.activeMode.next(mode)"
-	[ngClass]="{ active: mode.active }"
+	(click)="setInteractionMode('move')"
+	[ngClass]="{ active: (interactionMode$ | async) === 'move' }"
 >
-	<fa-icon [icon]="mode.icon" [size]="iconSize"></fa-icon>
+	<fa-icon [icon]="moveIcon" size="lg"></fa-icon>
+</button>
+<button
+	mat-raised-button
+	(click)="setInteractionMode('draw')"
+	[ngClass]="{ active: (interactionMode$ | async) === 'draw' }"
+>
+	<fa-icon [icon]="drawIcon" size="lg"></fa-icon>
 </button>
 <span>Height:</span>
 <div class="slider">
 	<ng5-slider
 		[options]="heightSliderOptions"
-		(valueChange)="sceneControlService.valueSlider.next($event)"
-		[value]="sceneControlService.valueSlider.value"
+		(valueChange)="setDrawHeight($event)"
+		[value]="drawHeight$ | async"
 	></ng5-slider>
 </div>
 <span>Size:</span>
 <div class="slider">
 	<ng5-slider
 		[options]="sizeSliderOptions"
-		(valueChange)="sceneControlService.sizeSlider.next($event)"
-		[value]="sceneControlService.sizeSlider.value"
+		(valueChange)="setDrawSize($event)"
+		[value]="drawSize$ | async"
 	></ng5-slider>
 </div>

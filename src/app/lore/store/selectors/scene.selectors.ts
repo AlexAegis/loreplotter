@@ -76,6 +76,31 @@ const getFrameEnd = createSelector(
 	state => state.end.base + (state.end.delta || 0)
 );
 
+const getInteractionMode = createSelector(
+	getSceneState,
+	state => state.interactionMode
+);
+
+const getDrawSize = createSelector(
+	getSceneState,
+	state => state.drawSize
+);
+
+const getDrawHeight = createSelector(
+	getSceneState,
+	state => state.drawHeight
+);
+
+const getAutoLight = createSelector(
+	getSceneState,
+	state => state.autoLight
+);
+
+const getManualLightAlwaysOn = createSelector(
+	getSceneState,
+	state => state.manualLightAlwaysOn
+);
+
 export const sceneQuery = {
 	getLoadingScenes,
 	getPlaySpeed,
@@ -86,5 +111,10 @@ export const sceneQuery = {
 	getCursorUnix,
 	getCursorUnixOverride,
 	getCursorBasePosition,
-	getCursorPosition
+	getCursorPosition,
+	getInteractionMode,
+	getDrawSize,
+	getDrawHeight,
+	getAutoLight,
+	getManualLightAlwaysOn
 };
