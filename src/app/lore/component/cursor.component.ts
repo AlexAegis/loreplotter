@@ -1,8 +1,18 @@
-import { ChangeDetectionStrategy, Component, HostBinding, HostListener, Input, OnInit } from '@angular/core';
-import { LoreService } from '@app/service';
+import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	HostBinding,
+	HostListener,
+	Input,
+	OnInit
+} from '@angular/core';
 import { Math as ThreeMath } from 'three';
-import { BehaviorSubject } from 'rxjs';
-import { DeltaProperty } from '@app/model';
+import { combineLatest, Observable, Subject, Subscription } from 'rxjs';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { filter, map, withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-cursor',
@@ -10,77 +20,67 @@ import { DeltaProperty } from '@app/model';
 	styleUrls: ['./cursor.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CursorComponent implements OnInit {
-	public position = new DeltaProperty();
+export class CursorComponent implements OnInit, AfterViewInit {
 
+	/**
+	 * Still needed to protect agains out of bounds problems
+	 *
+	 * @param width of the parent container
+	 */
 	@Input('containerWidth')
-	public set containerWidth(width: number) {
-		const prevWidth = this._containerWidth || width;
-		this._containerWidth = width;
-		this.position.base = ThreeMath.mapLinear(this.position.base, 0, prevWidth, 0, this._containerWidth);
-		this.contextChange();
+	public containerWidth: Subject<number>;
+
+	public frame$: Observable<{ start: number; end: number; length: number }>;
+	public cursorUnix$: Observable<number>;
+
+	public progress$: Observable<number>;
+
+	public progressSubscription: Subscription;
+
+	@HostBinding('style.left.%')
+	public progress;
+
+	public panStartPosition: number;
+	private shifter = new Subject<number>();
+	private shifterSubscription: Subscription;
+
+	constructor(private storeFacade: StoreFacade, private cd: ChangeDetectorRef, private el: ElementRef) {
+		this.frame$ = this.storeFacade.frame$;
+		this.cursorUnix$ = this.storeFacade.cursorUnix$;
 	}
 
-	public get containerWidth(): number {
-		return this._containerWidth;
-	}
-
-	@Input()
-	public set frameEnd(frameEnd: number) {
-		this._frameEnd = frameEnd;
-		this.contextChange();
-	}
-
-	@Input()
-	public set frameStart(frameStart: number) {
-		this._frameStart = frameStart;
-		this.contextChange();
-	}
-
-	public cursor: BehaviorSubject<number>;
-	public overrideCursor: BehaviorSubject<number>;
-
-	constructor(private loreService: LoreService) {
-		this.cursor = this.loreService.cursor;
-		this.overrideCursor = this.loreService.overrideCursor;
-	}
-
-	@HostBinding('style.left.px') get positionPx(): number {
-		return this.position.total;
-	}
-
-	private _containerWidth: number;
-
-	private _frameEnd: number;
-
-	private _frameStart: number;
-
-	ngOnInit() {}
-
-	/**
-	 * This function calculates the date the cursor is pointing at
-	 */
-	changed(): void {
-		if (this._frameStart && this._frameEnd) {
-			this.overrideCursor.next(
-				ThreeMath.mapLinear(this.position.total, 0, this._containerWidth, this._frameStart, this._frameEnd)
-			);
-		}
-	}
-
-	/**
-	 * This function updates the cursor's position based on the environment
-	 */
-	contextChange(): void {
-		// if (!this.position.delta) {
-		this.position.base = ThreeMath.mapLinear(
-			this.loreService.cursor.value,
-			this._frameStart,
-			this._frameEnd,
-			0,
-			this._containerWidth
+	public ngOnInit() {
+		this.progress$ = combineLatest([this.frame$, this.cursorUnix$]).pipe(
+			map(([{ start, end }, unix]) => ThreeMath.mapLinear(unix, start, end, 0, 1))
 		);
-		// }
+
+		this.progressSubscription = this.progress$.subscribe(next => {
+			this.progress = next * 100;
+		});
+
+		this.shifterSubscription = this.shifter
+			.pipe(
+				withLatestFrom(this.containerWidth),
+				filter(
+					([cursoroverride, containerWidth]) =>
+						cursoroverride === undefined ||
+						(this.panStartPosition + cursoroverride >= 0 &&
+							this.panStartPosition + cursoroverride <= containerWidth)
+				), // Out of bounds check
+				withLatestFrom(this.frame$),
+				map(([[pos, containerWidth], frame]) => {
+					return ThreeMath.mapLinear(
+						this.panStartPosition + pos,
+						0,
+						containerWidth,
+						frame.start,
+						frame.end
+					);
+				})
+			)
+			.subscribe(cursoroverride => {
+				this.storeFacade.setCursorOverride(cursoroverride);
+			});
 	}
 
 	@HostListener('panstart', ['$event'])
@@ -89,20 +89,16 @@ export class CursorComponent implements OnInit {
 	@HostListener('panup', ['$event'])
 	@HostListener('pandown', ['$event'])
 	@HostListener('panend', ['$event'])
-	panHandler($event: any) {
+	public panHandler($event: any) {
 		$event.stopPropagation();
-		if (this.position.base + $event.deltaX >= 0 && this.position.base + $event.deltaX <= this._containerWidth) {
-			this.position.delta = $event.deltaX;
+		if ($event.type === 'panstart') {
+			this.panStartPosition = this.el.nativeElement.offsetLeft;
 		}
-		this.changed();
+		this.shifter.next($event.deltaX);
 		if ($event.type === 'panend') {
-			this.position.bake();
-			this.cursor.next(this.overrideCursor.value);
-			this.overrideCursor.next(undefined);
+			this.storeFacade.bakeCursorOverride();
 		}
 	}
 
-	get progress(): number {
-		return ThreeMath.mapLinear(this.position.total, 0, this._containerWidth, 0, 1);
-	}
+	public ngAfterViewInit(): void {}
 }

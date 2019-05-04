@@ -12,8 +12,8 @@ import { switchMap, finalize, tap } from 'rxjs/operators';
  * You have multiple selectable objects. A BehaviorSubject holds the currently selected object.
  * Make a separate subscription on the subject for the side-effects, using this.
  *
- * With this OperatorFunction, the only thing you need to do for handling whats
- * selected and not is to update the Subject, and the pre defined functions will
+ * With this OperatorFunction, the only thing you need end do for handling whats
+ * selected and not is end update the Subject, and the pre defined functions will
  * keep the objects state correct.
  *
  * ```typescript

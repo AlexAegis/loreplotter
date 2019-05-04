@@ -19,8 +19,25 @@ import {
 	createLoreFailure,
 	createLoreSuccess,
 	deleteLoreFailure,
-	changeSelectedLore, AllActions, setPlaySpeed
+	changeSelectedLore,
+	AllActions,
+	setPlaySpeed,
+	setPlaying,
+	bakeCursorOverride,
+	changeCursorOverrideTo,
+	setFrameStartTo,
+	setFrameStartDeltaTo,
+	setFrameEndDeltaTo,
+	setFrameDeltaTo,
+	bakeFrame,
+	bakeFrameStart,
+	bakeFrameEnd,
+	setFrameEndTo,
+	setFrameTo,
+	changeFrameBy,
+	changeCursorBy
 } from './actions';
+import { first } from 'rxjs/operators';
 
 @Injectable()
 export class StoreFacade {
@@ -35,15 +52,19 @@ export class StoreFacade {
 	public updateLoresFail$ = this.actions$.pipe(ofType(updateLoreFailure.type));
 	public deleteLoresSuccess$ = this.actions$.pipe(ofType(deleteLoreSuccess.type));
 	public deleteLoresFail$ = this.actions$.pipe(ofType(deleteLoreFailure.type));
-	// scene
-	public playSpeed$ = this.store.pipe(select(sceneQuery.getPlaySpeed)); // this.actions$.pipe();
+	// scene from store
+	public playSpeed$ = this.store.pipe(select(sceneQuery.getPlaySpeed));
+	public isPlaying$ = this.store.pipe(select(sceneQuery.isPlaying));
+	public cursorUnix$ = this.store.pipe(select(sceneQuery.getCursorUnix));
+	public cursorUnixOverride$ = this.store.pipe(select(sceneQuery.getCursorUnixOverride));
+	public cursorBasePosition$ = this.store.pipe(select(sceneQuery.getCursorBasePosition));
+	public cursorPosition$ = this.store.pipe(select(sceneQuery.getCursorPosition));
+	public frame$ = this.store.pipe(select(sceneQuery.getFrame));
+	public frameStart$ = this.store.pipe(select(sceneQuery.getFrameStart));
+	public frameEnd$ = this.store.pipe(select(sceneQuery.getFrameEnd));
 
 	constructor(private store: Store<AppState>, private actions$: Actions<AllActions>) {
-
-		this.lores$.subscribe(a => {
-			console.log('ASDASDAS');
-			console.log(a);
-		});
+		console.log('StoreFacade created');
 	}
 
 	/**
@@ -76,5 +97,70 @@ export class StoreFacade {
 
 	public setPlaySpeed(speed: number) {
 		this.store.dispatch(setPlaySpeed({ payload: speed }));
+	}
+
+	/**
+	 * Simplify
+	 */
+	public togglePlay() {
+		this.isPlaying$.pipe(first()).subscribe(isPlaying => {
+			this.store.dispatch(setPlaying({ payload: !isPlaying }));
+		});
+	}
+
+	public bakeCursorOverride() {
+		this.store.dispatch(bakeCursorOverride({ payload: true }));
+	}
+
+	public setCursorOverride(to: number) {
+		this.store.dispatch(changeCursorOverrideTo({ payload: to }));
+	}
+
+	public setCursor(to: number) {
+		this.store.dispatch(changeCursorOverrideTo({ payload: to }));
+	}
+
+	public setFrameStart(to: number) {
+		this.store.dispatch(setFrameStartTo({ payload: to }));
+	}
+
+	public setFrameEnd(to: number) {
+		this.store.dispatch(setFrameEndTo({ payload: to }));
+	}
+
+	public setFrame(to: { start: number, end: number }) {
+		this.store.dispatch(setFrameTo({ payload: to }));
+	}
+
+	public setFrameStartDelta(to: number) {
+		this.store.dispatch(setFrameStartDeltaTo({ payload: to }));
+	}
+
+	public setFrameEndDelta(to: number) {
+		this.store.dispatch(setFrameEndDeltaTo({ payload: to }));
+	}
+
+	public setFrameDelta(startTo: number, endTo: number = startTo) {
+		this.store.dispatch(setFrameDeltaTo({ payload: { start: startTo, end: endTo } }));
+	}
+
+	public bakeFrame() {
+		this.store.dispatch(bakeFrame({ payload: true }));
+	}
+
+	public bakeFrameStart() {
+		this.store.dispatch(bakeFrameStart({ payload: true }));
+	}
+
+	public bakeFrameEnd() {
+		this.store.dispatch(bakeFrameEnd({ payload: true }));
+	}
+
+	public changeFrameBy(to: { start: number, end: number}) {
+		this.store.dispatch(changeFrameBy({ payload: to }));
+	}
+
+	public changeCursorBy(speed: number) {
+		this.store.dispatch(changeCursorBy({ payload: speed }));
 	}
 }

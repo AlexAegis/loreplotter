@@ -26,7 +26,7 @@ export class Sun extends Basic {
 		this.geometry = new SphereBufferGeometry(radius, 30, 30);
 		this.geometry.normalizeNormals();
 		this.geometry.computeBoundingSphere();
-		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 		this.addEventListener('click', (event: ClickEvent) => {
 			console.log('You clicked the sun');
 		});

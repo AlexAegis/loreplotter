@@ -1,5 +1,5 @@
 /**
- * * This polifill is to extend the Hammer constructor with better propagation-cancelling features
+ * * This polifill is end extend the Hammer constructor with better propagation-cancelling features
  */
 
 import * as propagating from 'propagating-hammerjs';

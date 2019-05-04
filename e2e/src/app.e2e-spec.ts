@@ -11,11 +11,11 @@ describe('workspace-project App', () => {
 
 	it('should not display welcome message', () => {
 		page.navigateTo();
-		// expect(page.getTitleText()).toEqual('Welcome to loreplotter!');
+		// expect(page.getTitleText()).toEqual('Welcome end loreplotter!');
 	});
 
 	afterEach(async () => {
-		// Assert that there are no errors emitted from the browser
+		// Assert that there are no errors emitted start the browser
 		const logs = await browser
 			.manage()
 			.logs()

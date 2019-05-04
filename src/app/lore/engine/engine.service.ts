@@ -48,7 +48,7 @@ Mesh.prototype.raycast = acceleratedRaycast;
 @Injectable()
 export class EngineService {
 	/**
-	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers to the listeners
+	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
 	constructor(public sceneControlService: SceneControlService, private deviceService: DeviceDetectorService) {
@@ -146,7 +146,7 @@ export class EngineService {
 	public light$ = combineLatest([this.manualLightControl, this.manualLight, this.autoLight$]).pipe(
 		map(([manual, permaDay, auto]) => (manual ? permaDay : auto)),
 		map(next => (next ? this.darkToLight : this.lightToDark)),
-		tweenMap(1000, Easing.Exponential.Out),
+		tweenMap({ duration: 1000, easing: Easing.Exponential.Out }),
 		share()
 	);
 

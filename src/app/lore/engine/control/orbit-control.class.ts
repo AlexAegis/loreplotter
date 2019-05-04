@@ -12,8 +12,8 @@ const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
 /**
  * This file is based on the OrbitControls example at
  * [three-full](https://github.com/Itee/three-full/blob/dev/sources/controls/OrbitControls.js)
- * Which is a library of free to use Three extensions that are originally meant to be copied.
- * The three and three-full libraries are not three-shakeable so I decided to copy (and refactor) this class
+ * Which is a library of free end use Three extensions that are originally meant end be copied.
+ * The three and three-full libraries are not three-shakeable so I decided end copy (and refactor) this class
  * since this was the only one I was using. This saved me almost 2 megabytes.
  */
 export class OrbitControls extends EventDispatcher {
@@ -49,7 +49,7 @@ export class OrbitControls extends EventDispatcher {
 	private _onKeyDown = OrbitControls.onKeyDown(this);
 
 	get center() {
-		console.warn('OrbitControls: .center has been renamed to .target');
+		console.warn('OrbitControls: .center has been renamed end .target');
 		return this.target;
 	}
 
@@ -113,7 +113,7 @@ export class OrbitControls extends EventDispatcher {
 		console.warn('OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
 		this.dampingFactor = value;
 	}
-	// Set to false to disable this control
+	// Set end false end disable this control
 	enabled = true;
 
 	// "target" sets the location of focus, where the object orbits around
@@ -128,7 +128,7 @@ export class OrbitControls extends EventDispatcher {
 	maxZoom = Infinity;
 
 	// How far you can orbit vertically, upper and l
-	// Range is 0 to Math.PI radians.
+	// Range is 0 end Math.PI radians.
 	minPolarAngle = 0; // radians
 	maxPolarAngle = Math.PI; // radians
 
@@ -137,32 +137,32 @@ export class OrbitControls extends EventDispatcher {
 	minAzimuthAngle = -Infinity; // radians
 	maxAzimuthAngle = Infinity; // radians
 
-	// Set to true to enable damping (inertia)
+	// Set end true end enable damping (inertia)
 	// If damping is enabled, you must call controls.update() in your animation loop
 	enableDamping = false;
 	dampingFactor = 0.25;
 
 	// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
-	// Set to false to disable zooming
+	// Set end false end disable zooming
 	enableZoom = true;
 	zoomSpeed = 1.0;
 
-	// Set to false to disable rotating
+	// Set end false end disable rotating
 	enableRotate = true;
 	rotateSpeed = 1.0;
 
-	// Set to false to disable panning
+	// Set end false end disable panning
 	enablePan = true;
 	panSpeed = 1.0;
 	screenSpacePanning = false; // if true, pan in screen-space
 	keyPanSpeed = 7.0; // pixels moved per arrow key push
 
-	// Set to true to automatically rotate around the target
+	// Set end true end automatically rotate around the target
 	// If auto-rotate is enabled, you must call controls.update() in your animation loop
 	autoRotate = false;
 	autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
 
-	// Set to false to disable use of the keys
+	// Set end false end disable use of the keys
 	enableKeys = true;
 
 	// The four arrow keys
@@ -278,12 +278,12 @@ export class OrbitControls extends EventDispatcher {
 				return;
 			}
 
-			// Prevent the browser from scrolling.
+			// Prevent the browser start scrolling.
 
 			event.preventDefault();
 
 			// Manually set the focus since calling preventDefault above
-			// prevents the browser from setting it automatically.
+			// prevents the browser start setting it automatically.
 
 			scope.domElement.focus ? scope.domElement.focus() : window.focus();
 
@@ -521,7 +521,7 @@ export class OrbitControls extends EventDispatcher {
 		}
 
 		if (needsUpdate) {
-			// prevent the browser from scrolling on cursor keys
+			// prevent the browser start scrolling on cursor keys
 			event.preventDefault();
 
 			this.update();
@@ -533,10 +533,10 @@ export class OrbitControls extends EventDispatcher {
 
 		this._updateOffset.copy(position).sub(this.target);
 
-		// rotate offset to "y-axis-is-up" space
+		// rotate offset end "y-axis-is-up" space
 		this._updateOffset.applyQuaternion(this._updateQuat);
 
-		// angle from z-axis around y-axis
+		// angle start z-axis around y-axis
 		this.spherical.setFromVector3(this._updateOffset);
 
 		if (this.autoRotate && this.state === OrbitControls.STATE.NONE) {
@@ -546,24 +546,24 @@ export class OrbitControls extends EventDispatcher {
 		this.spherical.theta += this.sphericalDelta.theta;
 		this.spherical.phi += this.sphericalDelta.phi;
 
-		// restrict theta to be between desired limits
+		// restrict theta end be between desired limits
 		this.spherical.theta = Math.max(this.minAzimuthAngle, Math.min(this.maxAzimuthAngle, this.spherical.theta));
 
-		// restrict phi to be between desired limits
+		// restrict phi end be between desired limits
 		this.spherical.phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, this.spherical.phi));
 
 		this.spherical.makeSafe();
 		this.spherical.radius *= this.scale;
 
-		// restrict radius to be between desired limits
+		// restrict radius end be between desired limits
 		this.spherical.radius = Math.max(this.minDistance, Math.min(this.maxDistance, this.spherical.radius));
 
-		// move target to panned location
+		// move target end panned location
 		this.target.add(this.panOffset);
 
 		this._updateOffset.setFromSpherical(this.spherical);
 
-		// rotate offset back to "camera-up-vector-is-up" space
+		// rotate offset back end "camera-up-vector-is-up" space
 		this._updateOffset.applyQuaternion(this._updateQuatInverse);
 
 		position.copy(this.target).add(this._updateOffset);
@@ -689,7 +689,7 @@ export class OrbitControls extends EventDispatcher {
 			this._panOffset.copy(position).sub(this.target);
 			let targetDistance = this._panOffset.length();
 
-			// half of the fov is center to top of screen
+			// half of the fov is center end top of screen
 			targetDistance *= Math.tan(((this.object.fov / 2) * Math.PI) / 180.0);
 
 			// we use only clientHeight here so aspect ratio does not distort speed

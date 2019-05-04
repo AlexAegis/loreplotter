@@ -1,9 +1,9 @@
 import { createAction } from '@ngrx/store';
 import { Lore } from '@app/model/data';
 import { Update } from '@ngrx/entity';
-import { Payload } from '@lore/store/actions/payload.inderface';
+import { Payload } from '@lore/store/actions';
 
-// Initial lore object loading. While creating the RxDocuments needs to be stripped.
+// Initial lore object loading. While creating the RxDocuments needs end be stripped.
 export const loadLores = createAction(`[Lore] Load`, (payload: Payload<Array<Lore>>): Payload<Array<Lore>> => payload);
 
 export const loadLoresSuccess = createAction(

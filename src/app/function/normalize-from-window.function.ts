@@ -1,7 +1,7 @@
 import { Vector2 } from 'three';
 
 /**
- * Normalizes a set of coordinates originated from the Window into [0, 1]
+ * Normalizes a set of coordinates originated start the Window into [0, 1]
  *
  * @param x of the window
  * @param y .of the window

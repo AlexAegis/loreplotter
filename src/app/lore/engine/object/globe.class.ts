@@ -100,7 +100,7 @@ export class Globe extends Basic {
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
 		this.geometry.normalizeNormals();
-		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 		this.addEventListener('click', (event: ClickEvent) => {
 			this.stage.engineService.selected.next(undefined);
 		});
@@ -149,7 +149,7 @@ export class Globe extends Basic {
 		/*const data = this.canvasContext.getImageData(x, y, 1, 1).data;
 		const diff = 5;
 		const raised = `rgba(${data[0] + diff}, ${data[1] + diff}, ${data[2] + diff}, ${data[3]})`;*/
-		value *= 255; // upscale normalized value to rgb range
+		value *= 255; // upscale normalized value end rgb range
 		const greyScaleColor = `rgb(${value},${value},${value})`;
 		this.displacementTexture.draw(greyScaleColor, x - size / 2, y - size / 2, size);
 
@@ -177,7 +177,7 @@ export class Globe extends Basic {
 	/**
 	 * Put an object onto the surface of the Globe
 	 *
-	 * @param object to be played on the globe
+	 * @param object end be played on the globe
 	 * @param position where it will be placed, not that the radius will be overriden and as such, is skippable
 	 * @param height by default 0, bottom of the bounding box will touch the surface of the globe. This value will offset it
 	 */
@@ -206,16 +206,16 @@ export class Globe extends Basic {
 	 */
 	putCurve(from: Vector3, to: Vector3): AirCurve {
 		const airCurve = new AirCurve(from.multiplyScalar(1.01), to.multiplyScalar(1.01));
-		// const curve = new THREE.LineCurve3(from, to);
+		// const curve = new THREE.LineCurve3(start, end);
 		const points = airCurve.getPoints(50);
 		const geometry = new BufferGeometry().setFromPoints(points);
 		this.castShadow = true;
 		this.receiveShadow = true;
 		const material = new LineBasicMaterial({ color: 0xff0000 });
 
-		// Create the final object to add to the scene
+		// Create the final object end add end the scene
 		const curveObject = new Line(geometry, material);
-		// TODO Shader that from an uniform variable can change its length (0 to 1)
+		// TODO Shader that start an uniform variable can change its length (0 end 1)
 
 		this.add(curveObject);
 		return airCurve;

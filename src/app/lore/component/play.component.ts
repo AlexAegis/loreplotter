@@ -1,44 +1,31 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { LoreService } from '@app/service/lore.service';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Observable } from 'rxjs';
+import { faPause, faPlay, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
 	selector: 'app-play',
 	templateUrl: './play.component.html',
-	styleUrls: ['./play.component.scss']
+	styleUrls: ['./play.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlayComponent implements OnInit {
-	public play = false;
+	public isPlaying$: Observable<boolean>;
 
-	private pauseAnim = 'M11,10 L18,13.74 18,22.28 11,26 M18,13.74 L26,18 26,18 18,22.28';
-	private playAnim = 'M11,10 L17,10 17,26 11,26 M20,10 L26,10 26,26 20,26';
+	public icon: IconDefinition;
 
-	public from = this.playAnim;
-	public to = this.pauseAnim;
+	constructor(private storeFacade: StoreFacade, private changeDetector: ChangeDetectorRef) {
+		this.isPlaying$ = this.storeFacade.isPlaying$;
+	}
 
-	@ViewChild('animation')
-	private animation: ElementRef;
+	public ngOnInit() {
+		this.isPlaying$.subscribe(isPlaying => {
+			this.icon = isPlaying ? faPause : faPlay;
+			this.changeDetector.markForCheck();
+		});
+	}
 
-	constructor() {}
-
-	ngOnInit() {}
-
-	@HostListener('tap')
-	public tap(): void {
-		if (this.play) {
-			this.from = this.playAnim;
-			this.to = this.pauseAnim;
-		} else {
-			this.from = this.pauseAnim;
-			this.to = this.playAnim;
-		}
-		this.play = !this.play;
-		const svgAnimate = this.animation.nativeElement as SVGAnimateElement;
-		const from = svgAnimate.attributes.getNamedItem('from');
-		from.value = this.from;
-		svgAnimate.attributes.setNamedItem(from);
-		const to = svgAnimate.attributes.getNamedItem('to');
-		to.value = this.to;
-		svgAnimate.attributes.setNamedItem(to);
-		(svgAnimate as any).beginElement();
+	public togglePlay(): void {
+		this.storeFacade.togglePlay();
 	}
 }

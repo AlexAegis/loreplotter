@@ -93,7 +93,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 			this.nameOfSelected$,
 			this.knowledgeOfSelected$,
 			this.engineService.selected,
-			this.loreService.cursor$
+			this.loreService.dampenedCursor$
 		])
 			.pipe(
 				take(1),

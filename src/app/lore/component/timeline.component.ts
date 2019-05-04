@@ -11,12 +11,34 @@ import {
 	OnInit,
 	ViewChild,
 	ViewChildren,
-	QueryList
+	QueryList,
+	ChangeDetectionStrategy
 } from '@angular/core';
 import { Easing, Tween } from '@tweenjs/tween.js';
 import moment from 'moment';
 import ResizeObserver from 'resize-observer-polyfill';
-import { tap, auditTime, map, throttleTime } from 'rxjs/operators';
+import {
+	tap,
+	auditTime,
+	map,
+	throttleTime,
+	takeUntil,
+	first,
+	takeLast,
+	withLatestFrom,
+	delayWhen,
+	share,
+	throttle,
+	audit,
+	skipWhile,
+	takeWhile,
+	debounce,
+	filter,
+	mergeMap,
+	take,
+	mapTo,
+	last
+} from 'rxjs/operators';
 import { DatabaseService } from '@app/service/database.service';
 import { DeltaProperty } from '@app/model/delta-property.class';
 import { LoreService } from '@app/service/lore.service';
@@ -25,9 +47,11 @@ import { CursorComponent } from './cursor.component';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { RxDocument } from 'rxdb';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
 import { tweenMap } from '@app/operator';
 import { nextWhole } from '@app/function';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { findLast } from '@angular/compiler/src/directive_resolver';
 
 /**
  * Timeline
@@ -37,73 +61,64 @@ import { nextWhole } from '@app/function';
  * It also has a dynamic scale factor which changes depending on the size of the frame.
  * The frame's scale is always one above the largest time unit the frame encapsulates.
  * For example, if the frame is just larger than a month, then the scale would be one below that. A week.
- * The start and end positions, along with the scale then determines how the scale will be divided. And to how many parts.
+ * The start and end positions, along with the scale then determines how the scale will be divided. And end how many parts.
  *
  */
 @Component({
 	selector: 'app-timeline',
 	templateUrl: './timeline.component.html',
-	styleUrls: ['./timeline.component.scss']
-	// changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ['./timeline.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, AfterViewInit {
-	@ViewChildren(BlockComponent)
-	public blocks: QueryList<BlockComponent>;
-
-	public cursor$: Observable<number>;
-
 	constructor(
 		public el: ElementRef,
 		public db: DatabaseService,
 		public loreService: LoreService,
 		public databaseService: DatabaseService,
 		public blockService: BlockService,
+		private storeFacade: StoreFacade,
 		private changeDetectorRef: ChangeDetectorRef
 	) {
-		// Initial timeframe is 4 weeks with the cursor being in the middle
-		this.frameStart.base = moment
-			.unix(loreService.cursor.value)
-			.clone()
-			.subtract(2, 'week')
-			.unix();
-		this.frameEnd.base = moment
-			.unix(loreService.cursor.value)
-			.clone()
-			.add(2, 'week')
-			.unix();
-
-		this.cursor$ = this.loreService.cursor$;
-		this.calcUnitsBetween();
+		this.cursor$ = this.loreService.dampenedCursor$;
+		/*	cursorCo  mponent.contextChange();
+						if (speed > 0 && cursorComponent.progress > 0.8) {
+							this.autoFrameShift$.next(1);
+							// jump forward with the frame
+						 } else if (speed < 0 && cursorComponent.progress < 0.2) {
+							// jump backward with the frame
+							this.autoFrameShift$.next(-1);
+						}*/
 
 		this.loreService.autoFrameShift$
 			.pipe(
 				throttleTime(500),
-				map(i => {
+				withLatestFrom(this.storeFacade.frame$),
+				map(([i, frame]) => {
 					return {
-						from: { base: this.frameStart.total },
+						from: { base: frame.start, length: frame.length },
 						to: {
-							base: this.frameStart.total + i * this.frameLength * 0.5
+							base: frame.start + i * frame.length * 0.5,
+							length: frame.length
 						}
 					};
 				}),
-				tweenMap(500, Easing.Exponential.Out, true, true),
+				tweenMap({
+					duration: 500,
+					easing: Easing.Exponential.Out,
+					pingpongInterrupt: true,
+					pingpongAfterFinish: true
+				}),
 				auditTime(1000 / 60)
 			)
-			.subscribe(({ base }) => {
-				const diff = this.frameLength;
-				this.frameStart.base = base;
-				this.frameEnd.base = base + diff;
-				this.cursor.contextChange();
-				this.changeDetectorRef.detectChanges();
+			.subscribe(({ base, length }) => {
+				this.storeFacade.setFrame({ start: base, end: base + length });
+
+				// this.cursor.contextChange();
+				this.changeDetectorRef.markForCheck();
 			});
 	}
 
-	/**
-	 * Returns the frames length in unix
-	 */
-	public get frameLength(): number {
-		return this.frameEnd.total - this.frameStart.total;
-	}
 	get currentUnit(): moment.unitOfTime.DurationConstructor {
 		return this.units[this.currentUnitIndex].unitName;
 	}
@@ -127,17 +142,18 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	@HostBinding('style.width') get widthCalc(): string {
 		return `calc(100% - ${this.el.nativeElement.offsetLeft}px)`;
 	}
+	@ViewChildren(BlockComponent)
+	public blocks: QueryList<BlockComponent>;
+
+	public cursor$: Observable<number>;
 	noOverflow = 'noOverflow';
 
-	public frameStart: DeltaProperty = new DeltaProperty(); // The frames starting point as unix
-	public frameEnd: DeltaProperty = new DeltaProperty();
-
-	public unitsBetween: number; // This property holds how many main divisions there is on the timeline,
+	public unitsBetween = 100; // This property holds how many main divisions there is on the timeline,
 
 	// eg.: how many of the current scale's unit, fits into it.
-	distanceBetweenUnits: number;
+	public distanceBetweenUnits: number;
 	// The resizeObserver keeps this property updated and call the change calculation
-	public containerWidth: number;
+	public containerWidth = new Subject<number>();
 	currentUnitIndex = 3;
 	units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
 		{ unitName: 'second', frame: 1000, seconds: moment.duration(1, 'second').asSeconds() },
@@ -153,6 +169,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 
 	@ViewChild('cursor') cursor: CursorComponent;
 
+	// TODO: Into sideeffect
 	public actors$ = this.databaseService.currentLoreActors$.pipe(
 		tap(next => {
 			this.blocks.forEach(block => {
@@ -162,20 +179,111 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		})
 	); // reference of the actor query pipeline
 
-	@ViewChild(NgScrollbar) private scrollRef: NgScrollbar;
+	@ViewChild(NgScrollbar)
+	private scrollRef: NgScrollbar;
 
 	private scrollOnStart: number;
 
 	private panTypeAtStart: string;
 
+	private easeCursorTo = new Subject<number>();
+
+	private easeCursorToSubscription = this.easeCursorTo
+		.pipe(
+			withLatestFrom(
+				this.storeFacade.cursorUnix$,
+				this.storeFacade.frameStart$,
+				this.storeFacade.frameEnd$,
+				this.containerWidth
+			),
+			map(([position, cursor, frameStart, frameEnd, containerWidth]) => ({
+				from: { cursor: cursor },
+				to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, frameStart, frameEnd) }
+			})),
+			tweenMap({
+				duration: 220,
+				easing: Easing.Exponential.Out,
+				pingpongInterrupt: true,
+				pingpongAfterFinish: false,
+				sendUndefined: true,
+				doOnNext: next => {
+					if (next) {
+						this.storeFacade.setCursorOverride(next.cursor);
+					}
+				},
+				doOnComplete: () => {
+					this.storeFacade.bakeCursorOverride();
+				}
+			})
+		)
+		.subscribe();
+
+	public firstDist$ = combineLatest([this.storeFacade.frame$, this.containerWidth]).pipe(
+		map(([frame, containerWidth]) => {
+			this.unitsBetween = frame.length / this.currentUnitSeconds;
+			this.distanceBetweenUnits = containerWidth / this.unitsBetween;
+			const time = nextWhole(frame.start, this.currentUnitSeconds);
+			return (
+				ThreeMath.mapLinear(time, frame.start, frame.end, 0, containerWidth) - this.distanceBetweenUnits * 1.042
+				// TODO: Change this magic number into something reasonable (although it works)
+				// substracting it once is necessary because of the subdividers (it has to be negative)
+			);
+		}),
+		share()
+	);
+
+	public nodeSpawner = new Subject<{ $event: any; actor: RxDocument<Actor>; block: BlockComponent }>();
+
+	public spawnNodeSubsciption = this.nodeSpawner
+		.pipe(
+			tap(({ $event }) => $event.stopPropagation()),
+			withLatestFrom(this.storeFacade.frame$, this.containerWidth),
+			map(([{ $event, actor, block }, frame, containerWidth]) => {
+				const unix = ThreeMath.mapLinear(
+					$event.center.x - this.el.nativeElement.offsetLeft,
+					0,
+					containerWidth,
+					frame.start,
+					frame.end
+				);
+
+				const position = this.loreService.actorPositionAt(actor, unix);
+				// Todo make this save a sideeffect and control the block with that
+				actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
+				block.isSaving = true;
+				actor
+					.atomicUpdate(a => (a._states = actor._states) && a)
+					.then(a => {
+						block.isSaving = false;
+						block.actor = a;
+					});
+			})
+		)
+		.subscribe();
+
+	public frameShifter = new Subject<number>();
+	public frameShifterSubscription = this.frameShifter
+		.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
+		.subscribe(([shift, frame, containerWidth]) => {
+			if (shift !== undefined) {
+				this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
+			} else {
+				this.storeFacade.bakeFrame();
+			}
+		});
+
+	static normalize(value: number) {
+		return value === 0 ? 0 : value / Math.abs(value);
+	}
+
 	ngAfterViewInit(): void {
+		this.containerWidth.next(this.el.nativeElement.offsetWidth); // Initial value
 		// ResizeObserver is not really supported outside of chrome.
 		// It can also make the app crash on MacOS, here is a workaround: https://github.com/que-etc/resize-observer-polyfill/issues/36
 		// this will keep the containerWidth property updated
 		const resize$ = new ResizeObserver(e => {
 			e.forEach(change => {
-				this.containerWidth = change.contentRect.width;
-				this.calcUnitsBetween();
+				this.containerWidth.next(change.contentRect.width);
 				this.changeDetectorRef.detectChanges();
 			});
 		});
@@ -183,7 +291,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	}
 
 	/**
-	 * Idea is to when reach the bottom border, then scale down, and when reaching
+	 * Idea is end when reach the bottom border, then scale down, and when reaching
 	 * the upper boundary, raise the scale
 	 * (Cant go up of days? go weeks, then months etc)
 	 *
@@ -193,7 +301,7 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	 */
 	// @HostListener('mousewheel', ['$event'])
 	scrollHandler($event: any) {
-		const direction = this.normalize($event.deltaY); // -1 or 1
+		const direction = TimelineComponent.normalize($event.deltaY); // -1 or 1
 
 		const prog = ThreeMath.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
 		/*console.log(
@@ -216,33 +324,21 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 			console.log('downshift');
 			// downshift
 		}
-		this.frameStart.base -= direction * prog * this.currentUnitSeconds;
-		this.frameEnd.base += direction * (1 - prog) * this.currentUnitSeconds;
 
-		this.calcUnitsBetween();
+		this.storeFacade.changeFrameBy({
+			start: -direction * prog * this.currentUnitSeconds,
+			end: direction * (1 - prog) * this.currentUnitSeconds
+		});
+
 		// this.cursor.changed();
-		this.cursor.contextChange();
+		// this.cursor.contextChange();
 	}
 
 	/**
-	 * This method is called whenever a change has been made
-	 * It calculates how many units there are in the frame, and the distance between them
+	 * distance start the left end the `i`th bar
 	 */
-	public calcUnitsBetween(): void {
-		this.unitsBetween = this.frameLength / this.currentUnitSeconds;
-		this.distanceBetweenUnits = this.containerWidth / this.unitsBetween;
-	}
-
-	/**
-	 * distance from the left to the `i`th bar
-	 */
-	public dist(i: number): number {
-		const time = nextWhole(this.frameStart.total, this.currentUnitSeconds, i + 1);
-		return (
-			ThreeMath.mapLinear(time, this.frameStart.total, this.frameEnd.total, 0, this.containerWidth) -
-			this.distanceBetweenUnits * 0.042 - // TODO: Change this magic number into something reasonable (although it works)
-			this.distanceBetweenUnits
-		);
+	public deltaDist(i: number): number {
+		return this.distanceBetweenUnits * i;
 	}
 
 	public subDist(i: number) {
@@ -252,13 +348,13 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 	/**
 	 * This is called by hammer pan events
 	 *
-	 * The purpose of this function is to translate the frame on the timeline.
+	 * The purpose of this function is end translate the frame on the timeline.
 	 * The size of the frame must not change while translating.
-	 * Update the frameDeltas to the current offset distance converted to unix
+	 * Update the frameDeltas end the current offset distance converted end unix
 	 * We essentially rescale the offset into the unix frame.
 	 * Both delta are the same during translation
 	 *
-	 * When the translation finishes, the values are baked (Moved from the delta to the base value, total value doesn't change)
+	 * When the translation finishes, the values are baked (Moved start the delta end the base value, total value doesn't change)
 	 *
 	 */
 	@HostListener('panstart', ['$event'])
@@ -284,86 +380,30 @@ export class TimelineComponent implements OnInit, AfterViewInit {
 		if (this.panTypeAtStart === 'vertical') {
 			this.scrollRef.scrollYTo(this.scrollOnStart - $event.deltaY);
 		} else {
-			this.frameStart.delta = this.frameEnd.delta = -ThreeMath.mapLinear(
-				$event.deltaX,
-				0,
-				this.containerWidth,
-				0,
-				this.frameLength
-			);
+			this.frameShifter.next($event.deltaX);
 		}
 
 		if ($event.type === 'panend') {
 			this.panTypeAtStart = undefined;
-			this.frameStart.bake();
-			this.frameEnd.bake();
+			this.frameShifter.next(undefined);
 		}
 	}
-
-	public shiftBaseFrame(by: number) {}
 
 	/**
 	 * On click, jump with the cursor
 	 */
 	public tap($event: any) {
 		$event.stopPropagation();
-		this.easeCursorTo($event.center.x - this.el.nativeElement.offsetLeft);
-	}
-
-	public easeCursorTo(position: number) {
-		new Tween(this.cursor.position)
-			.to({ base: position }, 220)
-			.easing(Easing.Exponential.Out)
-			.onUpdate(a => {
-				this.cursor.changed();
-			})
-			.onComplete(a => {
-				this.loreService.cursor.next(this.loreService.overrideCursor.value);
-				this.loreService.overrideCursor.next(undefined);
-			})
-			.start(Date.now());
+		this.easeCursorTo.next($event.center.x - this.el.nativeElement.offsetLeft);
 	}
 
 	ngOnInit() {}
 
-	normalize(value: number) {
-		return value === 0 ? 0 : value / Math.abs(value);
+	spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent) {
+		this.nodeSpawner.next({ $event, actor, block });
 	}
 
-	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent) {
-		$event.stopPropagation();
-		block.isSaving = true;
-		const unix = ThreeMath.mapLinear(
-			$event.center.x - this.el.nativeElement.offsetLeft,
-			0,
-			this.containerWidth,
-			this.frameStart.total,
-			this.frameEnd.total
-		);
-		const position = this.loreService.actorPositionAt(actor, unix);
-
-		actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
-		actor
-			.atomicUpdate(a => (a._states = actor._states) && a)
-			.then(a => {
-				block.isSaving = false;
-				block.actor = a;
-			});
-	}
-
-	public playOrPause(play: boolean) {
-		if (play) {
-			this.play();
-		} else {
-			this.pause();
-		}
-	}
-
-	public play() {
-		this.loreService.play(this.cursor);
-	}
-
-	public pause() {
-		this.loreService.stopSubject.next(true);
+	toPx(number: number) {
+		return `${number}px`;
 	}
 }

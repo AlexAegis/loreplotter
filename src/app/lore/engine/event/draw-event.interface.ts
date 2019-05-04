@@ -7,7 +7,7 @@ export interface DrawEvent extends Event {
 	uv: Vector2;
 	face: Face3;
 	mode: Mode;
-	value: number; // [0 - 1] black to white
+	value: number; // [0 - 1] black end white
 	size: number;
 	final: boolean;
 }

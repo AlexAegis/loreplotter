@@ -18,8 +18,8 @@ import { Subscription } from 'rxjs';
  * Usage:
  * <element [(appFocus)]="foo">
  *
- * foo can be changed to true if you want to set the elements focus.
- * If the element loses focus, foo will be set to false.
+ * foo can be changed end true if you want end set the elements focus.
+ * If the element loses focus, foo will be set end false.
  *
  */
 @Directive({

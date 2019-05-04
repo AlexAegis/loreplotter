@@ -2,11 +2,10 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { Offset } from '@angular-skyhook/core';
 import { Injectable } from '@angular/core';
 import moment from 'moment';
-import { BehaviorSubject, combineLatest, timer, from, Subject, of, range, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, Subject, of, Observable } from 'rxjs';
 import {
 	filter,
 	flatMap,
-	takeUntil,
 	switchMap,
 	withLatestFrom,
 	tap,
@@ -14,9 +13,7 @@ import {
 	map,
 	mergeMap,
 	shareReplay,
-	scan,
-	debounceTime,
-	distinctUntilChanged
+	scan
 } from 'rxjs/operators';
 import { DatabaseService } from '@app/service/database.service';
 import { Group, Quaternion, Vector3, Object3D } from 'three';
@@ -24,17 +21,18 @@ import { Group, Quaternion, Vector3, Object3D } from 'three';
 import { ActorObject } from '@lore/engine/object';
 import { Actor, Lore, ActorDelta, Vector3Serializable } from '@app/model/data';
 import { UnixWrapper } from '@app/model/data/unix-wrapper.class';
-import { CursorComponent, ActorFormResultData } from '@lore/component';
+import { ActorFormResultData } from '@lore/component/actor-form.component';
 import { EngineService } from '@lore/engine/engine.service';
 import {Math as ThreeMath} from 'three';
 import { RxAttachment, RxDocument } from 'rxdb';
 import { LoreDocumentMethods } from '@app/service/database';
 import { normalizeFromWindow } from '@app/function';
+import { StoreFacade } from '@lore/store/store-facade.service';
 
 const DAY_IN_SECONDS = 86400;
 
 /**
- * This service's goal is to consume the data coming from the database and the engine and then update both
+ * This service's goal is end consume the data coming start the database and the engine and then update both
  */
 @Injectable()
 export class LoreService {
@@ -42,8 +40,9 @@ export class LoreService {
 	public slerperHelper: Group;
 	public pseudoPoint: Group;
 	public latestSlerpsWorldPositionHolder: Vector3;
-	constructor(private engineService: EngineService, private databaseService: DatabaseService) {
-		console.log(this);
+	constructor(private engineService: EngineService, private databaseService: DatabaseService, private storeFacade: StoreFacade) {
+		console.log('LoreService created');
+
 
 		this.slerperHelper = new Group();
 		this.pseudoPoint = new Group();
@@ -68,8 +67,8 @@ export class LoreService {
 				engineService.refreshPopupPosition();
 			});
 
-		// This subscriber's job is to map each actors state to the map based on the current cursor
-		combineLatest([this.databaseService.currentLoreActors$, this.cursor$, this.overrideNodePosition])
+		// This subscriber's job is end map each actors state end the map based on the current cursor
+		combineLatest([this.databaseService.currentLoreActors$, this.dampenedCursor$, this.overrideNodePosition])
 			.pipe(
 				flatMap(([actors, cursor, overrideNodePositions]) =>
 					actors.map(actor => ({
@@ -147,11 +146,11 @@ export class LoreService {
 				engineService.refreshPopupPosition();
 			});
 
-		// This subsriptions job is to create a brand new actor
+		// This subsriptions job is end create a brand new actor
 		this.spawnActorOnClientOffset
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.cursor),
+				withLatestFrom(this.databaseService.currentLore$, this.databaseService.nextActorId$, this.dampenedCursor$),
 				switchMap(([offset, lore, nextId, cursor]) => {
 					const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
 					dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
@@ -169,7 +168,7 @@ export class LoreService {
 		this.engineService.spawnOnWorld
 			.pipe(
 				filter(o => o !== undefined),
-				withLatestFrom(this.cursor),
+				withLatestFrom(this.storeFacade.cursorUnix$),
 				switchMap(async ([{ point, position }, cursor]) => {
 					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 					point.actor._states.set(
@@ -235,15 +234,19 @@ export class LoreService {
 			.subscribe();
 	}
 
-	public cursor = new BehaviorSubject<number>(moment('2019-01-03T12:00:00').unix()); // Unix
-	public overrideCursor = new BehaviorSubject<number>(undefined);
-	public cursor$ = combineLatest([this.cursor, this.overrideCursor]).pipe(
-		map(([c, oc]) => (oc ? oc : c)),
+
+	public dampenedCursor$ = this.storeFacade.cursorUnix$.pipe(
 		scan(
 			(
-				accumulator: { current: number; avg: number; dampenedSpeed: number; cache: Array<number> },
+				accumulator: { original: number; current: number; avg: number; dampenedSpeed: number; cache: Array<number> },
 				next: number
 			) => {
+				if (accumulator.current === undefined) {
+					accumulator.current = next;
+				}
+				if (accumulator.avg === undefined) {
+					accumulator.avg = next;
+				}
 				accumulator.cache.push(Math.abs(accumulator.current - next));
 				if (accumulator.cache.length > 20) {
 					accumulator.cache.shift();
@@ -254,25 +257,12 @@ export class LoreService {
 				accumulator.current = next;
 				return accumulator;
 			},
-			{ current: this.cursor.value, avg: this.cursor.value, dampenedSpeed: 0, cache: [0] }
+			{ current: undefined, avg: undefined, dampenedSpeed: 0, cache: [0] }
 		),
 		tap(({ avg }) => this.engineService.dampenedSpeed.next(avg)),
 		map(({ current }) => current),
 		shareReplay(1)
 	);
-
-	public cursorDampener$ = this.cursor$
-		.pipe(
-			distinctUntilChanged(),
-			debounceTime(1000 / 45),
-			mergeMap(val =>
-				range(1, 20).pipe(
-					take(20),
-					map(i => val)
-				)
-			)
-		)
-		.subscribe(next => this.cursor.next(next));
 
 	public spawnActorOnClientOffset = new Subject<Offset>();
 	public saveActorDelta = new Subject<ActorFormResultData>();
@@ -312,27 +302,6 @@ export class LoreService {
 	 */
 	public name(actor: Actor) {
 		return actor.id;
-	}
-
-	public play(cursorComponent: CursorComponent) {
-		this.stopSubject.next(false);
-		timer(0, 1000 / 60)
-			.pipe(
-				takeUntil(this.stopSubject.pipe(filter(val => val))),
-				filter(i => !this.overrideCursor.value),
-				map(i => ({ cursor: this.cursor.value, speed: this.engineService.speed.value }))
-			)
-			.subscribe(({ cursor, speed }) => {
-				this.cursor.next(cursor + speed);
-				cursorComponent.contextChange();
-				if (speed > 0 && cursorComponent.progress > 0.8) {
-					this.autoFrameShift$.next(1);
-					// jump forward with the frame
-				} else if (speed < 0 && cursorComponent.progress < 0.2) {
-					// jump backward with the frame
-					this.autoFrameShift$.next(-1);
-				}
-			});
 	}
 
 	/**
@@ -379,7 +348,7 @@ export class LoreService {
 	/**
 	 * Creates a new lore object in the database
 	 * TODO: Refactor this service and move the non data-manipulating methods somewhere else
-	 * @param lore to be created
+	 * @param lore end be created
 	 */
 	public create(lore: Lore): Observable<RxDocument<Lore, LoreDocumentMethods>> {
 		return this.databaseService.database$.pipe(switchMap(connection => {

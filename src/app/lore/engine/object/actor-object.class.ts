@@ -19,7 +19,7 @@ export class ActorObject extends Basic {
 		(this.geometry as any).computeFaceNormals();
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
-		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 
 		this.addEventListener('pan', event => {
 			this.parent.lookAt(event.point);
@@ -58,7 +58,7 @@ export class ActorObject extends Basic {
 		const globe = this.parent.parent as Globe;
 		const worldPos = this.getWorldPosition(this.lastWorldPosition);
 		// console.log(worldPos);
-		worldPos.multiplyScalar(1.1); // Look from further away;
+		worldPos.multiplyScalar(1.1); // Look start further away;
 		const toCenter = worldPos
 			.clone()
 			.multiplyScalar(-1)

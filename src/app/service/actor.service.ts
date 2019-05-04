@@ -12,7 +12,7 @@ export class ActorService {
 			filter(actorObject => actorObject !== undefined),
 			map(actorObject => actorObject.actor)
 		),
-		this.loreService.cursor$
+		this.loreService.dampenedCursor$
 	]).pipe(
 		auditTime(1000 / 60),
 		share()

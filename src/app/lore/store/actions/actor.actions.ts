@@ -1,0 +1,44 @@
+import { createAction } from '@ngrx/store';
+import { Actor } from '@app/model/data';
+import { Update } from '@ngrx/entity';
+import { Payload } from '@lore/store/actions';
+
+export const loadActors = createAction(`[Actor] Load`, (payload: Payload<Array<Actor>>): Payload<Array<Actor>> => payload);
+
+export const loadActorsSuccess = createAction(
+	`[Actor] Load Success`,
+	(payload: Payload<Array<Actor>>): Payload<Array<Actor>> => payload
+);
+export const loadActorsFailure = createAction(`[Actor] Load Failure`, (payload: Payload<Error>) => ({ payload }));
+
+export const createActor = createAction(
+	`[Actor] Create`,
+	({ actor }: { actor: Actor }): Payload<Actor> => {
+		return { payload: actor };
+	}
+);
+
+export const createActorSuccess = createAction(
+	`[Actor] Create Success`,
+	(payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => payload
+);
+export const createActorFailure = createAction(`[Actor] Create Failure`, (payload: Payload<Error>) => ({ payload }));
+
+// Updating existing objectsk
+export const updateActor = createAction(`[Actor] Update`, (payload: Payload<Update<Actor>>) => ({ payload }));
+
+export const updateActorSuccess = createAction(`[Actor] Update Success`, (payload: Payload<Update<Actor>>) => ({
+	payload
+}));
+export const updateActorFailure = createAction(`[Actor] Update Failure`, (payload: Payload<Error>) => ({ payload }));
+
+// Deleting existing objects
+export const deleteActor = createAction(`[Actor] Delete`, (payload = {}) => ({ payload }));
+
+export const deleteActorSuccess = createAction(`[Actor] Delete Success`, (payload = {}) => ({ payload }));
+export const deleteActorFailure = createAction(`[Actor] Delete Failure`, (payload: Payload<Error>) => ({ payload }));
+
+export const changeSelectedActor = createAction(`[Actor] Change Selected`, (payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => (
+	payload
+));
+

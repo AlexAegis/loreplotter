@@ -16,9 +16,9 @@ export class Water extends Basic {
 		(this.geometry as any).computeFaceNormals();
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
-		(this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 
-		// (this.geometry as any).computeBoundsTree(); // Use the injected method to enable fast raycasting, only works with Buffered Geometries
+		// (this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 		this.material = new MeshPhysicalMaterial({
 			color: new Color('#63acff'), // 63acff
 			emissive: new Color('#29b6f6'), // 2863a3

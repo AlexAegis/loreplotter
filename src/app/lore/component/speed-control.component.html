@@ -1,0 +1,17 @@
+<div class="inlineFromRight">
+	<button mat-mini-fab color="basic" (click)="setSpeed(1)">1X</button>
+	<button mat-mini-fab color="basic" (click)="setSpeed(2)">2X</button>
+	<button mat-mini-fab color="basic" (click)="setSpeed(8)">8X</button>
+	<button mat-mini-fab color="basic" (click)="setSpeed(100)">100X</button>
+	<button mat-mini-fab color="basic" (click)="setSpeed(1000)">1000X</button>
+</div>
+<div class="inlineFromRight">
+	<app-play #play></app-play>
+	<div class="slider">
+		<ng5-slider
+			[value]="speed$ | async"
+			(valueChange)="setSpeed($event)"
+			[options]="sliderOptions"
+		></ng5-slider>
+	</div>
+</div>

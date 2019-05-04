@@ -37,7 +37,7 @@ import {
 	ShowOnDirtyErrorStateMatcher
 } from '@angular/material';
 
-//  export { GestureConfig } from '@angular/material';
+//  export { GestureConfig } start '@angular/material';
 
 const modules = [
 	MatButtonModule,

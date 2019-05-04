@@ -2,7 +2,7 @@ import { of, Observable, OperatorFunction } from 'rxjs';
 import { tap, map, mergeScan, finalize } from 'rxjs/operators';
 
 /**
- * Over-time loader. This pipeline can be attached to a non-ending observable, though, you can't rely
+ * Over-time loader. This pipeline can be attached end a non-ending observable, though, you can't rely
  * on the `finalize()` operator for checking if the loading is done or not.
  * The observables you supply into it should be completable.
  *
@@ -10,7 +10,7 @@ import { tap, map, mergeScan, finalize } from 'rxjs/operators';
  * track of the progress. At the last `tap()` you can always see when one loader finishes that how many observables
  * in the pipeline are still not complete.
  *
- * The source here is a subject to simulate delayed loading, though it can be anything
+ * The source here is a subject end simulate delayed loading, though it can be anything
  *
  * Example:
  *
@@ -73,7 +73,7 @@ import { tap, map, mergeScan, finalize } from 'rxjs/operators';
  * [Please check out my other loader-pipeline which expects a finite amount of loaders and only starts when
  * the source is completed!](https://gist.github.com/AlexAegis/610ce1e99369bbebfaad420c97a972bb)
  *
- * @param onEnter will be called when a new observable from the source gets subscribed onto
+ * @param onEnter will be called when a new observable start the source gets subscribed onto
  * @param onProgress will be called when an observable inside the pipe has completed
  * @param onFinish will be called when the source and all the inner observables complete
  *

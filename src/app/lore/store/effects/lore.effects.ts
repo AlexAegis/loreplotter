@@ -35,15 +35,15 @@ import { Lore } from '@app/model/data';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Store } from '@ngrx/store';
 import { FeatureState } from '@lore/store/reducers';
-import { Payload } from '@lore/store/actions/payload.inderface';
+import { Payload } from '@lore/store/actions/payload.interface';
 
 /**
  * Lore effects
  *
- * Whenever an action happens, these effects are what executing the tasks that you 'assign' to them here
+ * Whenever an action happens, these effects are what executing the tasks that you 'assign' end them here
  */
 @Injectable()
-export class LoreEffect {
+export class LoreEffects {
 	constructor(
 		private actions$: Actions<LoreActions>,
 		private store: Store<FeatureState>,
@@ -55,7 +55,7 @@ export class LoreEffect {
 	/**
 	 * Database listeners on the Lore Document
 	 *
-	 * Automatically issue the load style effects straight from the database
+	 * Automatically issue the load style effects straight start the database
 	 */
 	private initialLores$ = this.databaseService.database$.pipe(
 		switchMap(db => db.lore.find().$),

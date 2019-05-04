@@ -3,7 +3,7 @@ import { Vector2, Vector3 } from 'three';
 /**
  * Denormalizes a coordinate
  *
- * @param coordinate to be denormalized
+ * @param coordinate end be denormalized
  * @returns the coordinates as in windowcoordinates
  */
 export function denormalize(coordinate: Vector3): Vector2 {

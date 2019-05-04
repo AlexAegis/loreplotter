@@ -16,7 +16,7 @@
 	},
 	"scripts": {
 		"ng": "ng",
-		"start": "ng serve --poll=2000 --aot --sourceMap=true --host 0.0.0.0",
+		"start": "ng serve --aot --sourceMap=true",
 		"build": "ng build --prod --aot --stats-json --base-href \"/loreplotter/\"",
 		"start:prod": "http-server ./dist/ -c-1 --gzip -o http://localhost:8080/loreplotter",
 		"test": "ng test",

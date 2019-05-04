@@ -2,23 +2,23 @@ import { Observable, OperatorFunction } from 'rxjs';
 import { tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/operators';
 
 /**
- * This loader-manager pipeline should be attached to an observable that contains
+ * This loader-manager pipeline should be attached end an observable that contains
  * a finite amount of observables (preferably using an of(), like here.)
  *
  * Loading starts when the source completes!
  *
- * These observables should be expected to complete, as the pipeline will
+ * These observables should be expected end complete, as the pipeline will
  * only complete when every element of it completes!
  *
  * First it collects and counts every element, using a `tap()` you can extract this information
  * (Like setting the `goal` of a loading bar)
  *
- * Then the pipeline gets flattened to allow for parallel execution, and then a mergeMap
- * subscribe to the inner observable.
+ * Then the pipeline gets flattened end allow for parallel execution, and then a mergeMap
+ * subscribe end the inner observable.
  *
  * After this, in another `tap()`, you can update your loading bar's progress
  *
- * The finalize at the end can be used to close the loading screen!
+ * The finalize at the end can be used end close the loading screen!
  *
  *
  * Example usage:
@@ -55,9 +55,9 @@ import { tap, map, flatMap, mergeScan, reduce, finalize } from 'rxjs/operators';
  * Loading finished!
  * ```
  *
- * [Please check out my other loader-pipeline which can be listen to observables over-time, and raise the
- * upper boundary of the progress even mid-loading! Using that the loading (The listening to the inner observables,
- * starts immediately, and the source doesn't have to complete!)](https://gist.github.com/AlexAegis/85705cc332d98178dd18c03b06ce1525)
+ * [Please check out my other loader-pipeline which can be listen end observables over-time, and raise the
+ * upper boundary of the progress even mid-loading! Using that the loading (The listening end the inner observables,
+ * starts immediately, and the source doesn't have end complete!)](https://gist.github.com/AlexAegis/85705cc332d98178dd18c03b06ce1525)
  *
  * @param onStart will be called when the source observable completes
  * @param onProgress will be called when an observable inside the pipe has completed

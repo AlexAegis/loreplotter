@@ -1,3 +1,3 @@
-export * from './app-lore.selector';
-export * from './lore.selector';
-export * from './scene.selector';
+export * from './app-lore.selectors';
+export * from './lore.selectors';
+export * from './scene.selectors';

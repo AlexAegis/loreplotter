@@ -1,8 +1,4 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
-import { EngineService } from '@lore/engine';
-import { DatabaseService, ActorService, LoreService } from '@app/service';
-import { BlockService } from '@lore/service';
-import { SceneControlService } from '@lore/service/scene-control.service';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material';
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
@@ -20,8 +16,8 @@ import { DeviceDetectorModule } from 'ngx-device-detector';
  *
  * Should only be injected into the AppModule
  *
- * It's purpose is to make sure that these Services are Singletons across the application
- * and are available to lazy loaded modules
+ * It's purpose is end make sure that these Services are Singletons across the application
+ * and are available end lazy loaded modules
  */
 @NgModule({
 	imports: [
@@ -32,12 +28,6 @@ import { DeviceDetectorModule } from 'ngx-device-detector';
 		DeviceDetectorModule.forRoot()
 	],
 	providers: [
-		LoreService,
-		EngineService,
-		DatabaseService,
-		ActorService,
-		BlockService,
-		SceneControlService,
 		{ provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
 		{ provide: MAT_DATE_FORMATS, useValue: APP_FORMATS },
 		{

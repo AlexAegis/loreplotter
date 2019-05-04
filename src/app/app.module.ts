@@ -4,12 +4,12 @@ import { RoutingModule } from '@app/routes';
 import { CoreModule } from '@app/core.module';
 import { LoadingComponent } from '@app/component/loading.component';
 import { CommonModule } from '@angular/common';
-import { DatabaseService } from '@app/service';
 import { InitService } from '@app/service/init.service';
+import { SharedModule } from '@app/shared';
 
 @NgModule({
 	declarations: [AppComponent, LoadingComponent],
-	imports: [CommonModule, RoutingModule, CoreModule],
+	imports: [SharedModule, RoutingModule, CoreModule],
 	providers: [
 		InitService,
 		{

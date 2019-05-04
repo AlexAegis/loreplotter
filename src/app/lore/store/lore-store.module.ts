@@ -3,15 +3,16 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 
 import { reducers } from './reducers';
-import { LoreEffect } from './effect';
-import { StoreFacade } from './store-facade.service';
+import { LoreEffects } from '@lore/store/effects/lore.effects';
+import { SceneEffects } from '@lore/store/effects';
+import { StoreFacade } from '@lore/store/store-facade.service';
 
 export const APP_LORE_FEATURE_STATE_ID = 'app-lore';
 
 @NgModule({
 	imports: [
 		StoreModule.forFeature(APP_LORE_FEATURE_STATE_ID, reducers),
-		EffectsModule.forFeature([LoreEffect])
+		EffectsModule.forFeature([LoreEffects, SceneEffects])
 	],
 	providers: [StoreFacade]
 })

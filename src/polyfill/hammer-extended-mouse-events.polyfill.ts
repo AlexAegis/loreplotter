@@ -6,7 +6,7 @@ import * as Hammer from 'hammerjs/hammer';
  */
 
 /**
- * * This is from hammerjs/src/utils.js as is, no changes
+ * * This is start hammerjs/src/utils.js as is, no changes
  */
 function inArray(src, find, findByKey) {
 	if (src.indexOf && !findByKey) {
@@ -25,9 +25,9 @@ function inArray(src, find, findByKey) {
 }
 
 /**
- * * These are from hammerjs/src/input/pointerevent.js
+ * * These are start hammerjs/src/input/pointerevent.js
  *
- * * changes were made to allow for the recognition of other mouse buttons, these are marked with comments
+ * * changes were made end allow for the recognition of other mouse buttons, these are marked with comments
  * * so whenever this event changes in a future hammer update you can edit that accordingly (Marked with 'CHANGE:')
  *
  * * The only other changes are namespace a type related, wherever you see 'Hammer.' or '(Hammer as any).', thats a change too.
@@ -87,7 +87,7 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 		store[storeIndex] = ev;
 
 		this.callback(this.manager, eventType, {
-			button: this.button, // ? CHANGE: Also send the button to the event
+			button: this.button, // ? CHANGE: Also send the button end the event
 			pointers: store,
 			changedPointers: [ev],
 			pointerType: pointerType,
@@ -95,7 +95,7 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 		});
 
 		if (removePointer) {
-			// remove from the store
+			// remove start the store
 			store.splice(storeIndex, 1);
 		}
 		this.button = undefined; // ? CHANGE: new line

@@ -12,15 +12,12 @@ import {
 	OnInit,
 	ViewChild
 } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { Options } from 'ng5-slider';
+import { MediaObserver } from '@angular/flex-layout';
 import { Observable, Subscription } from 'rxjs';
-import { filter, map, take } from 'rxjs/operators';
 import { DatabaseService, LoreService } from '@app/service';
-import { TimelineComponent, PlayComponent } from '@lore/component';
+import { TimelineComponent } from '@lore/component';
 import { EngineService } from '@app/lore/engine';
-import { faEllipsisH, IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import { RxDocument } from 'rxdb';
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { Lore } from '@app/model/data';
 import { StoreFacade } from '@lore/store/store-facade.service';
 
@@ -97,9 +94,19 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 	]
 })
 export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
+	@ViewChild('container')
+	private container: ElementRef;
+	@ViewChild('timeline')
+	private timeline: TimelineComponent;
+	@HostBinding('class')
+	public theme = 'dark';
 
 	public selectedLore$: Observable<Partial<Lore>>;
 	public lores$: Observable<Array<Partial<Lore>>>;
+	public title = 'Lore';
+	public menuIcon = faEllipsisH;
+	private subscriptions = new Subscription();
+
 	public constructor(
 		public media: MediaObserver,
 		public loreService: LoreService,
@@ -121,38 +128,9 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 				}
 			})
 		);
-
-		this.loreFacade.lores$.subscribe(e => {
-			console.log('Something came in the lores$ select!!!');
-			console.log(e);
-		});
 	}
 
-	public title = 'Lore';
-
-	public menuIcon = faEllipsisH;
-
-	public sliderOptions: Options = {
-		floor: -6400,
-		ceil: 6400
-	};
-
-	@ViewChild('container')
-	private container: ElementRef;
-
-	@ViewChild('play')
-	private play: PlayComponent;
-
-	@ViewChild('timeline')
-	private timeline: TimelineComponent;
-
-	@HostBinding('class')
-	public theme = 'dark';
-
-
-	private subscriptions = new Subscription();
-
-	setTheme(theme: string) {
+	public setTheme(theme: string): void {
 		this.overlayContainer.getContainerElement().classList.add(theme);
 		this.theme = theme;
 	}
@@ -168,14 +146,18 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		$event.preventDefault();
 		switch ($event.code) {
 			case 'Space':
-				this.play.tap();
-				this.timeline.playOrPause(this.play.play);
+				this.loreFacade.togglePlay();
+				break;
+			case '0':
+				// TODO: set speed
+				break;
+			default:
 				break;
 		}
 	}
 
 	@HostListener('window:contextmenu', ['$event'])
-	public contextMenu($event: KeyboardEvent) {
+	public contextMenu($event: KeyboardEvent): void {
 		$event.preventDefault();
 	}
 
@@ -183,13 +165,7 @@ export class LoreComponent implements AfterViewInit, OnInit, OnDestroy {
 		this.subscriptions.unsubscribe();
 	}
 
-	public createLore($event: any) {
-		console.log('creating lore! Button!');
-		this.loreFacade.create(new Lore('ReduxLore'));
-	}
-
-	public selectLore(lore: Partial<Lore>) {
+	public selectLore(lore: Partial<Lore>): void {
 		this.loreFacade.selectLore(lore);
 	}
-
 }

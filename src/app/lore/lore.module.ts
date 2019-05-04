@@ -1,7 +1,7 @@
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
-import { EngineComponent } from '@app/lore/engine';
+import { EngineComponent, EngineService } from '@app/lore/engine';
 import { MaterialModule, SharedModule } from '@app/shared';
 import { LoreRoutingModule } from '@lore/routes/lore-routing.module';
 import {
@@ -21,9 +21,10 @@ import {
 import { FocusDirective, RepeatDirective } from '@app/directive';
 import { NgxMaskModule } from 'ngx-mask';
 import { LoreComponent } from './lore.component';
-import { DatabaseService } from '@app/service';
 import { SpeedControlComponent } from './component/speed-control.component';
 import { LoreStoreModule } from '@lore/store';
+import { ActorService, DatabaseService, LoreService } from '@app/service';
+import { BlockService, SceneControlService } from '@lore/service';
 
 export const APP_FORMATS = {
 	parse: {
@@ -58,6 +59,7 @@ export const APP_FORMATS = {
 		SpeedControlComponent
 	],
 	imports: [
+		LoreStoreModule,
 		SharedModule,
 		MaterialModule,
 		LoreRoutingModule,
@@ -66,7 +68,12 @@ export const APP_FORMATS = {
 	],
 	entryComponents: [ActorFormComponent],
 	providers: [
-
+		LoreService,
+		EngineService,
+		DatabaseService,
+		ActorService,
+		BlockService,
+		SceneControlService,
 	]
 })
 export class LoreModule {}
