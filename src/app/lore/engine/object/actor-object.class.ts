@@ -143,22 +143,20 @@ export class ActorObject extends Basic {
 						this.panHelper.left.requestedDistance <= this.panHelper.right.requestedDistance
 							? this.panHelper.left
 							: this.panHelper.right;
+					let secondRequest: Quaternion = firstRequest.clone();
 					// Only when needed and can
 					if (snapToCloser.allowedDistance <= snapToCloser.requestedDistance && snapToCloser.quaternion !== undefined) {
 						const t = ThreeMath.mapLinear(snapToCloser.allowedDistance, 0, snapToCloser.requestedDistance, 0, 1);
 						Quaternion.slerp(snapToCloser.quaternion, firstRequest, this.parent.quaternion, t);
 						this.updateHeightAndWorldPosAndScale();
+						secondRequest = this.parent.quaternion.clone();
 					}
 					// THEN SNAP TO THE OTHER ONE
 					const snapToOther = this.panHelper.left.requestedDistance > this.panHelper.right.requestedDistance
 							? this.panHelper.left
 							: this.panHelper.right;
-					const secondRequest = this.parent.quaternion.clone();
-					console.log(snapToOther.quaternion);
-					const secondAnchorAngleDiff = quaternionAngle(snapToOther.quaternion || snapToCloser.quaternion.clone(), secondRequest.clone());
+					const secondAnchorAngleDiff = quaternionAngle(snapToOther.quaternion, secondRequest.clone());
 					const secondRequestedDistance = secondAnchorAngleDiff * this.globe.radius;
-
-
 
 					// Only when needed and can
 					if (snapToOther.allowedDistance <= secondRequestedDistance && snapToOther.quaternion !== undefined) {
