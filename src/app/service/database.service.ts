@@ -37,7 +37,7 @@ export class DatabaseService {
 		),
 		tap(db => {
 			db.lore.preSave(async function preSaveHook(this: RxCollection<Lore>, lore) {
-				console.log('PreSave Lore!' + lore.name);
+				// console.log('PreSave Lore!' + lore.name);
 			}, true);
 			db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
 				// console.log('PreSave Actor!' + actor.id);

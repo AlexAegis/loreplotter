@@ -1,10 +1,10 @@
 import { Enclosing, Node } from '@alexaegis/avl';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
-import { LoreService } from '@app/service';
+import { ActorService, LoreService } from '@app/service';
 import { quaternionAngle } from '@lore/engine/helper/quaternion-angle.function';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { take } from 'rxjs/operators';
+import { filter, map, take } from 'rxjs/operators';
 import { Group, Math as ThreeMath, MeshBasicMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three';
 import { Basic } from './basic.class';
 import { Globe } from './globe.class';
@@ -42,6 +42,7 @@ export class ActorObject extends Basic {
 		public actor: RxDocument<Actor>,
 		private storeFacade: StoreFacade,
 		private loreService: LoreService,
+		private actorService: ActorService,
 		public globe: Globe
 	) {
 		super(new SphereBufferGeometry(0.04, 40, 40), undefined);
@@ -60,40 +61,48 @@ export class ActorObject extends Basic {
 		this.addEventListener('panstart', event => {
 			this.positionAtStart = this.parent.quaternion.clone();
 			this.parent.userData.override = true; // Switched off in the LoreService
-			this.storeFacade.cursor$.pipe(take(1)).subscribe(next => {
-				this.cursorAtPanStart = next;
-				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
-				if (this.enclosing.first) {
-					this.rightHelper.set(
-						this.enclosing.first.value.position.x,
-						this.enclosing.first.value.position.y,
-						this.enclosing.first.value.position.z
-					);
-					this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
-					this.panHelper.left.allowedDistance =
-						(this.panHelper.left.time / 3600) * (this.enclosing.first.value.maxSpeed || Actor.DEFAULT_MAX_SPEED);
+			this.actorService.actorDeltasAtCursor$
+				.pipe(
+					take(1),
+					map(accs => accs.find(acc => acc.actor.id === this.actor.id)),
+					filter(acc => acc !== undefined)
+				)
+				.subscribe(next => {
+					this.cursorAtPanStart = next.cursor;
+					this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
+					const maxAccumulatedSpeed = next.accumulator.maxSpeed;
+					if (this.enclosing.first) {
+						this.rightHelper.set(
+							this.enclosing.first.value.position.x,
+							this.enclosing.first.value.position.y,
+							this.enclosing.first.value.position.z
+						);
+						this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
+						this.panHelper.left.allowedDistance =
+							(this.panHelper.left.time / 3600) *
+							maxAccumulatedSpeed;
 
-					this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
-					this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
-					this.globe.indicatorFrom.doShow();
-				}
+						this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
+						this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
+						this.globe.indicatorFrom.doShow();
+					}
 
-				if (this.enclosing.last) {
-					this.leftHelper.set(
-						this.enclosing.last.value.position.x,
-						this.enclosing.last.value.position.y,
-						this.enclosing.last.value.position.z
-					);
-					this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
-					this.panHelper.right.allowedDistance =
-						(this.panHelper.right.time / 3600) *
-						((this.enclosing.first && this.enclosing.first.value.maxSpeed) || Actor.DEFAULT_MAX_SPEED);
-					this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
-					this.globe.indicatorTo.parent.lookAt(this.leftHelper);
-					this.globe.indicatorTo.doShow();
-				}
-				this.panInitDone = true;
-			});
+					if (this.enclosing.last) {
+						this.leftHelper.set(
+							this.enclosing.last.value.position.x,
+							this.enclosing.last.value.position.y,
+							this.enclosing.last.value.position.z
+						);
+						this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
+						this.panHelper.right.allowedDistance =
+							(this.panHelper.right.time / 3600) *
+							maxAccumulatedSpeed;
+						this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
+						this.globe.indicatorTo.parent.lookAt(this.leftHelper);
+						this.globe.indicatorTo.doShow();
+					}
+					this.panInitDone = true;
+				});
 		});
 		/**
 		 * While panning we have to stay between the enclosing nodes reaching distance

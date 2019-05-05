@@ -331,8 +331,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 							frame.start,
 							frame.end
 						);
-
-						const position = this.loreService.actorPositionAt(actor, unix);
+						const position = this.actorService.actorPositionAt(actor, unix);
 						// Todo make this save a sideeffect and control the block with that
 						actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
 						block.isSaving = true;

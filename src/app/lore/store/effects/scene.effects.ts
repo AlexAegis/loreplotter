@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { tweenMap } from '@app/operator';
-import { LoreService } from '@app/service';
 import { EngineService } from '@lore/engine';
 import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -144,7 +144,7 @@ export class SceneEffects {
 				a => (a._states = payload.actorObject.actor._states) && a
 			);
 			payload.actorObject.parent.userData.override = false;
-			LoreService.refreshBlockOfActorObject(payload.actorObject);
+			refreshBlockOfActorObject(payload.actorObject);
 			return updatedActor;
 		})
 	);

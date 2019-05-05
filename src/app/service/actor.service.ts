@@ -1,6 +1,9 @@
+import { Enclosing, Node } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
+import { enclosingProgress } from '@app/function/enclosing-progress.function';
+import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
 import { EngineService } from '@app/lore/engine/engine.service';
-import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
+import { Actor, ActorDelta, UnixWrapper, Vector3Serializable } from '@app/model/data';
 import { DatabaseService } from '@app/service/database.service';
 import { ActorFormResultData } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -8,7 +11,7 @@ import moment from 'moment';
 import { RxDocument } from 'rxdb';
 import { combineLatest, from, Observable, Subject } from 'rxjs';
 import { filter, map, mergeMap, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
-import { LoreService } from './lore.service';
+import { Group, Object3D, Quaternion, Vector3 } from 'three';
 
 export interface ActorAccumulator {
 	cursor: number;
@@ -19,13 +22,22 @@ export interface ActorAccumulator {
 @Injectable()
 export class ActorService {
 	public actorFormSave = new Subject<ActorFormResultData>();
+	// best name ever
+	public slerperHelper: Group;
+	public latestSlerpsWorldPositionHolder: Vector3;
+	public pseudoPoint: Group;
 
 	public constructor(
-		private loreService: LoreService,
 		private engineService: EngineService,
 		private storeFacade: StoreFacade,
 		private databaseService: DatabaseService
-	) {}
+	) {
+		this.slerperHelper = new Group();
+		this.pseudoPoint = new Group();
+		this.pseudoPoint.position.set(0, 0, 1);
+		this.slerperHelper.add(this.pseudoPoint);
+		this.latestSlerpsWorldPositionHolder = new Vector3();
+	}
 
 	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>> = combineLatest([
 		this.databaseService.currentLoreActors$,
@@ -82,7 +94,7 @@ export class ActorService {
 		filter(data => data !== undefined),
 		switchMap(({ object, name, maxSpeed, date, time, knowledge, newKnowledge }) => {
 			const wrapper = new UnixWrapper(moment(`${date}T${time}`).unix());
-			const finalPosition = this.loreService.actorPositionAt(object.actor, wrapper.unix);
+			const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
 			const knowledgeMap = new Map();
 			knowledge
 				.filter(({ value }) => !!value)
@@ -103,6 +115,53 @@ export class ActorService {
 				})
 			).pipe(map(actor => ({ actor, object })));
 		}),
-		tap(({ object }) => LoreService.refreshBlockOfActorObject(object))
+		tap(({ object }) => refreshBlockOfActorObject(object))
 	).subscribe();
+
+
+	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
+		let finalPosition: Vector3Serializable;
+		const wrapper = new UnixWrapper(unix);
+		const enclosing = actor._states.enclosingNodes(wrapper);
+		if (enclosing.first === undefined || enclosing.last === undefined) {
+			let node = enclosing.first;
+			if (!node) {
+				node = enclosing.last;
+			}
+			finalPosition = {
+				x: node.value.position.x,
+				y: node.value.position.y,
+				z: node.value.position.z
+			};
+		} else {
+			const progress = enclosingProgress(enclosing, unix);
+			const worldPos = this.lookAtInterpolated(enclosing, progress);
+			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
+		}
+		return finalPosition;
+	}
+
+
+	/**
+	 * rotates the position t'th way between the enclosure
+	 * Returns a new worldpositon at radius 1
+	 */
+	public lookAtInterpolated(
+		enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>,
+		t: number,
+		o: Object3D = this.slerperHelper
+	): Vector3 {
+		o.lookAt(enclosure.last.v.position.x, enclosure.last.v.position.y, enclosure.last.v.position.z);
+		o.applyQuaternion(this.engineService.globe.quaternion);
+		const fromQ = o.quaternion.clone();
+		o.lookAt(enclosure.first.v.position.x, enclosure.first.v.position.y, enclosure.first.v.position.z);
+		o.applyQuaternion(this.engineService.globe.quaternion); // if the globe is rotated (it's not) then account it
+		const toQ = o.quaternion.clone();
+		if (t && Math.abs(t) !== Infinity) {
+			Quaternion.slerp(fromQ, toQ, o.quaternion, t);
+			o.updateWorldMatrix(false, true); // The childrens worldpositions won't update unless I call this
+		}
+		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
+	}
+
 }

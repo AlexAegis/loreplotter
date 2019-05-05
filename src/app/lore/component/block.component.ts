@@ -44,9 +44,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	}
 
 	@Input()
-	public containerWidthListener: Observable<number>;
-
-	@Input()
 	public set containerWidth(containerWidth: number) {
 		this._containerWidth = containerWidth;
 		this.update();
@@ -101,6 +98,9 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public get isAtMostOneLeft(): boolean {
 		return this.actor._states.length <= 1;
 	}
+
+	@Input()
+	public containerWidthListener: Observable<number>;
 
 	public isDestroyed = false;
 	public faTrash = faTrash; // Node remove icon
