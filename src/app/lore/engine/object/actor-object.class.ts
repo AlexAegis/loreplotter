@@ -72,8 +72,7 @@ export class ActorObject extends Basic {
 					);
 					this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
 					this.panHelper.left.allowedDistance =
-						(this.panHelper.left.time / 3600) *
-						(this.enclosing.first.value.maxSpeed || this.baseSpeed);
+						(this.panHelper.left.time / 3600) * (this.enclosing.first.value.maxSpeed || this.baseSpeed);
 
 					this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
 					this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
@@ -89,8 +88,7 @@ export class ActorObject extends Basic {
 					this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
 					this.panHelper.right.allowedDistance =
 						(this.panHelper.right.time / 3600) *
-						((this.enclosing.first && this.enclosing.first.value.maxSpeed) ||
-							this.baseSpeed);
+						((this.enclosing.first && this.enclosing.first.value.maxSpeed) || this.baseSpeed);
 					this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
 					this.globe.indicatorTo.parent.lookAt(this.leftHelper);
 					this.globe.indicatorTo.doShow();
@@ -127,7 +125,6 @@ export class ActorObject extends Basic {
 					this.panHelper.right.quaternion = this.prelookHelper.quaternion.clone();
 					const angle = quaternionAngle(this.panHelper.right.quaternion, destinationAngle.clone());
 					this.panHelper.right.requestedDistance = angle * this.globe.radius;
-
 				}
 				if (
 					this.panHelper.left.allowedDistance >= this.panHelper.left.requestedDistance &&
@@ -145,29 +142,43 @@ export class ActorObject extends Basic {
 							: this.panHelper.right;
 					let secondRequest: Quaternion = firstRequest.clone();
 					// Only when needed and can
-					if (snapToCloser.allowedDistance <= snapToCloser.requestedDistance && snapToCloser.quaternion !== undefined) {
-						const t = ThreeMath.mapLinear(snapToCloser.allowedDistance, 0, snapToCloser.requestedDistance, 0, 1);
+					if (
+						snapToCloser.allowedDistance <= snapToCloser.requestedDistance &&
+						snapToCloser.quaternion !== undefined
+					) {
+						const t = ThreeMath.mapLinear(
+							snapToCloser.allowedDistance,
+							0,
+							snapToCloser.requestedDistance,
+							0,
+							1
+						);
 						Quaternion.slerp(snapToCloser.quaternion, firstRequest, this.parent.quaternion, t);
 						this.updateHeightAndWorldPosAndScale();
 						secondRequest = this.parent.quaternion.clone();
 					}
 					// THEN SNAP TO THE OTHER ONE
-					const snapToOther = this.panHelper.left.requestedDistance > this.panHelper.right.requestedDistance
+					const snapToOther =
+						this.panHelper.left.requestedDistance > this.panHelper.right.requestedDistance
 							? this.panHelper.left
 							: this.panHelper.right;
-					const secondAnchorAngleDiff = quaternionAngle(snapToOther.quaternion, secondRequest.clone());
+					const secondAnchorAngleDiff = quaternionAngle(
+						snapToOther.quaternion || (snapToCloser.quaternion && snapToCloser.quaternion.clone()),
+						secondRequest.clone()
+					);
 					const secondRequestedDistance = secondAnchorAngleDiff * this.globe.radius;
 
 					// Only when needed and can
-					if (snapToOther.allowedDistance <= secondRequestedDistance && snapToOther.quaternion !== undefined) {
+					if (
+						snapToOther.allowedDistance <= secondRequestedDistance &&
+						snapToOther.quaternion !== undefined
+					) {
 						const t = ThreeMath.mapLinear(snapToOther.allowedDistance, 0, secondRequestedDistance, 0, 1);
 						Quaternion.slerp(snapToOther.quaternion, secondRequest, this.parent.quaternion, t);
 						this.updateHeightAndWorldPosAndScale();
 					}
-
 				}
 			}
-
 		});
 
 		this.addEventListener('panend', event => {

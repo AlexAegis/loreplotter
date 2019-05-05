@@ -19,7 +19,7 @@ export class IndicatorSphere extends Basic {
 
 		this.material = new MeshBasicMaterial({
 			color: '#ff7c38',
-			opacity: 0.2,
+			opacity: 0.1,
 			transparent: true,
 			blending: AdditiveBlending,
 			reflectivity: 0,
