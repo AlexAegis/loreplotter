@@ -29,7 +29,7 @@
 	},
 	"private": true,
 	"dependencies": {
-		"@alexaegis/avl": "^1.6.1",
+		"@alexaegis/avl": "^1.6.2",
 		"@angular-mdc/web": "^1.0.3",
 		"@angular-skyhook/core": "^1.1.1",
 		"@angular-skyhook/multi-backend": "^1.1.1",
