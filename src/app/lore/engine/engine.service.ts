@@ -6,6 +6,7 @@ import { tweenMap } from '@app/operator/tween-map.operator';
 import { withTeardown } from '@app/operator/with-teardown.operator';
 import { Control } from '@lore/engine/control';
 import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
+import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
 import { InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import TWEEN, { Easing } from '@tweenjs/tween.js';
@@ -246,6 +247,10 @@ export class EngineService {
 		this.stage.add(this.globe);
 		this.control = new Control(this, this.stage.camera, this.renderer.domElement);
 
+		this.globe.indicatorFrom = new IndicatorSphere('indicator_from', this.globe);
+		this.globe.indicatorTo = new IndicatorSphere('indicator_to', this.globe);
+
+		// this.add(new IndicatorLight('indicator_to'));
 		const glowMaterial = new ShaderMaterial({
 			uniforms: {
 				c: { type: 'f', value: 0.5 },
@@ -534,7 +539,8 @@ export class EngineService {
 		if (this.control) {
 			this.control.update();
 		}
-		this.composer.render(this.clock.getDelta());
+		this.composer.render(this.clock.getDelta()); // Postprocessing renderer
+		// this.renderer.render(this.stage, this.stage.camera); // Vanilla renderer
 	}
 
 	/**

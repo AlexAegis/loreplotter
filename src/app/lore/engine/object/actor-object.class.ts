@@ -1,4 +1,5 @@
-import { Actor, UnixWrapper } from '@app/model/data';
+import { Enclosing, Node } from '@alexaegis/avl';
+import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { LoreService } from '@app/service';
 import { quaternionAngle } from '@lore/engine/helper/quaternion-angle.function';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -9,33 +10,45 @@ import { Basic } from './basic.class';
 import { Globe } from './globe.class';
 
 export class ActorObject extends Basic {
+	public geometry: SphereBufferGeometry;
 	public lastWorldPosition = new Vector3();
 	public baseHeight = 1.015;
 	public baseSpeed = 4; // km/h
-
+	// panning/distance restriction
 	private cursorAtPanStart: number;
 	private positionAtStart: Quaternion;
 	private distanceHelper = new Vector3();
 	private prelookHelper = new Group();
 	private panHelper = {
-		left: { time: Infinity, requestedDistance: Infinity, allowedDistance: Infinity, quaternion: undefined as Quaternion },
-		right: { time: Infinity, requestedDistance: Infinity, allowedDistance: Infinity, quaternion: undefined as Quaternion },
+		left: {
+			time: Infinity,
+			requestedDistance: Infinity,
+			allowedDistance: Infinity,
+			quaternion: undefined as Quaternion
+		},
+		right: {
+			time: Infinity,
+			requestedDistance: Infinity,
+			allowedDistance: Infinity,
+			quaternion: undefined as Quaternion
+		},
 		finalDestination: undefined as Vector3
 	};
 	private leftHelper = new Vector3();
 	private rightHelper = new Vector3();
+	private enclosing: Enclosing<Node<UnixWrapper, ActorDelta>>;
+	private panInitDone = false;
 
-	private slerperHelper = new Group();
-	private pseudoPoint = new Group();
-	private latestSlerpsWorldPositionHolder = new Vector3();
-	public constructor(public actor: RxDocument<Actor>, private storeFacade: StoreFacade, private loreService: LoreService) {
+	public constructor(
+		public actor: RxDocument<Actor>,
+		private storeFacade: StoreFacade,
+		private loreService: LoreService,
+		public globe: Globe
+	) {
 		super(new SphereBufferGeometry(0.04, 40, 40), undefined);
-
 		this.name = actor.id;
 		this.type = 'Point';
 		this.position.set(0, 0, this.baseHeight);
-		this.pseudoPoint.position.set(0, 0, this.baseHeight);
-		this.slerperHelper.add(this.pseudoPoint);
 		this.rotateX(90 * ThreeMath.DEG2RAD);
 		this.material = new MeshBasicMaterial({
 			color: 0x1a56e6
@@ -50,6 +63,39 @@ export class ActorObject extends Basic {
 			this.parent.userData.override = true; // Switched off in the LoreService
 			this.storeFacade.cursor$.pipe(take(1)).subscribe(next => {
 				this.cursorAtPanStart = next;
+				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
+				if (this.enclosing.first) {
+					this.rightHelper.set(
+						this.enclosing.first.value.position.x,
+						this.enclosing.first.value.position.y,
+						this.enclosing.first.value.position.z
+					);
+					this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
+					this.panHelper.left.allowedDistance =
+						(this.panHelper.left.time / 3600) *
+						(this.enclosing.first.value.maxSpeed || this.baseSpeed);
+
+					this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
+					this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
+					this.globe.indicatorFrom.doShow();
+				}
+
+				if (this.enclosing.last) {
+					this.leftHelper.set(
+						this.enclosing.last.value.position.x,
+						this.enclosing.last.value.position.y,
+						this.enclosing.last.value.position.z
+					);
+					this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
+					this.panHelper.right.allowedDistance =
+						(this.panHelper.right.time / 3600) *
+						((this.enclosing.first && this.enclosing.first.value.maxSpeed) ||
+							this.baseSpeed);
+					this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
+					this.globe.indicatorTo.parent.lookAt(this.leftHelper);
+					this.globe.indicatorTo.doShow();
+				}
+				this.panInitDone = true;
 			});
 		});
 		/**
@@ -66,47 +112,64 @@ export class ActorObject extends Basic {
 		 * TODO: The first/last thing is switched, fix it in the AVL repo
 		 */
 		this.addEventListener('pan', event => {
-			this.prelookHelper.lookAt(event.point); // To get the requested rotation
-			const destinationAngle = this.prelookHelper.quaternion.clone();
-			const { first, last } = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
-			if (first) {
-				this.panHelper.left.time = Math.abs(first.key.unix - this.cursorAtPanStart);
-				this.rightHelper.set(first.value.position.x, first.value.position.y, first.value.position.z);
-				this.prelookHelper.lookAt(this.rightHelper);
-				this.panHelper.left.quaternion = this.prelookHelper.quaternion.clone();
-				const angle = quaternionAngle(this.panHelper.left.quaternion, destinationAngle.clone());
-				this.panHelper.left.requestedDistance = angle * this.globe.radius;
-				this.panHelper.left.allowedDistance =
-					(this.panHelper.left.time / 3600) * (first.value.maxSpeed || this.baseSpeed);
+			if (this.panInitDone) {
+				this.prelookHelper.lookAt(event.point); // To get the requested rotation
+				const destinationAngle = this.prelookHelper.quaternion.clone();
+				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
+				if (this.enclosing.first) {
+					this.prelookHelper.lookAt(this.rightHelper);
+					this.panHelper.left.quaternion = this.prelookHelper.quaternion.clone();
+					const angle = quaternionAngle(this.panHelper.left.quaternion, destinationAngle.clone());
+					this.panHelper.left.requestedDistance = angle * this.globe.radius;
+				}
+				if (this.enclosing.last) {
+					this.prelookHelper.lookAt(this.leftHelper);
+					this.panHelper.right.quaternion = this.prelookHelper.quaternion.clone();
+					const angle = quaternionAngle(this.panHelper.right.quaternion, destinationAngle.clone());
+					this.panHelper.right.requestedDistance = angle * this.globe.radius;
+
+				}
+				if (
+					this.panHelper.left.allowedDistance >= this.panHelper.left.requestedDistance &&
+					this.panHelper.right.allowedDistance >= this.panHelper.right.requestedDistance
+				) {
+					this.parent.lookAt(event.point);
+					this.updateHeightAndWorldPosAndScale();
+				} else {
+					const firstRequest = destinationAngle.clone();
+
+					// FIRST SNAP TO THE CLOSER ONE
+					const snapToCloser =
+						this.panHelper.left.requestedDistance <= this.panHelper.right.requestedDistance
+							? this.panHelper.left
+							: this.panHelper.right;
+					// Only when needed and can
+					if (snapToCloser.allowedDistance <= snapToCloser.requestedDistance && snapToCloser.quaternion !== undefined) {
+						const t = ThreeMath.mapLinear(snapToCloser.allowedDistance, 0, snapToCloser.requestedDistance, 0, 1);
+						Quaternion.slerp(snapToCloser.quaternion, firstRequest, this.parent.quaternion, t);
+						this.updateHeightAndWorldPosAndScale();
+					}
+					// THEN SNAP TO THE OTHER ONE
+					const snapToOther = this.panHelper.left.requestedDistance > this.panHelper.right.requestedDistance
+							? this.panHelper.left
+							: this.panHelper.right;
+					const secondRequest = this.parent.quaternion.clone();
+					console.log(snapToOther.quaternion);
+					const secondAnchorAngleDiff = quaternionAngle(snapToOther.quaternion || snapToCloser.quaternion.clone(), secondRequest.clone());
+					const secondRequestedDistance = secondAnchorAngleDiff * this.globe.radius;
+
+
+
+					// Only when needed and can
+					if (snapToOther.allowedDistance <= secondRequestedDistance && snapToOther.quaternion !== undefined) {
+						const t = ThreeMath.mapLinear(snapToOther.allowedDistance, 0, secondRequestedDistance, 0, 1);
+						Quaternion.slerp(snapToOther.quaternion, secondRequest, this.parent.quaternion, t);
+						this.updateHeightAndWorldPosAndScale();
+					}
+
+				}
 			}
-			if (last) {
-				this.panHelper.right.time = Math.abs(last.key.unix - this.cursorAtPanStart);
-				this.leftHelper.set(last.value.position.x, last.value.position.y, last.value.position.z);
-				this.prelookHelper.lookAt(this.leftHelper);
-				this.panHelper.right.quaternion = this.prelookHelper.quaternion.clone();
-				const angle = quaternionAngle(this.panHelper.right.quaternion, destinationAngle.clone());
-				this.panHelper.right.requestedDistance = angle * this.globe.radius;
-				this.panHelper.right.allowedDistance =
-					(this.panHelper.right.time / 3600) * ((first && first.value.maxSpeed) || this.baseSpeed);
-			}
-			if (
-				this.panHelper.left.allowedDistance >= this.panHelper.left.requestedDistance &&
-				this.panHelper.right.allowedDistance >= this.panHelper.right.requestedDistance
-			) {
-				this.parent.lookAt(event.point);
-				this.updateHeightAndWorldPosAndScale();
-			} else {
-				// Look at the nearest available point
-				const toQ = destinationAngle.clone();
-				// get the smaller limiting factor to determine t:
-				const smallerLimit =
-					this.panHelper.left.allowedDistance <= this.panHelper.right.allowedDistance
-						? this.panHelper.left
-						: this.panHelper.right;
-				const t = ThreeMath.mapLinear(smallerLimit.allowedDistance, 0, smallerLimit.requestedDistance, 0, 1);
-				Quaternion.slerp(smallerLimit.quaternion, toQ, this.parent.quaternion, t);
-				this.updateHeightAndWorldPosAndScale();
-			}
+
 		});
 
 		this.addEventListener('panend', event => {
@@ -127,6 +190,10 @@ export class ActorObject extends Basic {
 			this.panHelper.right.time = Infinity;
 			this.panHelper.right.quaternion = undefined;
 			this.panHelper.finalDestination = undefined;
+			this.enclosing = undefined;
+			this.globe.indicatorFrom.doHide();
+			this.globe.indicatorTo.doHide();
+			this.panInitDone = false;
 		});
 		/*class GuiConf {
 			constructor(private material) {}
@@ -144,10 +211,6 @@ export class ActorObject extends Basic {
 		const gui = new dat.GUI();
 		gui.addColor(guiObj, 'color');
 		gui.add(guiObj, 'size');*/
-	}
-
-	public get globe(): Globe {
-		return this.parent.parent as Globe;
 	}
 
 	public updateHeightAndWorldPosAndScale(scalarScale?: number): void {

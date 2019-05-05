@@ -116,7 +116,7 @@ export class LoreService extends BaseDirective {
 					group = actorObject.parent as Group;
 				} else {
 					group = new Group();
-					actorObject = new ActorObject(actor, this.storeFacade, this);
+					actorObject = new ActorObject(actor, this.storeFacade, this, engineService.globe);
 					group.add(actorObject);
 					engineService.globe.add(group);
 				}

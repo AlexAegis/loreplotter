@@ -45,5 +45,8 @@ export class Stage extends Scene {
 		// this.light.intensity = 0;
 		// this.add(this.light);
 		// this.fog = new THREE.Fog(0x2040aa, 2, 100);
+
+
+
 	}
 }

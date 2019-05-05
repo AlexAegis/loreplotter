@@ -1,5 +1,6 @@
 import { Actor } from '@app/model/data';
 import { ClickEvent, DrawEvent } from '@lore/engine/event';
+import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
 import { InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
@@ -26,14 +27,6 @@ import { DynamicTexture } from './dynamic-texture.class';
 import { Water } from './water.class';
 
 export class Globe extends Basic {
-	public static EARTH_RADIUS = 6371;
-	public material: Material; // Type override, this field exists on the THREE.Mesh already
-	public water = new Water();
-
-	public displacementTexture: DynamicTexture;
-
-	public displacementBias = -0.0345;
-	public displacementScale = 0.15;
 
 	public constructor(
 		private zoomSubject: BehaviorSubject<number>,
@@ -46,6 +39,8 @@ export class Globe extends Basic {
 		const canvas = document.createElement('canvas');
 		canvas.width = 2048; // 4096
 		canvas.height = 2048;
+
+
 
 		/**
 		 * Unfinished. Keep the radius at 1.
@@ -148,9 +143,8 @@ export class Globe extends Basic {
 				this.points.forEach(point => (point as ActorObject).updateHeightAndWorldPosAndScale(next));
 				this.changed();
 			});
-	}
 
-	public pointUpdateAudit = new Subject<number>();
+	}
 
 	public get points(): Array<ActorObject> {
 		return this.children
@@ -158,6 +152,37 @@ export class Globe extends Basic {
 			.reduce((acc: Array<Object3D>, child) => acc.push(...child.children) && acc, []) // each of those children
 			.filter(o => o.type === 'Point') // only the Points
 			.map(o => o as ActorObject); // as Points
+	}
+	public static EARTH_RADIUS = 6371;
+
+	public _indicatorFrom: IndicatorSphere;
+	public _indicatorTo: IndicatorSphere;
+	public material: Material; // Type override, this field exists on the THREE.Mesh already
+	public water = new Water();
+
+	public displacementTexture: DynamicTexture;
+
+	public displacementBias = -0.0345;
+	public displacementScale = 0.15;
+
+	public pointUpdateAudit = new Subject<number>();
+
+	public set indicatorFrom(indicator: IndicatorSphere) {
+		this._indicatorFrom = indicator;
+		this.add(new Group().add(this._indicatorFrom));
+	}
+
+	public set indicatorTo(indicator: IndicatorSphere) {
+		this._indicatorTo = indicator;
+		this.add(new Group().add(this._indicatorTo));
+	}
+
+	public get indicatorFrom(): IndicatorSphere {
+		return this._indicatorFrom;
+	}
+
+	public get indicatorTo(): IndicatorSphere {
+		return this._indicatorTo;
 	}
 
 	// public drawSubject = new Subject<DrawEvent>();
