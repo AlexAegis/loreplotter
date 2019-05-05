@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actor } from '@app/model/data';
 import { DatabaseService } from '@app/service/database.service';
+import { LoreService } from '@app/service/lore.service';
 import { FeatureState } from '@lore/store/reducers';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -19,7 +20,8 @@ export class ActorEffects {
 	public constructor(
 		private actions$: Actions<FeatureActions>,
 		private store: Store<FeatureState>,
-		private databaseService: DatabaseService
+		private databaseService: DatabaseService,
+		private loreService: LoreService
 	) {}
 
 	/**
@@ -37,4 +39,6 @@ export class ActorEffects {
 		map(actors => loadActorsSuccess({ payload: actors as Array<Actor> })),
 		catchError(error => of(loadActorsFailure({ payload: error })))
 	);
+
+
 }

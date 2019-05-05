@@ -1,4 +1,5 @@
 import { Actor } from '@app/model/data';
+import { ActorFormResultData } from '@lore/component';
 import { Payload } from '@lore/store/actions';
 import { Update } from '@ngrx/entity';
 import { createAction } from '@ngrx/store';
@@ -25,7 +26,10 @@ export const createActorSuccess = createAction(
 export const createActorFailure = createAction(`[Actor] Create Failure`, (payload: Payload<Error>) => ({ payload }));
 
 // Updating existing objectsk
-export const updateActor = createAction(`[Actor] Update`, (payload: Payload<Update<Actor>>) => ({ payload }));
+export const updateActor = createAction(
+	`[Actor] Update`,
+	(payload: Payload<ActorFormResultData>): Payload<ActorFormResultData> => payload
+);
 
 export const updateActorSuccess = createAction(`[Actor] Update Success`, (payload: Payload<Update<Actor>>) => ({
 	payload

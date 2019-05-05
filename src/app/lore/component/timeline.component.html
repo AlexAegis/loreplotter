@@ -20,10 +20,10 @@
 <div class="channelsContainer">
 	<ng-scrollbar class="channels" viewClass="noOverflow">
 		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)">
-			{{ loreService.name(actor) }}
+			{{ (accumulatorOf(actor) | async)?.accumulator.name }}
+			<span>{{ (accumulatorOf(actor) | async)?.accumulator.maxSpeed }} km/h</span>
 			<app-block
 				#block
-				[actors]="actors"
 				[actor]="actor"
 				[containerWidthListener]="containerWidth"
 				(jump)="easeCursorTo.next($event)"

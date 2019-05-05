@@ -13,7 +13,6 @@ export class ActorObject extends Basic {
 	public geometry: SphereBufferGeometry;
 	public lastWorldPosition = new Vector3();
 	public baseHeight = 1.015;
-	public baseSpeed = 4; // km/h
 	// panning/distance restriction
 	private cursorAtPanStart: number;
 	private positionAtStart: Quaternion;
@@ -72,7 +71,7 @@ export class ActorObject extends Basic {
 					);
 					this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
 					this.panHelper.left.allowedDistance =
-						(this.panHelper.left.time / 3600) * (this.enclosing.first.value.maxSpeed || this.baseSpeed);
+						(this.panHelper.left.time / 3600) * (this.enclosing.first.value.maxSpeed || Actor.DEFAULT_MAX_SPEED);
 
 					this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
 					this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
@@ -88,7 +87,7 @@ export class ActorObject extends Basic {
 					this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
 					this.panHelper.right.allowedDistance =
 						(this.panHelper.right.time / 3600) *
-						((this.enclosing.first && this.enclosing.first.value.maxSpeed) || this.baseSpeed);
+						((this.enclosing.first && this.enclosing.first.value.maxSpeed) || Actor.DEFAULT_MAX_SPEED);
 					this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
 					this.globe.indicatorTo.parent.lookAt(this.leftHelper);
 					this.globe.indicatorTo.doShow();

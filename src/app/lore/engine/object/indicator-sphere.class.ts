@@ -12,7 +12,6 @@ export class IndicatorSphere extends Basic {
 	 */
 	public constructor(public name: string, private globe: Globe) {
 		super(undefined, undefined);
-		console.log('indicator crafted');
 		super.rotateX(Math.PI / 2);
 
 		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, Math.PI * 0.5);

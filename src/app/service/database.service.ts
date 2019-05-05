@@ -147,58 +147,90 @@ export class DatabaseService {
 		const testActor1 = new Actor('1');
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-02').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, testKMA)
+			new ActorDelta('a',  { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, testKMA, 6)
 		);
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-03').unix()),
-			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
+			new ActorDelta(undefined, {
+				x: 0.09669254683261017,
+				y: -0.497612862967823,
+				z: 0.8617354361375862
+			})
 		);
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-04').unix()),
-			new ActorDelta(undefined, { x: 0.39117893980613805, y: 0.386437376899397, z: 0.8346608718892985 })
+			new ActorDelta(undefined,  {
+				x: 0.39117893980613805,
+				y: 0.386437376899397,
+				z: 0.8346608718892985
+			})
 		);
 		testActor1._states.set(
 			new UnixWrapper(moment('2019-01-05').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, testKMB)
+			new ActorDelta(
+				undefined,
+				{ x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 },
+				testKMB
+			)
 		);
 
 		const testActor2 = new Actor('2');
 		testActor2._states.set(
 			new UnixWrapper(moment('2019-01-03').unix()),
-			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
+			new ActorDelta(undefined,  {
+				x: 0.09669254683261017,
+				y: -0.497612862967823,
+				z: 0.8617354361375862
+			})
 		);
 
 		const testActor3 = new Actor('3');
 		testActor3._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
+			new ActorDelta('a',  { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
 		);
 		testActor3._states.set(
 			new UnixWrapper(moment('2019-01-08').unix()),
-			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
+			new ActorDelta(undefined,  {
+				x: 0.09669254683261017,
+				y: -0.497612862967823,
+				z: 0.8617354361375862
+			})
 		);
 
 		const testActor4 = new Actor('4');
 		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
+			new ActorDelta('a',  { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
 		);
 		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-08').unix()),
-			new ActorDelta(undefined, { x: 0.09669254683261017, y: -0.497612862967823, z: 0.8617354361375862 })
+			new ActorDelta(undefined,  {
+				x: 0.09669254683261017,
+				y: -0.497612862967823,
+				z: 0.8617354361375862
+			})
 		);
 		testActor4._states.set(
 			new UnixWrapper(moment('2019-01-10').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 })
+			new ActorDelta(undefined,  {
+				x: -0.605726277152065,
+				y: 0.5558722625716483,
+				z: 0.5690292996108239
+			})
 		);
 		const testActor5 = new Actor('5');
 		testActor5._states.set(
 			new UnixWrapper(moment('2019-01-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
+			new ActorDelta('a',  { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
 		);
 		testActor5._states.set(
 			new UnixWrapper(moment('2019-01-10').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 })
+			new ActorDelta(undefined,  {
+				x: -0.605726277152065,
+				y: 0.5558722625716483,
+				z: 0.5690292996108239
+			})
 		);
 
 		const loreId = '0';

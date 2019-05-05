@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Lore } from '@app/model/data';
+import { ActorFormResultData } from '@lore/component';
 import { actorQuery } from '@lore/store/selectors/actor.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
@@ -24,7 +25,6 @@ import {
 	FeatureActions,
 	loadLoresFailure,
 	loadLoresSuccess,
-	moveNode,
 	setAutoLight,
 	setDrawHeight,
 	setDrawSize,
@@ -40,6 +40,7 @@ import {
 	toggleAutoLight,
 	toggleManualLightAlwaysOn,
 	togglePlaying,
+	updateActor,
 	updateLore,
 	updateLoreFailure,
 	updateLoreSuccess
@@ -169,10 +170,6 @@ export class StoreFacade {
 		this.store$.dispatch(changeCursorBy({ payload: speed }));
 	}
 
-	public moveNode(original: number, from: number, to: number): void {
-		this.store$.dispatch(moveNode({ payload: { original, from, to } }));
-	}
-
 	public setInteractionMode(mode: InteractionMode): void {
 		this.store$.dispatch(setInteractionMode({ payload: mode }));
 	}
@@ -199,5 +196,9 @@ export class StoreFacade {
 
 	public toggleAutoLight(): void {
 		this.store$.dispatch(toggleAutoLight());
+	}
+
+	public updateActor(formData: ActorFormResultData): void {
+		this.store$.dispatch(updateActor({ payload: formData }));
 	}
 }

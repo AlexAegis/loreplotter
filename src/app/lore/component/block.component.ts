@@ -57,16 +57,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	}
 
 	@Input()
-	public set actors(actors: Array<RxDocument<Actor>>) {
-		this._actors = actors;
-		this.update();
-	}
-
-	public get actors(): Array<RxDocument<Actor>> {
-		return this._actors;
-	}
-
-	@Input()
 	public set actor(actor: RxDocument<Actor>) {
 		this._actor = actor;
 		this._actor._userdata = { block: this };
@@ -117,8 +107,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public isPanning = false;
 	public isSaving = false;
 	public selection: Node<UnixWrapper, ActorDelta>;
-
-	private _actors: Array<RxDocument<Actor>>;
 
 	@Output()
 	public jump = new EventEmitter<number>();

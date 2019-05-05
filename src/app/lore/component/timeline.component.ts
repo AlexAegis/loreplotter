@@ -17,6 +17,7 @@ import { toUnit } from '@app/function/to-unit.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { Actor } from '@app/model/data/actor.class';
 import { tweenMap } from '@app/operator';
+import { ActorAccumulator, ActorService } from '@app/service';
 import { DatabaseService } from '@app/service/database.service';
 import { LoreService } from '@app/service/lore.service';
 import { BlockService } from '@lore/service';
@@ -27,7 +28,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import ResizeObserver from 'resize-observer-polyfill';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
-import { map, share, tap, withLatestFrom } from 'rxjs/operators';
+import { filter, map, share, tap, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 import { BlockComponent } from './block.component';
 import { CursorComponent } from './cursor.component';
@@ -51,6 +52,7 @@ import { CursorComponent } from './cursor.component';
 })
 export class TimelineComponent extends BaseDirective implements OnInit, AfterViewInit {
 	public cursorUnix$: Observable<number>;
+	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
 
 	public constructor(
 		public el: ElementRef,
@@ -59,10 +61,12 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		public databaseService: DatabaseService,
 		public blockService: BlockService,
 		private storeFacade: StoreFacade,
+		private actorService: ActorService,
 		private changeDetectorRef: ChangeDetectorRef
 	) {
 		super();
 		this.cursorUnix$ = this.storeFacade.cursor$;
+		this.actorDeltasAtCursor$ = this.actorService.actorDeltasAtCursor$;
 	}
 
 	public get currentUnit(): moment.unitOfTime.DurationConstructor {
@@ -350,5 +354,12 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 
 	public toPx(number: number): string {
 		return `${number}px`;
+	}
+
+	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
+		return this.actorDeltasAtCursor$.pipe(
+			map((actorAccs) => actorAccs.find(actorAcc => actorAcc.actor.id === actor.id)),
+			filter(accumulator => accumulator !== undefined)
+		);
 	}
 }

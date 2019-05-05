@@ -131,7 +131,6 @@ export class SceneEffects {
 		tap(e => console.log(e)),
 		withLatestFrom(this.storeFacade.cursor$),
 		switchMap(async ([{ payload }, cursor]) => {
-
 			payload.actorObject.applyQuaternion(payload.actorObject.globe.quaternion.clone().inverse());
 			payload.actorObject.actor._states.set(
 				new UnixWrapper(cursor),

@@ -132,7 +132,7 @@ export class EngineService {
 			item => () => this.selectOutlineEffect.deselectObject(item) // clearSelection() // deselectObject(item)
 		),
 		tap(() => this.refreshPopupPosition()),
-		share()
+		shareReplay(1)
 	);
 
 	// Hover
@@ -522,7 +522,6 @@ export class EngineService {
 	 * Start the rendering process
 	 */
 	public animate(): void {
-		console.log(window);
 		// this.renderer.context.getSupportedExtensions().indexOf('EXT_frag_depth') >= 0 // Checking feature availability
 		this.render();
 		window.addEventListener('resize', () => {

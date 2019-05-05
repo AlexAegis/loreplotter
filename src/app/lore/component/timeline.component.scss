@@ -77,6 +77,10 @@
 		line-height: 80%;
 		overflow: hidden;
 		color: rgba(0, 0, 0, 0.1);
+
+		span {
+			font-size: 1.6rem;
+		}
 	}
 
 	::ng-deep {

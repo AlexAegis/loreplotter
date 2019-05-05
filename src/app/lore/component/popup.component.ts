@@ -3,13 +3,13 @@ import { ChangeDetectionStrategy, Component, HostBinding, Input, OnDestroy, OnIn
 import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { EngineService } from '@app/lore/engine/engine.service';
-import { ActorService } from '@app/service/actor.service';
+import { ActorAccumulator, ActorService } from '@app/service/actor.service';
 import { LoreService } from '@app/service/lore.service';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { combineLatest, Observable } from 'rxjs';
-import { map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { Vector2 } from 'three';
-import { ActorFormComponent, ActorFormResultData } from './actor-form.component';
+import { ActorFormComponent, ActorFormComponentData, ActorFormResultData } from './actor-form.component';
 
 @Component({
 	selector: 'app-popup',
@@ -54,9 +54,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 		return this._pos;
 	}
 
-	public knowledgeOfSelected$: Observable<Array<{ key: String; value: String }>>;
-	public nameOfSelected$: Observable<string>;
-
+	public selectedActorAccumulatorAtCursor$: Observable<ActorAccumulator>;
 	public constructor(
 		private actorService: ActorService,
 		private engineService: EngineService,
@@ -65,34 +63,28 @@ export class PopupComponent implements OnInit, OnDestroy {
 		public dialog: MatDialog,
 		private storeFacade: StoreFacade
 	) {
-		this.nameOfSelected$ = this.actorService.nameOfSelected$.pipe(shareReplay(1));
-		this.knowledgeOfSelected$ = this.actorService.knowledgeOfSelected$.pipe(
-			map(knowledgeMap => {
-				const res: Array<{ key: String; value: String }> = [];
-				for (const [key, value] of knowledgeMap.entries()) {
-					res.push({ key, value });
-				}
-				return res;
-			}),
-			shareReplay(1)
-		);
+		this.selectedActorAccumulatorAtCursor$ = this.actorService.selectedActorAccumulatorAtCursor$;
 	}
 
 	public edit($event): void {
-		combineLatest([
-			this.nameOfSelected$,
-			this.knowledgeOfSelected$,
-			this.engineService.selected,
-			this.storeFacade.cursor$
-		])
+		this.selectedActorAccumulatorAtCursor$
 			.pipe(
 				take(1),
-				map(([name, knowledge, selected, cursor]) =>
-					this.dialog.open(ActorFormComponent, { data: { name, knowledge, selected, cursor } })
-				),
+				withLatestFrom(this.engineService.selection$),
+				map(([payload, selection]) => {
+					return this.dialog.open(ActorFormComponent, {
+						data: {
+							name: payload.accumulator.name,
+							maxSpeed: payload.accumulator.maxSpeed,
+							knowledge: payload.accumulator.knowledge,
+							selected: selection, // TODO The ActorObject
+							cursor: payload.cursor
+						} as ActorFormComponentData
+					});
+				}),
 				switchMap(dialog => dialog.afterClosed())
 			)
-			.subscribe((result: ActorFormResultData) => this.loreService.saveActorDelta.next(result));
+			.subscribe((result: ActorFormResultData) => this.actorService.actorFormSave.next(result));
 	}
 
 	public ngOnInit(): void {}
