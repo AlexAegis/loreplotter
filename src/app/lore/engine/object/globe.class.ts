@@ -1,6 +1,7 @@
 import { Actor } from '@app/model/data';
 import { ClickEvent, DrawEvent } from '@lore/engine/event';
 import { InteractionMode } from '@lore/store/reducers';
+import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, scan } from 'rxjs/operators';
@@ -25,8 +26,9 @@ import { DynamicTexture } from './dynamic-texture.class';
 import { Water } from './water.class';
 
 export class Globe extends Basic {
+	public static EARTH_RADIUS = 6371;
 	public material: Material; // Type override, this field exists on the THREE.Mesh already
-	public water: Water;
+	public water = new Water();
 
 	public displacementTexture: DynamicTexture;
 
@@ -35,8 +37,8 @@ export class Globe extends Basic {
 
 	public constructor(
 		private zoomSubject: BehaviorSubject<number>,
-		public radius: number = 0.99,
-		public initialDisplacementTexture?: string
+		public radius: number = 1,
+		private storeFacade: StoreFacade
 	) {
 		super();
 		this.type = 'Globe';
@@ -45,7 +47,16 @@ export class Globe extends Basic {
 		canvas.width = 2048; // 4096
 		canvas.height = 2048;
 
-		this.displacementTexture = new DynamicTexture(initialDisplacementTexture, '#747474', canvas, this);
+		/**
+		 * Unfinished. Keep the radius at 1.
+		 * Actor objects will appear higher if larger used.
+		 */
+		this.storeFacade.selectedLorePlanet$.subscribe(planet => {
+			this.name = planet.name;
+			this.radius = planet.radius;
+		});
+
+		this.displacementTexture = new DynamicTexture(undefined, '#747474', canvas, this);
 
 		this.material = new MeshStandardMaterial({
 			color: '#666666',
@@ -123,7 +134,6 @@ export class Globe extends Basic {
 			}
 		});
 
-		this.water = new Water(radius * 0.98);
 		this.add(this.water);
 
 		this.zoomSubject /*.pipe(tap(z => console.log(`z: ${z}`)))*/

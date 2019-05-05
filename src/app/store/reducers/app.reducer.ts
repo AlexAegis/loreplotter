@@ -1,5 +1,4 @@
 import { environment } from '@env/environment';
-import { APP_LORE_FEATURE_STATE_ID } from '@lore/store';
 import * as fromRouter from '@ngrx/router-store';
 import { ActionReducer, ActionReducerMap, MetaReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
@@ -36,14 +35,11 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
 }
 
 const persistant = {
-	APP_LORE_FEATURE_STATE_ID: {
-		lores: [],
-
-	}
-}
+	'app-lore': ['scene']
+};
 
 export function localStorageSyncReducer(reducer: ActionReducer<State>): ActionReducer<State> {
-	return localStorageSync({keys: [APP_LORE_FEATURE_STATE_ID], rehydrate: true })(reducer);
+	return localStorageSync({keys: [persistant], rehydrate: true })(reducer);
 }
 /**
  * Meta reducers

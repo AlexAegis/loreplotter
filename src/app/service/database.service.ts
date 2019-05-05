@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 
 import { Actor, ActorDelta, Lore, Planet, UnixWrapper } from '@app/model/data';
 import { actorSchema, loreSchema } from '@app/model/schema';
+import { Globe } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import moment from 'moment';
 
@@ -207,7 +208,7 @@ export class DatabaseService {
 				id: loreId,
 				name: loreName,
 				locations: ['City17', 'City14'],
-				planet: new Planet('Earth', 1)
+				planet: new Planet('Earth', Globe.EARTH_RADIUS)
 			}),
 			from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
 		).pipe(

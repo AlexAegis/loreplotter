@@ -26,6 +26,7 @@ const DAY_IN_SECONDS = 86400;
 @Injectable()
 export class LoreService extends BaseDirective {
 
+	public spawnOnWorld = new Subject<{ point: ActorObject; position: Vector3 }>();
 	constructor(
 		private engineService: EngineService,
 		private databaseService: DatabaseService,
@@ -73,7 +74,6 @@ export class LoreService extends BaseDirective {
 				engineService.stage.sunGroup.rotateY(
 					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
 				);
-
 				const enclosure = actor._states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 					Node<UnixWrapper, ActorDelta>
 				>;
@@ -116,7 +116,7 @@ export class LoreService extends BaseDirective {
 					group = actorObject.parent as Group;
 				} else {
 					group = new Group();
-					actorObject = new ActorObject(actor);
+					actorObject = new ActorObject(actor, this.storeFacade, this);
 					group.add(actorObject);
 					engineService.globe.add(group);
 				}
@@ -159,7 +159,7 @@ export class LoreService extends BaseDirective {
 			)
 			.subscribe());
 
-		this.teardown(this.engineService.spawnOnWorld
+		this.teardown(this.spawnOnWorld
 			.pipe(
 				filter(o => o !== undefined),
 				withLatestFrom(this.storeFacade.cursor$),

@@ -1,6 +1,8 @@
+import { ActorObject } from '@lore/engine/object';
 import { Payload } from '@lore/store/actions/payload.interface';
 import { InteractionMode } from '@lore/store/reducers';
 import { createAction } from '@ngrx/store';
+import { Vector3 } from 'three';
 
 export const setPlaySpeed = createAction(`[Scene] Set Speed`, (payload: Payload<number>): Payload<number> => payload);
 
@@ -34,6 +36,11 @@ export const changeCursorOverrideTo = createAction(
 export const bakeCursorOverride = createAction(
 	`[Scene] Bake Cursor Override`,
 	(payload: Payload<boolean>): Payload<boolean> => payload
+);
+
+export const clearCursorOverride = createAction(
+	`[Scene] Clear Cursor Override`,
+	(payload: Payload<undefined>): Payload<undefined> => payload
 );
 
 export const setFrameTo = createAction(
@@ -116,4 +123,9 @@ export const toggleAutoLight = createAction(
 export const toggleManualLightAlwaysOn = createAction(
 	`[Scene] Toggle Manual Light Always On`,
 	(): Payload<undefined> => ({ payload: undefined })
+);
+
+export const actorSpawnOnWorld = createAction(
+	`[Actor] Spawn On World`,
+	(payload: Payload<{ actorObject: ActorObject; position: Vector3 }> ): Payload<{ actorObject: ActorObject; position: Vector3 }> => (payload)
 );

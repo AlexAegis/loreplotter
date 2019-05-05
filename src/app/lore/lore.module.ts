@@ -1,6 +1,7 @@
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
 import { NgModule } from '@angular/core';
+import { MAT_DATE_FORMATS } from '@angular/material';
 import { FocusDirective, RepeatDirective } from '@app/directive';
 import { EngineComponent, EngineService } from '@app/lore/engine';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
@@ -65,6 +66,13 @@ export const APP_FORMATS = {
 		NgxMaskModule.forRoot({})
 	],
 	entryComponents: [ActorFormComponent],
-	providers: [LoreService, EngineService, DatabaseService, ActorService, BlockService]
+	providers: [
+		LoreService,
+		EngineService,
+		DatabaseService,
+		ActorService,
+		BlockService,
+		{ provide: MAT_DATE_FORMATS, useValue: APP_FORMATS }
+	]
 })
 export class LoreModule {}

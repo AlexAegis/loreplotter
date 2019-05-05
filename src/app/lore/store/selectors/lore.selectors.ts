@@ -39,6 +39,22 @@ const getSelected = createSelector(
 	state => state.entities[state.selected]
 );
 
+const getSelectedPlanet = createSelector(
+	getSelected,
+	state => state && state.planet
+);
+
+const getSelectedPlanetRadius = createSelector(
+	getSelectedPlanet,
+	state => state && state.radius
+);
+
+const getSelectedPlanetName = createSelector(
+	getSelectedPlanet,
+	state => state && state.name
+);
+
+
 const getLoreEntityById = createSelector(
 	getLoreEntities,
 	(entities: Dictionary<Lore>, props: { id: string }) => {
@@ -54,7 +70,12 @@ const getLoreEntityById = createSelector(
 export const loreQuery = {
 	getLoading,
 	getLores,
-	getSelectedId,
-	getSelected,
+	selected: {
+		getSelectedId,
+		getSelected,
+		getSelectedPlanet,
+		getSelectedPlanetRadius,
+		getSelectedPlanetName
+	},
 	getLoreEntityById
 };

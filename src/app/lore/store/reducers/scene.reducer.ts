@@ -7,6 +7,7 @@ import {
 	changeCursorBy,
 	changeCursorOverrideTo,
 	changeFrameBy,
+	clearCursorOverride,
 	SceneActions,
 	setAutoLight,
 	setDrawHeight,
@@ -84,7 +85,7 @@ export const initialSceneState: SceneState = {
 	manualLightAlwaysOn: false
 };
 
-function cursorReducer(cursor: CursorState, action: SceneActions) {
+function cursorReducer(cursor: CursorState, action: SceneActions): CursorState {
 	switch (action.type) {
 		case changeCursorBy.type: {
 			return { ...cursor, unix: { ...cursor.unix, original: cursor.unix.original + action.payload } };
@@ -94,6 +95,9 @@ function cursorReducer(cursor: CursorState, action: SceneActions) {
 		}
 		case bakeCursorOverride.type: {
 			return { ...cursor, unix: { ...cursor.unix, original: cursor.unix.override, override: undefined } };
+		}
+		case clearCursorOverride.type: {
+			return { ...cursor, unix: { ...cursor.unix, override: undefined } };
 		}
 		default: {
 			return cursor;
@@ -199,7 +203,8 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 		}
 		case changeCursorBy.type:
 		case changeCursorOverrideTo.type:
-		case bakeCursorOverride.type: {
+		case bakeCursorOverride.type:
+		case clearCursorOverride.type: {
 			return { ...state, cursor: cursorReducer(state.cursor, action) };
 		}
 		case setFrameTo.type:

@@ -2,10 +2,12 @@ import { Color, MeshPhysicalMaterial, RepeatWrapping, SphereBufferGeometry, Text
 import { Basic } from './basic.class';
 
 export class Water extends Basic {
+	public static NATURAL_LEVEL_RATIO = 0.98;
 	public type = 'Water';
 	public texture: Texture;
-	public constructor(private radius: number = 0.98) {
-		super(new SphereBufferGeometry(radius, 128, 128), undefined);
+
+	public constructor(public radius: number = Water.NATURAL_LEVEL_RATIO) {
+		super(new SphereBufferGeometry(radius, 512, 512), undefined);
 		this.texture = new TextureLoader().load(`assets/textures/water/ripple.gif`, tex => {
 			tex.wrapS = tex.wrapT = RepeatWrapping;
 			tex.offset.set(0, 0);
@@ -41,5 +43,9 @@ export class Water extends Basic {
 		this.name = 'water';
 		this.castShadow = true;
 		this.receiveShadow = true;
+	}
+
+	public setRadius(radius: number) {
+		this.radius = radius * Water.NATURAL_LEVEL_RATIO;
 	}
 }

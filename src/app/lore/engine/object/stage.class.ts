@@ -26,8 +26,6 @@ export class Stage extends Scene {
 		this.camera.zoom = window.innerHeight / 2;
 		this.camera.updateProjectionMatrix();
 		this.add(this.camera);
-		// this.background = new THREE.Color('#fafafa');
-		// this.background = new Color('#5e81b2');
 		this.background = new Color('#121212');
 
 		this.sunGroup = new Group();

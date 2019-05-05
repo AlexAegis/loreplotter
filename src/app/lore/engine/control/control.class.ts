@@ -19,17 +19,21 @@ export class Control extends OrbitControls {
 		this.rotateSpeed = 0.05;
 		this.addEventListener('change', e => {
 			// TODO: Only on zoom change
-			this.engineService.zoomSubject.next(
-				ThreeMath.mapLinear(
-					(e.target.object.position as Vector3).distanceTo(this.engineService.globe.position),
-					this.minDistance,
-					this.maxDistance,
-					0.2,
-					2
-				)
-			);
+			this.zoomUpdate((e.target.object.position as Vector3).distanceTo(this.engineService.globe.position));
 			// ? On everything
 			this.engineService.refreshPopupPositionQueue.next(true);
 		});
+	}
+
+	private zoomUpdate(distance: number): void {
+		this.engineService.zoomSubject.next(
+			ThreeMath.mapLinear(
+				distance,
+				this.minDistance,
+				this.maxDistance,
+				0.2,
+				2
+			)
+		);
 	}
 }

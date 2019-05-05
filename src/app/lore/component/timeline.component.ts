@@ -276,13 +276,12 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 				.pipe(
 					withLatestFrom(
 						this.storeFacade.cursor$,
-						this.storeFacade.frameStart$,
-						this.storeFacade.frameEnd$,
+						this.storeFacade.frame$,
 						this.containerWidth
 					),
-					map(([position, cursor, frameStart, frameEnd, containerWidth]) => ({
+					map(([position, cursor, { start, end }, containerWidth]) => ({
 						from: { cursor: cursor },
-						to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, frameStart, frameEnd) }
+						to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
 					})),
 					tweenMap({
 						duration: 220,

@@ -120,8 +120,8 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		this.lores$ = this.storeFacade.lores$;
 		this.setTheme('default-theme');
 		this.teardown(
-			this.engineService.light$.subscribe(lum => {
-				if (lum.light <= 0.5) {
+			this.engineService.light$.subscribe(light => {
+				if (light <= 0.5) {
 					this.setTheme('dark-theme');
 				} else {
 					this.setTheme('light-theme');

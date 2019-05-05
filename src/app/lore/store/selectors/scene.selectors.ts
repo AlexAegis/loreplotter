@@ -93,16 +93,24 @@ const isManualLightAlwaysOn = createSelector(
 
 export const sceneQuery = {
 	getLoadingScenes,
-	getPlaySpeed,
-	isPlaying,
-	getFrame,
-	getFrameStart,
-	getFrameEnd,
-	getCursor,
-	getCursorOverride,
-	getInteractionMode,
-	getDrawSize,
-	getDrawHeight,
-	isManualLight,
-	isManualLightAlwaysOn
+	play: {
+		getPlaySpeed,
+		isPlaying,
+	},
+	frame: {
+		getFrame,
+		getFrameStart,
+		getFrameEnd
+	},
+	cursor: {
+		getCursor,
+		getCursorOverride,
+	},
+	interaction: {
+		getInteractionMode,
+		getDrawSize,
+		getDrawHeight,
+		isManualLight,
+		isManualLightAlwaysOn,
+	}
 };

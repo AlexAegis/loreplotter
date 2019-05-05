@@ -150,7 +150,6 @@ export class EngineService {
 
 	// Drag
 	public drag: ActorObject = undefined;
-	public spawnOnWorld = new BehaviorSubject<{ point: ActorObject; position: Vector3 }>(undefined);
 
 	// Draw
 	public textureChange$ = new ReplaySubject<DynamicTexture>(1);
@@ -217,6 +216,7 @@ export class EngineService {
 		map(([manual, permaDay, zoom]) => (manual ? permaDay : zoom)),
 		map(next => (next ? this.darkToLight : this.lightToDark)),
 		tweenMap({ duration: 1000, easing: Easing.Exponential.Out }),
+		map(({ light }) => light),
 		share()
 	);
 
@@ -242,7 +242,7 @@ export class EngineService {
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMap.enabled = true;
 		this.stage = new Stage(this);
-		this.globe = new Globe(this.zoomSubject);
+		this.globe = new Globe(this.zoomSubject, 1, this.storeFacade);
 		this.stage.add(this.globe);
 		this.control = new Control(this, this.stage.camera, this.renderer.domElement);
 
@@ -266,7 +266,8 @@ export class EngineService {
 		this.initializePostprocessing();
 
 		// Light and Dark mode change on the scene, for the UI, check subscriber in the AppComponent
-		this.light$.subscribe(({ light }) => {
+		this.light$.subscribe((light) => {
+			(this.stage.background as Color).setHex(0x000000);
 			(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
 			glow.scale.setScalar(light * 0.65 + 0.05);
 			this.stage.ambient.intensity = light * 0.5;
@@ -450,6 +451,13 @@ export class EngineService {
 						this.control.enabled = false;
 						break;
 				}
+
+				if (this.drag !== undefined) {
+					this.drag.dispatchEvent({
+						type: 'panstart',
+						point: intersection.point
+					});
+				}
 			}
 
 			if (this.drag !== undefined) {
@@ -477,7 +485,10 @@ export class EngineService {
 
 			if (end) {
 				if (this.drag !== undefined) {
-					this.spawnOnWorld.next({ point: this.drag, position: intersection.point });
+					this.drag.dispatchEvent({
+						type: 'panend',
+						point: intersection.point
+					});
 					this.drag = undefined;
 				}
 				/*if (intersection.object.type === 'Point') {

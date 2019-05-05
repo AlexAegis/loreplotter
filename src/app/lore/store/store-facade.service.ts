@@ -14,6 +14,7 @@ import {
 	changeCursorOverrideTo,
 	changeFrameBy,
 	changeSelectedLore,
+	clearCursorOverride,
 	createLore,
 	createLoreFailure,
 	createLoreSuccess,
@@ -50,9 +51,12 @@ import { loreQuery, sceneQuery } from './selectors';
 export class StoreFacade {
 	// Project
 	public lores$ = this.store$.pipe(select(loreQuery.getLores));
-	public selectedLoreId$ = this.store$.pipe(select(loreQuery.getSelectedId));
 	public selectedLore$ = this.store$.pipe(
-		select(loreQuery.getSelected),
+		select(loreQuery.selected.getSelected),
+		filter(selected => selected !== undefined)
+	);
+	public selectedLorePlanet$ = this.store$.pipe(
+		select(loreQuery.selected.getSelectedPlanet),
 		filter(selected => selected !== undefined)
 	);
 	public loadLoresSuccess$ = this.actions$.pipe(ofType(loadLoresSuccess.type));
@@ -64,19 +68,18 @@ export class StoreFacade {
 	public deleteLoresSuccess$ = this.actions$.pipe(ofType(deleteLoreSuccess.type));
 	public deleteLoresFail$ = this.actions$.pipe(ofType(deleteLoreFailure.type));
 	// Scene
-	public playSpeed$ = this.store$.pipe(select(sceneQuery.getPlaySpeed));
-	public isPlaying$ = this.store$.pipe(select(sceneQuery.isPlaying));
-	public cursor$ = this.store$.pipe(select(sceneQuery.getCursor));
-	public cursorOverride$ = this.store$.pipe(select(sceneQuery.getCursorOverride));
-	public frame$ = this.store$.pipe(select(sceneQuery.getFrame));
-	public frameStart$ = this.store$.pipe(select(sceneQuery.getFrameStart));
-	public frameEnd$ = this.store$.pipe(select(sceneQuery.getFrameEnd));
-
-	public interactionMode$ = this.store$.pipe(select(sceneQuery.getInteractionMode));
-	public drawSize$ = this.store$.pipe(select(sceneQuery.getDrawSize));
-	public drawHeight$ = this.store$.pipe(select(sceneQuery.getDrawHeight));
-	public manualLight$ = this.store$.pipe(select(sceneQuery.isManualLight));
-	public manualLightAlwaysOn$ = this.store$.pipe(select(sceneQuery.isManualLightAlwaysOn));
+	public playSpeed$ = this.store$.pipe(select(sceneQuery.play.getPlaySpeed));
+	public isPlaying$ = this.store$.pipe(select(sceneQuery.play.isPlaying));
+	// Cursor
+	public cursor$ = this.store$.pipe(select(sceneQuery.cursor.getCursor));
+	public cursorOverride$ = this.store$.pipe(select(sceneQuery.cursor.getCursorOverride));
+	public frame$ = this.store$.pipe(select(sceneQuery.frame.getFrame));
+	// Interaction
+	public interactionMode$ = this.store$.pipe(select(sceneQuery.interaction.getInteractionMode));
+	public drawSize$ = this.store$.pipe(select(sceneQuery.interaction.getDrawSize));
+	public drawHeight$ = this.store$.pipe(select(sceneQuery.interaction.getDrawHeight));
+	public manualLight$ = this.store$.pipe(select(sceneQuery.interaction.isManualLight));
+	public manualLightAlwaysOn$ = this.store$.pipe(select(sceneQuery.interaction.isManualLightAlwaysOn));
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 
@@ -89,7 +92,6 @@ export class StoreFacade {
 	public update(lore: Lore): void {
 		this.store$.dispatch(updateLore({ payload: { id: '', changes: lore } }));
 	}
-
 
 	public delete(id: string): void {
 		this.store$.dispatch(deleteLore({ id }));
@@ -109,6 +111,10 @@ export class StoreFacade {
 
 	public bakeCursorOverride(): void {
 		this.store$.dispatch(bakeCursorOverride({ payload: true }));
+	}
+
+	public clearCursorOverride(): void {
+		this.store$.dispatch(clearCursorOverride({ payload: undefined }));
 	}
 
 	public setCursorOverride(to: number): void {

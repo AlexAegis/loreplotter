@@ -7,6 +7,8 @@ export class ActorDelta {
 	@jsonMember
 	public name: string;
 	@jsonMember
+	public maxSpeed: number;
+	@jsonMember
 	public position: Vector3Serializable;
 	@jsonMapMember(String, String)
 	public knowledge: Map<String, String>;

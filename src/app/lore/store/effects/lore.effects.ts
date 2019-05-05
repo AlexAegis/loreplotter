@@ -119,7 +119,7 @@ export class LoreEffects {
 	);
 
 	@Effect()
-	public changedCurrentLore$ = this.actions$.pipe(
+	public changedCurrentLoreLoadActors$ = this.actions$.pipe(
 		ofType(changeSelectedLoreSuccess.type),
 		map(({ payload }) => loadActors({ payload: payload.id }))
 	);

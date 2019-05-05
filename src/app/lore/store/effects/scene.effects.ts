@@ -1,16 +1,32 @@
 import { Injectable } from '@angular/core';
+import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { tweenMap } from '@app/operator';
+import { LoreService } from '@app/service';
+import { EngineService } from '@lore/engine';
 import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Easing } from '@tweenjs/tween.js';
 import { of, timer } from 'rxjs';
-import { auditTime, catchError, filter, map, mergeMapTo, switchMapTo, takeUntil, throttleTime, withLatestFrom } from 'rxjs/operators';
+import {
+	auditTime,
+	catchError,
+	filter,
+	map,
+	mergeMapTo,
+	switchMap,
+	switchMapTo,
+	takeUntil,
+	tap,
+	throttleTime,
+	withLatestFrom
+} from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 import {
 	_play,
 	_stop,
+	actorSpawnOnWorld,
 	changeCursorBy,
 	SceneActions,
 	setFrameTo,
@@ -28,7 +44,8 @@ export class SceneEffects {
 	public constructor(
 		private actions$: Actions<SceneActions>,
 		private store: Store<FeatureState>,
-		private storeFacade: StoreFacade
+		private storeFacade: StoreFacade,
+		private engineService: EngineService
 	) {}
 
 	@Effect()
@@ -106,5 +123,30 @@ export class SceneEffects {
 		}),
 		auditTime(1000 / 60),
 		map(({ base, length }) => setFrameTo({ payload: { start: base, end: base + length } }))
+	);
+
+	@Effect({ dispatch: false })
+	public spawnOnWorld = this.actions$.pipe(
+		ofType(actorSpawnOnWorld.type),
+		tap(e => console.log(e)),
+		withLatestFrom(this.storeFacade.cursor$),
+		switchMap(async ([{ payload }, cursor]) => {
+
+			payload.actorObject.applyQuaternion(payload.actorObject.globe.quaternion.clone().inverse());
+			payload.actorObject.actor._states.set(
+				new UnixWrapper(cursor),
+				new ActorDelta(undefined, {
+					x: payload.position.x,
+					y: payload.position.y,
+					z: payload.position.z
+				})
+			);
+			const updatedActor = await payload.actorObject.actor.atomicUpdate(
+				a => (a._states = payload.actorObject.actor._states) && a
+			);
+			payload.actorObject.parent.userData.override = false;
+			LoreService.refreshBlockOfActorObject(payload.actorObject);
+			return updatedActor;
+		})
 	);
 }
