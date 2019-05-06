@@ -57,8 +57,10 @@ export class ActorService {
 							break;
 						}
 						for (const [key, value] of node.value.knowledge.entries()) {
-							if (value !== undefined) {
+							if (value) {
 								knowledgeMap.set(key, value);
+							} else {
+								knowledgeMap.delete(key);
 							}
 						}
 						if (node.value.name !== undefined) {
@@ -97,14 +99,10 @@ export class ActorService {
 		.pipe(
 			filter(data => data !== undefined),
 			switchMap(({ object, name, maxSpeed, date, knowledge, newKnowledge, color }) => {
-
 				const wrapper = new UnixWrapper(date.unix());
-				console.log('unixes:');
-				console.log(date.unix());
 				const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
-				const knowledgeMap = new Map();
+				const knowledgeMap = new Map<String, String | undefined>();
 				knowledge
-					.filter(({ value }) => !!value)
 					.map(k => {
 						if (k.forget) {
 							k.value = undefined;

@@ -14,7 +14,7 @@ export class ActorObject extends Basic {
 	public geometry: SphereBufferGeometry;
 	public material: MeshBasicMaterial;
 	public lastWorldPosition = new Vector3();
-	public baseHeight = 1.015;
+	public baseHeight = 1.025;
 	// panning/distance restriction
 	private cursorAtPanStart: number;
 	private positionAtStart: Quaternion;

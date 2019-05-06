@@ -2,7 +2,7 @@
 	//position: fixed;
 	top: 0;
 	display: inline-block;
-	margin: 0.2rem;
+	margin-left: 0.5rem;
 
 	> * {
 		margin-right: 0.4rem;
@@ -18,5 +18,9 @@
 	span,
 	button {
 		margin-top: 1rem;
+	}
+
+	.slider {
+		margin-top: 0.6rem;
 	}
 }

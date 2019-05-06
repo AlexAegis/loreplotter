@@ -23,9 +23,10 @@ export class Control extends OrbitControls {
 			// ? On everything
 			this.engineService.refreshPopupPositionQueue.next(true);
 		});
+		this.zoomUpdate(camera.position.length());
 	}
 
-	private zoomUpdate(distance: number): void {
-		this.engineService.zoomSubject.next(ThreeMath.mapLinear(distance, this.minDistance, this.maxDistance, 0.2, 2));
+	public zoomUpdate(distance: number): void {
+		this.engineService.zoomSubject.next(ThreeMath.mapLinear(distance, this.minDistance, this.maxDistance, 0.05, 2));
 	}
 }

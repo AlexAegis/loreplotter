@@ -246,7 +246,7 @@ export class EngineService {
 	);
 
 	public zoomSpeedLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed$]).pipe(
-		map(([zoom, speed]) => zoom <= 0.25 || Math.abs(speed) >= 4000),
+		map(([zoom, speed]) => zoom <= 0.15 || Math.abs(speed) >= 4000),
 		distinctUntilChanged()
 	);
 
