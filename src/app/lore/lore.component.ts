@@ -12,14 +12,17 @@ import {
 	ViewChild
 } from '@angular/core';
 import { MediaObserver } from '@angular/flex-layout';
+import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine';
-import { Lore } from '@app/model/data';
+import { Lore, Planet } from '@app/model/data';
 import { DatabaseService, LoreService } from '@app/service';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { TimelineComponent } from '@lore/component';
+import { LoreFormComponent } from '@lore/component/lore-form.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
+import { filter, switchMap, take } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore',
@@ -113,7 +116,8 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		private databaseService: DatabaseService,
 		public overlayContainer: OverlayContainer,
 		private changeDetector: ChangeDetectorRef,
-		private storeFacade: StoreFacade
+		private storeFacade: StoreFacade,
+		private dialog: MatDialog
 	) {
 		super();
 		this.selectedLore$ = this.storeFacade.selectedLore$;
@@ -191,5 +195,22 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	public selectLore(lore: Partial<Lore>): void {
 		this.storeFacade.selectLore(lore);
+	}
+
+	public createLore(): void {
+		const createDialogRef = this.dialog.open(LoreFormComponent, {
+			data: { planet: { name: Planet.DEFAULT_NAME, radius: Planet.DEFAULT_RADIUS } } as Lore
+		});
+		createDialogRef.afterClosed().subscribe((result: Lore) => this.storeFacade.createLore(result));
+	}
+
+	public editLoreCurrent(): void {
+		this.selectedLore$
+			.pipe(
+				take(1),
+				switchMap(selected => this.dialog.open(LoreFormComponent, { data: selected }).afterClosed()),
+				filter(result => result !== undefined)
+			)
+			.subscribe(result => this.storeFacade.updateLore(result));
 	}
 }

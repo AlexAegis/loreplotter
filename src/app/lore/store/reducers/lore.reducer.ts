@@ -81,7 +81,7 @@ export function loreReducer(state: LoreState = initialLoreState, action: LoreAct
 		}
 		case updateLoreSuccess.type: {
 			const { payload } = action.payload;
-			return loreAdapter.updateOne(payload, { ...state, loading: false });
+			return loreAdapter.updateOne({ id: payload.id, changes: payload }, { ...state, loading: false });
 		}
 		case updateLoreFailure.type: {
 			return { ...state, loading: false };

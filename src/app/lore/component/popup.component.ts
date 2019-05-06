@@ -1,11 +1,8 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { ActorAccumulator, ActorService } from '@app/service/actor.service';
-import { LoreService } from '@app/service/lore.service';
-import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
 import { map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { Vector2 } from 'three';
@@ -58,10 +55,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 	public constructor(
 		private actorService: ActorService,
 		private engineService: EngineService,
-		private loreService: LoreService,
-		private formBuilder: FormBuilder,
-		public dialog: MatDialog,
-		private storeFacade: StoreFacade
+		private dialog: MatDialog,
 	) {
 		this.selectedActorAccumulatorAtCursor$ = this.actorService.selectedActorAccumulatorAtCursor$;
 	}

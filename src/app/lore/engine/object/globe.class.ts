@@ -149,7 +149,6 @@ export class Globe extends Basic {
 			.filter(o => o.type === 'Point') // only the Points
 			.map(o => o as ActorObject); // as Points
 	}
-	public static EARTH_RADIUS = 6371;
 
 	public _indicatorFrom: IndicatorSphere;
 	public _indicatorTo: IndicatorSphere;

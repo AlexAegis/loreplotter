@@ -8,7 +8,7 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { concat, merge, of } from 'rxjs';
-import { catchError, distinctUntilChanged, flatMap, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import { catchError, flatMap, map, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import {
 	changeSelectedLore,
@@ -22,6 +22,8 @@ import {
 	loadActors,
 	loadLoresFailure,
 	loadLoresSuccess,
+	updateLore,
+	updateLoreFailure,
 	updateLoreSuccess,
 	voidOperation
 } from '../actions';
@@ -72,7 +74,7 @@ export class LoreEffects {
 	private updatedLores$ = this.databaseService.database$.pipe(
 		switchMap(db => db.lore.update$),
 		map(change => change.data.v),
-		map(lore => updateLoreSuccess({ payload: { id: lore.name, changes: lore } }))
+		map(lore => updateLoreSuccess({ payload: lore }))
 	);
 
 	private deletedLores$ = this.databaseService.database$.pipe(
@@ -97,11 +99,22 @@ export class LoreEffects {
 	@Effect()
 	public createLore$ = this.actions$.pipe(
 		ofType(createLore.type),
-		distinctUntilChanged(),
 		switchMap(({ payload }: Payload<Lore>) =>
 			this.loreService.create(payload).pipe(
 				map(a => voidOperation()), // The successful result will be handled by the listeners on the database
 				catchError(error => of(createLoreFailure({ payload: error })))
+			)
+		)
+	);
+
+	@Effect()
+	public updateLore$ = this.actions$.pipe(
+		ofType(updateLore.type),
+		switchMap(({ payload }: Payload<Partial<Lore>>) =>
+			this.loreService.update(payload).pipe(
+				tap(e => console.log(e)),
+				map(a => voidOperation()), // The successful result will be handled by the listeners on the database
+				catchError(error => of(updateLoreFailure({ payload: error })))
 			)
 		)
 	);

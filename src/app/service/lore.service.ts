@@ -5,7 +5,7 @@ import { BaseDirective } from '@app/component/base-component.class';
 import { normalizeFromWindow } from '@app/function';
 import { enclosingProgress } from '@app/function/enclosing-progress.function';
 import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
-import { Actor, ActorDelta, Lore } from '@app/model/data';
+import { Actor, ActorDelta, Lore, Planet } from '@app/model/data';
 import { UnixWrapper } from '@app/model/data/unix-wrapper.class';
 import { ActorService } from '@app/service/actor.service';
 import { LoreDocumentMethods } from '@app/service/database';
@@ -16,7 +16,7 @@ import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, from, Observable, of, Subject } from 'rxjs';
-import { filter, flatMap, map, mergeMap, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import { filter, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
 const DAY_IN_SECONDS = 86400;
@@ -157,14 +157,14 @@ export class LoreService extends BaseDirective {
 					switchMap(([offset, lore, nextId, cursor]) => {
 						const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
 						dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
-						const actor = new Actor(nextId, lore.name);
+						const actor = new Actor(nextId, lore.id);
 						actor._states.set(
 							new UnixWrapper(cursor),
 							new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
 						);
-
-						return lore.collection.database.actor.insert(actor);
-					})
+						return lore.collection.database.actor.upsert(actor);
+					}),
+					tap(e => console.log(e))
 				)
 				.subscribe()
 		);
@@ -221,16 +221,31 @@ export class LoreService extends BaseDirective {
 
 	/**
 	 * Creates a new lore object in the database
-	 * TODO: Refactor this service and move the non data-manipulating methods somewhere else
-	 * @param lore end be created
+	 * @param lore from state be created, ! this parameter cant be modified since it's from the state !
 	 */
 	public create(lore: Lore): Observable<RxDocument<Lore, LoreDocumentMethods>> {
 		return this.databaseService.database$.pipe(
-			switchMap(connection => {
-				console.log('issuing insert of lore object in the lore service');
-				console.log(lore);
-				return connection.lore.insert(lore);
-			})
+			withLatestFrom(this.databaseService.nextLoreId$),
+			map(([connection, nextId]) => ({
+				connection,
+				json: new Lore(nextId, lore.name, lore.locations, new Planet(lore.planet.name, lore.planet.radius))
+			})),
+			switchMap(({ connection, json }) => connection.lore.insert(json))
+		);
+	}
+
+
+	/**
+	 * Creates a new lore object in the database
+	 * @param lore from state be created, ! this parameter cant be modified since it's from the state !
+	 */
+	public update(lore: Partial<Lore>): Observable<RxDocument<Lore, LoreDocumentMethods>> {
+		return this.databaseService.database$.pipe(
+			map((connection) => ({
+				connection,
+				json: new Lore(lore.id, lore.name, lore.locations, new Planet(lore.planet.name, lore.planet.radius))
+			})),
+			switchMap(({ connection, json }) => connection.lore.upsert(json))
 		);
 	}
 }

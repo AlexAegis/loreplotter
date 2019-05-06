@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { tweenMap } from '@app/operator';
-import { EngineService } from '@lore/engine';
 import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
@@ -44,8 +43,7 @@ export class SceneEffects {
 	public constructor(
 		private actions$: Actions<SceneActions>,
 		private store: Store<FeatureState>,
-		private storeFacade: StoreFacade,
-		private engineService: EngineService
+		private storeFacade: StoreFacade
 	) {}
 
 	@Effect()

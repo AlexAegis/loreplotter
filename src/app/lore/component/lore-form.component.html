@@ -1,0 +1,28 @@
+<form [formGroup]="loreForm">
+	<h1>{{ originalData.id ? 'Edit' : 'Create' }} Lore</h1>
+
+	<mat-label class="nameLabel">Name:</mat-label>
+	<mat-form-field class="name" floatLabel="never">
+		<mat-label>{{ originalData?.name }}</mat-label>
+		<input matInput formControlName="name" />
+	</mat-form-field>
+
+	<hr class="divider" />
+	<div formGroupName="planet">
+		<mat-label class="planetNameLabel">Planet Name:</mat-label>
+		<mat-form-field class="speed" floatLabel="never">
+			<mat-label>{{ originalData?.planet?.name }}</mat-label>
+			<input matInput formControlName="name" />
+		</mat-form-field>
+
+		<mat-label class="planetRadius">Planet Radius:</mat-label>
+		<mat-form-field class="radius" floatLabel="never">
+			<mat-label>{{ originalData?.planet?.radius }}</mat-label>
+			<input matInput formControlName="radius" mask="9*" />
+		</mat-form-field>
+	</div>
+</form>
+<button mat-flat-button color="accent" class="save" [mat-dialog-close]="loreForm.value" [disabled]="!loreForm.valid">
+	{{ originalData.id ? 'Save' : 'Create' }}
+</button>
+<!-- {{ loreForm.value | json }} -->

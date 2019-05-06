@@ -86,15 +86,15 @@ export class StoreFacade {
 
 	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
 
-	public create(lore: Lore): void {
+	public createLore(lore: Lore): void {
 		this.store$.dispatch(createLore({ lore }));
 	}
 
-	public update(lore: Lore): void {
-		this.store$.dispatch(updateLore({ payload: { id: '', changes: lore } }));
+	public updateLore(lore: Lore): void {
+		this.store$.dispatch(updateLore({ payload: lore }));
 	}
 
-	public delete(id: string): void {
+	public deleteLore(id: string): void {
 		this.store$.dispatch(deleteLore({ id }));
 	}
 

@@ -2,7 +2,8 @@ import { environment } from '@env/environment';
 import * as fromRouter from '@ngrx/router-store';
 import { ActionReducer, ActionReducerMap, MetaReducer } from '@ngrx/store';
 import { storeFreeze } from 'ngrx-store-freeze';
-import { localStorageSync } from 'ngrx-store-localstorage';
+
+// import { localStorageSync } from 'ngrx-store-localstorage';
 
 /**
  * Root state
@@ -38,13 +39,13 @@ const persistant = {
 	'app-lore': ['scene']
 };
 
-export function localStorageSyncReducer(reducer: ActionReducer<State>): ActionReducer<State> {
+/*export function localStorageSyncReducer(reducer: ActionReducer<State>): ActionReducer<State> {
 	return localStorageSync({ keys: [persistant], rehydrate: true })(reducer);
-}
+}*/
 /**
  * Meta reducers
  */
 export const metaReducers: MetaReducer<State>[] = [
-	localStorageSyncReducer,
+	/*localStorageSyncReducer,*/
 	...(!environment.production ? [logger, storeFreeze] : [])
 ];

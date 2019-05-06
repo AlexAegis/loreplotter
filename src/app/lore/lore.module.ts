@@ -24,6 +24,7 @@ import { BlockService } from '@lore/service';
 import { LoreStoreModule } from '@lore/store';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxMaskModule } from 'ngx-mask';
+import { LoreFormComponent } from './component/lore-form.component';
 import { SpeedControlComponent } from './component/speed-control.component';
 import { LoreComponent } from './lore.component';
 
@@ -56,7 +57,8 @@ export const APP_FORMATS = {
 		LoreComponent,
 		FocusDirective,
 		RepeatDirective,
-		SpeedControlComponent
+		SpeedControlComponent,
+		LoreFormComponent
 	],
 	imports: [
 		LoreStoreModule,
@@ -67,7 +69,7 @@ export const APP_FORMATS = {
 		NgxMaskModule.forRoot({}),
 		ColorPickerModule
 	],
-	entryComponents: [ActorFormComponent],
+	entryComponents: [ActorFormComponent, LoreFormComponent],
 	providers: [
 		LoreService,
 		EngineService,

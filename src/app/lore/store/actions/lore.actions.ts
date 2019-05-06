@@ -1,6 +1,5 @@
 import { Lore } from '@app/model/data';
 import { Payload } from '@lore/store/actions';
-import { Update } from '@ngrx/entity';
 import { createAction } from '@ngrx/store';
 
 // Initial lore object loading. While creating the RxDocuments needs end be stripped.
@@ -27,9 +26,12 @@ export const createLoreSuccess = createAction(
 export const createLoreFailure = createAction(`[Lore] Create Failure`, (payload: Payload<Error>) => ({ payload }));
 
 // Updating existing objectsk
-export const updateLore = createAction(`[Lore] Update`, (payload: Payload<Update<Lore>>) => ({ payload }));
+export const updateLore = createAction(
+	`[Lore] Update`,
+	(payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => (payload)
+);
 
-export const updateLoreSuccess = createAction(`[Lore] Update Success`, (payload: Payload<Update<Lore>>) => ({
+export const updateLoreSuccess = createAction(`[Lore] Update Success`, (payload: Payload<Partial<Lore>>) => ({
 	payload
 }));
 export const updateLoreFailure = createAction(`[Lore] Update Failure`, (payload: Payload<Error>) => ({ payload }));

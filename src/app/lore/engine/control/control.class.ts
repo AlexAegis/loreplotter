@@ -14,7 +14,7 @@ export class Control extends OrbitControls {
 		this.enablePan = false; // moving the camera in a plane is disabled, only rotation is allowed
 		this.zoomSpeed = 6.0;
 		this.dampingFactor = 0.2;
-		this.minDistance = this.minZoom = 100;
+		this.minDistance = this.minZoom = 10;
 		this.maxDistance = this.maxZoom = 4000;
 		this.rotateSpeed = 0.05;
 		this.addEventListener('change', e => {

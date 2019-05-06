@@ -75,6 +75,11 @@ export class ActorObject extends Basic {
 			this.actorAccumulator$.pipe(take(1)).subscribe(next => {
 				this.cursorAtPanStart = next.cursor;
 				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
+				// If the cursor is right on a node, go edit mode and just select the node before and after
+				/*if (this.enclosing.first && this.enclosing.first.key.unix === this.cursorAtPanStart) {
+					this.enclosing.first = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart - 1)).first;
+					this.enclosing.last = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart + 1)).last;
+				}*/
 				const maxAccumulatedSpeed = next.accumulator.maxSpeed;
 				if (this.enclosing.first) {
 					this.rightHelper.set(
@@ -122,7 +127,6 @@ export class ActorObject extends Basic {
 			if (this.panInitDone) {
 				this.prelookHelper.lookAt(event.point); // To get the requested rotation
 				const destinationAngle = this.prelookHelper.quaternion.clone();
-				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
 				if (this.enclosing.first) {
 					this.prelookHelper.lookAt(this.rightHelper);
 					this.panHelper.left.quaternion = this.prelookHelper.quaternion.clone();
