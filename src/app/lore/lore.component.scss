@@ -26,11 +26,9 @@
 				grid-column: 1;
 			}
 			.title {
-				// color: rgba($color: rgb(199, 244, 255), $alpha: 0.5);
-
 				grid-column: 2;
 				height: 100%;
-				font-size: 4em;
+				font-size: 2rem;
 				width: 100%;
 				text-align: left;
 				vertical-align: top;
@@ -52,6 +50,10 @@
 			.menuButton {
 				justify-self: end;
 				align-self: center;
+
+				> * {
+					margin-left: 0.5rem;
+				}
 			}
 		}
 	}

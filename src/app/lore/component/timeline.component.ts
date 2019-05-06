@@ -28,7 +28,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import ResizeObserver from 'resize-observer-polyfill';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
-import { filter, map, share, tap, withLatestFrom } from 'rxjs/operators';
+import { map, share, tap, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 import { BlockComponent } from './block.component';
 import { CursorComponent } from './cursor.component';
@@ -349,12 +349,5 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 
 	public toPx(number: number): string {
 		return `${number}px`;
-	}
-
-	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
-		return this.actorDeltasAtCursor$.pipe(
-			map(actorAccs => actorAccs.find(actorAcc => actorAcc.actor.id === actor.id)),
-			filter(accumulator => accumulator !== undefined)
-		);
 	}
 }

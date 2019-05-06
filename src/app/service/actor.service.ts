@@ -167,4 +167,11 @@ export class ActorService {
 		}
 		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
 	}
+
+	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
+		return this.actorDeltasAtCursor$.pipe(
+			map(actorAccs => actorAccs.find(actorAcc => actorAcc.actor.id === actor.id)),
+			filter(accumulator => accumulator !== undefined)
+		);
+	}
 }

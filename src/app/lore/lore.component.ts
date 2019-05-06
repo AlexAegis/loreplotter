@@ -17,6 +17,7 @@ import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine';
 import { Lore, Planet } from '@app/model/data';
 import { DatabaseService, LoreService } from '@app/service';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { TimelineComponent } from '@lore/component';
 import { LoreFormComponent } from '@lore/component/lore-form.component';
@@ -108,6 +109,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 	public lores$: Observable<Array<Partial<Lore>>>;
 	public title = 'Lore';
 	public menuIcon = faEllipsisH;
+	public githubIcon = faGithub;
 
 	public constructor(
 		public media: MediaObserver,
@@ -212,5 +214,12 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 				filter(result => result !== undefined)
 			)
 			.subscribe(result => this.storeFacade.updateLore(result));
+	}
+
+	/**
+	 * Opens the project's repo on a new tab
+	 */
+	public navigateToRepo(): void {
+		window.open('https://github.com/AlexAegis/loreplotter', '_blank');
 	}
 }
