@@ -6,6 +6,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LogPipe } from '@app/pipe/log.pipe';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ActorFormComponent } from '@lore/component';
+import { LoreFormComponent } from '@lore/component/lore-form.component';
 import { Ng5SliderModule } from 'ng5-slider';
 import { MomentModule } from 'ngx-moment';
 import { NgScrollbarModule, SmoothScrollModule } from 'ngx-scrollbar';
@@ -31,6 +33,7 @@ const modules = [
 @NgModule({
 	declarations: [LogPipe],
 	imports: [...modules],
-	exports: [...modules]
+	exports: [...modules],
+	entryComponents: [ActorFormComponent, LoreFormComponent]
 })
 export class SharedModule {}

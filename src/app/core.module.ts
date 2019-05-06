@@ -7,6 +7,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MyHammerConfig } from '@app/hammer-config.class';
 import { AppStoreModule } from '@app/store/app-store.module';
 import { environment } from '@env/environment';
+import { ActorFormComponent } from '@lore/component';
+import { LoreFormComponent } from '@lore/component/lore-form.component';
 import { DeviceDetectorModule } from 'ngx-device-detector';
 
 export const APP_FORMATS = {
@@ -43,7 +45,8 @@ export const APP_FORMATS = {
 			provide: HAMMER_GESTURE_CONFIG,
 			useClass: MyHammerConfig
 		}
-	]
+	],
+	entryComponents: [ActorFormComponent, LoreFormComponent]
 })
 export class CoreModule {
 	constructor(@Optional() @SkipSelf() core: CoreModule) {

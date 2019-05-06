@@ -1,8 +1,8 @@
-<button mat-fab color="'primary'" (click)="toggleAutoLight($event)">
+<button aria-label="Manual or Auto light" mat-fab color="'primary'" (click)="toggleAutoLight($event)">
 	{{ (manualLight$ | async) ? 'Manual' : 'Auto' }}
 </button>
 <div @toggles *ngIf="manualLight$ | async">
-	<button mat-flat-button (click)="toggleManualLightAlwaysOn($event)">
+	<button aria-label="Light Always on Toggle" mat-flat-button (click)="toggleManualLightAlwaysOn($event)">
 		<fa-icon [icon]="(manualLightAlwaysOn$ | async) ? faSun : faMoon" size="xl"></fa-icon>
 	</button>
 </div>

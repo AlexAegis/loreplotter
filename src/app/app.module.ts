@@ -4,6 +4,8 @@ import { CoreModule } from '@app/core.module';
 import { RoutingModule } from '@app/routes';
 import { InitService } from '@app/service/init.service';
 import { SharedModule } from '@app/shared';
+import { ActorFormComponent } from '@lore/component';
+import { LoreFormComponent } from '@lore/component/lore-form.component';
 import { AppComponent } from './app.component';
 
 @NgModule({
@@ -18,6 +20,7 @@ import { AppComponent } from './app.component';
 			deps: [InitService]
 		}
 	],
+	entryComponents: [ActorFormComponent, LoreFormComponent],
 	bootstrap: [AppComponent]
 })
 export class AppModule {

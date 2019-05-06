@@ -2,24 +2,33 @@
 	<mat-toolbar-row id="mainBar">
 		<app-hamburger *ngIf="!sidebar.mediaLarge" @leave [(open)]="sidebar.opened"></app-hamburger>
 
-		<button class="title" mat-button [routerLink]="['']" matRipple disableRipple [matRippleRadius]="800">
+		<button class="title" aria-label="Home" mat-button [routerLink]="['']" matRipple disableRipple
+				[matRippleRadius]="800">
 			{{ title }}
 		</button>
 
 		<mat-menu #appMenu="matMenu">
-			<button mat-menu-item (click)="createLore()">Create</button>
+			<button aria-label="Create Project" mat-menu-item (click)="createLore()">Create</button>
 			<hr class="divider" />
-			<button mat-menu-item *ngFor="let lore of lores$ | async" (click)="selectLore(lore)">
+			<button aria-label="Select project" mat-menu-item *ngFor="let lore of lores$ | async"
+					(click)="selectLore(lore)">
 				{{ lore.name }}
 			</button>
+
+			<span>
+				<button aria-label="Export" mat-menu-item (click)="createLore()">Export</button>
+				<button aria-label="Import" mat-menu-item (click)="createLore()">Import</button>
+			</span>
 		</mat-menu>
 
 		<span class="menuButton">
-			<button mat-icon-button><fa-icon [icon]="githubIcon" size="lg" (click)="navigateToRepo()"></fa-icon></button>
-			<button mat-flat-button (click)="editLoreCurrent()" *ngIf="!!(selectedLore$ | async)">
+			<button mat-icon-button aria-label="Open Repo"><fa-icon [icon]="githubIcon" size="lg"
+																	(click)="navigateToRepo()"></fa-icon></button>
+			<button mat-flat-button aria-label="Edit Current" (click)="editLoreCurrent()"
+					*ngIf="!!(selectedLore$ | async)">
 				{{ (selectedLore$ | async).name }}
 			</button>
-			<button mat-icon-button [matMenuTriggerFor]="appMenu">
+			<button mat-icon-button aria-label="Open Menu" [matMenuTriggerFor]="appMenu">
 				<fa-icon [icon]="menuIcon" size="lg"></fa-icon>
 			</button>
 		</span>

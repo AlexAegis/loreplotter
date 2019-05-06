@@ -6,16 +6,17 @@
 	<mat-form-field floatLabel="never">
 		<input matInput formControlName="value" [placeholder]="existing?.value" type="text" />
 	</mat-form-field>
-	<button
-		mat-flat-button
-		*ngIf="!!existing"
-		[ngClass]="{ forget: (control?.controls)['forget'].value }"
-		(click)="changeForget($event)"
+	<button aria-label="Toggle Forget Entry"
+			mat-flat-button
+			*ngIf="!!existing"
+			[ngClass]="{ forget: (control?.controls)['forget'].value }"
+			(click)="changeForget($event)"
 	>
 		<fa-icon [icon]="forgetIcon"></fa-icon>
 	</button>
 
-	<button mat-flat-button *ngIf="!existing" class="forget" (click)="remove($event)">
+	<button aria-label="Remove Temporary Entry" mat-flat-button *ngIf="!existing" class="forget"
+			(click)="remove($event)">
 		<fa-icon [icon]="removeIcon"></fa-icon>
 	</button>
 </div>
