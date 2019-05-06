@@ -6,11 +6,12 @@ import { InitService } from '@app/service/init.service';
 import { SharedModule } from '@app/shared';
 import { ActorFormComponent } from '@lore/component';
 import { LoreFormComponent } from '@lore/component/lore-form.component';
+import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { AppComponent } from './app.component';
 
 @NgModule({
 	declarations: [AppComponent, LoadingComponent],
-	imports: [SharedModule, RoutingModule, CoreModule],
+	imports: [SharedModule, StoreRouterConnectingModule, RoutingModule, CoreModule],
 	providers: [
 		InitService,
 		{

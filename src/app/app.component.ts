@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ChildActivationEnd, Event, Router } from '@angular/router';
 import { BaseDirective } from '@app/component/base-component.class';
 
@@ -8,7 +8,7 @@ import { BaseDirective } from '@app/component/base-component.class';
 	styleUrls: ['./app.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent extends BaseDirective implements OnInit, OnDestroy {
+export class AppComponent extends BaseDirective implements OnInit {
 	public title = 'Lore';
 	public loaded: boolean;
 	public constructor(private router: Router) {

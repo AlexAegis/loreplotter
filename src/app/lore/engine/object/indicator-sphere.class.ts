@@ -11,7 +11,7 @@ export class IndicatorSphere extends Basic {
 	 */
 	public constructor(public name: string, private globe: Globe) {
 		super(undefined, undefined);
-		super.rotateX(Math.PI / 2);
+		this.rotateX(Math.PI / 2);
 
 		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, Math.PI * 0.5);
 
@@ -25,15 +25,15 @@ export class IndicatorSphere extends Basic {
 		});
 
 		this.doHide();
-		super.castShadow = false;
+		this.castShadow = false;
 	}
 
 	public doShow(): void {
-		super.visible = true;
+		this.visible = true;
 	}
 
 	public doHide(): void {
-		super.visible = false;
+		this.visible = false;
 	}
 
 	/**

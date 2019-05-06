@@ -37,15 +37,15 @@
 									"with": "src/environments/environment.prod.ts"
 								}
 							],
-							"optimization": false,
+							"optimization": true,
 							"outputHashing": "all",
-							"sourceMap": false,
+							"sourceMap": true,
 							"extractCss": true,
 							"namedChunks": false,
 							"aot": true,
 							"extractLicenses": true,
 							"vendorChunk": true,
-							"buildOptimizer": false,
+							"buildOptimizer": true,
 							"budgets": [
 								{
 									"type": "initial",
@@ -65,7 +65,8 @@
 					},
 					"configurations": {
 						"production": {
-							"browserTarget": "loreplotter:build:production"
+							"browserTarget": "loreplotter:build:production",
+							"optimization": true
 						}
 					}
 				},

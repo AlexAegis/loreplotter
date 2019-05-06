@@ -11,7 +11,6 @@ import {
 	OnInit,
 	ViewChild
 } from '@angular/core';
-import { MediaObserver } from '@angular/flex-layout';
 import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine';
@@ -112,7 +111,6 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 	public githubIcon = faGithub;
 
 	public constructor(
-		public media: MediaObserver,
 		public loreService: LoreService,
 		public engineService: EngineService,
 		private databaseService: DatabaseService,

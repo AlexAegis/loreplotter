@@ -1,6 +1,6 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
+// import { MediaChange, MediaService } from '@angular/flex-layout';
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { Actor } from '@app/model/data/actor.class';
@@ -9,7 +9,6 @@ import { LoreService } from '@app/service/lore.service';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { RxDocument } from 'rxdb';
 import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-sidebar',
@@ -48,7 +47,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 	public mediaQueryAlias: string;
 
 	public constructor(
-		private media: MediaObserver,
+		//private media: MediaObserver,
 		private dnd: SkyhookDndService,
 		public loreService: LoreService,
 		public engineService: EngineService,
@@ -75,7 +74,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 					// console.log(`dragging ${a.isDragging()}`);
 				})
 		);
-		this.teardown(
+		/*this.teardown(
 			this.media
 				.asObservable()
 				.pipe(filter(a => a && a.length > 0))
@@ -85,7 +84,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 					this.over = this.opened ? 'side' : 'over';
 					this.changeDetector.markForCheck();
 				})
-		);
+		);*/
 	}
 
 	public select($event, actor: RxDocument<Actor>): void {

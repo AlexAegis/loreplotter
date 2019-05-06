@@ -9,7 +9,6 @@ import { AppStoreModule } from '@app/store/app-store.module';
 import { environment } from '@env/environment';
 import { ActorFormComponent } from '@lore/component';
 import { LoreFormComponent } from '@lore/component/lore-form.component';
-import { DeviceDetectorModule } from 'ngx-device-detector';
 
 export const APP_FORMATS = {
 	parse: {
@@ -35,8 +34,7 @@ export const APP_FORMATS = {
 		AppStoreModule,
 		ServiceWorkerModule.register('./ngsw-worker.js', { enabled: environment.production }),
 		BrowserModule,
-		BrowserAnimationsModule,
-		DeviceDetectorModule.forRoot()
+		BrowserAnimationsModule
 	],
 	providers: [
 		{ provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },

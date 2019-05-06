@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
+// import { FlexLayoutModule } from '@angular/flex-layout';
 import {
 	ErrorStateMatcher,
 	MatAutocompleteModule,
@@ -54,7 +54,7 @@ const modules = [
 	MatToolbarModule,
 	MatListModule,
 	MatProgressSpinnerModule,
-	FlexLayoutModule,
+	// FlexLayoutModule,
 	MatAutocompleteModule,
 	MatButtonModule,
 	MatButtonToggleModule,

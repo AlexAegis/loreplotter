@@ -11,7 +11,6 @@ import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
 import { InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import TWEEN, { Easing } from '@tweenjs/tween.js';
-import { DeviceDetectorService } from 'ngx-device-detector';
 import {
 	BlendFunction,
 	BloomEffect,
@@ -75,7 +74,6 @@ export class EngineService {
 	 * (Since they are shared, side effects will only happen once)
 	 */
 	constructor(
-		private deviceService: DeviceDetectorService,
 		private storeFacade: StoreFacade,
 		private databaseService: DatabaseService
 	) {
@@ -266,7 +264,6 @@ export class EngineService {
 	);
 
 	public createScene(canvas: HTMLCanvasElement): void {
-		const isDesktopDevice = this.deviceService.isDesktop();
 
 		this.renderer = new WebGLRenderer({
 			canvas: canvas,
@@ -274,13 +271,6 @@ export class EngineService {
 			logarithmicDepthBuffer: true,
 			antialias: false
 		});
-		let downScaleFactor: number;
-		if (isDesktopDevice) {
-			downScaleFactor = 1; // No downscale
-		} else {
-			downScaleFactor = 2;
-		}
-		this.renderer.setPixelRatio(window.devicePixelRatio / downScaleFactor);
 		this.renderer.gammaInput = false;
 		this.renderer.gammaOutput = true;
 		this.renderer.setClearColor(0x000000, 0.0);

@@ -17,7 +17,7 @@ export class ActorDelta {
 	public constructor(
 		name?: string,
 		position?: Vector3Serializable,
-		knowledge: Map<String, String> = new Map(),
+		knowledge: Map<String, String> = new Map<String, String>(),
 		maxSpeed?: number,
 		color?: string
 	) {
