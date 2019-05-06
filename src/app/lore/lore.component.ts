@@ -137,6 +137,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 	public setTheme(theme: string): void {
 		this.overlayContainer.getContainerElement().classList.add(theme);
 		this.theme = theme;
+		this.changeDetector.markForCheck();
 	}
 
 	public ngAfterViewInit(): void {

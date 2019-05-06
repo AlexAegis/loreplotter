@@ -1,6 +1,5 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-// import { MediaChange, MediaService } from '@angular/flex-layout';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { Actor } from '@app/model/data/actor.class';
@@ -17,14 +16,6 @@ import { Observable } from 'rxjs';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent extends BaseDirective implements AfterViewInit, OnInit {
-	public over = 'side';
-	public maleIcon = faMale;
-	public maleIconSize = 'lg';
-	@Input()
-	public disabled = false;
-
-	private _opened = false;
-
 	public get opened(): boolean {
 		return this._opened;
 	}
@@ -34,20 +25,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		this.changeDetector.markForCheck();
 	}
 
-	public actorSource = this.dnd.dragSource('Actor', {
-		beginDrag: () => {
-			this.opened = this.mediaQueryAlias === 'xl';
-			return {};
-		}
-	});
-
-	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
-	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
-
-	public mediaQueryAlias: string;
-
 	public constructor(
-		//private media: MediaObserver,
 		private dnd: SkyhookDndService,
 		public loreService: LoreService,
 		public engineService: EngineService,
@@ -60,31 +38,44 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		this.currentLoreActors$ = this.databaseService.currentLoreActors$;
 	}
 
-	public get mediaLarge(): boolean {
-		return this.mediaQueryAlias === 'xl';
+	public over = 'side';
+	public maleIcon = faMale;
+	public maleIconSize = 'lg';
+	@Input()
+	public disabled = false;
+
+	private _opened = false;
+
+	public actorSource = this.dnd.dragSource('Actor', {
+		beginDrag: () => {
+			this.opened = this.mediaLarge;
+			return {};
+		}
+	});
+
+	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
+	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
+
+	public mediaLarge: boolean;
+
+	@HostListener('window:resize', ['$event'])
+	public onResize($event: any): void {
+		const w = $event.target.innerWidth;
+		const h = $event.target.innerHeight;
+		this.mediaLarge = w / h >= 1.8; // Standard 16/9 ratio is 1.77 repeating.
+		if (!this.opened && this.mediaLarge) {
+			this.opened = true;
+		}
+		this.over = this.mediaLarge ? 'side' : 'over';
+		this.changeDetector.markForCheck();
 	}
 
 	public ngOnInit(): void {}
 
 	public ngAfterViewInit(): void {
-		this.teardown(
-			this.actorSource
-				.listen(a => a)
-				.subscribe(a => {
-					// console.log(`dragging ${a.isDragging()}`);
-				})
-		);
-		/*this.teardown(
-			this.media
-				.asObservable()
-				.pipe(filter(a => a && a.length > 0))
-				.subscribe((changes: MediaChange[]) => {
-					this.mediaQueryAlias = changes[0].mqAlias;
-					this.opened = this.mediaLarge;
-					this.over = this.opened ? 'side' : 'over';
-					this.changeDetector.markForCheck();
-				})
-		);*/
+		this.onResize({ target: window });
+		this.opened = this.mediaLarge;
+		this.over = this.opened ? 'side' : 'over';
 	}
 
 	public select($event, actor: RxDocument<Actor>): void {
