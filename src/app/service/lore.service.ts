@@ -15,7 +15,7 @@ import { EngineService } from '@lore/engine/engine.service';
 import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, combineLatest, from, Observable, of, Subject, zip } from 'rxjs';
 import { filter, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
@@ -224,8 +224,7 @@ export class LoreService extends BaseDirective {
 	 * @param lore from state be created, ! this parameter cant be modified since it's from the state !
 	 */
 	public create(lore: Lore): Observable<RxDocument<Lore, LoreDocumentMethods>> {
-		return this.databaseService.database$.pipe(
-			withLatestFrom(this.databaseService.nextLoreId$),
+		return zip(this.databaseService.database$, this.databaseService.nextLoreId$).pipe(
 			map(([connection, nextId]) => ({
 				connection,
 				json: new Lore(nextId, lore.name, lore.locations, new Planet(lore.planet.name, lore.planet.radius))

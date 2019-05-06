@@ -93,6 +93,13 @@ export class LoreEffects {
 		take(1),
 		map(lore => changeSelectedLore({ payload: lore }))
 	);
+
+	@Effect()
+	public updateSelectedLoreWhenCreated$ = this.actions$.pipe(
+		ofType(createLoreSuccess.type),
+		map(payload => changeSelectedLore(payload))
+	);
+
 	/**
 	 * Create
 	 */

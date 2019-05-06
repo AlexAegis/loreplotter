@@ -70,7 +70,9 @@ export class DatabaseService {
 	);
 
 	public nextLoreId$ = this.lores$.pipe(
-		map(lores => `${lores.map(lore => Number(lore.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`)
+		map(lores => `${lores.map(lore => Number(lore.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`),
+
+		shareReplay(1)
 	);
 
 	public currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
