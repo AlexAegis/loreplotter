@@ -71,6 +71,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.originalData.moment = moment.unix(this.originalData.cursor);
 		this.originalData.date = this.originalData.moment.format('YYYY-MM-DD');
 		this.originalData.time = this.originalData.moment.format('HH:mm:ss');
+		this.color = this.originalData.color;
 	}
 
 	public addNewKnowledge($event): void {
