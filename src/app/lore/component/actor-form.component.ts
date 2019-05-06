@@ -42,8 +42,16 @@ export interface ActorFormResultData {
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActorFormComponent implements OnInit, AfterViewInit {
-	public focused = true;
 	public plusIcon = faPlus;
+	private _color: string;
+
+	public set color(color: string) {
+		this._color = color;
+	}
+
+	public get color(): string {
+		return this._color;
+	}
 
 	public actorForm = this.formBuilder.group({
 		name: this.formBuilder.control(''),
@@ -89,7 +97,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 			knowledge: this.actorForm.controls['knowledge'].value,
 			newKnowledge: this.actorForm.controls['newKnowledge'].value,
 			object: this.originalData.selected,
-			color: `#541286` // TODO: get color from form
+			color: this.color // TODO: get color from form
 		};
 	}
 

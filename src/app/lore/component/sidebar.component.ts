@@ -86,6 +86,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 	}
 	public select($event, actor: RxDocument<Actor>): void {
 		this.engineService.selectedByActor.next(actor);
+		this.opened = this.mediaLarge || false;
 	}
 
 	public onCloseStart(): void {

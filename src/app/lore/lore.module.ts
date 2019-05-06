@@ -22,6 +22,7 @@ import {
 import { LoreRoutingModule } from '@lore/routes/lore-routing.module';
 import { BlockService } from '@lore/service';
 import { LoreStoreModule } from '@lore/store';
+import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxMaskModule } from 'ngx-mask';
 import { SpeedControlComponent } from './component/speed-control.component';
 import { LoreComponent } from './lore.component';
@@ -63,7 +64,8 @@ export const APP_FORMATS = {
 		MaterialModule,
 		LoreRoutingModule,
 		SkyhookDndModule.forRoot({ backendFactory: createDefaultMultiBackend }),
-		NgxMaskModule.forRoot({})
+		NgxMaskModule.forRoot({}),
+		ColorPickerModule
 	],
 	entryComponents: [ActorFormComponent],
 	providers: [

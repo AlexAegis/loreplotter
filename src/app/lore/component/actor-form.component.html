@@ -15,14 +15,20 @@
 	<mat-label class="nameLabel">Name:</mat-label>
 	<mat-form-field class="name" floatLabel="never">
 		<mat-label>{{ originalData.name }}</mat-label>
-		<input matInput formControlName="name" appFocus="focused" />
+		<input matInput formControlName="name" />
 	</mat-form-field>
 
 	<mat-label class="maxSpeedLabel">Max Speed (km/h):</mat-label>
 	<mat-form-field class="speed" floatLabel="never">
 		<mat-label>{{ originalData.maxSpeed }}</mat-label>
-		<input matInput formControlName="maxSpeed" appFocus="focused" mask="9*" />
+		<input matInput formControlName="maxSpeed" mask="9*" />
 	</mat-form-field>
+
+	<mat-label class="colorLabel">Color:</mat-label>
+	<mat-form-field class="color" floatLabel="never" [ngStyle]="{ backgroundColor: color }">
+		<input [(colorPicker)]="color" [style.background]="color" matInput />
+	</mat-form-field>
+
 
 	<hr class="divider" />
 	<h2>Existing knowledge:</h2>
