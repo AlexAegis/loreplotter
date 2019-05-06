@@ -1,7 +1,7 @@
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 
-import { Actor, ActorDelta, Lore, Planet, UnixWrapper } from '@app/model/data';
+import { Actor, ActorDelta, Lore, Planet, serializeActor, UnixWrapper } from '@app/model/data';
 import { actorSchema, loreSchema } from '@app/model/schema';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import moment from 'moment';
@@ -36,35 +36,13 @@ export class DatabaseService {
 		),
 		tap(db => {
 			db.actor.preSave(async function preSaveHook(this: RxCollection<Actor>, actor) {
-				// console.log('PreSave Actor!' + actor.id);
-				if (actor !== undefined && actor !== null) {
-					if (actor._states) {
-						actor.states = actor._states.stringify();
-						delete actor._states;
-					}
-					delete actor._userdata;
-				}
+				serializeActor(actor);
 			}, true);
 			db.actor.preInsert(async function preInsertHook(this: RxCollection<Actor>, actor) {
-				// console.log('preInsert Actor!' + actor.id);
-				if (actor !== undefined && actor !== null) {
-					if (actor._states) {
-						actor.states = actor._states.stringify();
-						delete actor._states;
-					}
-					delete actor._userdata;
-				}
+				serializeActor(actor);
 			}, true);
-
 			db.actor.preCreate(async function preCreateHook(this: RxCollection<Actor>, actor) {
-				// console.log('preCreate Actor!' + actor.id);
-				if (actor !== undefined && actor !== null) {
-					if (actor.states) {
-						actor.statesString = actor.states.stringify();
-						delete actor.states;
-					}
-					delete actor._userdata;
-				}
+				serializeActor(actor);
 			}, true);
 		}),
 		delayWhen(db => this.initData(db)), // TODO This should read, but set the currentLore's value

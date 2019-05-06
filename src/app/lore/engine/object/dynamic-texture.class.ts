@@ -74,4 +74,10 @@ export class DynamicTexture extends CanvasTexture {
 		this.image.src = this.canvas.toDataURL();
 		this.needsUpdate = true;
 	}
+
+	public clear() {
+		this.canvasContext.fillStyle = '#202020'; // 10%+ gray
+		this.canvasContext.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		this.needsUpdate = true;
+	}
 }

@@ -13,3 +13,14 @@ export class Actor {
 	public states: string;
 	public _userdata: any; // handled as transient
 }
+
+export function serializeActor(actor: Actor): Actor {
+	if (actor !== undefined && actor !== null) {
+		if (actor._states) {
+			actor.states = actor._states.stringify();
+			delete actor._states;
+		}
+		delete actor._userdata;
+	}
+	return actor;
+}

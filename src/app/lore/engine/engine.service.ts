@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { denormalize } from '@app/function';
-import { Actor } from '@app/model/data';
+import { Actor, Lore } from '@app/model/data';
 
 import { tweenMap } from '@app/operator/tween-map.operator';
 import { withTeardown } from '@app/operator/with-teardown.operator';
+import { DatabaseService } from '@app/service/database.service';
 import { Control } from '@lore/engine/control';
 import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
 import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
@@ -23,7 +24,7 @@ import {
 	ToneMappingEffect,
 	VignetteEffect
 } from 'postprocessing';
-import { RxDocument } from 'rxdb';
+import { RxAttachment, RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, merge, of, range, ReplaySubject, Subject, timer, zip } from 'rxjs';
 import {
 	auditTime,
@@ -38,8 +39,10 @@ import {
 	scan,
 	share,
 	shareReplay,
+	switchMap,
 	take,
-	tap
+	tap,
+	withLatestFrom
 } from 'rxjs/operators';
 import {
 	AdditiveBlending,
@@ -71,10 +74,51 @@ export class EngineService {
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
-	constructor(private deviceService: DeviceDetectorService, private storeFacade: StoreFacade) {
+	constructor(
+		private deviceService: DeviceDetectorService,
+		private storeFacade: StoreFacade,
+		private databaseService: DatabaseService
+	) {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 
+		this.storeFacade.selectedLore$
+			.pipe(
+				distinctUntilChanged((a, b) => a.id === b.id),
+				withLatestFrom(this.databaseService.database$),
+				switchMap(([lore, database]) => database.lore.findOne({ id: lore.id }).$.pipe(take(1))),
+				switchMap(lore =>
+					of(((lore.getAttachment('texture') as any) as RxAttachment<Lore>)).pipe(
+						mergeMap(att => att ? att.getData() : of(undefined)),
+						map(att => ({ lore, att }))
+					)
+				)
+			)
+			.subscribe(({ att }) => {
+				this.globe.points.forEach(point => {
+					point.parent.remove(point);
+				});
+				if (att) {
+					this.globe.displacementTexture.loadFromBlob(att as Blob);
+				} else {
+					this.globe.displacementTexture.clear();
+				}
+			});
+
+		/**
+		 *
+		 *
+		 * 	switchMap(lore =>
+		 lore.allAttachments$.pipe(
+		 take(1),
+		 map(att => att.find(a => a.id === 'texture')),
+		 filter(att => !!att),
+		 switchMap(att => att.getData()),
+		 map(att => ({ lore, att })),
+		 endWith({lore, att: undefined as Blob})
+		 )map(a => a as { lore: Lore, att: Blob }),  // Because of an RXJS bug with endWith, can remove in the next version
+		 ),
+		 */
 		this.storeFacade.interactionMode$.subscribe(interactionMode => {
 			this.interactionMode = interactionMode;
 		});
