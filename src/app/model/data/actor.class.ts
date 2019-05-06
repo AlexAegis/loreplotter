@@ -7,6 +7,7 @@ import { ActorDelta, UnixWrapper } from '@app/model/data';
  */
 export class Actor {
 	public static DEFAULT_MAX_SPEED = 4;
+	public static DEFAULT_COLOR = `#004bba`;
 	public constructor(public id: string, public loreId?: string) {}
 	public _states: Tree<UnixWrapper, ActorDelta> = new Tree<UnixWrapper, ActorDelta>(); // handled as transient
 	public states: string;

@@ -77,8 +77,9 @@ export class PopupComponent implements OnInit, OnDestroy {
 							name: payload.accumulator.name,
 							maxSpeed: payload.accumulator.maxSpeed,
 							knowledge: payload.accumulator.knowledge,
-							selected: selection, // TODO The ActorObject
-							cursor: payload.cursor
+							selected: selection,
+							cursor: payload.cursor,
+							color: payload.accumulator.color
 						} as ActorFormComponentData
 					});
 				}),

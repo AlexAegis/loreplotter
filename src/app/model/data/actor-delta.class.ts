@@ -12,10 +12,13 @@ export class ActorDelta {
 	public knowledge: Map<String, String>;
 	@jsonMember
 	public maxSpeed: number;
-	public constructor(name?: string,  position?: Vector3Serializable, knowledge: Map<String, String> = new Map(), maxSpeed?: number) {
+	@jsonMember
+	public color: string;
+	public constructor(name?: string,  position?: Vector3Serializable, knowledge: Map<String, String> = new Map(), maxSpeed?: number, color?: string) {
 		this.name = name;
 		this.position = position;
 		this.knowledge = knowledge;
 		this.maxSpeed = maxSpeed;
+		this.color = color;
 	}
 }

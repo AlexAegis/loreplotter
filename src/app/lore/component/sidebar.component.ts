@@ -4,10 +4,11 @@ import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { Actor } from '@app/model/data/actor.class';
-import { DatabaseService } from '@app/service/database.service';
+import { ActorAccumulator, ActorService } from '@app/service';
 import { LoreService } from '@app/service/lore.service';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { RxDocument } from 'rxdb';
+import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -41,8 +42,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		}
 	});
 
-	public actorCount$ = this.databaseService.actorCount$;
-	public actors$ = this.databaseService.currentLoreActors$;
+	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
 
 	public mediaQueryAlias: string;
 
@@ -50,11 +50,12 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		private media: MediaObserver,
 		private dnd: SkyhookDndService,
 		public loreService: LoreService,
-		public databaseService: DatabaseService,
 		public engineService: EngineService,
+		private actorService: ActorService,
 		private changeDetector: ChangeDetectorRef
 	) {
 		super();
+		this.actorDeltasAtCursor$ = this.actorService.actorDeltasAtCursor$;
 	}
 
 	public get mediaLarge(): boolean {

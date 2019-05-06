@@ -1,6 +1,5 @@
 <mat-sidenav-container class="container">
 	<mat-sidenav
-		#sidenav
 		[(mode)]="over"
 		[(opened)]="opened"
 		*ngIf="!disabled"
@@ -10,14 +9,19 @@
 		<h2>Objects</h2>
 		<div class="spawnables">
 			<button mat-raised-button [dragSource]="actorSource">
-				<fa-icon #famale [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
+				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
 		</div>
-		<h2>Actors {{ actorCount$ | async }}</h2>
+		<h2>Actors {{ (actorDeltasAtCursor$ | async)?.length }}</h2>
 		<div class="spawnables">
-			<button mat-raised-button *ngFor="let actor of actors$ | async" (click)="select($event, actor)">
-				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> {{ actor.id }} ({{
-					actor?._states?.length
+			<button
+				mat-raised-button
+				*ngFor="let actorAccumulator of actorDeltasAtCursor$ | async"
+				(click)="select($event, actorAccumulator.actor)"
+				[ngStyle]="{ backgroundColor: actorAccumulator.accumulator.color }"
+			>
+				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> {{ actorAccumulator.accumulator.name }} ({{
+					actorAccumulator.actor?._states?.length
 				}})
 			</button>
 		</div>

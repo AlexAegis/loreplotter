@@ -21,6 +21,7 @@ export interface ActorFormComponentData {
 	moment: Moment;
 	date: string;
 	time: string;
+	color: string;
 }
 
 export interface ActorFormResultData {
@@ -31,6 +32,7 @@ export interface ActorFormResultData {
 	knowledge: Array<{ key: String; value: String; forget: boolean }>;
 	newKnowledge: Array<{ key: String; value: String }>;
 	object: ActorObject;
+	color: string;
 }
 
 @Component({
@@ -86,7 +88,8 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 			maxSpeed: maxSpeed ? parseFloat(maxSpeed) : undefined,
 			knowledge: this.actorForm.controls['knowledge'].value,
 			newKnowledge: this.actorForm.controls['newKnowledge'].value,
-			object: this.originalData.selected
+			object: this.originalData.selected,
+			color: `#541286` // TODO: get color from form
 		};
 	}
 
