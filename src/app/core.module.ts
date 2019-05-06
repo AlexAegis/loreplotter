@@ -7,9 +7,19 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { MyHammerConfig } from '@app/hammer-config.class';
 import { AppStoreModule } from '@app/store/app-store.module';
 import { environment } from '@env/environment';
-import { APP_FORMATS } from '@lore/lore.module';
 import { DeviceDetectorModule } from 'ngx-device-detector';
 
+export const APP_FORMATS = {
+	parse: {
+		dateInput: 'LL'
+	},
+	display: {
+		dateInput: 'YYYY-MM-DD',
+		monthYearLabel: 'YYYY',
+		dateA11yLabel: 'LL',
+		monthYearA11yLabel: 'YYYY'
+	}
+};
 /**
  * CoreModule
  *

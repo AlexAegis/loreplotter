@@ -7,7 +7,6 @@ import { Actor, ActorDelta, UnixWrapper, Vector3Serializable } from '@app/model/
 import { DatabaseService } from '@app/service/database.service';
 import { ActorFormResultData } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import moment from 'moment';
 import { RxDocument } from 'rxdb';
 import { combineLatest, from, Observable, Subject } from 'rxjs';
 import { filter, map, mergeMap, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
@@ -97,8 +96,11 @@ export class ActorService {
 	public actorDialogSubscription = this.actorFormSave
 		.pipe(
 			filter(data => data !== undefined),
-			switchMap(({ object, name, maxSpeed, date, time, knowledge, newKnowledge, color }) => {
-				const wrapper = new UnixWrapper(moment(`${date}T${time}`).unix());
+			switchMap(({ object, name, maxSpeed, date, knowledge, newKnowledge, color }) => {
+
+				const wrapper = new UnixWrapper(date.unix());
+				console.log('unixes:');
+				console.log(date.unix());
 				const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
 				const knowledgeMap = new Map();
 				knowledge

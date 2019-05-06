@@ -3,8 +3,7 @@ import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { ActorObject } from '@app/lore/engine/object/actor-object.class';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import * as moment from 'moment';
-import { Moment } from 'moment';
+import moment, { Moment } from 'moment';
 import { FormEntryComponent } from './form-entry.component';
 
 /**
@@ -19,15 +18,14 @@ export interface ActorFormComponentData {
 	cursor: number;
 	maxSpeed: number;
 	moment: Moment;
-	date: string;
+	date: Moment;
 	time: string;
 	color: string;
 }
 
 export interface ActorFormResultData {
 	name: string;
-	date: string;
-	time: string;
+	date: Moment;
 	maxSpeed: number;
 	knowledge: Array<{ key: String; value: String; forget: boolean }>;
 	newKnowledge: Array<{ key: String; value: String }>;
@@ -69,7 +67,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		private formBuilder: FormBuilder
 	) {
 		this.originalData.moment = moment.unix(this.originalData.cursor);
-		this.originalData.date = this.originalData.moment.format('YYYY-MM-DD');
+		this.originalData.date = this.originalData.moment;
 		this.originalData.time = this.originalData.moment.format('HH:mm:ss');
 		this.color = this.originalData.color;
 	}
@@ -88,17 +86,19 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 	public get result(): ActorFormResultData {
 		const maxSpeed = this.actorForm.controls['maxSpeed'].value;
+		const time = this.actorForm.controls['time'].value || this.originalData.time;
+		const finalDatetime =
+			((this.actorForm.controls['date'].value as Moment) || this.originalData.date).format('YYYY-MM-DD') +
+			'T' +
+			time;
 		return {
-			date:
-				this.actorForm.controls['date']
-					.value /*&& this.actorForm.controls['date'].value.format('YYYY-MM-DD'))*/ || this.originalData.date,
-			time: this.actorForm.controls['time'].value || this.originalData.time,
+			date: moment(finalDatetime),
 			name: this.actorForm.controls['name'].value,
 			maxSpeed: maxSpeed ? parseFloat(maxSpeed) : undefined,
 			knowledge: this.actorForm.controls['knowledge'].value,
 			newKnowledge: this.actorForm.controls['newKnowledge'].value,
 			object: this.originalData.selected,
-			color: this.color // TODO: get color from form
+			color: this.color
 		};
 	}
 

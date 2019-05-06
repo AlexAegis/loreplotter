@@ -1,0 +1,21 @@
+:host {
+	> form {
+		display: grid;
+		grid-auto-columns: 1fr 3fr;
+		align-items: center;
+
+		mat-form-field {
+			margin: 1rem;
+		}
+
+	}
+
+	.save {
+		margin-top: 1rem;
+		width: 100%;
+	}
+
+	* {
+		transition: background-color 0.2s;
+	}
+}

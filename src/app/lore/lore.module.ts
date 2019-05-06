@@ -1,7 +1,9 @@
 import { SkyhookDndModule } from '@angular-skyhook/core';
 import { createDefaultMultiBackend } from '@angular-skyhook/multi-backend';
 import { NgModule } from '@angular/core';
-import { MAT_DATE_FORMATS } from '@angular/material';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { APP_FORMATS } from '@app/core.module';
 import { FocusDirective, RepeatDirective } from '@app/directive';
 import { EngineComponent, EngineService } from '@app/lore/engine';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
@@ -27,18 +29,6 @@ import { NgxMaskModule } from 'ngx-mask';
 import { LoreFormComponent } from './component/lore-form.component';
 import { SpeedControlComponent } from './component/speed-control.component';
 import { LoreComponent } from './lore.component';
-
-export const APP_FORMATS = {
-	parse: {
-		dateInput: 'LL'
-	},
-	display: {
-		dateInput: 'YYYY-MM-DD',
-		monthYearLabel: 'YYYY',
-		dateA11yLabel: 'LL',
-		monthYearA11yLabel: 'YYYY'
-	}
-};
 
 @NgModule({
 	declarations: [
@@ -76,6 +66,7 @@ export const APP_FORMATS = {
 		DatabaseService,
 		ActorService,
 		BlockService,
+		{ provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
 		{ provide: MAT_DATE_FORMATS, useValue: APP_FORMATS }
 	]
 })
