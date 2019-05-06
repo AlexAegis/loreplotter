@@ -359,6 +359,15 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			this.blockService.selection.next(undefined);
 			this.isSaving = true;
 			this.actor._states.remove(node.key);
+
+			if (this.blockEnd.value === node.key.unix) {
+				this.blockEnd.override = this.actor._states.last().key.unix;
+				this.blockEnd.bake();
+			} else if (this.blockStart.value === node.key.unix) {
+				this.blockStart.override = this.actor._states.first().key.unix;
+				this.blockStart.bake();
+			}
+
 			this.cd.detectChanges();
 			this.actor
 				.atomicUpdate(a => (a._states = this.actor._states) && a)

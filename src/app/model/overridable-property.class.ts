@@ -13,4 +13,9 @@ export class OverridableProperty<T = number> {
 	public clear(): void {
 		this.override = undefined;
 	}
+
+	public bake(): void {
+		this.original = this.override;
+		this.clear();
+	}
 }

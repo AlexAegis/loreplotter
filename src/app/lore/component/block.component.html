@@ -14,6 +14,7 @@
 		class="remove"
 		mat-icon-button
 		*ngIf="node === selection"
+		(tap)="remove($event, node)"
 		(click)="remove($event, node)"
 		[disabled]="isAtMostOneLeft"
 	>

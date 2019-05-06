@@ -20,7 +20,8 @@
 	}
 
 	.remove {
-		z-index: 25;
+		cursor: pointer;
+		z-index: 250;
 		display: inherit;
 	}
 }
