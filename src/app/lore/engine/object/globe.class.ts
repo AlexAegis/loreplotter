@@ -27,7 +27,6 @@ import { DynamicTexture } from './dynamic-texture.class';
 import { Water } from './water.class';
 
 export class Globe extends Basic {
-
 	public constructor(
 		private zoomSubject: BehaviorSubject<number>,
 		public radius: number = 1,
@@ -39,8 +38,6 @@ export class Globe extends Basic {
 		const canvas = document.createElement('canvas');
 		canvas.width = 2048; // 4096
 		canvas.height = 2048;
-
-
 
 		/**
 		 * Unfinished. Keep the radius at 1.
@@ -143,7 +140,6 @@ export class Globe extends Basic {
 				this.points.forEach(point => (point as ActorObject).updateHeightAndWorldPosAndScale(next));
 				this.changed();
 			});
-
 	}
 
 	public get points(): Array<ActorObject> {

@@ -95,7 +95,7 @@ export const sceneQuery = {
 	getLoadingScenes,
 	play: {
 		getPlaySpeed,
-		isPlaying,
+		isPlaying
 	},
 	frame: {
 		getFrame,
@@ -104,13 +104,13 @@ export const sceneQuery = {
 	},
 	cursor: {
 		getCursor,
-		getCursorOverride,
+		getCursorOverride
 	},
 	interaction: {
 		getInteractionMode,
 		getDrawSize,
 		getDrawHeight,
 		isManualLight,
-		isManualLightAlwaysOn,
+		isManualLightAlwaysOn
 	}
 };

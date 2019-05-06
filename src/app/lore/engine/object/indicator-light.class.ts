@@ -1,7 +1,6 @@
 import { SpotLight } from 'three';
 
 export class IndicatorLight extends SpotLight {
-
 	/**
 	 * TODO nudge the position in the direction of the actor by the displacement value
 	 *
@@ -18,11 +17,8 @@ export class IndicatorLight extends SpotLight {
 		this.decay = 0;
 		this.castShadow = false;
 		// (this.geometry as any).computeBoundsTree(); // Use
-
 	}
 }
-
-
 
 /***
 

@@ -26,14 +26,6 @@ export class Control extends OrbitControls {
 	}
 
 	private zoomUpdate(distance: number): void {
-		this.engineService.zoomSubject.next(
-			ThreeMath.mapLinear(
-				distance,
-				this.minDistance,
-				this.maxDistance,
-				0.2,
-				2
-			)
-		);
+		this.engineService.zoomSubject.next(ThreeMath.mapLinear(distance, this.minDistance, this.maxDistance, 0.2, 2));
 	}
 }

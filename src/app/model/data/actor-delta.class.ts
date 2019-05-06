@@ -14,7 +14,13 @@ export class ActorDelta {
 	public maxSpeed: number;
 	@jsonMember
 	public color: string;
-	public constructor(name?: string,  position?: Vector3Serializable, knowledge: Map<String, String> = new Map(), maxSpeed?: number, color?: string) {
+	public constructor(
+		name?: string,
+		position?: Vector3Serializable,
+		knowledge: Map<String, String> = new Map(),
+		maxSpeed?: number,
+		color?: string
+	) {
 		this.name = name;
 		this.position = position;
 		this.knowledge = knowledge;

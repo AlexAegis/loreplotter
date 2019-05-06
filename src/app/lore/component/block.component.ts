@@ -30,7 +30,6 @@ import { Math as ThreeMath } from 'three';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
-
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;

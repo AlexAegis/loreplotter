@@ -49,11 +49,13 @@ export class FocusDirective extends BaseDirective implements OnInit, AfterViewIn
 	}
 
 	public ngOnInit(): void {
-		this.teardown(this.focusChange.subscribe(focus => {
-			if (focus) {
-				this.hostElement.nativeElement.focus();
-			}
-		}));
+		this.teardown(
+			this.focusChange.subscribe(focus => {
+				if (focus) {
+					this.hostElement.nativeElement.focus();
+				}
+			})
+		);
 
 		this.focusListener = this.renderer.listen(this.hostElement.nativeElement, 'focus', () => {
 			this.focus = true;

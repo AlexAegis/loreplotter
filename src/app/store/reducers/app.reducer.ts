@@ -39,9 +39,12 @@ const persistant = {
 };
 
 export function localStorageSyncReducer(reducer: ActionReducer<State>): ActionReducer<State> {
-	return localStorageSync({keys: [persistant], rehydrate: true })(reducer);
+	return localStorageSync({ keys: [persistant], rehydrate: true })(reducer);
 }
 /**
  * Meta reducers
  */
-export const metaReducers: MetaReducer<State>[] = [localStorageSyncReducer, ...(!environment.production ? [logger, storeFreeze] : [])];
+export const metaReducers: MetaReducer<State>[] = [
+	localStorageSyncReducer,
+	...(!environment.production ? [logger, storeFreeze] : [])
+];

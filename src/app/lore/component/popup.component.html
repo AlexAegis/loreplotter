@@ -1,9 +1,9 @@
 <div [@visibility]="visibility">
 	{{ (selectedActorAccumulatorAtCursor$ | async)?.accumulator.name }}
-	<span>
-		Current max speed: {{ (selectedActorAccumulatorAtCursor$ | async)?.accumulator.maxSpeed }} km/h
-	</span>
+	<span> Current max speed: {{ (selectedActorAccumulatorAtCursor$ | async)?.accumulator.maxSpeed }} km/h </span>
 	<hr class="divider" />
-	<div *ngFor="let entry of (selectedActorAccumulatorAtCursor$ | async)?.accumulator.knowledge">{{ entry.key }}: {{ entry.value }}</div>
+	<div *ngFor="let entry of (selectedActorAccumulatorAtCursor$ | async)?.accumulator.knowledge">
+		{{ entry.key }}: {{ entry.value }}
+	</div>
 	<button mat-flat-button color="accent" (click)="edit($event)">Edit</button>
 </div>

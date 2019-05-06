@@ -56,7 +56,11 @@ export class LoreService extends BaseDirective {
 
 		// This subscriber's job is end map each actors state end the map based on the current cursor
 		this.teardown(
-			combineLatest([this.databaseService.currentLoreActors$, this.storeFacade.cursor$, this.overrideNodePosition])
+			combineLatest([
+				this.databaseService.currentLoreActors$,
+				this.storeFacade.cursor$,
+				this.overrideNodePosition
+			])
 				.pipe(
 					flatMap(([actors, cursor, overrideNodePositions]) =>
 						actors.map(actor => ({
@@ -113,7 +117,13 @@ export class LoreService extends BaseDirective {
 						group = actorObject.parent as Group;
 					} else {
 						group = new Group();
-						actorObject = new ActorObject(actor, this.storeFacade, this, this.actorService, engineService.globe);
+						actorObject = new ActorObject(
+							actor,
+							this.storeFacade,
+							this,
+							this.actorService,
+							engineService.globe
+						);
 						group.add(actorObject);
 						engineService.globe.add(group);
 					}
@@ -150,7 +160,7 @@ export class LoreService extends BaseDirective {
 						const actor = new Actor(nextId, lore.name);
 						actor._states.set(
 							new UnixWrapper(cursor),
-							new ActorDelta(undefined,  { x: dropVector.x, y: dropVector.y, z: dropVector.z })
+							new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
 						);
 
 						return lore.collection.database.actor.insert(actor);
@@ -168,7 +178,7 @@ export class LoreService extends BaseDirective {
 						point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 						point.actor._states.set(
 							new UnixWrapper(cursor),
-							new ActorDelta(undefined,  {
+							new ActorDelta(undefined, {
 								x: position.x,
 								y: position.y,
 								z: position.z

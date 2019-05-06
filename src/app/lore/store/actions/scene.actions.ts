@@ -127,5 +127,7 @@ export const toggleManualLightAlwaysOn = createAction(
 
 export const actorSpawnOnWorld = createAction(
 	`[Actor] Spawn On World`,
-	(payload: Payload<{ actorObject: ActorObject; position: Vector3 }> ): Payload<{ actorObject: ActorObject; position: Vector3 }> => (payload)
+	(
+		payload: Payload<{ actorObject: ActorObject; position: Vector3 }>
+	): Payload<{ actorObject: ActorObject; position: Vector3 }> => payload
 );

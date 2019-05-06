@@ -23,7 +23,6 @@
 @import '../lore/component/actor-form.component.theme';
 @import '../lore/component/scene-controls.component.theme';
 
-
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);
 	@include loading-component-theme($theme);

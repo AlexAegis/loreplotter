@@ -54,7 +54,6 @@ const getSelectedPlanetName = createSelector(
 	state => state && state.name
 );
 
-
 const getLoreEntityById = createSelector(
 	getLoreEntities,
 	(entities: Dictionary<Lore>, props: { id: string }) => {

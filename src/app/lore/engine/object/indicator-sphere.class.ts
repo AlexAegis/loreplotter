@@ -3,7 +3,6 @@ import { Globe } from '@lore/engine/object/globe.class';
 import { AdditiveBlending, MeshBasicMaterial, SphereBufferGeometry } from 'three';
 
 export class IndicatorSphere extends Basic {
-
 	/**
 	 * TODO nudge the position in the direction of the actor by the displacement value
 	 *
@@ -46,8 +45,6 @@ export class IndicatorSphere extends Basic {
 		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, c);
 	}
 }
-
-
 
 /***
 

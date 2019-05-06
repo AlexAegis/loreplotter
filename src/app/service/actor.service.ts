@@ -94,34 +94,35 @@ export class ActorService {
 		filter(delta => delta !== undefined)
 	);
 
-	public actorDialogSubscription = this.actorFormSave.pipe(
-		filter(data => data !== undefined),
-		switchMap(({ object, name, maxSpeed, date, time, knowledge, newKnowledge, color }) => {
-			const wrapper = new UnixWrapper(moment(`${date}T${time}`).unix());
-			const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
-			const knowledgeMap = new Map();
-			knowledge
-				.filter(({ value }) => !!value)
-				.map(k => {
-					if (k.forget) {
-						k.value = undefined;
-					}
-					return k;
-				})
-				.forEach(({ key, value }) => knowledgeMap.set(key, value));
-			newKnowledge.filter(({ value }) => !!value).forEach(({ key, value }) => knowledgeMap.set(key, value));
-			const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap, maxSpeed, color);
-			object.actor._states.set(wrapper, delta);
-			return from(
-				object.actor.atomicUpdate(actor => {
-					actor._states = object.actor._states;
-					return actor;
-				})
-			).pipe(map(actor => ({ actor, object })));
-		}),
-		tap(({ object }) => refreshBlockOfActorObject(object))
-	).subscribe();
-
+	public actorDialogSubscription = this.actorFormSave
+		.pipe(
+			filter(data => data !== undefined),
+			switchMap(({ object, name, maxSpeed, date, time, knowledge, newKnowledge, color }) => {
+				const wrapper = new UnixWrapper(moment(`${date}T${time}`).unix());
+				const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
+				const knowledgeMap = new Map();
+				knowledge
+					.filter(({ value }) => !!value)
+					.map(k => {
+						if (k.forget) {
+							k.value = undefined;
+						}
+						return k;
+					})
+					.forEach(({ key, value }) => knowledgeMap.set(key, value));
+				newKnowledge.filter(({ value }) => !!value).forEach(({ key, value }) => knowledgeMap.set(key, value));
+				const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap, maxSpeed, color);
+				object.actor._states.set(wrapper, delta);
+				return from(
+					object.actor.atomicUpdate(actor => {
+						actor._states = object.actor._states;
+						return actor;
+					})
+				).pipe(map(actor => ({ actor, object })));
+			}),
+			tap(({ object }) => refreshBlockOfActorObject(object))
+		)
+		.subscribe();
 
 	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
 		let finalPosition: Vector3Serializable;
@@ -145,7 +146,6 @@ export class ActorService {
 		return finalPosition;
 	}
 
-
 	/**
 	 * rotates the position t'th way between the enclosure
 	 * Returns a new worldpositon at radius 1
@@ -167,5 +167,4 @@ export class ActorService {
 		}
 		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
 	}
-
 }

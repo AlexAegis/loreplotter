@@ -278,11 +278,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		this.teardown(
 			this.easeCursorTo
 				.pipe(
-					withLatestFrom(
-						this.storeFacade.cursor$,
-						this.storeFacade.frame$,
-						this.containerWidth
-					),
+					withLatestFrom(this.storeFacade.cursor$, this.storeFacade.frame$, this.containerWidth),
 					map(([position, cursor, { start, end }, containerWidth]) => ({
 						from: { cursor: cursor },
 						to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
@@ -357,7 +353,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 
 	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
 		return this.actorDeltasAtCursor$.pipe(
-			map((actorAccs) => actorAccs.find(actorAcc => actorAcc.actor.id === actor.id)),
+			map(actorAccs => actorAccs.find(actorAcc => actorAcc.actor.id === actor.id)),
 			filter(accumulator => accumulator !== undefined)
 		);
 	}

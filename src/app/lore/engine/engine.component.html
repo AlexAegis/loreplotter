@@ -1,4 +1,5 @@
-<canvas id="canvas"
+<canvas
+	id="canvas"
 	#canvas
 	(panstart)="pan($event)"
 	(panleft)="pan($event)"
@@ -11,6 +12,5 @@
 	(press)="contextmenu($event)"
 	[dropTarget]="drop"
 ></canvas>
-
 
 <app-popup #indicator [pos]="engineService.popupTarget | async"></app-popup>

@@ -39,6 +39,4 @@ export class ActorEffects {
 		map(actors => loadActorsSuccess({ payload: actors as Array<Actor> })),
 		catchError(error => of(loadActorsFailure({ payload: error })))
 	);
-
-
 }

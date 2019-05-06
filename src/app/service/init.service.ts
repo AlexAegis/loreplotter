@@ -7,7 +7,6 @@ import RxDB from 'rxdb';
  */
 @Injectable()
 export class InitService {
-
 	private success = true;
 
 	public async init(): Promise<boolean> {

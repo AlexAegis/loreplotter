@@ -42,27 +42,37 @@ export class CursorComponent extends BaseDirective implements OnInit {
 			map(([{ start, end }, unix]) => ThreeMath.mapLinear(unix, start, end, 0, 1))
 		);
 
-		this.teardown(this.progress$.subscribe(next => {
-			this.progress = next * 100;
-		}));
+		this.teardown(
+			this.progress$.subscribe(next => {
+				this.progress = next * 100;
+			})
+		);
 
-		this.teardown(this.shifter
-			.pipe(
-				withLatestFrom(this.containerWidth),
-				filter(
-					([cursoroverride, containerWidth]) =>
-						cursoroverride === undefined ||
-						(this.panStartPosition + cursoroverride >= 0 &&
-							this.panStartPosition + cursoroverride <= containerWidth)
-				), // Out of bounds check
-				withLatestFrom(this.frame$),
-				map(([[pos, containerWidth], frame]) => {
-					return ThreeMath.mapLinear(this.panStartPosition + pos, 0, containerWidth, frame.start, frame.end);
+		this.teardown(
+			this.shifter
+				.pipe(
+					withLatestFrom(this.containerWidth),
+					filter(
+						([cursoroverride, containerWidth]) =>
+							cursoroverride === undefined ||
+							(this.panStartPosition + cursoroverride >= 0 &&
+								this.panStartPosition + cursoroverride <= containerWidth)
+					), // Out of bounds check
+					withLatestFrom(this.frame$),
+					map(([[pos, containerWidth], frame]) => {
+						return ThreeMath.mapLinear(
+							this.panStartPosition + pos,
+							0,
+							containerWidth,
+							frame.start,
+							frame.end
+						);
+					})
+				)
+				.subscribe(cursoroverride => {
+					this.storeFacade.setCursorOverride(cursoroverride);
 				})
-			)
-			.subscribe(cursoroverride => {
-				this.storeFacade.setCursorOverride(cursoroverride);
-			}));
+		);
 	}
 
 	@HostListener('panstart', ['$event'])
@@ -81,5 +91,4 @@ export class CursorComponent extends BaseDirective implements OnInit {
 			this.storeFacade.bakeCursorOverride();
 		}
 	}
-
 }
