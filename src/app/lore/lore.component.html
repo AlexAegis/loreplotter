@@ -2,30 +2,51 @@
 	<mat-toolbar-row id="mainBar">
 		<app-hamburger *ngIf="!sidebar.mediaLarge" @leave [(open)]="sidebar.opened"></app-hamburger>
 
-		<button class="title" aria-label="Home" mat-button [routerLink]="['']" matRipple disableRipple
-				[matRippleRadius]="800">
+		<button
+			class="title"
+			aria-label="Home"
+			mat-button
+			[routerLink]="['']"
+			matRipple
+			disableRipple
+			[matRippleRadius]="800"
+		>
 			{{ title }}
 		</button>
 
 		<mat-menu #appMenu="matMenu">
-			<button aria-label="Create Project" mat-menu-item (click)="createLore()">Create</button>
+			<span
+			><button aria-label="Create Project" class="create" mat-menu-item color="accent" (click)="createLore()">
+					<fa-icon [icon]="plusIcon" size="lg"></fa-icon> Create
+				</button></span
+			>
 			<hr class="divider" />
-			<button aria-label="Select project" mat-menu-item *ngFor="let lore of lores$ | async"
-					(click)="selectLore(lore)">
+			<button
+				aria-label="Select project"
+				mat-menu-item
+				*ngFor="let lore of lores$ | async"
+				(click)="selectLore(lore)"
+			>
 				{{ lore.name }}
 			</button>
 
 			<span>
-				<button aria-label="Export" mat-menu-item (click)="createLore()">Export</button>
-				<button aria-label="Import" mat-menu-item (click)="createLore()">Import</button>
+				<button aria-label="Export/Import" mat-flat-button color="warn" (click)="exportDatabase()">
+					Export/Import
+				</button>
 			</span>
 		</mat-menu>
 
 		<span class="menuButton">
-			<button mat-icon-button aria-label="Open Repo"><fa-icon [icon]="githubIcon" size="lg"
-																	(click)="navigateToRepo()"></fa-icon></button>
-			<button mat-flat-button aria-label="Edit Current" (click)="editLoreCurrent()"
-					*ngIf="!!(selectedLore$ | async)">
+			<button mat-icon-button aria-label="Open Repo">
+				<fa-icon [icon]="githubIcon" size="lg" (click)="navigateToRepo()"></fa-icon>
+			</button>
+			<button
+				mat-flat-button
+				aria-label="Edit Current"
+				(click)="editLoreCurrent()"
+				*ngIf="!!(selectedLore$ | async)"
+			>
 				{{ (selectedLore$ | async).name }}
 			</button>
 			<button mat-icon-button aria-label="Open Menu" [matMenuTriggerFor]="appMenu">

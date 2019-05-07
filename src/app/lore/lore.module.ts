@@ -29,6 +29,8 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxMaskModule } from 'ngx-mask';
 import { SpeedControlComponent } from 'src/app/lore/component/control/speed-control.component';
 import { LoreFormComponent } from 'src/app/lore/component/dialog/lore-form.component';
+import { ConfirmComponent } from './component/dialog/confirm.component';
+import { ExportComponent } from './component/dialog/export.component';
 import { LoreComponent } from './lore.component';
 
 @NgModule({
@@ -50,7 +52,9 @@ import { LoreComponent } from './lore.component';
 		RepeatDirective,
 		VarDirective,
 		SpeedControlComponent,
-		LoreFormComponent
+		LoreFormComponent,
+		ExportComponent,
+		ConfirmComponent
 	],
 	imports: [
 		LoreStoreModule,

@@ -7,6 +7,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LogPipe } from '@app/pipe/log.pipe';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ActorFormComponent } from '@lore/component';
+import { ConfirmComponent } from '@lore/component/dialog/confirm.component';
+import { ExportComponent } from '@lore/component/dialog/export.component';
 import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { Ng5SliderModule } from 'ng5-slider';
 import { MomentModule } from 'ngx-moment';
@@ -34,6 +36,6 @@ const modules = [
 	declarations: [LogPipe],
 	imports: [...modules],
 	exports: [...modules],
-	entryComponents: [ActorFormComponent, LoreFormComponent]
+	entryComponents: [ActorFormComponent, LoreFormComponent, ExportComponent, ConfirmComponent]
 })
 export class SharedModule {}

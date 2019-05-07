@@ -1,0 +1,26 @@
+:host {
+	mat-dialog-content {
+		height: 100%;
+
+		mat-form-field {
+			width: 80%;
+			min-width: 5rem;
+
+			textarea {
+				height: 100%;
+			}
+		}
+
+		a {
+			visibility: visible;
+		}
+
+	}
+
+	mat-dialog-actions {
+		> * {
+			margin: auto;
+		}
+	}
+
+}

@@ -17,12 +17,13 @@ import { EngineService } from '@app/lore/engine';
 import { Lore, Planet } from '@app/model/data';
 import { DatabaseService, LoreService } from '@app/service';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisH, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { TimelineComponent } from '@lore/component';
+import { ExportComponent, ExportData } from '@lore/component/dialog/export.component';
 import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
-import { filter, switchMap, take } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore',
@@ -109,6 +110,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 	public title = 'Lore';
 	public menuIcon = faEllipsisH;
 	public githubIcon = faGithub;
+	public plusIcon = faPlus;
 
 	public constructor(
 		public loreService: LoreService,
@@ -215,6 +217,28 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 			.subscribe(result => this.storeFacade.updateLore(result));
 	}
 
+	/**
+	 * This opens up
+	 * the export dialog with the dump preloaded.
+	 * The textures are not included
+	 */
+	public exportDatabase(): void {
+		this.databaseService.database$
+			.pipe(
+				switchMap(db => db.dump()),
+				map(e => JSON.stringify(e)),
+				switchMap(dump =>
+					this.dialog
+						.open(ExportComponent, {
+							data: { data: dump } as ExportData,
+							height: '90vh',
+							width: '70vw'
+						})
+						.afterClosed()
+				)
+			)
+			.subscribe();
+	}
 	/**
 	 * Opens the project's repo on a new tab
 	 */
