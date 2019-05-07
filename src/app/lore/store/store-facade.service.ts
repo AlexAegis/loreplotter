@@ -97,11 +97,11 @@ export class StoreFacade {
 	}
 
 	public deleteLore(id: string): void {
-		this.store$.dispatch(deleteLore({ id }));
+		this.store$.dispatch(deleteLore({ payload: id }));
 	}
 
 	public selectLore(lore: Partial<Lore>): void {
-		this.store$.dispatch(changeSelectedLore({ payload: lore }));
+		this.store$.dispatch(changeSelectedLore({ payload: lore.id }));
 	}
 
 	public setPlaySpeed(speed: number): void {

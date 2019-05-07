@@ -15,6 +15,7 @@
 @import '../app.component.theme';
 @import '../component/loading.component.theme';
 
+@import '../lore/lore.component.theme';
 @import '../lore/component/element/sidebar.component.theme';
 @import '../lore/component/element/hamburger.component.theme';
 @import '../lore/component/timeline/timeline.component.theme';
@@ -27,6 +28,7 @@
 
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);
+	@include lore-component-theme($theme);
 	@include loading-component-theme($theme);
 	@include sidebar-component-theme($theme);
 	@include hamburger-component-theme($theme);

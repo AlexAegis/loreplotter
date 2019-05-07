@@ -91,8 +91,7 @@ export function loreReducer(state: LoreState = initialLoreState, action: LoreAct
 			return { ...state, loading: true };
 		}
 		case deleteLoreSuccess.type: {
-			const { id } = action.payload;
-			return loreAdapter.removeOne(id, { ...state, loading: false });
+			return loreAdapter.removeOne(action.payload, { ...state, loading: false });
 		}
 		case deleteLoreFailure.type: {
 			return { ...state, loading: false };

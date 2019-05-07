@@ -17,12 +17,12 @@ import { EngineService } from '@app/lore/engine';
 import { Lore, Planet } from '@app/model/data';
 import { DatabaseService, LoreService } from '@app/service';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
-import { faEllipsisH, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsisH, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { TimelineComponent } from '@lore/component';
 import { ExportComponent, ExportData } from '@lore/component/dialog/export.component';
 import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { filter, map, switchMap, take } from 'rxjs/operators';
 
 @Component({
@@ -107,10 +107,12 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	public selectedLore$: Observable<Partial<Lore>>;
 	public lores$: Observable<Array<Partial<Lore>>>;
+	public loresButSelected$: Observable<Array<Partial<Lore>>>;
 	public title = 'Lore';
 	public menuIcon = faEllipsisH;
 	public githubIcon = faGithub;
 	public plusIcon = faPlus;
+	public removeIcon = faTrash;
 
 	public constructor(
 		public loreService: LoreService,
@@ -124,6 +126,9 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		super();
 		this.selectedLore$ = this.storeFacade.selectedLore$;
 		this.lores$ = this.storeFacade.lores$;
+		this.loresButSelected$ = combineLatest([this.lores$, this.selectedLore$]).pipe(
+			map(([lores, selected]) => lores.filter(lore => lore.id !== selected.id))
+		);
 		this.setTheme('default-theme');
 		this.teardown(
 			this.engineService.light$.subscribe(light => {
@@ -198,6 +203,10 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	public selectLore(lore: Partial<Lore>): void {
 		this.storeFacade.selectLore(lore);
+	}
+
+	public removeLore(lore: Partial<Lore>): void {
+		this.storeFacade.deleteLore(lore.id);
 	}
 
 	public createLore(): void {

@@ -183,28 +183,20 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	// @HostListener('mousewheel', ['$event'])
 	public scrollHandler($event: any): void {
 		const direction = toUnit($event.deltaY); // -1 or 1
-
 		const prog = ThreeMath.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
-		/*console.log(
-			`prog: ${prog} currentUnitUpperlimit: ${this.currentUnitDivision} nextUnitDivision: ${
-				this.nextUnitDivision
-			} currentUnitIndex: ${this.currentUnitIndex} unitsBetween: ${this.unitsBetween}`
-		);*/
 		// This will be the cursor positon or the center of the pinch, right now it's just the cursors position
-
+		/*
 		if (
 			direction > 0 &&
 			this.nextUnitDivision <= this.unitsBetween &&
 			this.currentUnitIndex < this.units.length - 1
 		) {
 			// this.currentUnitIndex++;
-			console.log('upshift');
 			// upshift
 		} else if (direction < 0 && this.currentUnitDivision >= this.unitsBetween && this.currentUnitIndex > 0) {
 			// this.currentUnitIndex--;
-			console.log('downshift');
 			// downshift
-		}
+		}*/
 
 		this.storeFacade.changeFrameBy({
 			start: -direction * prog * this.currentUnitSeconds,

@@ -111,7 +111,7 @@ export class LoreService extends BaseDirective {
 					}
 
 					const t = enclosingProgress(enclosure, cursor);
-					let actorObject = engineService.globe.getObjectByName(actor.id) as ActorObject;
+					let actorObject = this.engineService.globe.getObjectByName(actor.id) as ActorObject;
 					let group: Group;
 					if (actorObject) {
 						group = actorObject.parent as Group;
@@ -125,7 +125,10 @@ export class LoreService extends BaseDirective {
 							engineService.globe
 						);
 						group.add(actorObject);
-						engineService.globe.add(group);
+						this.engineService.globe.add(group);
+
+						this.engineService.control.zoomUpdate(this.engineService.stage.camera.position.length());
+						actorObject.updateHeightAndWorldPosAndScale();
 					}
 
 					if (
@@ -233,18 +236,39 @@ export class LoreService extends BaseDirective {
 		);
 	}
 
-
 	/**
 	 * Creates a new lore object in the database
 	 * @param lore from state be created, ! this parameter cant be modified since it's from the state !
 	 */
 	public update(lore: Partial<Lore>): Observable<RxDocument<Lore, LoreDocumentMethods>> {
 		return this.databaseService.database$.pipe(
-			map((connection) => ({
+			map(connection => ({
 				connection,
 				json: new Lore(lore.id, lore.name, lore.locations, new Planet(lore.planet.name, lore.planet.radius))
 			})),
 			switchMap(({ connection, json }) => connection.lore.upsert(json))
+		);
+	}
+
+	/**
+	 * Deletes a lore object from the database and also all the actors
+	 * @param id of the lore to be deleted
+	 */
+	public delete(id: string): Observable<boolean> {
+		return this.databaseService.database$.pipe(
+			switchMap(connection =>
+				connection.lore
+					.find({ id: id })
+					.$.pipe(
+					mergeMap(lores =>
+						connection.actor.find({ loreId: id }).$.pipe(map(actors => ({ lores, actors })))
+					)
+				)
+			),
+			mergeMap(({ lores, actors }) =>
+				zip(from(lores).pipe(switchMap(l => l.remove())), from(actors).pipe(switchMap(a => a.remove())))
+			),
+			map(([l, a]) => l || a)
 		);
 	}
 }

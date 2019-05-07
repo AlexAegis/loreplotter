@@ -66,11 +66,11 @@ export class DatabaseService {
 	);
 
 	public nextActorId$ = this.allActors$.pipe(
-		map(actors => `${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`)
+		map(actors => `${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc), 0) + 1}`)
 	);
 
 	public nextLoreId$ = this.lores$.pipe(
-		map(lores => `${lores.map(lore => Number(lore.id)).reduce((acc, next) => (acc < next ? next : acc)) + 1}`),
+		map(lores => `${lores.map(lore => Number(lore.id)).reduce((acc, next) => (acc < next ? next : acc), 0) + 1}`),
 
 		shareReplay(1)
 	);
@@ -114,7 +114,7 @@ export class DatabaseService {
 		return actor;
 	}
 
-	private initData(conn: RxDatabase<RxCollections>): Observable<any> {
+	public initData(conn: RxDatabase<RxCollections>): Observable<RxDocument<Lore>> {
 		const testKMA = new Map();
 		testKMA.set('Favourite color', 'blue');
 		testKMA.set('Has a cat', 'yes');

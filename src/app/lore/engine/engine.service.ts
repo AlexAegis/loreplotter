@@ -189,7 +189,7 @@ export class EngineService {
 	);
 
 	// Zoom
-	public zoomSubject: BehaviorSubject<number> = new BehaviorSubject<number>(undefined);
+	public zoomSubject: BehaviorSubject<number> = new BehaviorSubject<number>(0.5);
 
 	// Drag
 	public drag: ActorObject = undefined;
@@ -231,7 +231,7 @@ export class EngineService {
 				if (accumulator.cache.length > 20) {
 					accumulator.cache.shift();
 				}
-				const nextAvg = accumulator.cache.reduce((a, n) => a + n) / accumulator.cache.length;
+				const nextAvg = accumulator.cache.reduce((a, n) => a + n, 0) / accumulator.cache.length;
 				accumulator.dampenedSpeed = Math.abs(nextAvg - accumulator.avg);
 				accumulator.avg = nextAvg;
 				accumulator.current = next;
@@ -312,7 +312,7 @@ export class EngineService {
 			this.stage.ambient.intensity = light * 0.5;
 			this.stage.sun.material.opacity = (1 - light) * 0.5;
 			this.stage.sun.directionalLight.intensity =
-				(1 - light) * (this.stage.sun.directionalLightBaseIntensity - 0.05) + 0.05;
+				(1 - light) * (this.stage.sun.directionalLightBaseIntensity)
 		});
 	}
 

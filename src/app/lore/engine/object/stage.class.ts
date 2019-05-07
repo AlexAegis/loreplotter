@@ -13,14 +13,6 @@ export class Stage extends Scene {
 
 		this.name = 'stage';
 		this.camera = new PerspectiveCamera(120, window.innerWidth / window.innerHeight, 0.1, 10000);
-		/*this.camera = new OrthographicCamera(
-			window.innerWidth / -2,
-			window.innerWidth / 2,
-			window.innerHeight / 2,
-			window.innerHeight / -2,
-			0.1,
-			10000
-		);*/
 		this.camera.name = 'camera';
 		this.camera.position.z = 1000;
 		this.camera.zoom = window.innerHeight / 2;
@@ -31,7 +23,7 @@ export class Stage extends Scene {
 		this.sunGroup = new Group();
 		this.sun = new Sun();
 		this.sunGroup.add(this.sun);
-		this.sun.position.set(20, 0, 0);
+		this.sun.position.set(40, 0, 0);
 		this.sunGroup.position.set(0, 0, 0);
 		this.sun.directionalLight.target = this.sunGroup;
 		this.add(this.sunGroup);
