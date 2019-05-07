@@ -25,6 +25,7 @@ import {
 	FeatureActions,
 	loadLoresFailure,
 	loadLoresSuccess,
+	setActorObjectSizeBias,
 	setAutoLight,
 	setDrawHeight,
 	setDrawSize,
@@ -77,6 +78,7 @@ export class StoreFacade {
 	public frame$ = this.store$.pipe(select(sceneQuery.frame.getFrame));
 	// Interaction
 	public interactionMode$ = this.store$.pipe(select(sceneQuery.interaction.getInteractionMode));
+	public actorObjectSizeBias$ = this.store$.pipe(select(sceneQuery.interaction.getActorObjectSizeBias));
 	public drawSize$ = this.store$.pipe(select(sceneQuery.interaction.getDrawSize));
 	public drawHeight$ = this.store$.pipe(select(sceneQuery.interaction.getDrawHeight));
 	public manualLight$ = this.store$.pipe(select(sceneQuery.interaction.isManualLight));
@@ -200,5 +202,9 @@ export class StoreFacade {
 
 	public updateActor(formData: ActorFormResultData): void {
 		this.store$.dispatch(updateActor({ payload: formData }));
+	}
+
+	public setActorObjectSizeBias(to: number): void {
+		this.store$.dispatch(setActorObjectSizeBias({ payload: to }));
 	}
 }

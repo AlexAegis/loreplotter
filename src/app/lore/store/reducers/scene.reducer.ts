@@ -9,6 +9,7 @@ import {
 	changeFrameBy,
 	clearCursorOverride,
 	SceneActions,
+	setActorObjectSizeBias,
 	setAutoLight,
 	setDrawHeight,
 	setDrawSize,
@@ -48,6 +49,7 @@ export interface SceneState {
 	cursor: CursorState;
 	frame: FrameState;
 	interactionMode: InteractionMode;
+	actorObjectSizeBias: number;
 	drawSize: number;
 	drawHeight: number;
 	manualLight: boolean;
@@ -78,6 +80,7 @@ export const initialSceneState: SceneState = {
 			delta: undefined
 		}
 	},
+	actorObjectSizeBias: 0,
 	interactionMode: 'move',
 	drawSize: 10,
 	drawHeight: 1,
@@ -192,6 +195,9 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 		}
 		case setInteractionMode.type: {
 			return { ...state, interactionMode: action.payload };
+		}
+		case setActorObjectSizeBias.type: {
+			return { ...state, actorObjectSizeBias: action.payload };
 		}
 		case setDrawSize.type: {
 			return { ...state, drawSize: action.payload };

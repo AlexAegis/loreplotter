@@ -11,7 +11,7 @@ import { metaReducers, reducers } from './reducers';
 	imports: [
 		StoreModule.forRoot(reducers, { metaReducers }),
 		EffectsModule.forRoot([]),
-		StoreRouterConnectingModule,
+		StoreRouterConnectingModule.forRoot(),
 		StoreDevtoolsModule.instrument({ logOnly: environment.production })
 	]
 })

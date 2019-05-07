@@ -15,6 +15,8 @@ export class ActorObject extends Basic {
 	public material: MeshBasicMaterial;
 	public lastWorldPosition = new Vector3();
 	public baseHeight = 1.025;
+	private scalarScale = 1;
+	private scalarScaleBias = 0;
 	// panning/distance restriction
 	private cursorAtPanStart: number;
 	private positionAtStart: Quaternion;
@@ -59,6 +61,7 @@ export class ActorObject extends Basic {
 		this.actorAccumulator$.subscribe(next => {
 			this.material.color.set(next.accumulator.color);
 		});
+
 		this.name = actor.id;
 		this.type = 'Point';
 		this.position.set(0, 0, this.baseHeight);
@@ -76,10 +79,10 @@ export class ActorObject extends Basic {
 				this.cursorAtPanStart = next.cursor;
 				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
 				// If the cursor is right on a node, go edit mode and just select the node before and after
-				/*if (this.enclosing.first && this.enclosing.first.key.unix === this.cursorAtPanStart) {
+				if (this.enclosing.first && this.enclosing.first.key.unix === this.cursorAtPanStart) {
 					this.enclosing.first = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart - 1)).first;
 					this.enclosing.last = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart + 1)).last;
-				}*/
+				}
 				const maxAccumulatedSpeed = next.accumulator.maxSpeed;
 				if (this.enclosing.first) {
 					this.rightHelper.set(
@@ -233,13 +236,21 @@ export class ActorObject extends Basic {
 		const gui = new dat.GUI();
 		gui.addColor(guiObj, 'color');
 		gui.add(guiObj, 'size');*/
+
+		this.storeFacade.actorObjectSizeBias$.pipe(filter(next => next !== undefined)).subscribe(next => {
+			this.scalarScaleBias = next;
+			this.scale.setScalar(this.scalarScale + this.scalarScaleBias);
+		});
 	}
 
 	public updateHeightAndWorldPosAndScale(scalarScale?: number): void {
-		this.parent.updateWorldMatrix(false, true);
-		if (scalarScale) {
-			this.scale.setScalar(scalarScale);
+		if (this.parent) {
+			this.parent.updateWorldMatrix(false, true);
 		}
+		if (scalarScale) {
+			this.scalarScale = scalarScale;
+		}
+		this.scale.setScalar(Math.max(this.scalarScale + this.scalarScaleBias, 0.2));
 		this.updateHeight();
 	}
 

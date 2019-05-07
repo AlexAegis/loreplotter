@@ -1,0 +1,27 @@
+@import '../../../../../node_modules/@angular/material/theming';
+
+@mixin cursor-component-theme($theme) {
+	$primary: map-get($theme, primary);
+	$accent: map-get($theme, accent);
+	$warn: map-get($theme, warn);
+
+	app-cursor {
+		opacity: 0.9;
+		background-color: mat-color($accent);
+		box-shadow: 0 0 4px 4px rgba(mat-color($accent, 'lighter'), 0.05);
+		> div {
+			color: mat-color($primary, 'lighter');
+			background-color: mat-color($accent);
+			filter: saturate(1.1) contrast(1.1);
+		}
+
+		> div::after {
+			background-color: mat-color($accent);
+		}
+	}
+
+	app-cursor::after {
+		background-color: rgba(mat-color($accent, 'lighter'), 0.5);
+		box-shadow: 0 0 4px 4px rgba(mat-color($accent, 'lighter'), 0.05);
+	}
+}

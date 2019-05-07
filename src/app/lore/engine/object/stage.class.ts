@@ -31,7 +31,7 @@ export class Stage extends Scene {
 		this.sunGroup = new Group();
 		this.sun = new Sun();
 		this.sunGroup.add(this.sun);
-		this.sun.position.set(10, 0, 0);
+		this.sun.position.set(20, 0, 0);
 		this.sunGroup.position.set(0, 0, 0);
 		this.sun.directionalLight.target = this.sunGroup;
 		this.add(this.sunGroup);

@@ -66,6 +66,11 @@ const getFrameEnd = createSelector(
 	state => state.end.base + (state.end.delta || 0)
 );
 
+const getActorObjectSizeBias = createSelector(
+	getSceneState,
+	state => state.actorObjectSizeBias
+);
+
 const getInteractionMode = createSelector(
 	getSceneState,
 	state => state.interactionMode
@@ -108,6 +113,7 @@ export const sceneQuery = {
 	},
 	interaction: {
 		getInteractionMode,
+		getActorObjectSizeBias,
 		getDrawSize,
 		getDrawHeight,
 		isManualLight,

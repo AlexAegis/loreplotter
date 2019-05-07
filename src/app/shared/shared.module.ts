@@ -7,7 +7,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LogPipe } from '@app/pipe/log.pipe';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ActorFormComponent } from '@lore/component';
-import { LoreFormComponent } from '@lore/component/lore-form.component';
+import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { Ng5SliderModule } from 'ng5-slider';
 import { MomentModule } from 'ngx-moment';
 import { NgScrollbarModule, SmoothScrollModule } from 'ngx-scrollbar';

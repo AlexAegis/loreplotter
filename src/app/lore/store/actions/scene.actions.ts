@@ -95,6 +95,11 @@ export const setInteractionMode = createAction(
 	(payload: Payload<InteractionMode>): Payload<InteractionMode> => payload
 );
 
+export const setActorObjectSizeBias = createAction(
+	`[Scene] Set Actor Object Size Bias`,
+	(payload: Payload<number>): Payload<number> => payload
+);
+
 export const setDrawSize = createAction(
 	`[Scene] Set Draw Size`,
 	(payload: Payload<number>): Payload<number> => payload

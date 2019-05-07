@@ -15,15 +15,15 @@
 @import '../app.component.theme';
 @import '../component/loading.component.theme';
 
-@import '../lore/component/sidebar.component.theme';
-@import '../lore/component/hamburger.component.theme';
-@import '../lore/component/timeline.component.theme';
-@import '../lore/component/cursor.component.theme';
-@import '../lore/component/block.component.theme';
-@import '../lore/component/popup.component.theme';
-@import '../lore/component/actor-form.component.theme';
-@import '../lore/component/lore-form.component.theme';
-@import '../lore/component/scene-controls.component.theme';
+@import '../lore/component/element/sidebar.component.theme';
+@import '../lore/component/element/hamburger.component.theme';
+@import '../lore/component/timeline/timeline.component.theme';
+@import '../lore/component/timeline/cursor.component.theme';
+@import '../lore/component/timeline/block.component.theme';
+@import '../lore/component/element/popup.component.theme';
+@import '../lore/component/dialog/actor-form.component.theme';
+@import '../lore/component/dialog/lore-form.component.theme';
+@import '../lore/component/control/scene-controls.component.theme';
 
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);

@@ -5,7 +5,7 @@ import { RoutingModule } from '@app/routes';
 import { InitService } from '@app/service/init.service';
 import { SharedModule } from '@app/shared';
 import { ActorFormComponent } from '@lore/component';
-import { LoreFormComponent } from '@lore/component/lore-form.component';
+import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { StoreRouterConnectingModule } from '@ngrx/router-store';
 import { AppComponent } from './app.component';
 

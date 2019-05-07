@@ -1,0 +1,44 @@
+<div>
+	<button
+		aria-label="Scene Draw Mode"
+		mat-raised-button
+		(click)="setInteractionMode('draw')"
+		[ngClass]="{ active: (interactionMode$ | async) === 'draw' }"
+	>
+		<fa-icon [icon]="drawIcon" size="lg"></fa-icon>
+	</button>
+	<span>Height:</span>
+	<div class="slider">
+		<ng5-slider
+			[options]="heightSliderOptions"
+			(valueChange)="setDrawHeight($event)"
+			[value]="drawHeight$ | async"
+		></ng5-slider>
+	</div>
+	<span>Size:</span>
+	<div class="slider">
+		<ng5-slider
+			[options]="sizeSliderOptions"
+			(valueChange)="setDrawSize($event)"
+			[value]="drawSize$ | async"
+		></ng5-slider>
+	</div>
+</div>
+<div>
+	<button
+		mat-raised-button
+		aria-label="Scene Move Mode"
+		(click)="setInteractionMode('move')"
+		[ngClass]="{ active: (interactionMode$ | async) === 'move' }"
+	>
+		<fa-icon [icon]="moveIcon" size="lg"></fa-icon>
+	</button>
+	<span>Actor scale:</span>
+	<div class="slider">
+		<ng5-slider
+			[options]="actorObjectSizeBiasOptions"
+			(valueChange)="setActorObjectSizeBias($event)"
+			[value]="actorObjectSizeBias$ | async"
+		></ng5-slider>
+	</div>
+</div>

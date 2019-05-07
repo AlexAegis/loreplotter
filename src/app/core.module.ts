@@ -8,7 +8,7 @@ import { MyHammerConfig } from '@app/hammer-config.class';
 import { AppStoreModule } from '@app/store/app-store.module';
 import { environment } from '@env/environment';
 import { ActorFormComponent } from '@lore/component';
-import { LoreFormComponent } from '@lore/component/lore-form.component';
+import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 
 export const APP_FORMATS = {
 	parse: {

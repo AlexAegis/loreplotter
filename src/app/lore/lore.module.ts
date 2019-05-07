@@ -5,6 +5,7 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 import { MomentDateAdapter } from '@angular/material-moment-adapter';
 import { APP_FORMATS } from '@app/core.module';
 import { FocusDirective, RepeatDirective } from '@app/directive';
+import { VarDirective } from '@app/directive/var.directive';
 import { EngineComponent, EngineService } from '@app/lore/engine';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
 import { MaterialModule, SharedModule } from '@app/shared';
@@ -26,8 +27,8 @@ import { BlockService } from '@lore/service';
 import { LoreStoreModule } from '@lore/store';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxMaskModule } from 'ngx-mask';
-import { LoreFormComponent } from './component/lore-form.component';
-import { SpeedControlComponent } from './component/speed-control.component';
+import { SpeedControlComponent } from 'src/app/lore/component/control/speed-control.component';
+import { LoreFormComponent } from 'src/app/lore/component/dialog/lore-form.component';
 import { LoreComponent } from './lore.component';
 
 @NgModule({
@@ -47,6 +48,7 @@ import { LoreComponent } from './lore.component';
 		LoreComponent,
 		FocusDirective,
 		RepeatDirective,
+		VarDirective,
 		SpeedControlComponent,
 		LoreFormComponent
 	],

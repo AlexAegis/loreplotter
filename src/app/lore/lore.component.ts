@@ -19,7 +19,7 @@ import { DatabaseService, LoreService } from '@app/service';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { TimelineComponent } from '@lore/component';
-import { LoreFormComponent } from '@lore/component/lore-form.component';
+import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Observable } from 'rxjs';
 import { filter, switchMap, take } from 'rxjs/operators';
