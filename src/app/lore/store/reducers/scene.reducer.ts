@@ -1,3 +1,4 @@
+import { toUnit } from '@app/function';
 import { DeltaProperty, OverridableProperty } from '@app/model';
 import {
 	bakeCursorOverride,
@@ -7,6 +8,8 @@ import {
 	changeCursorBy,
 	changeCursorOverrideTo,
 	changeFrameBy,
+	changePlayDirection,
+	changePlaySpeed,
 	clearCursorOverride,
 	SceneActions,
 	setActorObjectSizeBias,
@@ -170,6 +173,12 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 	switch (action.type) {
 		case setPlaySpeed.type: {
 			return { ...state, playSpeed: action.payload };
+		}
+		case changePlaySpeed.type: {
+			return { ...state, playSpeed: state.playSpeed + toUnit(state.playSpeed) * action.payload };
+		}
+		case changePlayDirection.type: {
+			return { ...state, playSpeed: action.payload * Math.abs(state.playSpeed) };
 		}
 		case setPlaying.type: {
 			return { ...state, loading: true };

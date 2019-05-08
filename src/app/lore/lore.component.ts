@@ -191,6 +191,20 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 			case 'Digit9':
 				this.storeFacade.setPlaySpeed(256);
 				break;
+			case 'ArrowDown':
+			case 'NumpadSubtract':
+				this.storeFacade.changePlaySpeed(-60);
+				break;
+			case 'ArrowUp':
+			case 'NumpadAdd':
+				this.storeFacade.changePlaySpeed(60);
+				break;
+			case 'ArrowLeft':
+				this.storeFacade.changePlayDirection(-1);
+				break;
+			case 'ArrowRight':
+				this.storeFacade.changePlayDirection(1);
+				break;
 			default:
 				break;
 		}

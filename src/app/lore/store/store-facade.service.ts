@@ -14,6 +14,8 @@ import {
 	changeCursorBy,
 	changeCursorOverrideTo,
 	changeFrameBy,
+	changePlayDirection,
+	changePlaySpeed,
 	changeSelectedLore,
 	clearCursorOverride,
 	createLore,
@@ -106,6 +108,14 @@ export class StoreFacade {
 
 	public setPlaySpeed(speed: number): void {
 		this.store$.dispatch(setPlaySpeed({ payload: speed }));
+	}
+
+	public changePlaySpeed(speed: number): void {
+		this.store$.dispatch(changePlaySpeed({ payload: speed }));
+	}
+
+	public changePlayDirection(scalar: number): void {
+		this.store$.dispatch(changePlayDirection({ payload: scalar }));
 	}
 
 	public togglePlay(): void {
