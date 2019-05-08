@@ -26,6 +26,10 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 		})
 	});
 
+	public handleFileInput(file): void {
+		console.log(file);
+	}
+
 	public constructor(
 		@Inject(MAT_DIALOG_DATA) public originalData: Lore,
 		private dialogRef: MatDialogRef<LoreFormComponent>,

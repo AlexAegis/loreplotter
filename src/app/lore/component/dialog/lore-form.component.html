@@ -24,6 +24,9 @@
 	</form>
 </mat-dialog-content>
 <mat-dialog-actions>
+	<input type="file" matInput
+		   #file
+		   (change)="handleFileInput($event.target.files)">
 	<button
 		*ngIf="originalData.id"
 		aria-label="Load Default Earth"

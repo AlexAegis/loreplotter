@@ -55,5 +55,12 @@
 	"terminal.integrated.windowsEnableConpty": true,
 	"plantuml.diagramsRoot": "docs/",
 	"plantuml.exportOutDir": "dist/",
-	"typescript.tsdk": "node_modules\\typescript\\lib"
+	"typescript.tsdk": "node_modules\\typescript\\lib",
+	"latex-workshop.latex.outDir": "%DIR%/../../dist/docs",
+	"latex-workshop.latex.texDirs": [
+		"%DIR%/../../dist/docs"
+	],
+	"latex-workshop.latex.bibDirs": [
+		"%DIR%/../../dist/docs"
+	]
 }

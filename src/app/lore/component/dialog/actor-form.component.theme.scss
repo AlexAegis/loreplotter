@@ -7,6 +7,6 @@
 
 	app-actor-form {
 		background-color: rgba(mat-color($primary, 'darker'), 0.1);
-		color: white;
+		color: mat-color($primary, 'darker');
 	}
 }
