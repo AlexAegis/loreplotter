@@ -1,5 +1,14 @@
 @import '../style/responsive.scss';
 
+
+.removeButton {
+	float: right;
+}
+
+.exportImportButton {
+	width: 100%;
+}
+
 :host {
 	overflow: auto;
 	display: grid;
@@ -54,8 +63,9 @@
 				> * {
 					margin-left: 0.5rem;
 				}
-			}
 
+
+			}
 
 		}
 	}
@@ -103,4 +113,5 @@
 			display: inline;
 		}
 	}
+
 }

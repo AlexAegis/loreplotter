@@ -24,6 +24,14 @@
 	</form>
 </mat-dialog-content>
 <mat-dialog-actions>
+	<button *ngIf="originalData.id"
+			aria-label="Load Default Earth"
+			mat-flat-button
+			color="accent"
+			(click)="loadDefaultEarth()"
+	>
+		Load default Earth
+	</button>
 	<button
 		aria-label="Save Form"
 		mat-flat-button

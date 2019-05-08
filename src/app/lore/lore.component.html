@@ -29,6 +29,7 @@
 					{{ lore.name }}
 				</button>
 				<button mat-flat-button
+						class="removeButton"
 						aria-label="Delete project"
 						(click)="removeLore(lore)"
 				>
@@ -39,7 +40,8 @@
 
 
 			<span>
-				<button aria-label="Export/Import" mat-flat-button color="warn" (click)="exportDatabase()">
+				<button aria-label="Export/Import" mat-flat-button color="warn" class="exportImportButton"
+						(click)="exportDatabase()">
 					Export/Import
 				</button>
 			</span>

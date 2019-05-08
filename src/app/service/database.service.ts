@@ -45,7 +45,7 @@ export class DatabaseService {
 				serializeActor(actor);
 			}, true);
 		}),
-		delayWhen(db => this.initData(db)), // TODO This should read, but set the currentLore's value
+		delayWhen(db => this.initData(db)),
 		shareReplay(1)
 	);
 
@@ -66,7 +66,9 @@ export class DatabaseService {
 	);
 
 	public nextActorId$ = this.allActors$.pipe(
-		map(actors => `${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc), 0) + 1}`)
+		map(
+			actors => `${actors.map(actor => Number(actor.id)).reduce((acc, next) => (acc < next ? next : acc), 0) + 1}`
+		)
 	);
 
 	public nextLoreId$ = this.lores$.pipe(
@@ -207,11 +209,12 @@ export class DatabaseService {
 
 		const loreId = '0';
 		const loreName = 'Example';
+
 		return zip(
 			conn.lore.upsert({
 				id: loreId,
 				name: loreName,
-				locations: ['City17', 'City14'],
+				locations: [],
 				planet: new Planet(Planet.DEFAULT_NAME, Planet.DEFAULT_RADIUS)
 			}),
 			from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))

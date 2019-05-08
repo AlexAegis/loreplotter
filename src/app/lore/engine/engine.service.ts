@@ -307,7 +307,7 @@ export class EngineService {
 		// Light and Dark mode change on the scene, for the UI, check subscriber in the AppComponent
 		this.light$.subscribe(light => {
 			(this.stage.background as Color).setHex(0x000000);
-			(this.stage.background as Color).setScalar(light * 0.65 + 0.05);
+			(this.stage.background as Color).setScalar(light * 0.55 + 0.05);
 			glow.scale.setScalar(light * 0.65 + 0.05);
 			this.stage.ambient.intensity = light * 0.5;
 			this.stage.sun.material.opacity = (1 - light) * 0.5;

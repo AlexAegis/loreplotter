@@ -7,8 +7,8 @@ import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { concat, iif, merge, of } from 'rxjs';
-import { catchError, endWith, filter, flatMap, map, mapTo, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
+import { concat, merge, of } from 'rxjs';
+import { catchError, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import {
 	changeSelectedLore,
@@ -147,7 +147,7 @@ export class LoreEffects {
 	 * This handles what happens when a lore has been deleted
 	 * If the deleted one is the one that was selected, switch to an existing one. If there is no more existing ones
 	 * create one
-	 */
+
 	@Effect()
 	public deletedLore$ = this.actions$.pipe(
 		ofType(deleteLoreSuccess.type),
@@ -164,8 +164,8 @@ export class LoreEffects {
 					take(1),
 					mergeMap(lore =>
 						iif(
-							() => lore !== undefined, // if there is something remainig
-							of(changeSelectedLore({ payload: (lore as Lore).id })).pipe(tap(a => console.log(a))), // the side effect is to select that
+	 () => lore !== undefined, // if there is something remaining
+	 of(changeSelectedLore({ payload: (lore as Lore).id })).pipe(take(1),tap(a => console.log(a))), // the side effect is to select that
 							this.databaseService.database$.pipe(
 								// else, the side effect is to select create a new example and select it
 								take(1),
@@ -179,7 +179,7 @@ export class LoreEffects {
 			)
 		)
 	);
-
+	 */
 	/**
 	 * Also makes sure that all the actors are deleted too.
 	 */

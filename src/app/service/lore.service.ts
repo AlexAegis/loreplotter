@@ -15,8 +15,8 @@ import { EngineService } from '@lore/engine/engine.service';
 import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable, of, Subject, zip } from 'rxjs';
-import { filter, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, from, Observable, Subject, zip } from 'rxjs';
+import { filter, flatMap, map, mergeMap, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
 const DAY_IN_SECONDS = 86400;
@@ -34,13 +34,14 @@ export class LoreService extends BaseDirective {
 		private actorService: ActorService
 	) {
 		super();
-		// Only the initial texture is preloaded
+		// This subscription makes sure that always the current texture is shown
 		this.teardown(
 			this.databaseService.currentLore$
 				.pipe(
-					take(1),
 					mergeMap(lore =>
-						of(lore.getAttachment('texture')).pipe(
+						lore.allAttachments$.pipe(
+							flatMap(attachments => attachments),
+							filter(attachment => attachment.id === 'texture'),
 							map(doc => (doc as any) as RxAttachment<Lore, LoreDocumentMethods>),
 							switchMap(doc => doc.getData()),
 							map(att => ({ lore: lore, att: att }))

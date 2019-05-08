@@ -10,12 +10,23 @@
 
 	}
 
-	.save {
-		margin-top: 1rem;
-		width: 100%;
+	.defaultEarthButton {
+
 	}
+
+
 
 	* {
 		transition: background-color 0.2s;
+	}
+
+	mat-dialog-actions {
+		display: grid;
+		grid-gap: 1rem;
+		grid-template-columns: 1fr 1fr 1fr 1fr;
+
+		.save {
+			grid-column: -1;
+		}
 	}
 }
