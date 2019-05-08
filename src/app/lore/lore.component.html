@@ -21,7 +21,7 @@
 				</button></span
 			>
 			<hr class="divider" />
-			<div *ngFor="let lore of loresButSelected$ | async">
+			<div *ngFor="let lore of loresButSelected$ | async" class="buttonRow">
 				<button mat-flat-button aria-label="Select project" (click)="selectLore(lore)">
 					{{ lore.name }}
 				</button>

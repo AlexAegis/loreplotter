@@ -1,13 +1,16 @@
 @import '../style/responsive.scss';
 
-.removeButton {
-	float: right;
-}
-
 .exportImportButton {
 	width: 100%;
 }
 
+.buttonRow {
+	display: flex;
+
+	.removeButton {
+		margin-left: auto;
+	}
+}
 :host {
 	overflow: auto;
 	display: grid;
