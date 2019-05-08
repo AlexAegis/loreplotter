@@ -14,15 +14,15 @@
 		</div>
 		<h2>Actors {{ (currentLoreActors$ | async)?.length }}</h2>
 		<div class="spawnables">
-			<button aria-label="Select Actor"
-					mat-raised-button
-					*ngFor="let actor of currentLoreActors$ | async"
-					(click)="select($event, actor)"
-					[ngStyle]="{ backgroundColor: (actorService.accumulatorOf(actor) | async)?.accumulator.color }"
+			<button
+				aria-label="Select Actor"
+				mat-raised-button
+				*ngFor="let actor of currentLoreActors$ | async"
+				(click)="select($event, actor)"
+				[ngStyle]="{ backgroundColor: (actorService.accumulatorOf(actor) | async)?.accumulator.color }"
 			>
-				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> {{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }} ({{
-					actor?._states?.length
-				}})
+				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon>
+				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }} ({{ actor?._states?.length }})
 			</button>
 		</div>
 	</mat-sidenav>

@@ -55,7 +55,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 	public constructor(
 		private actorService: ActorService,
 		private engineService: EngineService,
-		private dialog: MatDialog,
+		private dialog: MatDialog
 	) {
 		this.selectedActorAccumulatorAtCursor$ = this.actorService.selectedActorAccumulatorAtCursor$;
 	}

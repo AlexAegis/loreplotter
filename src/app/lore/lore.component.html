@@ -22,26 +22,22 @@
 			>
 			<hr class="divider" />
 			<div *ngFor="let lore of loresButSelected$ | async">
-				<button mat-flat-button
-						aria-label="Select project"
-						(click)="selectLore(lore)"
-				>
+				<button mat-flat-button aria-label="Select project" (click)="selectLore(lore)">
 					{{ lore.name }}
 				</button>
-				<button mat-flat-button
-						class="removeButton"
-						aria-label="Delete project"
-						(click)="removeLore(lore)"
-				>
+				<button mat-flat-button class="removeButton" aria-label="Delete project" (click)="removeLore(lore)">
 					<fa-icon [icon]="removeIcon" size="lg"></fa-icon>
 				</button>
-
 			</div>
 
-
 			<span>
-				<button aria-label="Export/Import" mat-flat-button color="warn" class="exportImportButton"
-						(click)="exportDatabase()">
+				<button
+					aria-label="Export/Import"
+					mat-flat-button
+					color="warn"
+					class="exportImportButton"
+					(click)="exportDatabase()"
+				>
 					Export/Import
 				</button>
 			</span>

@@ -10,13 +10,14 @@
 	(panend)="panNode($event, node)"
 	(tap)="tap($event, node)"
 >
-	<button aria-label="Remove Node from Block"
-			class="remove"
-			mat-icon-button
-			*ngIf="node === selection"
-			(tap)="remove($event, node)"
-			(click)="remove($event, node)"
-			[disabled]="isAtMostOneLeft"
+	<button
+		aria-label="Remove Node from Block"
+		class="remove"
+		mat-icon-button
+		*ngIf="node === selection"
+		(tap)="remove($event, node)"
+		(click)="remove($event, node)"
+		[disabled]="isAtMostOneLeft"
 	>
 		<fa-icon [icon]="faTrash" [size]="'lg'"></fa-icon>
 	</button>

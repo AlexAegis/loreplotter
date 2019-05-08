@@ -48,5 +48,5 @@ export function localStorageSyncReducer(reducer: ActionReducer<State>): ActionRe
  */
 export const metaReducers: MetaReducer<State>[] = [
 	localStorageSyncReducer,
-	...(!environment.production ? [/*logger, */storeFreeze] : [])
+	...(!environment.production ? [/*logger, */ storeFreeze] : [])
 ];

@@ -73,55 +73,59 @@ export class ActorObject extends Basic {
 		this.geometry.computeBoundingSphere();
 		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 
-		this.addEventListener('panstart', event => {
+		this.addEventListener('panstart', e => {
 			this.positionAtStart = this.parent.quaternion.clone();
 			this.parent.userData.override = true; // Switched off in the LoreService
-			combineLatest([this.actorAccumulator$.pipe(tap(next => {
-				// Prepare
-				this.cursorAtPanStart = next.cursor;
-				this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
-				// If the cursor is right on a node, go edit mode and just select the node before and after
-				if (this.enclosing.first && this.enclosing.first.key.unix === this.cursorAtPanStart) {
-					this.enclosing.first = this.actor._states.enclosingNodes(
-						new UnixWrapper(this.cursorAtPanStart - 1)
-					).first;
-					this.enclosing.last = this.actor._states.enclosingNodes(
-						new UnixWrapper(this.cursorAtPanStart + 1)
-					).last;
-				}
-				const maxAccumulatedSpeed = next.accumulator.maxSpeed;
-				if (this.enclosing.first) {
-					this.rightHelper.set(
-						this.enclosing.first.value.position.x,
-						this.enclosing.first.value.position.y,
-						this.enclosing.first.value.position.z
-					);
-					this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
-					this.panHelper.left.allowedDistance = (this.panHelper.left.time / 3600) * maxAccumulatedSpeed;
+			combineLatest([
+				this.actorAccumulator$.pipe(
+					tap(next => {
+						// Prepare
+						this.cursorAtPanStart = next.cursor;
+						this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(this.cursorAtPanStart));
+						// If the cursor is right on a node, go edit mode and just select the node before and after
+						if (this.enclosing.first && this.enclosing.first.key.unix === this.cursorAtPanStart) {
+							this.enclosing.first = this.actor._states.enclosingNodes(
+								new UnixWrapper(this.cursorAtPanStart - 1)
+							).first;
+							this.enclosing.last = this.actor._states.enclosingNodes(
+								new UnixWrapper(this.cursorAtPanStart + 1)
+							).last;
+						}
+						const maxAccumulatedSpeed = next.accumulator.maxSpeed;
+						if (this.enclosing.first) {
+							this.rightHelper.set(
+								this.enclosing.first.value.position.x,
+								this.enclosing.first.value.position.y,
+								this.enclosing.first.value.position.z
+							);
+							this.panHelper.left.time = Math.abs(this.enclosing.first.key.unix - this.cursorAtPanStart);
+							this.panHelper.left.allowedDistance =
+								(this.panHelper.left.time / 3600) * maxAccumulatedSpeed;
 
-					this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
-					this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
-					this.globe.indicatorFrom.doShow();
-				}
+							this.globe.indicatorFrom.setTargetRadius(this.panHelper.left.allowedDistance);
+							this.globe.indicatorFrom.parent.lookAt(this.rightHelper);
+							this.globe.indicatorFrom.doShow();
+						}
 
-				if (this.enclosing.last) {
-					this.leftHelper.set(
-						this.enclosing.last.value.position.x,
-						this.enclosing.last.value.position.y,
-						this.enclosing.last.value.position.z
-					);
-					this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
-					this.panHelper.right.allowedDistance = (this.panHelper.right.time / 3600) * maxAccumulatedSpeed;
-					this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
-					this.globe.indicatorTo.parent.lookAt(this.leftHelper);
-					this.globe.indicatorTo.doShow();
-				}
-
-
-			})), this.panEventSubject])
+						if (this.enclosing.last) {
+							this.leftHelper.set(
+								this.enclosing.last.value.position.x,
+								this.enclosing.last.value.position.y,
+								this.enclosing.last.value.position.z
+							);
+							this.panHelper.right.time = Math.abs(this.enclosing.last.key.unix - this.cursorAtPanStart);
+							this.panHelper.right.allowedDistance =
+								(this.panHelper.right.time / 3600) * maxAccumulatedSpeed;
+							this.globe.indicatorTo.setTargetRadius(this.panHelper.right.allowedDistance);
+							this.globe.indicatorTo.parent.lookAt(this.leftHelper);
+							this.globe.indicatorTo.doShow();
+						}
+					})
+				),
+				this.panEventSubject
+			])
 				.pipe(takeUntil(this.panFinishedSubject))
 				.subscribe(([next, event]) => {
-
 					// Actual panning
 					this.prelookHelper.lookAt(event.point); // To get the requested rotation
 					const destinationAngle = this.prelookHelper.quaternion.clone();

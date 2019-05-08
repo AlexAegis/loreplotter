@@ -73,10 +73,7 @@ export class EngineService {
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
 	 */
-	constructor(
-		private storeFacade: StoreFacade,
-		private databaseService: DatabaseService
-	) {
+	constructor(private storeFacade: StoreFacade, private databaseService: DatabaseService) {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 
@@ -86,8 +83,8 @@ export class EngineService {
 				withLatestFrom(this.databaseService.database$),
 				switchMap(([lore, database]) => database.lore.findOne({ id: lore.id }).$.pipe(take(1))),
 				switchMap(lore =>
-					of(((lore.getAttachment('texture') as any) as RxAttachment<Lore>)).pipe(
-						mergeMap(att => att ? att.getData() : of(undefined)),
+					of((lore.getAttachment('texture') as any) as RxAttachment<Lore>).pipe(
+						mergeMap(att => (att ? att.getData() : of(undefined))),
 						map(att => ({ lore, att }))
 					)
 				)
@@ -264,7 +261,6 @@ export class EngineService {
 	);
 
 	public createScene(canvas: HTMLCanvasElement): void {
-
 		this.renderer = new WebGLRenderer({
 			canvas: canvas,
 			alpha: false,
@@ -311,8 +307,7 @@ export class EngineService {
 			glow.scale.setScalar(light * 0.65 + 0.05);
 			this.stage.ambient.intensity = light * 0.5;
 			this.stage.sun.material.opacity = (1 - light) * 0.5;
-			this.stage.sun.directionalLight.intensity =
-				(1 - light) * (this.stage.sun.directionalLightBaseIntensity)
+			this.stage.sun.directionalLight.intensity = (1 - light) * this.stage.sun.directionalLightBaseIntensity;
 		});
 	}
 

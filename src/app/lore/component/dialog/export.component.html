@@ -1,11 +1,17 @@
 <h1 mat-dialog-title>Export/Import database</h1>
-This JSON represents all your projects. This can be imported back here too.
-The maps are downloaded separately as pictures, and can be imported back one-by-one in the edit menu of a project.
+This JSON represents all your projects. This can be imported back here too. The maps are downloaded separately as
+pictures, and can be imported back one-by-one in the edit menu of a project.
 <mat-dialog-content>
 	<mat-form-field class="example-full-width">
-		<textarea #textarea matInput cdkTextareaAutosize
-				  cdkAutosizeMinRows="10"
-				  cdkAutosizeMaxRows="15" [value]="data.data"> </textarea>
+		<textarea
+			#textarea
+			matInput
+			cdkTextareaAutosize
+			cdkAutosizeMinRows="10"
+			cdkAutosizeMaxRows="15"
+			[value]="data.data"
+		>
+		</textarea>
 	</mat-form-field>
 	<a #downloadHelper></a>
 </mat-dialog-content>
