@@ -1,17 +1,6 @@
 @import '../style/responsive.scss';
 
-.exportImportButton {
-	width: 90%;
-	margin: auto;
-}
 
-.buttonRow {
-	display: flex;
-
-	.removeButton {
-		margin-left: auto;
-	}
-}
 :host {
 	overflow: auto;
 	display: grid;

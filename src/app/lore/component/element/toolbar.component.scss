@@ -55,3 +55,17 @@
 		}
 	}
 }
+
+.exportImportButton {
+	width: 90%;
+	margin: auto;
+}
+
+.buttonRow {
+	display: flex;
+	margin-top: 0.5rem;
+
+	.removeButton {
+		margin-left: auto;
+	}
+}

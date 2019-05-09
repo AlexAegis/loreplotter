@@ -6,6 +6,7 @@ import { Lore, Planet } from '@app/model/data';
 import { DatabaseService } from '@app/service';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEllipsisH, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.component';
 import { ExportComponent, ExportData } from '@lore/component/dialog/export.component';
 import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { EngineService } from '@lore/engine';
@@ -28,10 +29,10 @@ import { filter, map, switchMap, take } from 'rxjs/operators';
 				style({ transform: 'translateX(0)', opacity: 1 }),
 				animate('200ms', style({ transform: 'translateX(-100%)', opacity: 0 }))
 			])
-		])]
+		])
+	]
 })
 export class ToolbarComponent extends BaseDirective implements OnInit {
-
 	public selectedLore$: Observable<Partial<Lore>>;
 	public lores$: Observable<Array<Partial<Lore>>>;
 	public loresButSelected$: Observable<Array<Partial<Lore>>>;
@@ -68,7 +69,14 @@ export class ToolbarComponent extends BaseDirective implements OnInit {
 	}
 
 	public removeLore(lore: Partial<Lore>): void {
-		this.storeFacade.deleteLore(lore.id);
+		this.dialog
+			.open(ConfirmComponent, { data: { title: 'Warning!', message: 'Are you sure about that?' } as ConfirmData })
+			.afterClosed()
+			.subscribe(result => {
+				if (result) {
+					this.storeFacade.deleteLore(lore.id);
+				}
+			});
 	}
 
 	public createLore(): void {

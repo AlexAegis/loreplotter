@@ -95,6 +95,16 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		private storeFacade: StoreFacade
 	) {
 		super();
+
+	}
+
+	public setTheme(theme: string): void {
+		this.overlayContainer.getContainerElement().classList.add(theme);
+		this.theme = theme;
+		this.changeDetector.markForCheck();
+	}
+
+	public ngAfterViewInit(): void {
 		this.setTheme('default-theme');
 		this.teardown(
 			this.engineService.light$.subscribe(light => {
@@ -105,15 +115,6 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 				}
 			})
 		);
-	}
-
-	public setTheme(theme: string): void {
-		this.overlayContainer.getContainerElement().classList.add(theme);
-		this.theme = theme;
-		this.changeDetector.markForCheck();
-	}
-
-	public ngAfterViewInit(): void {
 		this.changeDetector.markForCheck();
 	}
 
