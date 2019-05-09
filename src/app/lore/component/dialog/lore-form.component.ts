@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validator, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
 import { Lore, Planet } from '@app/model/data';
@@ -8,7 +8,7 @@ import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.co
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, from, iif, of } from 'rxjs';
-import { flatMap, mergeMap, switchMap, take, tap } from 'rxjs/operators';
+import { endWith, filter, finalize, flatMap, map, mapTo, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore-form',
@@ -19,10 +19,25 @@ import { flatMap, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 export class LoreFormComponent extends BaseDirective implements OnInit {
 	public loreForm = this.formBuilder.group({
 		id: this.formBuilder.control(''),
-		name: this.formBuilder.control(''),
+		name: this.formBuilder.control(
+			'',
+			[Validators.required],
+			[
+				ctrl => {
+					return this.storeFacade.lores$.pipe(
+						take(1),
+						flatMap(lores => lores),
+						filter(lore => lore.name === ctrl.value && this.loreForm.controls['id'].value !== lore.id),
+						map(lore => ({ duplicate: `Name already present` })),
+						endWith(of(undefined)),
+						take(1),
+					);
+				}
+			]
+		),
 		planet: this.formBuilder.group({
-			name: this.formBuilder.control(''),
-			radius: this.formBuilder.control('')
+			name: this.formBuilder.control('', [Validators.required]),
+			radius: this.formBuilder.control('', [Validators.required])
 		})
 	});
 
@@ -100,6 +115,5 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 		);
 	}
 
-	public ngOnInit(): void {
-	}
+	public ngOnInit(): void {}
 }

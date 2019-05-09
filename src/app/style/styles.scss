@@ -119,6 +119,17 @@ body {
 	}
 }
 
+mat-dialog-actions {
+	justify-self: end;
+	display: grid !important;
+	grid-gap: 1em;
+	grid-auto-columns: min-content;
+	grid-template-rows: 1fr;
+	> * {
+		grid-row: 1;
+	}
+}
+
 .slider {
 	width: 12rem;
 	> .ng5-slider .ng5-slider-bar {

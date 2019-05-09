@@ -5,6 +5,8 @@
 		<mat-form-field class="name" floatLabel="never">
 			<mat-label>{{ originalData?.name }}</mat-label>
 			<input matInput formControlName="name"/>
+			<mat-error *ngIf="loreForm.hasError('duplicate', 'name')">Duplicate found</mat-error>
+			<mat-error *ngIf="loreForm.hasError('required', 'name')">Required</mat-error>
 		</mat-form-field>
 
 		<hr class="divider"/>
@@ -13,18 +15,20 @@
 			<mat-form-field class="speed" floatLabel="never">
 				<mat-label>{{ originalData?.planet?.name }}</mat-label>
 				<input matInput formControlName="name"/>
+				<mat-error *ngIf="loreForm.hasError('required', 'planet.name')">Required</mat-error>
 			</mat-form-field>
 
 			<mat-label class="planetRadius">Planet Radius:</mat-label>
 			<mat-form-field class="radius" floatLabel="never">
 				<mat-label>{{ originalData?.planet?.radius }}</mat-label>
 				<input matInput formControlName="radius" mask="9*"/>
+				<mat-error *ngIf="loreForm.hasError('required', 'planet.radius')">Required</mat-error>
 			</mat-form-field>
 		</div>
 	</form>
 </mat-dialog-content>
 <mat-dialog-actions>
-	<input type="file" matInput
+	<input type="file"
 		   #file
 		   (change)="handleFileInput($event.target.files)">
 	<button
@@ -47,4 +51,3 @@
 		{{ originalData.id ? 'Save' : 'Create' }}
 	</button>
 </mat-dialog-actions>
-<!-- {{ loreForm.value | json }} -->

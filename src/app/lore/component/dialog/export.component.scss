@@ -16,15 +16,4 @@
 			visibility: visible;
 		}
 	}
-
-	mat-dialog-actions {
-		justify-self: end;
-		display: grid;
-		grid-gap: 1rem;
-		grid-auto-columns: min-content;
-		grid-template-rows: 1fr;
-		> * {
-			grid-row: 1;
-		}
-	}
 }

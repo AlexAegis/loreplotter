@@ -25,7 +25,7 @@
 		"e2e": "ng e2e",
 		"format": "npx prettier --write \"src/**/*\"",
 		"build:stats": "npm run build --stats-json",
-		"start:stats": "webpack-bundle-analyzer dist/loreplotter/stats.json"
+		"start:stats": "webpack-bundle-analyzer dist/loreplotter/stats-es2015.json"
 	},
 	"private": true,
 	"dependencies": {

@@ -22,8 +22,8 @@ import { TimelineComponent } from '@lore/component';
 import { ExportComponent, ExportData } from '@lore/component/dialog/export.component';
 import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { combineLatest, Observable } from 'rxjs';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { combineLatest, Observable, Subject, timer } from 'rxjs';
+import { filter, map, switchMap, take, takeUntil } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore',
@@ -153,43 +153,45 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	public ngOnInit(): void {}
 
-	@HostListener('window:keyup', ['$event'])
-	public keyEvent($event: KeyboardEvent): void {
-		$event.preventDefault();
+	private keyUpSubject = new Subject<string>();
+	@HostListener('window:keydown', ['$event'])
+	public onKeyDown($event: KeyboardEvent): void {
+		// console.log($event);
+		// $event.preventDefault();
 		switch ($event.code) {
 			case 'Space':
 				this.storeFacade.togglePlay();
 				break;
 			case 'Digit0':
 			case 'Backquote':
-				this.storeFacade.setPlaySpeed(0);
-				break;
-			case 'Digit1':
 				this.storeFacade.setPlaySpeed(1);
 				break;
-			case 'Digit2':
+			case 'Digit1':
 				this.storeFacade.setPlaySpeed(2);
 				break;
-			case 'Digit3':
+			case 'Digit2':
 				this.storeFacade.setPlaySpeed(4);
 				break;
-			case 'Digit4':
+			case 'Digit3':
 				this.storeFacade.setPlaySpeed(8);
 				break;
-			case 'Digit5':
+			case 'Digit4':
 				this.storeFacade.setPlaySpeed(16);
 				break;
-			case 'Digit6':
+			case 'Digit5':
 				this.storeFacade.setPlaySpeed(32);
 				break;
-			case 'Digit7':
+			case 'Digit6':
 				this.storeFacade.setPlaySpeed(64);
 				break;
-			case 'Digit8':
+			case 'Digit7':
 				this.storeFacade.setPlaySpeed(128);
 				break;
-			case 'Digit9':
+			case 'Digit8':
 				this.storeFacade.setPlaySpeed(256);
+				break;
+			case 'Digit9':
+				this.storeFacade.setPlaySpeed(512);
 				break;
 			case 'ArrowDown':
 			case 'NumpadSubtract':
@@ -208,6 +210,13 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 			default:
 				break;
 		}
+	}
+
+	@HostListener('window:keyup', ['$event'])
+	public onKeyUp($event: KeyboardEvent): void {
+		// console.log($event);
+		// $event.preventDefault();
+		// this.keyUpSubject.next($event.code);
 	}
 
 	@HostListener('window:contextmenu', ['$event'])

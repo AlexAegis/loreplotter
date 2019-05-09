@@ -5,19 +5,52 @@ Az alkalmazás sem telepítést sem regisztrációt nem igényel, teljes egész�
 
 \section{A Projekt}
 
-Minden project három fő elemből áll, ezek a név, a világ és később a szereplők. Új projekt létrehozásakor a projekt nevét és a világának adatait szükséges megadni.
+Minden projekt \ref{fig:basic-project-structure} három fő elemből áll, ezek a név, a világ és később a szereplők. Új projekt létrehozásakor a projekt nevét és a világának adatait szükséges megadni.
 
-\begin{forest}
-	forked edges,
-	for tree={edge+={-Latex}},
-	[Projekt
-	  [Név]
-	  [Világ [Név] [Méret]]
-	  [Szereplők [\dots]]
-	]
-\end{forest}
+\begin{figure}[h!]
+	\centering
+	\begin{forest}
+		forked edges,
+		for tree={edge+={-Latex}},
+		[Projekt
+			[Név]
+			[Világ [Név] [Méret]]
+			[Szereplők [\dots]]
+		]
+	\end{forest}
+	\caption{
+		Projektstruktúra}
+	\label{fig:basic-project-structure}
+\end{figure}
 
-Új projektet létrehozni a jobb felső sarokban található menü legfelső elemével tehetjük meg:
+\begin{figure}[h!]
+	\centering
+	\includegraphics{create-project-button}
+	\caption{
+		Új projektet létrehozni a jobb felső sarokban található menü legfelső elemével tehetjük meg}
+	\label{fig:create-project-button}
+\end{figure}
+
+Új projekt létrehozásakor a projekt készítő dialógust kapjuk melyen lehetőséget kapunk a projektünknek nevet adni és a világbeállításokat megadni, mint a bolygó neve és mérete ami alatt a bolygó rádiuszát értjük kilóméterben megadva.
+
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.25\textwidth} | m{0.25\textwidth} | m{0.40\textwidth} | }
+		\hline
+		\textbf{Mező} & \textbf{Típus} & \textbf{Leírás} \\
+		\hline \hline
+		\emph{Név} & Szöveg & Kötelező. A projekt azonosítója. \\
+		\hline
+		\emph{Purus sagittis} &  Quisque lobortis eros vitae urna lacinia euismod. & Aliquam \\
+		\hline
+		\emph{Pellentesque} & Curabitur ac lacus pellentesque, eleifend sem ut, placerat enim. Ut auctor tempor odio ut dapibus. & Aliquam \\
+		\hline
+	\end{tabular}
+	\caption{Új projekt sablon}
+	\label{tab:create-project-form}
+\end{table}
 
 \begin{itemize}
 	\item Fusce in aliquet neque, in pretium sem.

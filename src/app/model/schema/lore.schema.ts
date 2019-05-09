@@ -9,11 +9,13 @@ export const loreSchema: RxJsonSchema = {
 	type: 'object',
 	properties: {
 		id: {
+			primary: true,
 			type: 'string',
-			primary: true
+			uniqueItems: true
 		},
 		name: {
-			type: 'string'
+			type: 'string',
+			uniqueItems: true
 		},
 		locations: {
 			type: 'array',
