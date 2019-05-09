@@ -1,0 +1,81 @@
+\documentclass{thesis}[2019/04/30]
+
+% Dolgozat metaadatai
+\title{Loreplotter alkalmazás fejlesztése}
+\date{2019}
+
+% Szerző metaadatai
+\author{Győri Sándor}
+\degree{programtervező informatikus BSc}
+
+% Témavezető(k) metaadatai
+\supervisor{Abonyi-Tóth Andor}
+\affiliation{egyetemi adjunktus}
+%\extsupervisor{Külső Kornél}
+%\extaffiliation{informatikai igazgató}
+
+% Egyetem metaadatai
+\university{Eötvös Loránd Tudományegyetem}
+\faculty{Informatikai Kar}
+\department{Programozáselmélet és Szoftvertechnológiai}
+\departmentSecondLine{Tanszék}
+\city{Budapest}
+\logo{elte_cimer_szines}
+
+
+% Irodalomjegyzék hozzáadása
+\addbibresource{thesis.bib}
+
+% A dolgozat
+\begin{document}
+
+% Nyelv kiválasztása
+\documentlang{magyar}
+%\documentlang{english}
+
+% Teendők listája - final dokumentumban nincs
+\listoftodos[\todolabel]
+
+% Lábjegyzet folytonos számozása fejezetek között
+\counterwithout{footnote}{chapter}
+
+% Címlap - kötelező
+\maketitle
+
+% Tartalomjegyzék - kötelező
+\tableofcontents
+\cleardoublepage
+
+% Tartalom
+\input{chapters/intro.tex}
+\cleardoublepage
+
+\input{chapters/user.tex}
+\cleardoublepage
+
+\input{chapters/impl.tex}
+\cleardoublepage
+
+\input{chapters/sum.tex}
+\cleardoublepage
+
+% Irodalomjegyzék - kötelező
+\addcontentsline{toc}{chapter}{\biblabel}
+\printbibliography[title=\biblabel]
+\cleardoublepage
+
+% Ábrajegyzék - ha szükséges
+\addcontentsline{toc}{chapter}{\lstfigurelabel}
+\listoffigures
+\cleardoublepage
+
+% Táblázatjegyzék - ha szükséges
+\addcontentsline{toc}{chapter}{\lsttablelabel}
+\listoftables
+\cleardoublepage
+
+% Forráskódjegyzék - ha szükséges
+\addcontentsline{toc}{chapter}{\lstcodelabel}
+\lstlistoflistings
+
+\end{document}

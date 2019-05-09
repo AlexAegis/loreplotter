@@ -56,11 +56,7 @@
 	"plantuml.diagramsRoot": "docs/",
 	"plantuml.exportOutDir": "dist/",
 	"typescript.tsdk": "node_modules\\typescript\\lib",
-	"latex-workshop.latex.outDir": "%DIR%/../../dist/docs",
-	"latex-workshop.latex.texDirs": [
-		"%DIR%/../../dist/docs"
-	],
-	"latex-workshop.latex.bibDirs": [
-		"%DIR%/../../dist/docs"
-	]
+	"editor.fontFamily": "'Fira Code Regular', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+	"editor.mouseWheelZoom": true,
+	"editor.wordWrap": "bounded"
 }

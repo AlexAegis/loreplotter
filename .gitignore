@@ -106,3 +106,18 @@ typings/
 
 # PlantUML renders
 docs/**/*.png
+
+# LaTeX Auxillary files
+
+*.aux
+*.fls
+*.idx
+*.lof
+*.log
+*.lol
+*.lot
+*.nlo
+*.pdf
+*.run.xml
+*.tdo
+*.toc
