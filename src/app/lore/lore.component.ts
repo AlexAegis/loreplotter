@@ -22,8 +22,8 @@ import { TimelineComponent } from '@lore/component';
 import { ExportComponent, ExportData } from '@lore/component/dialog/export.component';
 import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { combineLatest, Observable, Subject, timer } from 'rxjs';
-import { filter, map, switchMap, take, takeUntil } from 'rxjs/operators';
+import { combineLatest, Observable } from 'rxjs';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore',
@@ -235,7 +235,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		const createDialogRef = this.dialog.open(LoreFormComponent, {
 			data: { planet: { name: Planet.DEFAULT_NAME, radius: Planet.DEFAULT_RADIUS } } as Lore
 		});
-		createDialogRef.afterClosed().subscribe((result: Lore) => this.storeFacade.createLore(result));
+		createDialogRef.afterClosed().subscribe((result: { tex: Blob } & Lore) => this.storeFacade.createLore(result));
 	}
 
 	public editLoreCurrent(): void {
@@ -245,7 +245,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 				switchMap(selected => this.dialog.open(LoreFormComponent, { data: selected }).afterClosed()),
 				filter(result => result !== undefined)
 			)
-			.subscribe(result => this.storeFacade.updateLore(result));
+			.subscribe((result: { tex: Blob } & Lore) => this.storeFacade.updateLore(result));
 	}
 
 	/**

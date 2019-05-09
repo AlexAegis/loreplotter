@@ -7,8 +7,9 @@ import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { concat, merge, of } from 'rxjs';
-import { catchError, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
+import { concat, EMPTY, merge, of } from 'rxjs';
+import { fromPromise } from 'rxjs/internal-compatibility';
+import { catchError, delayWhen, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import {
 	changeSelectedLore,
@@ -108,25 +109,81 @@ export class LoreEffects {
 	@Effect()
 	public createLore$ = this.actions$.pipe(
 		ofType(createLore.type),
-		switchMap(({ payload }: Payload<Lore>) =>
+		switchMap(({ payload }: Payload<{ tex: Blob } & Lore>) => //
 			this.loreService.create(payload).pipe(
+				delayWhen(lore => {
+					if (payload.tex) {
+						return fromPromise(
+							lore.putAttachment({
+								id: 'texture',
+								data: payload.tex as Blob,
+								type: 'image/jpeg'
+							})
+						);
+					} else {
+						return EMPTY;
+					}
+				}),
 				map(a => voidOperation()), // The successful result will be handled by the listeners on the database
 				catchError(error => of(createLoreFailure({ payload: error })))
 			)
 		)
 	);
-
+	//  Payload<{ ...Partial<Lore>>, number }
 	@Effect()
 	public updateLore$ = this.actions$.pipe(
 		ofType(updateLore.type),
-		switchMap(({ payload }: Payload<Partial<Lore>>) =>
+		switchMap(({ payload }: Payload<{ tex: Blob } & Partial<Lore>>) =>
 			this.loreService.update(payload).pipe(
-				tap(e => console.log(e)),
+				delayWhen(lore => {
+					if (payload.tex) {
+						return fromPromise(
+							lore.putAttachment({
+								id: 'texture',
+								data: payload.tex as Blob,
+								type: 'image/jpeg'
+							})
+						).pipe(tap(e => console.log(e)));
+					} else {
+						return EMPTY;
+					}
+				}),
 				map(a => voidOperation()), // The successful result will be handled by the listeners on the database
 				catchError(error => of(updateLoreFailure({ payload: error })))
 			)
 		)
 	);
+
+
+	/*
+
+
+
+	 */
+
+	/*
+		@Effect({ dispatch: false })
+		public attachTextureToLore$ = this.actions$.pipe(
+			ofType(attachTexture.type),
+			switchMap(({ payload }: Payload<{ texture: Blob; lore: RxDocument<Lore> }>) =>
+				iif(
+					() => payload.texture !== undefined,
+					this.databaseService.lores$.pipe(
+						take(1),
+						flatMap(lores => lores),
+						filter(loreDoc => loreDoc.id === payload.lore.id),
+						switchMap(loreDoc =>
+							loreDoc.putAttachment({
+								id: 'texture',
+								data: payload.texture,
+								type: 'image/jpeg'
+							})
+						)
+					),
+					EMPTY
+				)
+			)
+		);*/
 
 	@Effect()
 	public changeCurrentLore$ = this.actions$.pipe(

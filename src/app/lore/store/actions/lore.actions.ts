@@ -14,9 +14,7 @@ export const loadLoresFailure = createAction(`[Lore] Load Failure`, (payload: Pa
 // Further creations of lores are handled here
 export const createLore = createAction(
 	`[Lore] Create`,
-	({ lore }: { lore: Lore }): Payload<Lore> => {
-		return { payload: lore };
-	}
+	(payload: Payload<{ tex: Blob } & Lore>): Payload<{ tex: Blob } & Lore> => payload
 );
 
 export const createLoreSuccess = createAction(
@@ -28,7 +26,7 @@ export const createLoreFailure = createAction(`[Lore] Create Failure`, (payload:
 // Updating existing objectsk
 export const updateLore = createAction(
 	`[Lore] Update`,
-	(payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => payload
+	(payload: Payload<{ tex: Blob } & Partial<Lore>>): Payload<{ tex: Blob } & Partial<Lore>> => payload
 );
 
 export const updateLoreSuccess = createAction(`[Lore] Update Success`, (payload: Payload<Partial<Lore>>) => ({
@@ -57,3 +55,11 @@ export const changeSelectedLoreSuccess = createAction(
 export const changeSelectedLoreFailure = createAction(`[Lore] Change Selected Failure`, (payload: Payload<Error>) => ({
 	payload
 }));
+/*
+export const attachTexture = createAction(
+	`[Lore] Attach Texture`,
+	( { payload }: Payload<{ texture: Blob; lore: RxDocument<Lore> }>): Payload<{ texture: Blob; lore: RxDocument<Lore> }> => ({
+		payload
+	})
+);
+*/

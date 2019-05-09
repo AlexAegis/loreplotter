@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validator, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
 import { Lore, Planet } from '@app/model/data';
@@ -8,7 +8,7 @@ import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.co
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, from, iif, of } from 'rxjs';
-import { endWith, filter, finalize, flatMap, map, mapTo, mergeMap, switchMap, take, tap } from 'rxjs/operators';
+import { endWith, filter, flatMap, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-lore-form',
@@ -19,6 +19,7 @@ import { endWith, filter, finalize, flatMap, map, mapTo, mergeMap, switchMap, ta
 export class LoreFormComponent extends BaseDirective implements OnInit {
 	public loreForm = this.formBuilder.group({
 		id: this.formBuilder.control(''),
+		tex: this.formBuilder.control(''),
 		name: this.formBuilder.control(
 			'',
 			[Validators.required],
@@ -30,7 +31,7 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 						filter(lore => lore.name === ctrl.value && this.loreForm.controls['id'].value !== lore.id),
 						map(lore => ({ duplicate: `Name already present` })),
 						endWith(of(undefined)),
-						take(1),
+						take(1)
 					);
 				}
 			]
@@ -40,9 +41,12 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 			radius: this.formBuilder.control('', [Validators.required])
 		})
 	});
+	private file: Blob;
 
-	public handleFileInput(file): void {
-		console.log(file);
+	public handleFileInput(fileList: FileList): void {
+		console.log(fileList);
+		this.file = fileList.item(0);
+		this.loreForm.controls['tex'].setValue(this.file);
 	}
 
 	public constructor(

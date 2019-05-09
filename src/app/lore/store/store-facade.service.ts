@@ -90,11 +90,11 @@ export class StoreFacade {
 
 	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
 
-	public createLore(lore: Lore): void {
-		this.store$.dispatch(createLore({ lore }));
+	public createLore(lore: { tex: Blob } & Lore): void {
+		this.store$.dispatch(createLore({ payload: lore }));
 	}
 
-	public updateLore(lore: Lore): void {
+	public updateLore(lore: { tex: Blob } & Lore): void {
 		this.store$.dispatch(updateLore({ payload: lore }));
 	}
 

@@ -5,7 +5,7 @@ import { DatabaseService, RxCollections } from '@app/service';
 import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDatabase } from 'rxdb';
-import { from, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError, filter, flatMap, map, mapTo, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 
 export interface ExportData {
@@ -130,7 +130,6 @@ export class ExportComponent implements OnInit {
 					)
 				),
 				tap(({ blob, name }) => {
-					console.log(blob.type.split('_'));
 					const url = window.URL.createObjectURL(blob);
 					this.downloadHelper.nativeElement.href = url;
 					this.downloadHelper.nativeElement.download = `${name}.${blob.type.split(/[/_]/).pop()}`;
