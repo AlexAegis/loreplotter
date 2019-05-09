@@ -153,7 +153,6 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	public ngOnInit(): void {}
 
-	private keyUpSubject = new Subject<string>();
 	@HostListener('window:keydown', ['$event'])
 	public onKeyDown($event: KeyboardEvent): void {
 		// console.log($event);

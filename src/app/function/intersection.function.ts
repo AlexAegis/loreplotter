@@ -11,15 +11,15 @@ export function intersection(c1: Circle, c2: Circle, radius: number): Array<Vect
 	// project to (x,y,z) with unit radius
 	const x1: Vector3 = c1.center.clone().normalize();
 	const x2: Vector3 = c2.center.clone().normalize();
-	//console.log(x1, x2);
+	// console.log(x1, x2);
 	// convert radii to radians:
 	const r1: number = c1.radius / radius;
 	const r2: number = c2.radius / radius;
-	//console.log(c1.radius, radius);
+	// console.log(c1.radius, radius);
 	// compute the unique point x0
 	const q: number = x1.clone().dot(x2);
 	const q2: number = q * q;
-	if (q2 == 1) {
+	if (q2 === 1) {
 		// no solution: circle centers are either the same or antipodal
 		return intersections;
 	}
@@ -41,7 +41,7 @@ export function intersection(c1: Circle, c2: Circle, radius: number): Array<Vect
 	// get the normal vector:
 	const n: Vector3 = x1.clone().cross(x2);
 	const n2: number = n.clone().dot(n);
-	if (n2 == 0) {
+	if (n2 === 0) {
 		// no solution: circle centers are either the same or antipodal
 		return intersections;
 	}
@@ -58,7 +58,7 @@ export function intersection(c1: Circle, c2: Circle, radius: number): Array<Vect
 
 /**
  * In radian instead of deg like in the example
- * @param a
+ * @param a to be converted
  */
 export function toPolar(a: Vector3): Vector3 {
 	return new Vector3(Math.atan2(a.z, Math.sqrt(a.x * a.x + a.y * a.y)), Math.atan2(a.y, a.x));

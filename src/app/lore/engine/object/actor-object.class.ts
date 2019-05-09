@@ -299,10 +299,10 @@ export class ActorObject extends Basic {
 		engineService.raycaster.set(worldPos, toCenter);
 
 		// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
-		const intersection = engineService.raycaster.intersectObject(globe)[0];
-		if (intersection) {
+		const i = engineService.raycaster.intersectObject(globe)[0];
+		if (i) {
 			//  but there's always be an intersection as the globe is spherical
-			const displacementHere = globe.displacementTexture.heightAt(intersection.uv);
+			const displacementHere = globe.displacementTexture.heightAt(i.uv);
 			this.position.set(
 				0,
 				0,
