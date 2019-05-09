@@ -96,6 +96,16 @@ const isManualLightAlwaysOn = createSelector(
 	state => state.manualLightAlwaysOn
 );
 
+const isSidebarOpen = createSelector(
+	getSceneState,
+	state => state.sidebarOpen
+);
+
+const isMediaLarge = createSelector(
+	getSceneState,
+	state => state.mediaLarge
+);
+
 export const sceneQuery = {
 	getLoadingScenes,
 	play: {
@@ -118,5 +128,9 @@ export const sceneQuery = {
 		getDrawHeight,
 		isManualLight,
 		isManualLightAlwaysOn
+	},
+	ui: {
+		isSidebarOpen,
+		isMediaLarge
 	}
 };

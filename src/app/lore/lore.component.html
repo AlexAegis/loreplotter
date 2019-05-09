@@ -1,80 +1,10 @@
-<mat-toolbar color="back">
-	<mat-toolbar-row id="mainBar">
-		<app-hamburger *ngIf="!sidebar.mediaLarge" @leave [(open)]="sidebar.opened"></app-hamburger>
-
-		<button
-			class="title"
-			aria-label="Home"
-			mat-button
-			[routerLink]="['']"
-			matRipple
-			disableRipple
-			[matRippleRadius]="800"
-		>
-			{{ title }}
-		</button>
-
-		<mat-menu #appMenu="matMenu">
-			<span
-			><button aria-label="Create Project" class="create" mat-menu-item color="accent" (click)="createLore()">
-					<fa-icon [icon]="plusIcon" size="lg"></fa-icon> Create
-				</button></span
-			>
-			<hr class="divider" />
-			<div *ngFor="let lore of loresButSelected$ | async" class="buttonRow">
-				<button mat-flat-button aria-label="Select project" (click)="selectLore(lore)">
-					{{ lore.name }}
-				</button>
-				<button mat-flat-button class="removeButton" aria-label="Delete project" (click)="removeLore(lore)">
-					<fa-icon [icon]="removeIcon" size="lg"></fa-icon>
-				</button>
-			</div>
-
-			<span class="buttonRow">
-				<button
-					aria-label="Export"
-					mat-flat-button
-					color="warn"
-					class="exportImportButton"
-					(click)="exportDatabase()"
-				>
-					Export
-				</button>
-			</span>
-		</mat-menu>
-
-		<span class="menuButton">
-			<button mat-icon-button aria-label="Open Repo">
-				<fa-icon [icon]="githubIcon" size="lg" (click)="navigateToRepo()"></fa-icon>
-			</button>
-			<button
-				mat-flat-button
-				aria-label="Edit Current"
-				(click)="editLoreCurrent()"
-				*ngIf="!!(selectedLore$ | async)"
-			>
-				{{ (selectedLore$ | async).name }}
-			</button>
-			<button mat-icon-button aria-label="Open Menu" [matMenuTriggerFor]="appMenu">
-				<fa-icon [icon]="menuIcon" size="lg"></fa-icon>
-			</button>
-		</span>
-	</mat-toolbar-row>
-</mat-toolbar>
-
-<app-sidebar #sidebar>
+<app-toolbar></app-toolbar>
+<app-sidebar>
 	<div class="controls">
 		<app-scene-controls class="scene-control"></app-scene-controls>
 		<app-speed-control class="time-control"></app-speed-control>
 		<app-light-control class="light-control"></app-light-control>
 	</div>
-
 	<app-timeline #timeline matRipple [matRippleColor]="'#12121206'"></app-timeline>
-
-	<!--
-        [ngStyle]="{ 'left.px': timeline.el.nativeElement.offsetLeft }"
-
-        -->
 </app-sidebar>
-
 <app-engine></app-engine>

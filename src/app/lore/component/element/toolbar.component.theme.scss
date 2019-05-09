@@ -1,7 +1,12 @@
 @import '~@angular/material/theming';
 
-@mixin lore-component-theme($theme) {
+@mixin toolbar-component-theme($theme) {
 	$primary: map-get($theme, primary);
 	$accent: map-get($theme, accent);
 	$warn: map-get($theme, warn);
+
+	mat-toolbar {
+		background-color: rgba(mat-color($primary, 'lighter'), 0.8);
+
+	}
 }

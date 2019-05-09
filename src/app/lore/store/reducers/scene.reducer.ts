@@ -24,13 +24,16 @@ import {
 	setFrameTo,
 	setInteractionMode,
 	setManualLightAlwaysOn,
+	setMediaLarge,
 	setPlaying,
 	setPlayingFailure,
 	setPlayingSuccess,
 	setPlaySpeed,
+	setSidebarOpen,
 	toggleAutoLight,
 	toggleManualLightAlwaysOn,
-	togglePlaying
+	togglePlaying,
+	toggleSidebarOpen
 } from '@lore/store/actions';
 import moment from 'moment';
 
@@ -57,9 +60,13 @@ export interface SceneState {
 	drawHeight: number;
 	manualLight: boolean;
 	manualLightAlwaysOn: boolean;
+	sidebarOpen: boolean;
+	mediaLarge: boolean; // Large screen or not (Like mobile)
+	title: string; // Large screen or not (Like mobile)
 }
 
 export const initialSceneState: SceneState = {
+	title: 'DAW',
 	loading: false,
 	playSpeed: 1200,
 	playing: false,
@@ -88,7 +95,9 @@ export const initialSceneState: SceneState = {
 	drawSize: 10,
 	drawHeight: 1,
 	manualLight: true,
-	manualLightAlwaysOn: false
+	manualLightAlwaysOn: false,
+	sidebarOpen: false, // Will be set correctly on application startup
+	mediaLarge: false // Will be set correctly on application startup
 };
 
 function cursorReducer(cursor: CursorState, action: SceneActions): CursorState {
@@ -215,6 +224,15 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 		}
 		case toggleManualLightAlwaysOn.type: {
 			return { ...state, manualLightAlwaysOn: !state.manualLightAlwaysOn };
+		}
+		case setSidebarOpen.type: {
+			return { ...state, sidebarOpen: action.payload };
+		}
+		case toggleSidebarOpen.type: {
+			return { ...state, sidebarOpen: !state.sidebarOpen };
+		}
+		case setMediaLarge.type: {
+			return { ...state, mediaLarge: action.payload };
 		}
 		case changeCursorBy.type:
 		case changeCursorOverrideTo.type:

@@ -1,0 +1,55 @@
+<mat-toolbar color="back">
+	<mat-toolbar-row id="mainBar">
+		<app-hamburger
+			(openChange)="storeFacade.setSidebarOpen($event)"
+			*ngIf="!(mediaLarge$ | async)"
+			@leave
+			[open]="sidebarOpen$ | async"
+		></app-hamburger>
+		<mat-menu #appMenu="matMenu">
+			<span
+			><button (click)="createLore()" aria-label="Create Project" class="create" color="accent" mat-menu-item>
+					<fa-icon [icon]="plusIcon" size="lg"></fa-icon> Create
+				</button></span
+			>
+			<hr class="divider"/>
+			<div *ngFor="let lore of loresButSelected$ | async" class="buttonRow">
+				<button (click)="selectLore(lore)" aria-label="Select project" mat-flat-button>
+					{{ lore.name }}
+				</button>
+				<button (click)="removeLore(lore)" aria-label="Delete project" class="removeButton" mat-flat-button>
+					<fa-icon [icon]="removeIcon" size="lg"></fa-icon>
+				</button>
+			</div>
+
+			<span class="buttonRow">
+				<button
+					(click)="exportDatabase()"
+					aria-label="Export"
+					class="exportImportButton"
+					color="warn"
+					mat-flat-button
+				>
+					Export
+				</button>
+			</span>
+		</mat-menu>
+
+		<span class="menuButton">
+			<button aria-label="Open Repo" mat-icon-button>
+				<fa-icon (click)="navigateToRepo()" [icon]="githubIcon" size="lg"></fa-icon>
+			</button>
+			<button
+				(click)="editLoreCurrent()"
+				*ngIf="!!(selectedLore$ | async)"
+				aria-label="Edit Current"
+				mat-flat-button
+			>
+				{{ (selectedLore$ | async).name }}
+			</button>
+			<button [matMenuTriggerFor]="appMenu" aria-label="Open Menu" mat-icon-button>
+				<fa-icon [icon]="menuIcon" size="lg"></fa-icon>
+			</button>
+		</span>
+	</mat-toolbar-row>
+</mat-toolbar>

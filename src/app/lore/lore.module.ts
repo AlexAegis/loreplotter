@@ -31,6 +31,7 @@ import { SpeedControlComponent } from 'src/app/lore/component/control/speed-cont
 import { LoreFormComponent } from 'src/app/lore/component/dialog/lore-form.component';
 import { ConfirmComponent } from './component/dialog/confirm.component';
 import { ExportComponent } from './component/dialog/export.component';
+import { ToolbarComponent } from './component/element/toolbar.component';
 import { LoreComponent } from './lore.component';
 
 @NgModule({
@@ -54,7 +55,8 @@ import { LoreComponent } from './lore.component';
 		SpeedControlComponent,
 		LoreFormComponent,
 		ExportComponent,
-		ConfirmComponent
+		ConfirmComponent,
+		ToolbarComponent
 	],
 	imports: [
 		LoreStoreModule,

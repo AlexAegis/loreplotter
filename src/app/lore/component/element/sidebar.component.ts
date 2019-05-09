@@ -3,11 +3,12 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, H
 import { BaseDirective } from '@app/component/base-component.class';
 import { Actor } from '@app/model/data/actor.class';
 import { ActorAccumulator, ActorService, DatabaseService } from '@app/service';
-import { LoreService } from '@app/service/lore.service';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { EngineService } from '@lore/engine/engine.service';
+import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { Observable } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-sidebar',
@@ -16,18 +17,29 @@ import { Observable } from 'rxjs';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent extends BaseDirective implements AfterViewInit, OnInit {
-	public get opened(): boolean {
-		return this._opened;
-	}
-
-	public set opened(opened: boolean) {
-		this._opened = opened;
-		this.changeDetector.markForCheck();
-	}
+	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
+	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
+	public sidebarOpen$: Observable<boolean>;
+	public mediaLarge$: Observable<boolean>;
+	@Input()
+	public disabled = false;
+	private onResizeSubject = new Subject<Event>();
+	private onAfterViewInitSubject = new Subject<boolean>();
+	private onBeginDragSubject = new Subject<boolean>();
+	public actorSource = this.dnd.dragSource('Actor', {
+		beginDrag: () => {
+			this.onBeginDragSubject.next(true);
+			return {};
+		}
+	});
+	private onSelectSubject = new Subject<RxDocument<Actor>>();
+	public over = 'side';
+	public maleIcon = faMale;
+	public maleIconSize = 'lg';
 
 	public constructor(
 		private dnd: SkyhookDndService,
-		public loreService: LoreService,
+		public storeFacade: StoreFacade,
 		public engineService: EngineService,
 		private actorService: ActorService,
 		private databaseService: DatabaseService,
@@ -36,54 +48,63 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		super();
 		this.actorDeltasAtCursor$ = this.actorService.actorDeltasAtCursor$;
 		this.currentLoreActors$ = this.databaseService.currentLoreActors$;
+		this.sidebarOpen$ = this.storeFacade.sidebarOpen$;
+		this.mediaLarge$ = this.storeFacade.mediaLarge$;
 	}
-
-	public over = 'side';
-	public maleIcon = faMale;
-	public maleIconSize = 'lg';
-	@Input()
-	public disabled = false;
-
-	private _opened = false;
-
-	public actorSource = this.dnd.dragSource('Actor', {
-		beginDrag: () => {
-			this.opened = this.mediaLarge;
-			return {};
-		}
-	});
-
-	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
-	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
-
-	public mediaLarge: boolean;
 
 	@HostListener('window:resize', ['$event'])
-	public onResize($event: any): void {
-		const w = $event.target.innerWidth;
-		const h = $event.target.innerHeight;
-		this.mediaLarge = w / h >= 1.8; // Standard 16/9 ratio is 1.77 repeating.
-		if (!this.opened && this.mediaLarge) {
-			this.opened = true;
-		}
-		this.over = this.mediaLarge ? 'side' : 'over';
-		this.changeDetector.markForCheck();
+	public onResize($event: Event): void {
+		this.onResizeSubject.next($event);
 	}
 
-	public ngOnInit(): void {}
+	public ngOnInit(): void {
+		this.teardown(
+			combineLatest([this.onResizeSubject, this.mediaLarge$, this.sidebarOpen$]).subscribe(
+				([$event, mediaLarge, open]) => {
+					const w = ($event as any).target.innerWidth;
+					const h = ($event as any).target.innerHeight;
+					this.storeFacade.setMediaLarge(w / h >= 1.8); // Standard 16/9 ratio is 1.77 repeating.
+					if (!open && mediaLarge) {
+						this.storeFacade.setSidebarOpen(true);
+					}
+					this.over = mediaLarge ? 'side' : 'over';
+					this.changeDetector.markForCheck();
+				}
+			)
+		);
+		this.teardown(
+			combineLatest([this.mediaLarge$, this.onBeginDragSubject]).subscribe(([mediaLarge, on]) => {
+				this.storeFacade.setSidebarOpen(mediaLarge);
+			})
+		);
+		this.teardown(
+			combineLatest([this.mediaLarge$, this.onSelectSubject]).subscribe(([mediaLarge, actor]) => {
+				this.engineService.selectedByActor.next(actor);
+				this.storeFacade.setSidebarOpen(mediaLarge || false);
+			})
+		);
+		combineLatest([this.onAfterViewInitSubject, this.mediaLarge$, this.sidebarOpen$])
+			.pipe(take(1))
+			.subscribe(([afterView, mediaLarge, open]) => {
+				this.onResizeSubject.next({ target: window } as any);
+				this.storeFacade.setSidebarOpen(mediaLarge);
+				this.over = open ? 'side' : 'over';
+			});
+	}
 
 	public ngAfterViewInit(): void {
-		this.onResize({ target: window });
-		this.opened = this.mediaLarge;
-		this.over = this.opened ? 'side' : 'over';
+		this.onAfterViewInitSubject.next(true);
 	}
 
 	public select($event, actor: RxDocument<Actor>): void {
-		this.engineService.selectedByActor.next(actor);
-		this.opened = this.mediaLarge || false;
+		this.onSelectSubject.next(actor);
 	}
 
 	public onCloseStart(): void {
-		this.opened = false;
+		this.storeFacade.setSidebarOpen(false);
+	}
+
+	public setSidebarOpen(to: boolean): void {
+		this.storeFacade.setSidebarOpen(to);
 	}
 }

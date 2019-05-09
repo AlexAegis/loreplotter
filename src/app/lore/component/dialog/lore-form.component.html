@@ -30,7 +30,8 @@
 <mat-dialog-actions>
 	<input type="file"
 		   #file
-		   (change)="handleFileInput($event.target.files)">
+		   (change)="handleFileInput($event)">
+
 	<button
 		*ngIf="originalData.id"
 		aria-label="Load Default Earth"

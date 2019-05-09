@@ -41,12 +41,11 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 			radius: this.formBuilder.control('', [Validators.required])
 		})
 	});
-	private file: Blob;
 
-	public handleFileInput(fileList: FileList): void {
-		console.log(fileList);
-		this.file = fileList.item(0);
-		this.loreForm.controls['tex'].setValue(this.file);
+	public handleFileInput($event: Event): void {
+		this.loreForm.controls['tex'].setValue(
+			($event as Event & { target: { files: FileList } }).target.files.item(0)
+		);
 	}
 
 	public constructor(

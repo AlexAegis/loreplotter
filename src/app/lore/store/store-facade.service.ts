@@ -39,10 +39,13 @@ import {
 	setFrameTo,
 	setInteractionMode,
 	setManualLightAlwaysOn,
+	setMediaLarge,
 	setPlaySpeed,
+	setSidebarOpen,
 	toggleAutoLight,
 	toggleManualLightAlwaysOn,
 	togglePlaying,
+	toggleSidebarOpen,
 	updateActor,
 	updateLore,
 	updateLoreFailure,
@@ -85,6 +88,10 @@ export class StoreFacade {
 	public drawHeight$ = this.store$.pipe(select(sceneQuery.interaction.getDrawHeight));
 	public manualLight$ = this.store$.pipe(select(sceneQuery.interaction.isManualLight));
 	public manualLightAlwaysOn$ = this.store$.pipe(select(sceneQuery.interaction.isManualLightAlwaysOn));
+	// UI
+	public sidebarOpen$ = this.store$.pipe(select(sceneQuery.ui.isSidebarOpen));
+	public mediaLarge$ = this.store$.pipe(select(sceneQuery.ui.isMediaLarge));
+	j;
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 
@@ -217,4 +224,17 @@ export class StoreFacade {
 	public setActorObjectSizeBias(to: number): void {
 		this.store$.dispatch(setActorObjectSizeBias({ payload: to }));
 	}
+
+	public setSidebarOpen(to: boolean): void {
+		this.store$.dispatch(setSidebarOpen({ payload: to }));
+	}
+
+	public toggleSidebarOpen(): void {
+		this.store$.dispatch(toggleSidebarOpen());
+	}
+
+	public setMediaLarge(to: boolean): void {
+		this.store$.dispatch(setMediaLarge({ payload: to }));
+	}
+
 }

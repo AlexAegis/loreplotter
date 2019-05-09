@@ -9,7 +9,8 @@ import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, 
 export class HamburgerComponent implements OnInit {
 	public constructor() {}
 
-	@Output() openChange = new EventEmitter<boolean>();
+	@Output()
+	public openChange = new EventEmitter<boolean>();
 
 	private _open: boolean;
 
@@ -25,8 +26,8 @@ export class HamburgerComponent implements OnInit {
 
 	public ngOnInit(): void {}
 
-	@HostListener('click', ['$event'])
-	public toggle(event): void {
+	@HostListener('click')
+	public toggle(): void {
 		this.open = !this.open;
 	}
 }

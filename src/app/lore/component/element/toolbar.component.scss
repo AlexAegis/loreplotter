@@ -1,0 +1,57 @@
+@import '../../../style/responsive.scss';
+
+:host {
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	display: grid;
+	overflow: hidden;
+	grid-template-rows: 1fr;
+	grid-auto-columns: 1fr 3fr;
+
+	#mainBar {
+		height: 100%;
+		width: 100%;
+		display: grid;
+		grid-template-rows: 4rem;
+		grid-template-columns: 60px 1rem auto minmax(auto, 40rem);
+
+		app-hamburger {
+			grid-column: 1;
+		}
+
+		.title {
+			grid-column: 2;
+			height: 100%;
+			font-size: 2rem;
+			width: 100%;
+			text-align: left;
+			vertical-align: top;
+		}
+
+		#user {
+			display: block;
+			height: 100%;
+			width: 100%;
+			@include respond-to(small, medium) {
+				grid-column: 4;
+			}
+			@include respond-to(large) {
+				position: relative;
+				grid-column: 4;
+			}
+		}
+
+		.menuButton {
+			grid-column: -1;
+			justify-self: end;
+			align-self: center;
+
+			> * {
+				margin-left: 0.5rem;
+			}
+		}
+	}
+}

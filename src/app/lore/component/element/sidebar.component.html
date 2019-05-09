@@ -1,7 +1,8 @@
 <mat-sidenav-container class="container">
 	<mat-sidenav
 		[(mode)]="over"
-		[(opened)]="opened"
+		(openedChange)="setSidebarOpen($event)"
+		[opened]="sidebarOpen$ | async"
 		*ngIf="!disabled"
 		class="bottom-to-top"
 		(closedStart)="onCloseStart()"

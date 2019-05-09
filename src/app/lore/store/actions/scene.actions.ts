@@ -137,3 +137,15 @@ export const actorSpawnOnWorld = createAction(
 		payload: Payload<{ actorObject: ActorObject; position: Vector3 }>
 	): Payload<{ actorObject: ActorObject; position: Vector3 }> => payload
 );
+
+export const setSidebarOpen = createAction(
+	`[Scene] Set Sidebar Open`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);
+
+export const toggleSidebarOpen = createAction(`[Scene] Toggle Sidebar Open`);
+
+export const setMediaLarge = createAction(
+	`[Scene] Set Media Large`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);
