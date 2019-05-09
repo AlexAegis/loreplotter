@@ -1,4 +1,5 @@
 :host {
+	display: grid;
 	mat-dialog-content {
 		height: 100%;
 
@@ -17,8 +18,13 @@
 	}
 
 	mat-dialog-actions {
+		justify-self: end;
+		display: grid;
+		grid-gap: 1rem;
+		grid-auto-columns: min-content;
+		grid-template-rows: 1fr;
 		> * {
-			margin: auto;
+			grid-row: 1;
 		}
 	}
 }

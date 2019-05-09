@@ -304,6 +304,9 @@
 \renewcommand{\algorithmiccomment}[1]{\hfill {\it #1}}
 % ------------------------------
 
+\usepackage[edges]{forest}
+\usetikzlibrary{arrows.meta}
+
 % ------------------------------
 % Teendőlista
 % http://www.tex.ac.uk/tex-archive/help/Catalogue/entries/todonotes.html

@@ -154,7 +154,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 	public ngOnInit(): void {}
 
 	@HostListener('window:keyup', ['$event'])
-	public keyEvent($event: KeyboardEvent) {
+	public keyEvent($event: KeyboardEvent): void {
 		$event.preventDefault();
 		switch ($event.code) {
 			case 'Space':
@@ -253,9 +253,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 				switchMap(dump =>
 					this.dialog
 						.open(ExportComponent, {
-							data: { data: dump } as ExportData,
-							height: '90vh',
-							width: '70vw'
+							data: { data: dump } as ExportData
 						})
 						.afterClosed()
 				)

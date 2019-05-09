@@ -3,10 +3,21 @@
 
 Az alkalmazás sem telepítést sem regisztrációt nem igényel, teljes egészében böngészőből használható. Minden alkalmazáson belüli tevékenység egy projekthez köthető melyeket a felhasználó kedve szerint hozhat létre, törölhet, módosíthat. Egyszerre több projektet is vezethetünk, a váltás közöttük azonnali.
 
-\section{Projektstruktúra}
+\section{A Projekt}
 
-A projekt fő azonosító eleme a neve
-Etiam vel odio ante. Etiam pulvinar nibh quis massa auctor congue. Pellentesque quis odio vitae sapien molestie vestibulum sit amet et quam. Pellentesque vel dui eget enim hendrerit finibus at sit amet libero. Quisque sollicitudin ultrices enim, nec porta magna imperdiet vitae. Cras condimentum nunc dui, eget molestie nunc accumsan vel.
+Minden project három fő elemből áll, ezek a név, a világ és később a szereplők. Új projekt létrehozásakor a projekt nevét és a világának adatait szükséges megadni.
+
+\begin{forest}
+	forked edges,
+	for tree={edge+={-Latex}},
+	[Projekt
+	  [Név]
+	  [Világ [Név] [Méret]]
+	  [Szereplők [\dots]]
+	]
+\end{forest}
+
+Új projektet létrehozni a jobb felső sarokban található menü legfelső elemével tehetjük meg:
 
 \begin{itemize}
 	\item Fusce in aliquet neque, in pretium sem.
