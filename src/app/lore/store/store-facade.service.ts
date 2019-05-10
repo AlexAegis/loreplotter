@@ -236,5 +236,4 @@ export class StoreFacade {
 	public setMediaLarge(to: boolean): void {
 		this.store$.dispatch(setMediaLarge({ payload: to }));
 	}
-
 }

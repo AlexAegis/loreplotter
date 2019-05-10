@@ -95,7 +95,6 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		private storeFacade: StoreFacade
 	) {
 		super();
-
 	}
 
 	public setTheme(theme: string): void {

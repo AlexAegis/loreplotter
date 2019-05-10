@@ -109,7 +109,9 @@ export class LoreEffects {
 	@Effect()
 	public createLore$ = this.actions$.pipe(
 		ofType(createLore.type),
-		switchMap(({ payload }: Payload<{ tex: Blob } & Lore>) => //
+		switchMap((
+			{ payload }: Payload<{ tex: Blob } & Lore> //
+			) =>
 			this.loreService.create(payload).pipe(
 				delayWhen(lore => {
 					if (payload.tex) {
@@ -153,7 +155,6 @@ export class LoreEffects {
 			)
 		)
 	);
-
 
 	/*
 

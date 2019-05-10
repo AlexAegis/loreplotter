@@ -4,25 +4,25 @@
 		<div>
 			<mat-form-field class="date" floatLabel="never">
 				<mat-label>{{ originalData.date | amDateFormat: 'YYYY-MM-DD' }}</mat-label>
-				<input id="dateInput" matInput [matDatepicker]="date" formControlName="date"/>
+				<input [matDatepicker]="date" formControlName="date" id="dateInput" matInput/>
 				<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
 				<mat-datepicker #date></mat-datepicker>
 			</mat-form-field>
 			<mat-form-field class="time" floatLabel="never">
 				<mat-label>{{ originalData.time }}</mat-label>
-				<input matInput formControlName="time" mask="Hh:m0:s0" [dropSpecialCharacters]="false"/>
+				<input [dropSpecialCharacters]="false" formControlName="time" mask="Hh:m0:s0" matInput/>
 			</mat-form-field>
 		</div>
 		<mat-label class="nameLabel">Name:</mat-label>
 		<mat-form-field class="name" floatLabel="never">
 			<mat-label>{{ originalData.name }}</mat-label>
-			<input matInput formControlName="name"/>
+			<input formControlName="name" matInput/>
 		</mat-form-field>
 
 		<mat-label class="maxSpeedLabel">Max Speed (km/h):</mat-label>
 		<mat-form-field class="speed" floatLabel="never">
 			<mat-label>{{ originalData.maxSpeed }}</mat-label>
-			<input matInput formControlName="maxSpeed" mask="9*"/>
+			<input formControlName="maxSpeed" mask="9*" matInput/>
 		</mat-form-field>
 
 		<mat-label class="colorLabel">Color:</mat-label>

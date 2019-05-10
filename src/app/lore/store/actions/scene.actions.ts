@@ -5,8 +5,14 @@ import { createAction } from '@ngrx/store';
 import { Vector3 } from 'three';
 
 export const setPlaySpeed = createAction(`[Scene] Set Speed`, (payload: Payload<number>): Payload<number> => payload);
-export const changePlaySpeed = createAction(`[Scene] Change Speed`, (payload: Payload<number>): Payload<number> => payload);
-export const changePlayDirection = createAction(`[Scene] Change Direction`, (payload: Payload<number>): Payload<number> => payload);
+export const changePlaySpeed = createAction(
+	`[Scene] Change Speed`,
+	(payload: Payload<number>): Payload<number> => payload
+);
+export const changePlayDirection = createAction(
+	`[Scene] Change Direction`,
+	(payload: Payload<number>): Payload<number> => payload
+);
 export const setPlaying = createAction(`[Scene] Set Playing`, (payload: Payload<boolean>): Payload<boolean> => payload);
 export const setPlayingSuccess = createAction(
 	`[Scene] Set Playing Success`,
