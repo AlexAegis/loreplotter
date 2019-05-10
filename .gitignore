@@ -107,6 +107,9 @@ typings/
 # PlantUML renders
 docs/**/*.png
 
+# Gzip
+*.gz
+
 # LaTeX Auxillary files
 
 *.aux
@@ -121,3 +124,4 @@ docs/**/*.png
 *.run.xml
 *.tdo
 *.toc
+*.synctex.gz

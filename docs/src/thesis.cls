@@ -305,7 +305,7 @@
 % ------------------------------
 
 \usepackage[edges]{forest}
-
+\usepackage{titlesec}
 \usetikzlibrary{arrows.meta}
 
 % ------------------------------

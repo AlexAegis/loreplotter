@@ -44,6 +44,7 @@ export function actorReducer(state: ActorState = initialActorState, action: Acto
 			return { ...state, loading: true };
 		}
 		case loadActorsSuccess.type: {
+			actorAdapter.removeAll(state);
 			return actorAdapter.addAll(action.payload, { ...state, loading: false });
 		}
 		case loadActorsFailure.type: {

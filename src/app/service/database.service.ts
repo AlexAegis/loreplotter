@@ -3,13 +3,14 @@ import { Injectable } from '@angular/core';
 
 import { Actor, ActorDelta, Lore, Planet, serializeActor, UnixWrapper } from '@app/model/data';
 import { actorSchema, loreSchema } from '@app/model/schema';
+import { withTeardown } from '@app/operator';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import moment from 'moment';
 
 import * as idb from 'pouchdb-adapter-idb';
 import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
-import { combineLatest, forkJoin, from, Observable, zip } from 'rxjs';
-import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { combineLatest, forkJoin, from, Observable, of, zip } from 'rxjs';
+import { delayWhen, filter, map, mergeMap, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
 
 @Injectable()
@@ -78,9 +79,12 @@ export class DatabaseService {
 	);
 
 	public currentLoreActors$ = combineLatest([this.currentLore$, this.allActors$]).pipe(
+		tap(a => console.log(a)),
 		map(([lore, actors]) => actors.filter(actor => actor.loreId === lore.id)),
 		map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
-		shareReplay(1)
+		// withTeardown(),
+		// startWith([] as Array<RxDocument<Actor>>),
+		shareReplay(1),
 	);
 
 	public actorCount$ = this.currentLoreActors$.pipe(

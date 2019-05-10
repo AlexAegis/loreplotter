@@ -1,3 +1,4 @@
+% !TeX root = ../thesis.tex
 \chapter{Felhasználói dokumentáció}
 \label{ch:user}
 
@@ -25,14 +26,22 @@ Minden projekt \ref{fig:basic-project-structure} három fő elemből áll, ezek 
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics{create-project-button}
+	\includegraphics[width=0.50\textwidth,scale=1]{create-project-button}
 	\caption{
 		Új projektet létrehozni a jobb felső sarokban található menü legfelső elemével tehetjük meg}
 	\label{fig:create-project-button}
 \end{figure}
 
-Új projekt létrehozásakor a projekt készítő dialógust kapjuk melyen lehetőséget kapunk a projektünknek nevet adni és a világbeállításokat megadni, mint a bolygó neve és mérete ami alatt a bolygó sugarát értjük kilóméterben megadva.
+Új projekt létrehozásakor a projekt készítő dialógust kapjuk melyen lehetőséget kapunk a projektünknek nevet adni és a világbeállításokat megadni, mint a bolygó neve és mérete ami alatt a bolygó sugarát értjük kilóméterben megadva. Valamint egy tetszőleges fekete-fehér magasságtérképet is megadhatunk amivel inicializálhatjuk a bolygó felületét. A vízmagasság alapértelmezetten 40\%-os szürkeségnél van.
 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.80\textwidth,scale=1]{create-project-form}
+	\caption{
+		Új projekt dialógus}
+	\label{fig:create-project-form}
+\end{figure}
 
 
 \begin{table}[H]
@@ -47,16 +56,68 @@ Minden projekt \ref{fig:basic-project-structure} három fő elemből áll, ezek 
 		\hline
 		\emph{Bolygó méret} & Szám & Kötelező. Alapértelmezett értéke: "6371". (A föld sugara kilóméterben)  \\
 		\hline
+		\emph{Magasságtérkép} & Kép & Opcionális. Egy tetszőleges kezdeti magasságtérkép  \\
+		\hline
 	\end{tabular}
 	\caption{Új projekt sablon}
 	\label{tab:create-project-form}
 \end{table}
 
+A 'Create' gombra kattintva azonnal megnyílik az elkészített projekt.
+
+\section{Kezelőfelület} \label{section:ui}
+
+Single Page Application
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1.0\textwidth,scale=1]{full-screenshot-open-sidebar}
+	\caption{
+		A kezelőfelület}
+	\label{fig:full-screenshot-open-sidebar}
+\end{figure}
+
+A kezelőfelület az alábbi elemeket tartalmazza:
+
 \begin{itemize}
-	\item Fusce in aliquet neque, in pretium sem.
-	\item Donec tincidunt tellus id lectus pretium fringilla.
-	\item Nunc faucibus, erat pretium tempus tempor, tortor mi fringilla neque, ac congue ex dui vitae mauris.
+	\item Bal oldalt a szereplőtár amibel készíteni és válogatni tudunk a szereplőink között. \ref{section:ui-actors}
+	\item Alul az idővonal látható ahol az éppen megtekintett időpontot tudjuk megtekintni/változtatni. Az események idejét szerkeszteni.  \ref{section:ui-timeline}
 \end{itemize}
+
+\subsection{Szereplőtár} \label{section:ui-actors}
+
+A szereplőtár legfelső elemével lehet újabb szereplőket hozzáadni a színtérhez. A gombot fogd-és-vidd módon lehet a bolygó valamely pontjára ráhúzni, ami majd a karakter kiindulási pontja lesz. Ez akármikor megváltoztatható.
+
+Ez alatt az elkészített karakterek listája van, mellette az összes karakter számával. Egy karakter itt az alábbi információt tartalmazza:
+
+\begin{itemize}
+	\item Név (Akkumulált a jelenlegi időpillanatra)
+	\item Szín (Akkumulált a jelenlegi időpillanatra)
+	\item Összes történés száma
+\end{itemize}
+
+\subsection{Idővonal} \label{section:ui-timeline}
+
+A idővonalat elsősorban három elemre tudjuk bontani:
+
+\subsubsection{A Kurzor}
+
+A vonalzón helyezkedik el. Mindig a jelenlegi időpontra mutat, melyet a kurzoron, fogd-és-vidd módszerrel megváltoztathatunk. Egy fölötte megjelenő buborék a pontos időt mutatja másodperc pontossággal.
+
+\paragraph{A Vonalzó}
+
+Beosztásai napokban értendőek, a kisebb fogai pedig óráknak. A vonalzót fogd és vidd módon tudjuk az időben előre vagy hátra eltolni. Az egérgörgővel pedig az aktív idősávot tudjuk kibővíteni, szűkíteni.
+
+\paragraph{A Karakter Sávok}
+
+Minden karakter saját sávval rendelkezik. Bal oldalt a sávhoz tartozó karakter akkumulált nevét lehet látni. A sávon belül pedig a blokkját. Minden 'blokk' történésekből áll melyeket egy-egy 'cövek' reprezentál.
+
+Egy blokk az alábbi interakciós lehetőségeket nyútja:
+\begin{enumerate}
+	\item Egy cövekre kattintva a kurzor arra az időpontra ugrik és a cövek kiválasztásra kerül. Ha egy cövek ki van választva mellette egy 'kuka' ikon lehetőséget ad az adott történés eltörlésére. (Megerősítendő)
+	\item Aliquam et aliquam turpis, sed fermentum mauris. Nulla eget ex diam.
+	\item Donec eget tellus pharetra, semper neque eget, rutrum diam Step~\ref{step:first}.
+\end{enumerate}
+
 
 Donec dapibus sodales ante, at scelerisque nunc laoreet sit amet. Mauris porttitor tincidunt neque, vel ullamcorper neque pulvinar et. Integer eu lorem euismod, faucibus lectus sed, accumsan felis. Nunc ornare mi at augue vulputate, eu venenatis magna mollis. Nunc sed posuere dui, et varius nulla. Sed mollis nibh augue, eget scelerisque eros ornare nec.
 

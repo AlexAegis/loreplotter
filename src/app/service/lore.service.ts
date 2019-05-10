@@ -54,7 +54,21 @@ export class LoreService extends BaseDirective {
 					engineService.refreshPopupPosition();
 				})
 		);
-
+		this.teardown(
+			this.storeFacade.cursor$
+				.pipe(
+					filter(
+						cursor =>
+							this.engineService.stage !== undefined && this.engineService.stage.sunGroup !== undefined
+					)
+				)
+				.subscribe(cursor => {
+					this.engineService.stage.sunGroup.rotation.set(0, 0, 0);
+					this.engineService.stage.sunGroup.rotateY(
+						((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
+					);
+				})
+		);
 		// This subscriber's job is end map each actors state end the map based on the current cursor
 		this.teardown(
 			combineLatest([
@@ -72,10 +86,6 @@ export class LoreService extends BaseDirective {
 					)
 				)
 				.subscribe(({ actor, cursor, overrideNodePositions }) => {
-					engineService.stage.sunGroup.rotation.set(0, 0, 0);
-					engineService.stage.sunGroup.rotateY(
-						((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
-					);
 					const enclosure = actor._states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
 						Node<UnixWrapper, ActorDelta>
 					>;
@@ -148,7 +158,7 @@ export class LoreService extends BaseDirective {
 				})
 		);
 
-		// This subsriptions job is end create a brand new actor
+		// This subscriptions job is end create a brand new actor
 		this.teardown(
 			this.spawnActorOnClientOffset
 				.pipe(
@@ -167,8 +177,7 @@ export class LoreService extends BaseDirective {
 							new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
 						);
 						return lore.collection.database.actor.upsert(actor);
-					}),
-					tap(e => console.log(e))
+					})
 				)
 				.subscribe()
 		);
@@ -261,10 +270,10 @@ export class LoreService extends BaseDirective {
 				connection.lore
 					.find({ id: id })
 					.$.pipe(
-					mergeMap(lores =>
-						connection.actor.find({ loreId: id }).$.pipe(map(actors => ({ lores, actors })))
+						mergeMap(lores =>
+							connection.actor.find({ loreId: id }).$.pipe(map(actors => ({ lores, actors })))
+						)
 					)
-				)
 			),
 			mergeMap(({ lores, actors }) =>
 				zip(from(lores).pipe(switchMap(l => l.remove())), from(actors).pipe(switchMap(a => a.remove())))
