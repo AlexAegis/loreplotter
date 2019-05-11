@@ -12,11 +12,13 @@ import {
 	OnInit,
 	Output
 } from '@angular/core';
+import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { OverridableProperty } from '@app/model/overridable-property.class';
 import { LoreService } from '@app/service';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ConfirmComponent } from '@lore/component/dialog/confirm.component';
 import { BlockService } from '@lore/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
@@ -89,7 +91,8 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		public loreService: LoreService,
 		public blockService: BlockService,
 		private storeFacade: StoreFacade,
-		public cd: ChangeDetectorRef
+		public cd: ChangeDetectorRef,
+		private dialog: MatDialog
 	) {
 		super();
 	}
@@ -353,27 +356,33 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	}
 
 	public remove($event: any, node: Node<UnixWrapper, ActorDelta>): void {
-		$event.stopPropagation();
 		if (!this.isAtMostOneLeft) {
 			//  TODO: Make hammer not ignore the disabled setting on buttons
-			this.blockService.selection.next(undefined);
-			this.isSaving = true;
-			this.actor._states.remove(node.key);
+			this.dialog
+				.open(ConfirmComponent)
+				.afterClosed()
+				.subscribe(result => {
+					if (result) {
+						this.blockService.selection.next(undefined);
+						this.isSaving = true;
+						this.actor._states.remove(node.key);
 
-			if (this.blockEnd.value === node.key.unix) {
-				this.blockEnd.override = this.actor._states.last().key.unix;
-				this.blockEnd.bake();
-			} else if (this.blockStart.value === node.key.unix) {
-				this.blockStart.override = this.actor._states.first().key.unix;
-				this.blockStart.bake();
-			}
+						if (this.blockEnd.value === node.key.unix) {
+							this.blockEnd.override = this.actor._states.last().key.unix;
+							this.blockEnd.bake();
+						} else if (this.blockStart.value === node.key.unix) {
+							this.blockStart.override = this.actor._states.first().key.unix;
+							this.blockStart.bake();
+						}
 
-			this.cd.detectChanges();
-			this.actor
-				.atomicUpdate(a => (a._states = this.actor._states) && a)
-				.then(() => {
-					this.isSaving = false;
-					this.update();
+						this.cd.detectChanges();
+						this.actor
+							.atomicUpdate(a => (a._states = this.actor._states) && a)
+							.then(() => {
+								this.isSaving = false;
+								this.update();
+							});
+					}
 				});
 		}
 	}

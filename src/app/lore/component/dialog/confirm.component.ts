@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 export interface ConfirmData {
@@ -9,25 +9,32 @@ export interface ConfirmData {
 @Component({
 	selector: 'app-confirm',
 	templateUrl: './confirm.component.html',
-	styleUrls: ['./confirm.component.scss']
+	styleUrls: ['./confirm.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmComponent implements OnInit {
-	title: string;
-	message: string;
+	public title: string;
+	public message: string;
 
-	constructor(public dialogRef: MatDialogRef<ConfirmComponent>, @Inject(MAT_DIALOG_DATA) public data: ConfirmData) {
-		this.title = data.title;
-		this.message = data.message;
+	public constructor(
+		public dialogRef: MatDialogRef<ConfirmComponent>,
+		@Inject(MAT_DIALOG_DATA) public data: ConfirmData,
+		private cd: ChangeDetectorRef
+	) {
+		this.title = (data && data.title) || 'Warning';
+		this.message = (data && data.message) || 'Are you sure?';
 	}
 
-	ngOnInit() {
+	public ngOnInit(): void {
 	}
 
-	onConfirm(): void {
+	public onConfirm(): void {
+		//this.cd.markForCheck();
 		this.dialogRef.close(true);
 	}
 
-	onDismiss(): void {
+	public onDismiss(): void {
+		// this.cd.markForCheck();
 		this.dialogRef.close(false);
 	}
 }
