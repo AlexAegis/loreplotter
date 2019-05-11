@@ -1,4 +1,4 @@
-<div class="ruler" (mousewheel)="scrollHandler($event)">
+<div class="ruler" (mousewheel)="zoomScrollHandler($event)">
 	<app-cursor #cursor id="cursor" [containerWidth]="containerWidth">{{
 		cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm'
 	}}</app-cursor>
@@ -19,7 +19,7 @@
 
 <div class="channelsContainer">
 	<ng-scrollbar class="channels" viewClass="noOverflow">
-		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)">
+		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)" (mousewheel)="scrollHandler($event)">
 			{{
 			(actorService.accumulatorOf(actor) | async)?.accumulator.name
 				? (actorService.accumulatorOf(actor) | async)?.accumulator.name

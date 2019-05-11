@@ -180,11 +180,10 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	 * TODO: Hammer pinch support
 	 * @param $event mouseEvent
 	 */
-	// @HostListener('mousewheel', ['$event'])
-	public scrollHandler($event: any): void {
+	public zoomScrollHandler($event: any): void {
 		const direction = toUnit($event.deltaY); // -1 or 1
 		const prog = ThreeMath.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
-		// This will be the cursor positon or the center of the pinch, right now it's just the cursors position
+		// This will be the cursor position or the center of the pinch, right now it's just the cursors position
 		/*
 		if (
 			direction > 0 &&
@@ -202,6 +201,14 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 			start: -direction * prog * this.currentUnitSeconds,
 			end: direction * (1 - prog) * this.currentUnitSeconds
 		});
+	}
+
+	/**
+	 * Handles the scroll on the timeline to move the view of the channels up and down
+	 * @param $event
+	 */
+	public scrollHandler($event: HammerInput): void {
+		this.scrollRef.scrollYTo(this.scrollRef.view.scrollTop + toUnit($event.deltaY) * 40);
 	}
 
 	/**

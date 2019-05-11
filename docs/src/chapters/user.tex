@@ -67,7 +67,6 @@ A 'Create' gombra kattintva azonnal megnyílik az elkészített projekt.
 
 \section{Kezelőfelület} \label{section:ui}
 
-Single Page Application
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=1.0\textwidth,scale=1]{full-screenshot-open-sidebar}
@@ -92,7 +91,7 @@ Ez alatt az elkészített karakterek listája van, mellette az összes karakter 
 \begin{itemize}
 	\item Név (Akkumulált a jelenlegi időpillanatra)
 	\item Szín (Akkumulált a jelenlegi időpillanatra)
-	\item Összes történés száma
+	\item Összes esemény száma
 \end{itemize}
 
 \subsection{Idővonal} \label{section:ui-timeline}
@@ -109,201 +108,160 @@ Beosztásai napokban értendőek, a kisebb fogai pedig óráknak. A vonalzót fo
 
 \paragraph{A Karakter Sávok}
 
-Minden karakter saját sávval rendelkezik. Bal oldalt a sávhoz tartozó karakter akkumulált nevét lehet látni. A sávon belül pedig a blokkját. Minden 'blokk' történésekből áll melyeket egy-egy 'cövek' reprezentál.
+Minden karakter saját sávval rendelkezik. Bal oldalt a sávhoz tartozó karakter akkumulált nevét lehet látni. A sávon belül pedig a blokkját ami eseményekre van felosztva.
 
-Egy blokk az alábbi interakciós lehetőségeket nyútja:
+Egy blokk az alábbi interakciós lehetőségeket nyújtja:
 \begin{enumerate}
-	\item Egy cövekre kattintva a kurzor arra az időpontra ugrik és a cövek kiválasztásra kerül. Ha egy cövek ki van választva mellette egy 'kuka' ikon lehetőséget ad az adott történés eltörlésére. (Megerősítendő)
-	\item Aliquam et aliquam turpis, sed fermentum mauris. Nulla eget ex diam.
-	\item Donec eget tellus pharetra, semper neque eget, rutrum diam Step~\ref{step:first}.
+	\item Egy eseményre kattintva a kurzor arra az időpontra ugrik és az esemény kiválasztásra kerül. Kiválasztás után lehetőség van kitörölni az adott eseményt egy megerősítést követően.
+	\item Egy esemény fogd-és-vidd módon áthelyezhetünk bárhova az idővonalon. Figyeljünk oda, hogy ha a jövőben egy esemény függ ettől, és későbbi időpontra helyezzük, akkor ez a függőség sérül.
+	\item A blokk egészét is mozgathatjuk fogd és vidd módon, ezzel az összes esemény párhuzamosan fog elmozdulni.
 \end{enumerate}
 
+Az idővonalon egyszerre 4 sáv fér el. A többi sávot görgetéssel, függőleges pásztázással, vagy a görgősávval érjük el.
 
-Donec dapibus sodales ante, at scelerisque nunc laoreet sit amet. Mauris porttitor tincidunt neque, vel ullamcorper neque pulvinar et. Integer eu lorem euismod, faucibus lectus sed, accumsan felis. Nunc ornare mi at augue vulputate, eu venenatis magna mollis. Nunc sed posuere dui, et varius nulla. Sed mollis nibh augue, eget scelerisque eros ornare nec.
+\subsection{A Színtér} \label{section:ui-scene}
 
-\begin{enumerate}
-	\item\label{step:first} Donec pretium et quam a cursus. Ut sollicitudin tempus urna et mollis.
-	\item Aliquam et aliquam turpis, sed fermentum mauris. Nulla eget ex diam.
-	\item Donec eget tellus pharetra, semper neque eget, rutrum diam Step~\ref{step:first}.
-\end{enumerate}
+A kezelőfelület közepén helyezkedik el a 3D színtér és az azt közvetlen kezelő eszközök. A színtér fő eleme a bolygó és rajta a szereplők. A bolygó fogd-és-vidd módon forgatható, az egérgörgővel pedig közelíthető/távolítható.
 
-Praesent porta, metus eget eleifend consequat, eros ligula eleifend ex, a pellentesque mi est vitae urna. Vivamus turpis nunc, iaculis non leo eget, mattis vulputate tellus. Maecenas rutrum eros sem, pharetra interdum nulla porttitor sit amet. In vitae viverra ante. Maecenas sit amet placerat orci, sed tincidunt velit. Vivamus mattis, enim vel suscipit elementum, quam odio venenatis elit\footnote{Phasellus faucibus varius purus, nec tristique enim porta vitae.}, et mollis nulla nunc a risus. Praesent purus magna, tristique sed lacus sit amet, convallis malesuada magna.
-
-\begin{description}
-	\item[Vestibulum venenatis] malesuada enim, ac auctor erat vestibulum et. Phasellus id purus a leo suscipit accumsan.
-	\item[Orci varius natoque] penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam interdum rhoncus nisl, vel pharetra arcu euismod sagittis. Vestibulum ac turpis auctor, viverra turpis at, tempus tellus.
-	\item[Morbi dignissim] erat ut rutrum aliquet. Nulla eu rutrum urna. Integer non urna at mauris scelerisque rutrum sed non turpis.
-\end{description}
-
-\subsection{Szoros térközű felsorolások}
-
-Phasellus ultricies, sapien sit amet ultricies placerat, velit purus viverra ligula, id consequat ipsum odio imperdiet enim:
-\begin{compactenum}
-	\item Maecenas eget lobortis leo.
-	\item Donec eget libero enim.
-	\item In eu eros a eros lacinia maximus ullamcorper eget augue.
-\end{compactenum}
-
-\bigskip
-
-In quis turpis metus. Proin maximus nibh et massa eleifend, a feugiat augue porta. Sed eget est purus. Duis in placerat leo. Donec pharetra eros nec enim convallis:
-\begin{compactitem}
-	\item Pellentesque odio lacus.
-	\item Maximus ut nisl auctor.
-	\item Sagittis vulputate lorem.
-\end{compactitem}
-
-\bigskip
-
-Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed lorem libero, dignissim vitae gravida a, ornare vitae est.
-\begin{compactdesc}
-	\item[Cras maximus] massa commodo pellentesque viverra.
-	\item[Morbi sit] amet ante risus. Aliquam nec sollicitudin mauris
-	\item[Ut aliquam rhoncus sapien] luctus viverra arcu iaculis posuere
-\end{compactdesc}
+A bolygó felületén lévő szereplők helyét, a szereplőt reprezentáló színes gömb fogd-és-vidd módon történő áthelyezésével lehet megtenni. Ennek a viselkedése nagyban függ a jelenlegi időtől és a szereplő azon eseményeitől mely a jelenlegi időponton, vagy a körül helyezkednek el. Minden szereplő rendelkezik egy maximum elérhető sebességgel. Hogy ez be legyen tartva, egy szereplő áthelyezésekor, csak olyan távolságba engedett az áthelyezés, amivel még el lehet érni az előző és a következő esemény helyét. Egy esemény helye áthelyezhető ha áthelyezéskor az az esemény ideje van kiválasztva, egyéb esetekben új esemény jön létre.
 
 
-\section{Képek, ábrák}
+\subsubsection{Eszközök} \label{section:ui-utilities}
 
-Aliquam vehicula luctus mi a pretium. Nulla quam neque, maximus nec velit in, aliquam mollis tortor. Aliquam erat volutpat. Curabitur vitae laoreet turpis. Integer id diam ligula. Nulla sodales purus id mi consequat, eu venenatis odio pharetra. Cras a arcu quam. Suspendisse augue risus, pulvinar a turpis et, commodo aliquet turpis. Nulla aliquam scelerisque mi eget pharetra. Mauris sed posuere elit, ac lobortis metus. Proin lacinia sit amet diam sed auctor. Nam viverra orci id sapien sollicitudin, a aliquam lacus suscipit, Figure~\ref{fig:example-1}:
+A színtér 3 sarkában 3 eszköztár látható.
 
-\begin{figure}[H]
+\subsubsection{Az interakciós eszköztár}
+
+\begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px]{elte_cimer_szines}
-	\caption{Quisque ac tincidunt leo}
-	\label{fig:example-1}
+	\includegraphics[width=0.60\textwidth,scale=1]{tool-interaction}
+	\caption{Interakciós eszköztár, a színtér bal felső részén.}
+	\label{fig:tool-interaction}
 \end{figure}
 
-\subsection{Képek szegélyezése}
+A ceruza ikonnal ellátott gombbal rajzolás módba válthatunk, a mellette lévő két csúszka pedig az ecset paraméterei mint magasság és méret. A bolygó felületét pászázva azt megváltoztathatjuk. Alacsony magassággal tengereket is rajzolhatunk.
 
-Ut aliquet nec neque eget fermentum. Cras volutpat tellus sed placerat elementum. Quisque neque dui, consectetur nec finibus eget, blandit id purus. Nam eget ipsum non nunc placerat interdum.
+A tengely ikonnal ellátott gombbal az alap, színtér mozgatáshoz szükséges módba térhetünk vissza. A mellette lévő csúszka a szereplőket reprezentáló gömbök méretét állítja. A gömbök mérete ettől, és a zoom mértékétől is függ.
 
-\begin{figure}[H]
+
+\subsubsection{Az fény eszköztár}
+
+\begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.6\textwidth,height=100px,frame]{elte_cimer_szines}
-	\caption{Quisque ac tincidunt leo}
+	\includegraphics[width=0.20\textwidth,scale=1]{tool-light-manual-dark}
+	\caption{A fény eszköztár manuális módban, sötétre állítva. A színtér bal alsó részén.}
+	\label{fig:tool-light-manual-dark}
 \end{figure}
 
-\subsection{Képek csoportosítása}
+A kör alakú gombbal manuális és automata módok között válthatunk. A jobb oldali gomb csak manuális módban látszik. Ezzel tudunk váltani a permanens világos és sötét mód között.
 
-In non ipsum fermentum urna feugiat rutrum a at odio. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nulla tincidunt mattis nisl id suscipit. Sed bibendum ac felis sed volutpat. Nam pharetra nisi nec facilisis faucibus. Aenean tristique nec libero non commodo. Nulla egestas laoreet tempus. Nunc eu aliquet nulla, quis vehicula dui. Proin ac risus sodales, gravida nisi vitae, efficitur neque, Figure~\ref{fig:example-2}:
+\paragraph{Világos mód}
 
-\begin{figure}[H]
+Világos módban a kezelőfelület teljes egésze fehérre vált, ahogy színtér háttere is. A színtérben a nap eltűnik és a bolygó egésze megvilágításra kerül.
+
+\paragraph{Sötét mód}
+
+Sötét módban a kezelőfelület teljes egésze sötétre vált, ahogy a színtér háttere is. A színtérben a nap csak ebben a módban van jelen, és a bolygót érő legerősebb fényforrássá válik.
+
+\paragraph{Automata mód}
+
+Automata módban alapértelmezetten a sötét mód aktív de túl közeli zoomnál, vagy akkor ha az idő túl gyorsan telik automatikusan a világos mód kapcsol be.
+
+
+\subsubsection{Az idő eszköztár}
+
+\begin{figure}[h!]
 	\centering
-	\subfigure[Vestibulum quis mattis urna]{
-		\includegraphics[width=0.45\linewidth]{elte_cimer_szines}}
-	\hspace{5pt}
-	\subfigure[Donec hendrerit quis dui sit amet venenatis]{
-		\includegraphics[width=0.45\linewidth]{elte_cimer_szines}}
-	\caption{Aenean porttitor mi volutpat massa gravida}
-	\label{fig:example-2}
+	\includegraphics[width=0.40\textwidth,scale=1]{tool-time-dark}
+	\caption{Az idő eszköztár, a színtér jobb alsó részén}
+	\label{fig:tool-time-dark}
 \end{figure}
 
-Nam et nunc eget elit tincidunt sollicitudin. Quisque ligula ipsum, tempor vitae tortor ut, commodo rhoncus diam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Phasellus vehicula quam dui, eu convallis metus porta ac.
+Az idő eszköztár fő eleme a lejátszás gomb. Erre kattintva a csúszkával vagy a gombokkal beállított sebességgel megkezdődik a lejátszás. A sebesség egysége egy percet jelent minden valódi másodpercre. A lejátszás megkezdésével a színtér szereplői az eseményeik pozíciói között fognak mozogni.
 
-
-\section{Táblázatok}
-
-Nam magna ex, euismod nec interdum sed, sagittis nec leo. Nam blandit massa bibendum mattis tristique. Phasellus tortor ligula, sodales a consectetur vitae, placerat vitae dolor. Aenean consequat in quam ac mollis.
+Az alábbi billentyűkkel is vezérelhető a lejátszás:
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ | m{0.25\textwidth} | m{0.65\textwidth} | }
+	\begin{tabular}{ | m{0.15\textwidth} | m{0.55\textwidth} | }
 		\hline
-		\textbf{Phasellus tortor} & \textbf{Aenean consequat} \\
+		\textbf{Billentyű} & \textbf{Hatás}\\
 		\hline \hline
-		\emph{Sed malesuada} & Aliquam aliquam velit in convallis ultrices. \\
+		\emph{Szóköz} & A lejátszás megkezdése, szünetelése. \\
 		\hline
-		\emph{Purus sagittis} &  Quisque lobortis eros vitae urna lacinia euismod. \\
+		\emph{Számok 0-9} & A kettő adott hatványával való lejátszás. \\
 		\hline
-		\emph{Pellentesque} & Curabitur ac lacus pellentesque, eleifend sem ut, placerat enim. Ut auctor tempor odio ut dapibus. \\
+		\emph{Jobbra nyíl} & A lejátszás irányát pozitívra állítja.  \\
+		\hline
+		\emph{Balra nyíl} & A lejátszás irányát negatívra állítja.  \\
+		\hline
+		\emph{Felfele nyíl} & A lejátszást gyorsítja 60 egységgel. \\
+		\hline
+		\emph{Lefele nyíl} & A lejátszást lassítja 60 egységgel.  \\
 		\hline
 	\end{tabular}
-	\caption{Maecenas tincidunt non justo quis accumsan}
-	\label{tab:example-1}
+	\caption{Idő vezérlése gombokkal}
+	\label{tab:tool-time-control-keys}
 \end{table}
 
-\subsection{Sorok és oszlopok egyesítése}
+\subsection{A Szereplők} \label{section:ui-actors}
 
-Mauris a dapibus lectus. Vestibulum commodo nibh ante, ut maximus magna eleifend vel. Integer vehicula elit non lacus lacinia, vitae porttitor dolor ultrices. Vivamus gravida faucibus efficitur. Ut non erat quis arcu vehicula lacinia. Nulla felis mauris, laoreet sed malesuada in, euismod et lacus. Aenean at finibus ipsum. Pellentesque dignissim elit sit amet lacus congue vulputate.
+A színtér szereplői kattintással, vagy a bal oldali menüből is kiválaszthatóak. Kiválasztást követően egy kis ablak jelenik meg a szereplő színtérbeli pozíciójánál mutatva az összes akkumulált adatát.
 
-\begin{table}[htb]
+\begin{figure}[h!]
 	\centering
-	\begin{tabular}{ | c | r | r | r | r | r | r | }
+	\includegraphics[width=0.40\textwidth,scale=1]{actor-popup}
+	\caption{Az szereplő ablaka a jelenlegi adataival}
+	\label{fig:actor-popup}
+\end{figure}
+
+A szerkesztés gombra kattintva pedig az adott időpillanat, adott helyzetén szerkeszthetjük a szereplő adatait. Minden változtatás a fent megjelenő időtől lesz érvényes.
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.25\textwidth} | m{0.10\textwidth} | m{0.55\textwidth} | }
 		\hline
-		\multirow{2}{*}{\textbf{Quisque}} & \multicolumn{2}{ c | }{\textbf{Suspendisse}} & \multicolumn{2}{ c | }{\textbf{Aliquam}} & \multicolumn{2}{ c | }{\textbf{Vivamus}} \\
-		\cline{2-7}
-		& Proin & Nunc & Proin & Nunc & Proin & Nunc \\
+		\textbf{Mező} & \textbf{Típus} & \textbf{Leírás} \\
 		\hline \hline
-		Leo & 2,80 MB & 100\% & 232 KB & 8,09\% & 248 KB & 8,64\% \\
+		\emph{Dátum} & Szöveg & Megváltoztatható a szerkesztés dátuma. \\
 		\hline
-		Vel & 9,60 MB & 100\% & 564 KB & 5,74\% & 292 KB & 2,97\% \\
+		\emph{Idő} & Szöveg & Megváltoztatható a szerkesztés időpontja. \\
 		\hline
-		Auge & 78,2 MB & 100\% & 52,3 MB & 66,88\% & 3,22 MB & 4,12\% \\
+		\emph{Név} & Szöveg & A szereplő neve.  \\
+		\hline
+		\emph{Maximális sebesség} & Szám & A szereplő sebessége kilóméter per órában. \\
+		\hline
+		\emph{Szín} & Szín & A szereplő színe. \ref{fig:actor-edit-dialog-color}  \\
 		\hline
 	\end{tabular}
-	\caption[Rövid cím a táblázatjegyzékbe]{Vivamus ac arcu fringilla, fermentum neque sed, interdum erat. Mauris bibendum mauris vitae enim mollis, et eleifend turpis aliquet.}
-	\label{tab:example-2}
+	\caption{Szereplő alap adatai}
+	\label{tab:create-project-form}
 \end{table}
 
-\subsection{Több oldalra átnyúló táblázatok}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.70\textwidth,scale=1]{actor-edit-dialog}
+	\caption{Az szereplő szerkesztés abalaka}
+	\label{fig:actor-edit-dialog}
+\end{figure}
 
-Nunc porta placerat leo, sit amet porttitor dui porta molestie. Aliquam at fermentum mi. Maecenas vitae lorem at leo tincidunt volutpat at nec tortor. Vivamus semper lacus eu diam laoreet congue. Vivamus in ipsum risus. Nulla ullamcorper finibus mauris non aliquet. Vivamus elementum rhoncus ex ut porttitor.
+A szereplőnek lehetnek már meglévő, akkumulált tulajdonságai is mikor az ablakot megnyitjuk. Ezeket értékét megváltozathatjuk, de kitörölni itt nem tudjuk, ugyanis nem itt születtek. De "elfelejthetjük" őket aminek hatására az adott időpillanat után már nem lesz jelen a tulajdonság.
 
-\begin{center}
-	\begin{longtable}{ | p{0.3\textwidth} | p{0.7\textwidth} | }
+Lehetőség van új tulajdonságok felvitelére is, itt jelennek meg az adott eseményen született tulajdonságok. Ezek törölhetőek mert nem akkumulált adatok. \ref{fig:actor-edit-dialog-edit-forget}
 
-		\hline
-		\multicolumn{2}{|c|}{\textbf{Praesent aliquam mauris enim}}
-		\\ \hline
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.70\textwidth,scale=1]{actor-edit-dialog-color}
+	\caption{Az szereplő színének megváltoztatása}
+	\label{fig:actor-edit-dialog-color}
+\end{figure}
 
-		\emph{Suspendisse potenti} & \emph{Lorem ipsum dolor sit amet}
-		\\ \hline \hline
-		\endfirsthead % első oldal fejléce
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.70\textwidth,scale=1]{actor-edit-dialog-edit-forget}
+	\caption{Az szereplő meglévő tulajdonságainak elvesztése, új hozzádása}
+	\label{fig:actor-edit-dialog-edit-forget}
+\end{figure}
 
-		\hline
-		\emph{Suspendisse potenti} & \emph{Lorem ipsum dolor sit amet}
-		\\ \hline \hline
-		\endhead % többi oldal fejléce
 
-		\hline
-		\endfoot % többi oldal lábléce
-
-		\endlastfoot % utolsó oldal lábléce
-
-		\emph{Praesent}
-		& Nulla ultrices et libero sit amet fringilla. Nunc scelerisque ante tempus sapien placerat convallis.
-		\\ \hline
-
-		\emph{Luctus}
-		& Integer hendrerit erat massa, non hendrerit risus convallis at. Curabitur ultrices, justo in imperdiet condimentum, neque tortor luctus enim, luctus posuere massa erat vitae nibh.
-		\\ \hline
-
-		\emph{Egestas}
-		& Duis fermentum feugiat augue in blandit. Mauris a tempor felis. Pellentesque ultricies tristique dignissim. Pellentesque aliquam semper tristique. Nam nec egestas dolor. Vestibulum id elit quis enim fringilla tempor eu a mauris. Aliquam vitae lacus tellus. Phasellus mauris lectus, aliquam id leo eget, auctor dapibus magna. Fusce lacinia felis ac elit luctus luctus.
-		\\ \hline
-
-		\emph{Dignissim}
-		& Praesent aliquam mauris enim, vestibulum posuere massa facilisis in. Suspendisse potenti. Nam quam purus, rutrum eu augue ut, varius vehicula tellus. Fusce dui diam, aliquet sit amet eros at, sollicitudin facilisis quam. Phasellus tempor metus vel augue gravida pretium. Proin aliquam aliquam blandit. Nulla id tempus mi. Fusce in aliquam tortor.
-		\\ \hline
-
-		\emph{Pellentesque}
-		& Donec felis nibh, imperdiet a arcu non, vehicula gravida nibh. Quisque interdum sapien eu massa commodo, ac elementum felis faucibus.
-		\\ \hline
-
-		\emph{Molestie}
-		& Cras ullamcorper tellus et auctor ultricies. Maecenas tincidunt euismod lectus nec venenatis. Suspendisse potenti. Pellentesque pretium nunc ut euismod cursus. Nam venenatis condimentum quam. Curabitur suscipit efficitur aliquet. Interdum et malesuada fames ac ante ipsum primis in faucibus.
-		\\ \hline
-
-		\emph{Vivamus semper}
-		& In purus purus, faucibus eu libero vulputate, tristique sodales nunc. Nulla ut gravida dolor. Fusce vel pellentesque mi, vel efficitur eros. Nunc vitae elit tellus. Sed vestibulum auctor consequat.
-		\\ \hline
-
-		\emph{Condimentum}
-		& Nulla scelerisque, leo et facilisis pretium, risus enim cursus turpis, eu suscipit ipsum ipsum in mauris. Praesent eget pulvinar ipsum, suscipit interdum nunc. Nam varius massa ut justo ullamcorper sollicitudin. Vivamus facilisis suscipit neque, eu fermentum risus. Ut at mi mauris.
-		\\ \hline
-
-		\caption{Praesent ullamcorper consequat tellus ut eleifend}
-		\label{tab:example-3}
-	\end{longtable}
-\end{center}
