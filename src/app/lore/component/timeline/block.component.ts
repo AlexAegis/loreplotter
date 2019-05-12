@@ -26,8 +26,8 @@ import { actorDeltaQuery } from '@lore/store/selectors';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { select, Store } from '@ngrx/store';
 import { RxDocument } from 'rxdb';
-import { combineLatest, Observable } from 'rxjs';
-import { filter, flatMap, map, mergeMap, shareReplay, tap } from 'rxjs/operators';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { filter, flatMap, map, mergeMap, shareReplay, tap, withLatestFrom } from 'rxjs/operators';
 import { del } from 'selenium-webdriver/http';
 import { Math as ThreeMath } from 'three';
 
@@ -100,12 +100,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public jump = new EventEmitter<number>();
 
 	private _actor: Partial<ActorEntity>;
-	private blockStart = new OverridableProperty<number>(undefined); // in unix
-	private blockEnd = new OverridableProperty<number>(undefined); // in unix
-
-	public _frameStart: number;
-
-	public _frameEnd: number;
 
 	@HostBinding('style.left.px')
 	public left: number;
@@ -120,16 +114,20 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
 
-	public d$ = (delta: Partial<ActorDeltaEntity>) =>
+	public deltaDistance$ = (delta: Partial<ActorDeltaEntity>) =>
 		combineLatest([this.blockStart$, this.blockEnd$, this.storeFacade.actorDeltaUnixes(this.actor)]).pipe(
-			tap(a => {}),
+			tap(a => {
+				console.log('TERROR');
+				console.log(a);
+			}),
 			map(([bs, be, deltas]) => {
 				const d = deltas(delta.id);
+				console.log(d);
 				return this.width > 0 // If the width is 0, eg.: there's only one node, there's no point in mapping anything, it would produce a NaN
 					? ThreeMath.mapLinear(d.unixOverride || d.unix, bs, be, 0, this.width)
 					: 0;
 			}),
-			tap(a => a)
+			tap(a => console.log(`FINAL DESTIN: ${a}`))
 		);
 	/*
 	private deltaPositions$ = combineLatest([this.blockStart$, this.blockEnd$]).pipe(
@@ -158,94 +156,18 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		);
 	}
 
+	private deltaPanSubject = new Subject<{$event: HammerInput, delta: Partial<ActorDeltaEntity>}>();
+
+
 	/**
 	 * This method is for moving the nodes in a block to change the time of an event.
 	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
 	 * and the actual writing happens only when the pan ends to the final position.
 	 */
-	public panNode($event: any, delta: ActorDelta): void {
-		//$event.stopPropagation();
-		//if ($event.type === 'panstart') {
-		//	this.isPanning = true;
-		//	this._originalUnixesForPan.set(node, node.key.unix);
-		//	const nodeIterator = this.actor._states.nodes();
-		//	const first = nodeIterator.next();
-		//	this.blockStart.original = first.value.key.unix;
-		//	const second = nodeIterator.next();
-		//	if (second.value) {
-		//		this._afterFirstUnix = second.value.key.unix;
-		//	} else {
-		//		this._afterFirstUnix = first.value.key.unix;
-		//	}
-		//
-		//	const reverseNodeIterator = this.actor._states.reverseNodes();
-		//	const last = reverseNodeIterator.next();
-		//	this.blockEnd.original = last.value.key.unix;
-		//	const secondLast = reverseNodeIterator.next();
-		//	if (secondLast.value) {
-		//		this._beforeLastUnix = secondLast.value.key.unix;
-		//	} else {
-		//		this._beforeLastUnix = last.value.key.unix;
-		//	}
-		//}
-		//const ogUnix = this._originalUnixesForPan.get(node);
-		//const previous = node.key.unix;
-		//const pos = this.nodePosition(ogUnix) + this.left;
-		//const rescaledUnix = ThreeMath.mapLinear(
-		//	pos + $event.deltaX,
-		//	0,
-		//	this.containerWidth,
-		//	this.frameStart,
-		//	this.frameEnd
-		//);
-		//
-		//let firstLimit: number;
-		//
-		//if (ogUnix === this.blockStart.original) {
-		//	firstLimit = this._afterFirstUnix;
-		//} else {
-		//	firstLimit = this.blockStart.original;
-		//}
-		//
-		//let lastLimit: number;
-		//
-		//if (ogUnix === this.blockEnd.original) {
-		//	lastLimit = this._beforeLastUnix;
-		//} else {
-		//	lastLimit = this.blockEnd.original;
-		//}
-		//
-		//if (rescaledUnix <= firstLimit) {
-		//	this.blockStart.override = rescaledUnix;
-		//} else {
-		//	this.blockStart.override = firstLimit;
-		//}
-		//
-		//if (rescaledUnix >= lastLimit) {
-		//	this.blockEnd.override = rescaledUnix;
-		//} else {
-		//	this.blockEnd.override = lastLimit;
-		//}
-		//
-		//// Edge case. Also, the block has to be at least 1 px wide
-		//if (this._actor._states.length === 1) {
-		//	this.blockStart.override = rescaledUnix;
-		//	this.blockEnd.override = rescaledUnix + 1;
-		//}
-		//if (!isNaN(previous) && !isNaN(rescaledUnix)) {
-		//	// node.key.unix = rescaledUnix; // ! HEY You can probably remove this
-		//	this.loreService.overrideNodePosition.next({
-		//		actorId: this.actor.id,
-		//		overrides: [{ original: ogUnix, previous: previous, new: rescaledUnix }]
-		//	});
-		//}
-		//this.update();
-		//
-		//if ($event.type === 'panend') {
-		//	this.isPanning = false;
-		//	this.finalizeNewPositions();
-		//	this.update();
-		//}
+	public deltaPan($event: HammerInput, delta: Partial<ActorDeltaEntity>): void {
+		($event as any).stopPropagation();
+		console.log('DELTAPAAAN' + $event.type);
+		this.deltaPanSubject.next({$event, delta});
 	}
 
 	@HostListener('panstart', ['$event'])
@@ -378,13 +300,16 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 
 	public ngOnInit() {}
 
+	private panStartPos: number;
+
 	public ngAfterViewInit(): void {
 		this.deltas$ = this.storeFacade.actorDeltas(this.actor).pipe(
 			tap(a => {
+				// TODO The problem is that the deltas arent memoized correctly and refresh on the view
 				console.log('Does this thing work?');
 				console.log(a);
 			}),
-			shareReplay(1)
+			shareReplay(1),
 		);
 		this.blockStart$ = this.deltas$.pipe(
 			filter(deltas => deltas && deltas.length > 0),
@@ -406,6 +331,110 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 					this.cd.markForCheck();
 				})
 		);
+
+		this.teardown(this.deltaPanSubject.pipe(withLatestFrom(this.frame$, this.blockStart$)).subscribe(([{$event, delta}, f, bs]) => {
+			if ($event.type === 'panstart') {
+
+				this.panStartPos = ThreeMath.mapLinear(delta.unix, f.start, f.end, 0, this.width)
+			}
+			console.log('PANINI');
+			const over = ThreeMath.mapLinear(this.panStartPos  + $event.deltaX, 0, this.width, f.start, f.end);
+			console.log(over);
+			console.log(delta.unix);
+			this.storeFacade.setActorDeltaOverride(delta, over);
+
+
+			// delta.unixOverride = ;
+			if ($event.type === 'panend') {
+				console.log('PANEND!!!')
+				this.storeFacade.bakeActorDeltaOverride(delta);
+
+				// delta.unix = delta.unixOverride;
+				// delta.unixOverride = undefined;
+			}
+			/*
+		if ($event.type === 'panstart') {
+			this.isPanning = true;
+			this._originalUnixesForPan.set(node, node.key.unix);
+			const nodeIterator = this.actor._states.nodes();
+			const first = nodeIterator.next();
+			this.blockStart.original = first.value.key.unix;
+			const second = nodeIterator.next();
+			if (second.value) {
+				this._afterFirstUnix = second.value.key.unix;
+			} else {
+				this._afterFirstUnix = first.value.key.unix;
+			}
+
+			const reverseNodeIterator = this.actor._states.reverseNodes();
+			const last = reverseNodeIterator.next();
+			this.blockEnd.original = last.value.key.unix;
+			const secondLast = reverseNodeIterator.next();
+			if (secondLast.value) {
+				this._beforeLastUnix = secondLast.value.key.unix;
+			} else {
+				this._beforeLastUnix = last.value.key.unix;
+			}
+		}
+		const ogUnix = this._originalUnixesForPan.get(node);
+		const previous = node.key.unix;
+		const pos = this.nodePosition(ogUnix) + this.left;
+		const rescaledUnix = ThreeMath.mapLinear(
+			pos + $event.deltaX,
+			0,
+			this.containerWidth,
+			this.frameStart,
+			this.frameEnd
+		);
+
+		let firstLimit: number;
+
+		if (ogUnix === this.blockStart.original) {
+			firstLimit = this._afterFirstUnix;
+		} else {
+			firstLimit = this.blockStart.original;
+		}
+
+		let lastLimit: number;
+
+		if (ogUnix === this.blockEnd.original) {
+			lastLimit = this._beforeLastUnix;
+		} else {
+			lastLimit = this.blockEnd.original;
+		}
+
+		if (rescaledUnix <= firstLimit) {
+			this.blockStart.override = rescaledUnix;
+		} else {
+			this.blockStart.override = firstLimit;
+		}
+
+		if (rescaledUnix >= lastLimit) {
+			this.blockEnd.override = rescaledUnix;
+		} else {
+			this.blockEnd.override = lastLimit;
+		}
+
+		// Edge case. Also, the block has to be at least 1 px wide
+		if (this._actor._states.length === 1) {
+			this.blockStart.override = rescaledUnix;
+			this.blockEnd.override = rescaledUnix + 1;
+		}
+		if (!isNaN(previous) && !isNaN(rescaledUnix)) {
+			// node.key.unix = rescaledUnix; // ! HEY You can probably remove this
+			this.loreService.overrideNodePosition.next({
+				actorId: this.actor.id,
+				overrides: [{ original: ogUnix, previous: previous, new: rescaledUnix }]
+			});
+		}
+		this.update();
+
+		if ($event.type === 'panend') {
+			this.isPanning = false;
+			this.finalizeNewPositions();
+			this.update();
+		}*/
+		}));
 	}
 
 	/**

@@ -1,8 +1,13 @@
 <div
 	class="node"
 	*ngFor="let delta of (deltas$ | async)"
-	[ngStyle]="{ 'left.px': (d$(delta) | async) }"
-
+	[ngStyle]="{ 'left.px': (deltaDistance$(delta) | async) }"
+	(panstart)="deltaPan($event, delta)"
+	(panup)="deltaPan($event, delta)"
+	(pandown)="deltaPan($event, delta)"
+	(panleft)="deltaPan($event, delta)"
+	(panright)="deltaPan($event, delta)"
+	(panend)="deltaPan($event, delta)"
 >
 	<button
 		aria-label="Remove Node from Bloc"
@@ -19,12 +24,7 @@
 
 
 
-<!-- 	(panstart)="panNode($event, delta)"
-	(panup)="panNode($event, delta)"
-	(pandown)="panNode($event, delta)"
-	(panleft)="panNode($event, delta)"
-	(panright)="panNode($event, delta)"
-	(panend)="panNode($event, delta)"
+<!--
 	(tap)="tap($event, delta)"
 
 

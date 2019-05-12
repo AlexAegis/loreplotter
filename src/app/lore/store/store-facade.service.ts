@@ -9,6 +9,7 @@ import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import {
+	bakeActorDeltaUnixOverride,
 	bakeCursorOverride,
 	bakeFrame,
 	bakeFrameEnd,
@@ -28,7 +29,7 @@ import {
 	deleteLoreSuccess,
 	FeatureActions, loadLores,
 	loadLoresFailure,
-	loadLoresSuccess,
+	loadLoresSuccess, setActorDeltaUnixOverride,
 	setActorObjectSizeBias,
 	setAutoLight,
 	setDrawHeight,
@@ -48,7 +49,7 @@ import {
 	toggleManualLightAlwaysOn,
 	togglePlaying,
 	toggleSidebarOpen,
-	updateActor,
+	updateActor, updateActorDelta,
 	updateLore,
 	updateLoreFailure,
 	updateLoreSuccess
@@ -118,6 +119,23 @@ export class StoreFacade {
 	public accumulate(actor: Partial<ActorEntity>): Observable<Accumulator> {
 		return this.store$.pipe(select(actorQuery.getActorWithAccumulatorById, { id: actor.id }));
 	}
+
+	public setActorDeltaOverride(delta: Partial<ActorDeltaEntity>, to: number): void {
+		console.log("DISPATCH SADO");
+		console.log(delta);
+		console.log(to);
+		// this.store$.
+		this.store$.dispatch(setActorDeltaUnixOverride({payload: { delta, update: { unixOverride: to } } }));
+	}
+
+	public bakeActorDeltaOverride(delta: Partial<ActorDeltaEntity>): void {
+		this.store$.dispatch(bakeActorDeltaUnixOverride({payload: { delta } }));
+	}
+
+	public updateActorDelta(delta: Partial<ActorDeltaEntity>): void {
+		this.store$.dispatch(updateActorDelta({ payload: delta }));
+	}
+
 
 	public createLore(lore: { tex: Blob } & Lore): void {
 		this.store$.dispatch(createLore({ payload: lore }));

@@ -77,6 +77,7 @@ export const actorDeltaQuery = {
 	getSelected*/
 	raw: {
 		selectAll,
-		selectTotal
+		selectTotal,
+		selectEntities
 	}
 };

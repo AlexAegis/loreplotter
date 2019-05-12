@@ -1,7 +1,7 @@
 import { Actor, ActorDelta } from '@app/model/data';
 import {
 	ActorActions,
-	ActorDeltaActions,
+	ActorDeltaActions, bakeActorDeltaUnixOverride,
 	changeSelectedActor,
 	changeSelectedActorFailure,
 	changeSelectedActorSuccess,
@@ -14,12 +14,13 @@ import {
 	loadActorDeltasForActorSuccess,
 	loadActors,
 	loadActorsFailure,
-	loadActorsSuccess,
+	loadActorsSuccess, setActorDeltaUnix, setActorDeltaUnixOverride,
 	updateActor,
 	updateActorFailure,
 	updateActorSuccess
 } from '@lore/store/actions';
 import { actorDeltaReducer, ActorDeltaState } from '@lore/store/reducers/actor-delta.reducer';
+import { actorDeltaQuery } from '@lore/store/selectors';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 
 /**
@@ -59,6 +60,7 @@ export function actorReducer(
 	state: ActorState = initialActorState,
 	action: ActorActions | ActorDeltaActions
 ): ActorState {
+	console.log(action.type);
 	switch (action.type) {
 		case loadActors.type: {
 			return { ...state, loading: true };
@@ -114,7 +116,7 @@ export function actorReducer(
 			return { ...state, loading: false };
 		}
 		// Propagation of sub-entities
-		case loadActorDeltasForActor.type: {
+		/*case loadActorDeltasForActor.type: {
 			return actorAdapter.updateOne(
 				{
 					id: action.payload.id,
@@ -122,13 +124,27 @@ export function actorReducer(
 				},
 				{ ...state }
 			);
-		}
+		}*/
 		case loadActorDeltasForActorSuccess.type: {
 			return actorAdapter.updateOne(
 				{
 					id: action.payload.forActor.id,
 					changes: { deltas: actorDeltaReducer(state.entities[action.payload.forActor.id].deltas, action) }
 				},
+				{ ...state }
+			);
+		}
+		case setActorDeltaUnix.type:
+		case setActorDeltaUnixOverride.type:
+		case bakeActorDeltaUnixOverride.type: {
+
+			const up = {
+				id: action.payload.delta.actorId,
+				changes: { deltas: actorDeltaReducer(state.entities[action.payload.delta.actorId].deltas, action) }
+			};
+			console.log(up);
+			return actorAdapter.updateOne(
+				up,
 				{ ...state }
 			);
 		}

@@ -9,7 +9,11 @@ import {
 	deleteActorDeltaFailure,
 	loadActorDeltasForActor,
 	loadActorDeltasForActorFailure,
-	loadActorDeltasForActorSuccess
+	loadActorDeltasForActorSuccess,
+	setActorDeltaUnixOverride,
+	setActorDeltaUnixOverrideFailure, updateActorDelta,
+	updateActorDeltaFailure,
+	updateActorDeltaSuccess
 } from '@lore/store/actions/actor-delta.actions';
 import { ActorEntity, FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -68,7 +72,7 @@ export class ActorDeltaEffects {
 			db.delta.find({ actorId: payload.id }).$.pipe(
 				take(1),
 				map((deltas) => ({
-					deltas: deltas
+					updates: deltas
 						.map(de => de.toJSON())
 						.map(
 							actorDelta =>
@@ -88,7 +92,7 @@ export class ActorDeltaEffects {
 				})),
 			)
 		),
-		map(({ deltas, forActor }) => loadActorDeltasForActorSuccess({ payload: { forActor, deltas } })), // The reducer will delete the actor (and delta) entity state before inserting these
+		map(({ updates, forActor }) => loadActorDeltasForActorSuccess({ payload: { forActor, updates } })), // The reducer will delete the actor (and delta) entity state before inserting these
 		catchError(error => of(loadActorDeltasForActorFailure({ payload: error })))
 	);
 
@@ -104,17 +108,17 @@ export class ActorDeltaEffects {
 		// withLatestFrom(),
 		map(change => change.data.v),
 		map(actorDelta =>
-			createActorDeltaSuccess({ payload: { forActor: { id: actorDelta.actorId }, delta: actorDelta } })
+			createActorDeltaSuccess({ payload: { delta: actorDelta, update: actorDelta } })
 		),
 		catchError(error => of(createActorFailure({ payload: error })))
 	);
 
 	@Effect()
 	private updatedActorDeltas$ = this.databaseService.database$.pipe(
-		switchMap(db => db.actor.update$),
+		switchMap(db => db.delta.update$),
 		map(change => change.data.v),
-		map(actor => updateActorSuccess({ payload: actor })),
-		catchError(error => of(updateActorFailure({ payload: error })))
+		map(delta => updateActorDeltaSuccess({ payload: { delta }  })),
+		catchError(error => of(updateActorDeltaFailure({ payload: error })))
 	);
 
 	@Effect()
@@ -139,10 +143,22 @@ export class ActorDeltaEffects {
 	private deleteActorDelta$ = this.actions$.pipe(
 		ofType(deleteActorDelta.type),
 		withLatestFrom(this.databaseService.database$),
-		mergeMap(([{ payload }, db]) => db.delta.find({ id: payload.forActor.id }).$.pipe(take(1))),
+		mergeMap(([{ payload }, db]) => db.delta.find({ id: payload.delta.actorId }).$.pipe(take(1))),
 		flatMap(actorDeltas => actorDeltas),
 		mergeMap(actorDelta => actorDelta.remove()),
 		map(actorDelta => voidOperation()),
 		catchError(error => of(deleteActorDeltaFailure({ payload: error })))
 	);
+/*
+
+	@Effect()
+	private updateActorDelta$ = this.actions$.pipe(
+		ofType(updateActorDelta.type),
+		withLatestFrom(this.databaseService.database$),
+		mergeMap(([{ payload }, db]) => db.delta.upsert(payload)),
+		map(actorDelta => voidOperation()),
+		catchError(error => of(setActorDeltaUnixOverrideFailure({ payload: error })))
+	);*/
+
+
 }

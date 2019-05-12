@@ -1,15 +1,16 @@
 import { Actor, ActorDelta } from '@app/model/data';
 import { ActorFormResultData } from '@lore/component';
 import { Payload } from '@lore/store/actions';
+import { ActorDeltaEntity } from '@lore/store/reducers/actor-delta.reducer';
 import { createAction } from '@ngrx/store';
 
 export interface ForActorDelta {
-	forActor: Partial<Actor>;
-	delta: Partial<ActorDelta>;
+	delta: Partial<ActorDeltaEntity>;
+	update?: Partial<ActorDeltaEntity>
 }
 export interface ForActorDeltas {
 	forActor: Partial<Actor>;
-	deltas: Array<Partial<ActorDelta>>;
+	updates: Array<Partial<ActorDeltaEntity>>;
 }
 
 export interface ForActorDeltaError {
@@ -33,7 +34,7 @@ export const createActorDelta = createAction(`[ActorDelta] Create`, (payload: Pa
 
 export const createActorDeltaSuccess = createAction(
 	`[ActorDelta] Create Success`,
-	(payload: Payload<Partial<ForActorDelta>>) => payload
+	(payload: Payload<ForActorDelta>) => payload
 );
 export const createActorDeltaFailure = createAction(
 	`[ActorDelta] Create Failure`,
@@ -43,12 +44,12 @@ export const createActorDeltaFailure = createAction(
 // Updating existing objects
 export const updateActorDelta = createAction(
 	`[ActorDelta] Update`,
-	(payload: Payload<ActorFormResultData>): Payload<ActorFormResultData> => payload
+	(payload: Payload<Partial<ActorDeltaEntity>>)=> payload
 );
 
 export const updateActorDeltaSuccess = createAction(
 	`[ActorDelta] Update Success`,
-	(payload: Payload<Partial<ForActorDelta>>) => payload
+	(payload: Payload<ForActorDelta>) => payload
 );
 export const updateActorDeltaFailure = createAction(
 	`[ActorDelta] Update Failure`,
@@ -58,14 +59,49 @@ export const updateActorDeltaFailure = createAction(
 // Deleting existing objects
 export const deleteActorDelta = createAction(
 	`[ActorDelta] Delete`,
-	(payload: Payload<Partial<ForActorDelta>>) => payload
+	(payload: Payload<ForActorDelta>) => payload
 );
 
 export const deleteActorDeltaSuccess = createAction(
 	`[ActorDelta] Delete Success`,
-	(payload: Payload<Partial<ActorDelta>>) => payload
+	(payload: Payload<ForActorDelta>) => payload
 );
 export const deleteActorDeltaFailure = createAction(
 	`[ActorDelta] Delete Failure`,
 	(payload: Payload<ForActorDeltaError>) => payload
+);
+
+export const setActorDeltaUnix = createAction(
+	`[ActorDelta] Set Unix`,
+	(payload: Payload<ForActorDelta>) => payload
+);
+
+export const setActorDeltaUnixSuccess = createAction(
+	`[ActorDelta] Set Unix Success`,
+	(payload: Payload<ForActorDelta>) => payload
+);
+
+export const setActorDeltaUnixFailure = createAction(
+	`[ActorDelta] Set Unix Failure`,
+	(payload: Payload<ForActorDelta>) => payload
+);
+
+
+export const setActorDeltaUnixOverride = createAction(
+	`[ActorDelta] Set Unix Override`,
+	(payload: Payload<ForActorDelta>) => payload
+);
+
+export const setActorDeltaUnixOverrideSuccess = createAction(
+	`[ActorDelta] Set Unix Override Success`,
+	(payload: Payload<ForActorDelta>) => payload
+);
+
+export const setActorDeltaUnixOverrideFailure = createAction(
+	`[ActorDelta] Set Unix Override Failure`,
+	(payload: Payload<ForActorDelta>) => payload
+);
+export const bakeActorDeltaUnixOverride = createAction(
+	`[ActorDelta] Bake Unix Override`,
+	(payload: Payload<ForActorDelta>) => payload
 );
