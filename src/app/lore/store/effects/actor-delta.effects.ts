@@ -64,32 +64,30 @@ export class ActorDeltaEffects {
 		this.databaseService.database$,
 		this.actions$.pipe(ofType(loadActorDeltasForActor.type))
 	]).pipe(
-		switchMap(([db, { payload }]) =>
+		mergeMap(([db, { payload }]) =>
 			db.delta.find({ actorId: payload.id }).$.pipe(
 				take(1),
-				map(deltas => ({ deltas, forActor: payload }))
+				map((deltas) => ({
+					deltas: deltas
+						.map(de => de.toJSON())
+						.map(
+							actorDelta =>
+								({
+									id: actorDelta.id,
+									actorId: actorDelta.actorId,
+									unix: actorDelta.unix,
+									name: actorDelta.name,
+									maxSpeed: actorDelta.maxSpeed,
+									color: actorDelta.color,
+									position: { ...actorDelta.position },
+									properties: actorDelta.properties ? [...actorDelta.properties] : []
+								} as ActorDelta)
+						)
+						.sort((a, b) => a.unix - b.unix),
+					forActor: payload
+				})),
 			)
 		),
-		map(({ deltas, forActor }) => ({
-			deltas: deltas
-				.map(de => de.toJSON())
-				.map(
-					actorDelta =>
-						({
-							id: actorDelta.id,
-							actorId: actorDelta.actorId,
-							unix: actorDelta.unix,
-							name: actorDelta.name,
-							maxSpeed: actorDelta.maxSpeed,
-							color: actorDelta.color,
-							position: { ...actorDelta.position },
-							properties: actorDelta.properties ? [...actorDelta.properties] : []
-						} as ActorDelta)
-				)
-				.sort((a, b) => a.unix - b.unix),
-			forActor
-		})),
-		tap(a => console.log(a)),
 		map(({ deltas, forActor }) => loadActorDeltasForActorSuccess({ payload: { forActor, deltas } })), // The reducer will delete the actor (and delta) entity state before inserting these
 		catchError(error => of(loadActorDeltasForActorFailure({ payload: error })))
 	);

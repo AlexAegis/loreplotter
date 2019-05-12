@@ -63,6 +63,7 @@ export class ActorEffects {
 		this.storeFacade.selectedLore$.pipe(filter(selected => selected !== undefined))
 	]).pipe(
 		switchMap(([db, selectedLore]) => db.actor.find({ loreId: selectedLore.id }).$.pipe(take(1))),
+		tap(a => console.log(a.map(ac => ac.toJSON()))),
 		map(actors =>
 			actors.map(
 				actor =>

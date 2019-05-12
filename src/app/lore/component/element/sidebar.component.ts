@@ -18,7 +18,7 @@ import { take, tap } from 'rxjs/operators';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent extends BaseDirective implements AfterViewInit, OnInit {
-	public actorsWithAccumulators$: Observable<Array<Accumulator>>;
+	public actors$: Observable<Array<Partial<ActorEntity>>>;
 	public sidebarOpen$: Observable<boolean>;
 	public mediaLarge$: Observable<boolean>;
 	@Input()
@@ -32,7 +32,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 			return {};
 		}
 	});
-	private onSelectSubject = new Subject<Partial<ActorEntity >>();
+	private onSelectSubject = new Subject<Partial<ActorEntity>>();
 	public over = 'side';
 	public maleIcon = faMale;
 	public maleIconSize = 'lg';
@@ -45,9 +45,13 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		private changeDetector: ChangeDetectorRef
 	) {
 		super();
-		this.actorsWithAccumulators$ = this.storeFacade.actorsWithAccumulators$;
+		this.actors$ = this.storeFacade.actors$;
 		this.sidebarOpen$ = this.storeFacade.sidebarOpen$;
 		this.mediaLarge$ = this.storeFacade.mediaLarge$;
+	}
+
+	public accumulatorFor(actor: Partial<ActorEntity>): Observable<Accumulator> {
+		return this.storeFacade.accumulate(actor);
 	}
 
 	@HostListener('window:resize', ['$event'])

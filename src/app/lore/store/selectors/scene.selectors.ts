@@ -1,6 +1,6 @@
 import { FeatureState } from '@lore/store/reducers';
 import { getFeatureState } from '@lore/store/selectors/app-lore.selectors';
-import { createSelector } from '@ngrx/store';
+import { createSelector, resultMemoize } from '@ngrx/store';
 
 const getSceneState = createSelector(
 	getFeatureState,
@@ -27,14 +27,19 @@ const getCursorState = createSelector(
 	state => state.cursor
 );
 
-const getCursor = createSelector(
+const getUnix = createSelector(
 	getCursorState,
-	state => state.unix.override || state.unix.original
+	state => state.unix
+);
+
+const getCursor = createSelector(
+	getUnix,
+	unix => unix.override || unix.original
 );
 
 const getCursorOverride = createSelector(
-	getCursorState,
-	state => state.unix.override
+	getUnix,
+	unix => unix.override
 );
 
 const getFrameState = createSelector(

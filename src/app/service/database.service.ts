@@ -158,6 +158,7 @@ export class DatabaseService {
 			{
 				id: '0',
 				actorId: actor1Id,
+				name: 'Joseph',
 				unix: moment('2019-05-12').unix(),
 				maxSpeed: 40,
 				position: { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 } ,
@@ -200,6 +201,7 @@ export class DatabaseService {
 			},
 			{
 				id: '4',
+				name: 'Johnny',
 				actorId: actor2Id,
 				unix: moment('2019-05-13').unix(),
 				position:{

@@ -58,7 +58,6 @@ export function actorDeltaReducer(state: ActorDeltaState, action: ActorDeltaActi
 			return { ...state, loading: true };
 		}
 		case loadActorDeltasForActorSuccess.type: {
-			actorDeltaAdapter.removeAll(state);
 			return actorDeltaAdapter.addAll(action.payload.deltas, { ...state, loading: false});
 		}
 		case loadActorDeltasForActorFailure.type: {

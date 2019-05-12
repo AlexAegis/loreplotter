@@ -6,7 +6,7 @@ import { Accumulator, actorQuery } from '@lore/store/selectors/actor.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import {
 	bakeCursorOverride,
 	bakeFrame,
@@ -99,7 +99,7 @@ export class StoreFacade {
 
 	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
 
-	public accumulate(actor: Actor): Observable<Accumulator> {
+	public accumulate(actor: Partial<ActorEntity>): Observable<Accumulator> {
 		return this.store$.pipe(select(actorQuery.getActorWithAccumulatorById, { id: actor.id }));
 	}
 

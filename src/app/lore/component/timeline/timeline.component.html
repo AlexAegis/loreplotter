@@ -1,10 +1,10 @@
-<!--<div class="ruler" (mousewheel)="zoomScrollHandler($event)">
+<div class="ruler" (mousewheel)="zoomScrollHandler($event)">
 	<app-cursor #cursor id="cursor" [containerWidth]="containerWidth">{{
 		cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm'
 	}}</app-cursor>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
 		<div
-			*appRepeat="let c; from: unitsBetween + 1"
+			*appRepeat="let c; from: unitsBetween + 2"
 			class="divisor"
 			[ngStyle]="{ left: toPx((firstDist$ | async) + deltaDist(c)) }"
 		>
@@ -20,19 +20,15 @@
 <div class="channelsContainer">
 	<ng-scrollbar class="channels" viewClass="noOverflow">
 		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)" (mousewheel)="scrollHandler($event)">
-			{{
-			(actorService.accumulatorOf(actor) | async)?.accumulator.name
-				? (actorService.accumulatorOf(actor) | async)?.accumulator.name
-				: (actorService.accumulatorOf(actor) | async)?.actor.id
-			}}
-			<app-block
+			{{ (accumulatorFor(actor) | async)?.accumulator?.name?.value }}
+			<!-- <app-block
 				#block
 				[actor]="actor"
 				[containerWidthListener]="containerWidth"
 				(jump)="easeCursorTo.next($event)"
 			>
-			</app-block>
+			</app-block> -->
 		</div>
 	</ng-scrollbar>
 </div>
--->
+

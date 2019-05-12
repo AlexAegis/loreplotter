@@ -13,17 +13,17 @@
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
 		</div>
-		<h2>Actors {{ (actorsWithAccumulators$ | async)?.length }}</h2>
+		<h2>Actors {{ (actors$ | async)?.length }}</h2>
 		<div class="spawnables">
 			<button
 				aria-label="Select Actor"
 				mat-raised-button
-				*ngFor="let acc of actorsWithAccumulators$ | async"
-				(click)="select($event, acc.actor)"
-				[ngStyle]="{ backgroundColor: acc?.accumulator?.color?.value }"
+				*ngFor="let actor of actors$ | async"
+				(click)="select($event, actor)"
+				[ngStyle]="{ backgroundColor: (accumulatorFor(actor) | async)?.accumulator?.color?.value }"
 			>
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon>
-				{{ acc?.accumulator?.name?.value }} ({{ acc?.actor?.deltas?.ids?.length }})
+				{{ (accumulatorFor(actor) | async)?.accumulator?.name?.value }} ({{ actor?.deltas?.ids?.length }})
 			</button>
 		</div>
 	</mat-sidenav>

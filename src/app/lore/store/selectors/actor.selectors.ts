@@ -3,6 +3,7 @@ import { Actor, ACTOR_DEFAULT_COLOR, ACTOR_DEFAULT_MAX_SPEED, ActorDelta, Proper
 import { actorAdapter, ActorEntity } from '@lore/store/reducers';
 import { actorDeltaAdapter } from '@lore/store/reducers/actor-delta.reducer';
 import { getFeatureState } from '@lore/store/selectors/app-lore.selectors';
+import { sceneQuery } from '@lore/store/selectors/scene.selectors';
 import { Dictionary } from '@ngrx/entity';
 import { createSelector, defaultMemoize } from '@ngrx/store';
 
@@ -42,11 +43,6 @@ const getActorEntityById = createSelector(
 	}
 );
 
-const getActorStateWithCursor = createSelector(
-	getFeatureState,
-	state => ({ state: state.actor, cursor: state.scene.cursor.unix.override || state.scene.cursor.unix.original })
-);
-
 export class AccumulatorField<T> {
 	appearedIn: Partial<ActorDelta>;
 	value: T;
@@ -66,8 +62,8 @@ export class ActorDeltaAccumulator {
 }
 
 const getActorsWithAccumulators = createSelector(
-	getActorStateWithCursor,
-	({ state, cursor }) =>
+	[ getActorState, sceneQuery.cursor.getCursor],
+	(state, cursor) =>
 		actorAdapter
 			.getSelectors()
 			.selectAll(state)
