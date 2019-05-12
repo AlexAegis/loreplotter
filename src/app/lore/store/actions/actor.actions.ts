@@ -47,16 +47,3 @@ export const changeSelectedActor = createAction(
 	(payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => payload
 );
 
-export const moveNode = createAction(
-	`[Block] Move Node`,
-	(
-		payload: Payload<{ original: number; from: number; to: number }>
-	): Payload<{ original: number; from: number; to: number }> => payload
-);
-
-export const moveNodeFinal = createAction(
-	`[Block] Move Node Final`,
-	(
-		payload: Payload<{ original: number; from: number; to: number }>
-	): Payload<{ original: number; from: number; to: number }> => payload
-);

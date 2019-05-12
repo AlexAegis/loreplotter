@@ -54,6 +54,224 @@ Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megval
 	\label{tab:technologies}
 \end{table}
 
+\section{Modell}
+
+\begin{plantuml}
+@startuml
+skinparam monochrome true
+
+note top of Lore: Tartozhat minden példányhoz egy\nRxDocument 'texture' azonosítóval
+
+interface Lore {
+   id: string
+   name: string
+   planet: Planet
+}
+
+interface Planet {
+   name: string
+   radius: number
+}
+
+interface Actor {
+   id: string
+   loreId: string
+}
+
+interface ActorDelta {
+   id: string
+   actorId: string
+   unix: number
+   name?: string
+   maxSpeed?: number
+   color?: string
+   position?: Vec3
+   properties?: Array<Property>
+}
+
+interface Vec3 {
+	x: number
+	y: number
+	z: number
+}
+
+interface Property {
+   key: string
+   value: string
+}
+
+Lore -- Planet
+Lore --o Actor
+Actor --o ActorDelta
+
+ActorDelta --* Property
+ActorDelta -- Vec3
+
+@enduml
+\end{plantuml}
+
+Az alkalmazás induláskor az alábbi folyamat indul el, ez mindig biztosítani fog egy élő adatbáziselérést az applikáció többi részére.
+
+\begin{plantuml}
+	@startuml
+	skinparam monochrome true
+	[*] --> ApplicationBootstrap
+
+	state ApplicationBootstrap {
+		ApplicationBootstrap : Angular Inner Sequences
+	}
+	ApplicationBootstrap --> DatabaseBootstrap
+
+	state DatabaseBootstrap {
+		[*] --> InitializeCollections
+		InitializeCollections : Lore
+		InitializeCollections : Actor
+		InitializeCollections : ActorDelta
+		InitializeCollections --> [*]
+
+		note right of InitializeCollections : Ez a folyamat csak akkor\nhozza létre a kollekciókat\nha szükség van rá
+	}
+
+	DatabaseBootstrap --> DatabaseBootstrap : On Fail
+
+	DatabaseBootstrap --> [*]
+
+	@enduml
+\end{plantuml}
+
+
+
+\begin{plantuml}
+	@startuml
+	skinparam monochrome true
+	DatabaseBootstrap --> LoresLoaded: LoadLores
+
+	state LoresLoaded {
+	}
+
+	LoresLoaded --> LoreSelected: ChangeSelectedLore
+
+	ChangeSelectedLore --> asd
+	LoreSelected --> [*]
+
+
+	@enduml
+\end{plantuml}
+
+
+\begin{plantuml}
+	@startuml
+	skinparam monochrome true
+	[-> Database : Database Initialized
+	== Initialization ==
+	group LoadLores
+		Database --> LoreState: Single find
+	end
+	== Repetition ==
+
+	group State refresh hooks
+		Database -> LoreState: On Insert
+		Database -> LoreState: On Update
+		Database -> LoreState: On Delete
+	end
+
+	group Database manipulation
+		DatabasStateFacade -> Database: Do Insert
+		DatabasStateFacade -> Database: Do Update
+		DatabasStateFacade -> Database: Do Delete
+	end
+
+	LoreState --> LoreState: ChangeSelectedLore
+
+	@enduml
+\end{plantuml}
+
+Az al-állapotokból kifele induló akciók mindíg a globális állapotteret jelentik, amik vissza fognak érkezni egy másik al-állapotba, vagy akár ugyan ebbe.
+
+
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		[-> Database : Database Initialized
+		== Initialization ==
+
+		Database --> LoreState: Load Lores
+		LoreState -> LoreState: Shim each entry
+		LoreState ->]: loadLoresSuccess
+		@enduml
+	\end{plantuml}
+	\caption{A globális állapottér bootstrap folyamata}
+	\label{fig:global-state-bootstrap}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		note left of LoreState : updateInitialSelectedLore
+		[-> LoreState : loadLoresSuccess
+		LoreState -> LoreState: Select the first one
+		LoreState ->] : changeSelectedLore
+		@enduml
+	\end{plantuml}
+	\caption{Az első kiválaszott project kiválasztása}
+	\label{fig:global-state-bootstrap}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		Database --> LoreState: createLoreSuccess
+		LoreState ->]: changeSelectedLore
+		@enduml
+	\end{plantuml}
+	\caption{Új projekt létrehozásakor automatikusan kiválasztásra kerül}
+	\label{fig:global-state-bootstrap}
+\end{figure}
+
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		[-> LoreState: changeSelectedLore
+		LoreState ->]: changeSelectedLoreSuccess
+		[-> ActorState: changeSelectedLoreSuccess
+		Database --> ActorState: connection
+		ActorState -> ActorState: loading everything into state
+		ActorState ->]: loadActorsSuccess
+		[-> ActorState: loadActorsSuccess
+		loop for each actor object that has been loaded
+		ActorState ->]: loadActorDeltasForActor
+		end
+		@enduml
+	\end{plantuml}
+	\caption{Projekt kiválasztásakor betöltődik az összes szereplő és azok összes deltái}
+	\label{fig:global-state-bootstrap}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		[-> ActorDeltaState: loadActorDeltasForActor
+		Database --> ActorDeltaState: connection
+		ActorDeltaState -> ActorDeltaState: Shim every loaded object
+		ActorDeltaState ->]: loadActorDeltasForActorSuccess
+		@enduml
+	\end{plantuml}
+	\caption{Szereplő első betöltődésekor az összes deltáit is betöltjük}
+	\label{fig:global-state-bootstrap}
+\end{figure}
+
 
 \begin{definition}
 Mauris tristique sollicitudin ultrices. Etiam tristique quam sit amet metus dictum imperdiet. Nunc id lorem sed nisl pulvinar aliquet vitae quis arcu. Morbi iaculis eleifend porttitor.

@@ -1,5 +1,4 @@
 import { Enclosing, Node } from '@alexaegis/avl';
-import { intersection } from '@app/function/intersection.function';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { ActorAccumulator, ActorService, LoreService } from '@app/service';
 import { quaternionAngle } from '@lore/engine/helper/quaternion-angle.function';
@@ -123,14 +122,14 @@ export class ActorObject extends Basic {
 						}
 
 						// get the intersecting points
-						if (this.enclosing.first && this.enclosing.last) {
+						/*if (this.enclosing.first && this.enclosing.last) {
 							const intersections = intersection(
 								{ center: this.leftHelper, radius: this.panHelper.left.allowedDistance },
 								{ center: this.rightHelper, radius: this.panHelper.right.allowedDistance },
 								this.globe.radius
 							);
 							console.log(intersections);
-						}
+						}*/
 					})
 				),
 				this.panEventSubject

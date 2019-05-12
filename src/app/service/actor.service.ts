@@ -15,7 +15,7 @@ import { Group, Object3D, Quaternion, Vector3 } from 'three';
 export interface ActorAccumulator {
 	cursor: number;
 	actor: RxDocument<Actor, {}>;
-	accumulator: { name: string; maxSpeed: number; knowledge: Array<{ key: String; value: String }>; color: string };
+	accumulator: { name: string; maxSpeed: number; lastUnix: number; knowledge: Array<{ key: String; value: String }>; color: string };
 }
 
 @Injectable()
@@ -49,6 +49,7 @@ export class ActorService {
 						name: undefined as string,
 						maxSpeed: Actor.DEFAULT_MAX_SPEED,
 						color: Actor.DEFAULT_COLOR,
+						lastUnix: undefined as number,
 						knowledge: []
 					};
 					const knowledgeMap = new Map<String, String>();
@@ -56,8 +57,10 @@ export class ActorService {
 						if (node.key.unix > cursor) {
 							break;
 						}
+						accumulator.lastUnix = node.key.unix;
+
 						for (const [key, value] of node.value.knowledge.entries()) {
-							if (value) {
+							if (value !== '') {
 								knowledgeMap.set(key, value);
 							} else {
 								knowledgeMap.delete(key);
@@ -102,17 +105,24 @@ export class ActorService {
 				const wrapper = new UnixWrapper(date.unix());
 				const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
 				const knowledgeMap = new Map<String, String | undefined>();
+				console.log(knowledge);
 				knowledge
+					.filter(e => e.value || e.forget)
 					.map(k => {
 						if (k.forget) {
-							k.value = undefined;
+							k.value = '';
 						}
 						return k;
 					})
 					.forEach(({ key, value }) => knowledgeMap.set(key, value));
 				newKnowledge.filter(({ value }) => !!value).forEach(({ key, value }) => knowledgeMap.set(key, value));
 				const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap, maxSpeed, color);
+
+				console.log(delta);
+
 				object.actor._states.set(wrapper, delta);
+
+				console.log(object.actor._states.toArray());
 				return from(
 					object.actor.atomicUpdate(actor => {
 						actor._states = object.actor._states;

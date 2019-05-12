@@ -68,6 +68,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 				map(([payload, selection]) => {
 					return this.dialog.open(ActorFormComponent, {
 						data: {
+							lastUnix: payload.accumulator.lastUnix,
 							name: payload.accumulator.name,
 							maxSpeed: payload.accumulator.maxSpeed,
 							knowledge: payload.accumulator.knowledge,

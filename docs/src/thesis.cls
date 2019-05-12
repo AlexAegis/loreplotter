@@ -85,6 +85,7 @@
 % Karakterkódolás, nyelv
 \RequirePackage[utf8]{inputenc}
 \RequirePackage[T1]{fontenc}
+\usepackage{fontspec, newunicodechar}
 \RequirePackage[english,magyar]{babel}
 \RequirePackage{indentfirst}
 % ------------------------------
@@ -111,6 +112,7 @@
 \DeclareGraphicsExtensions{.pdf,.eps,.png,.jpg}
 % Képek tárolási helye
 \graphicspath{{./images/}}
+\usepackage{plantuml}
 % ------------------------------
 
 % ------------------------------
@@ -307,7 +309,6 @@
 \usepackage[edges]{forest}
 \usepackage{titlesec}
 \usetikzlibrary{arrows.meta}
-
 % ------------------------------
 % Teendőlista
 % http://www.tex.ac.uk/tex-archive/help/Catalogue/entries/todonotes.html

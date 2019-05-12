@@ -16,6 +16,7 @@ export interface ActorFormComponentData {
 	/** Cursor position at the time of opening the dialog */
 	selected: ActorObject;
 	cursor: number;
+	lastUnix: number;
 	maxSpeed: number;
 	moment: Moment;
 	date: Moment;
@@ -70,10 +71,25 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.originalData.date = this.originalData.moment;
 		this.originalData.time = this.originalData.moment.format('HH:mm:ss');
 		this.color = this.originalData.color;
+
+		if (originalData.cursor === originalData.lastUnix) {
+			this.actorForm.controls['name'].setValue(originalData.name);
+			this.actorForm.controls['date'].setValue(originalData.date);
+			this.actorForm.controls['time'].setValue(originalData.time);
+			this.actorForm.controls['maxSpeed'].setValue(originalData.maxSpeed);
+			originalData.knowledge.forEach(k => {
+				const group = this.addNewKnowledge();
+				group.controls['key'].setValue(k.key);
+				group.controls['value'].setValue(k.value);
+			});
+			originalData.knowledge = [];
+		}
 	}
 
-	public addNewKnowledge($event): void {
-		this.newKnowledgeArray.push(FormEntryComponent.create(this.formBuilder));
+	public addNewKnowledge(): FormGroup {
+		const control = FormEntryComponent.create(this.formBuilder);
+		this.newKnowledgeArray.push(control);
+		return control;
 	}
 
 	public get filledNewKnowledgeCount(): number {
