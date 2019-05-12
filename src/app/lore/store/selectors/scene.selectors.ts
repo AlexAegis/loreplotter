@@ -1,7 +1,6 @@
-import { AppState, FeatureState } from '@lore/store/reducers';
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-
-const getFeatureState = createFeatureSelector<AppState, FeatureState>('app-lore');
+import { FeatureState } from '@lore/store/reducers';
+import { getFeatureState } from '@lore/store/selectors/app-lore.selectors';
+import { createSelector } from '@ngrx/store';
 
 const getSceneState = createSelector(
 	getFeatureState,

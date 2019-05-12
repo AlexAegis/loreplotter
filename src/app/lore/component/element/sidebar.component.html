@@ -13,19 +13,20 @@
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
 		</div>
-		<h2>Actors {{ (currentLoreActors$ | async)?.length }}</h2>
+		<h2>Actors {{ (actorsWithAccumulators$ | async)?.length }}</h2>
 		<div class="spawnables">
 			<button
 				aria-label="Select Actor"
 				mat-raised-button
-				*ngFor="let actor of currentLoreActors$ | async"
-				(click)="select($event, actor)"
-				[ngStyle]="{ backgroundColor: (actorService.accumulatorOf(actor) | async)?.accumulator.color }"
+				*ngFor="let acc of actorsWithAccumulators$ | async"
+				(click)="select($event, acc.actor)"
+				[ngStyle]="{ backgroundColor: acc?.accumulator?.color?.value }"
 			>
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon>
-				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }} ({{ actor?._states?.length }})
+				{{ acc?.accumulator?.name?.value }} ({{ acc?.actor?.deltas?.entities?.length }})
 			</button>
 		</div>
 	</mat-sidenav>
 	<mat-sidenav-content> <ng-content id="content"> </ng-content> </mat-sidenav-content>
 </mat-sidenav-container>
+

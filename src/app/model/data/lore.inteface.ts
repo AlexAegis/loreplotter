@@ -1,5 +1,14 @@
 import { RxJsonSchema } from 'rxdb';
-import { planetSchema } from './planet.schema';
+import { Planet, planetSchema } from './planet.interface';
+
+/**
+ * Has an attachment for the planets texture
+ */
+export interface Lore {
+	id: string;
+	name: string;
+	planet: Planet;
+}
 
 export const loreSchema: RxJsonSchema = {
 	title: 'Lore',
@@ -16,14 +25,6 @@ export const loreSchema: RxJsonSchema = {
 		name: {
 			type: 'string',
 			uniqueItems: true
-		},
-		locations: {
-			type: 'array',
-			uniqueItems: true,
-			default: [],
-			items: {
-				type: 'string'
-			}
 		},
 		planet: planetSchema
 	},

@@ -9,7 +9,7 @@ import { ActionReducerMap } from '@ngrx/store';
  * Extending the root state with the lazy-feature module's own root-level entry
  */
 export interface AppState extends State {
-	'app-lore': FeatureState;
+	app: FeatureState;
 }
 
 export interface FeatureState {

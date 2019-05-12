@@ -23,7 +23,7 @@ export const createLoreSuccess = createAction(
 );
 export const createLoreFailure = createAction(`[Lore] Create Failure`, (payload: Payload<Error>) => ({ payload }));
 
-// Updating existing objectsk
+// Updating existing objects
 export const updateLore = createAction(
 	`[Lore] Update`,
 	(payload: Payload<{ tex: Blob } & Partial<Lore>>): Payload<{ tex: Blob } & Partial<Lore>> => payload
@@ -35,17 +35,17 @@ export const updateLoreSuccess = createAction(`[Lore] Update Success`, (payload:
 export const updateLoreFailure = createAction(`[Lore] Update Failure`, (payload: Payload<Error>) => ({ payload }));
 
 // Deleting existing objects
-export const deleteLore = createAction(`[Lore] Delete`, (payload: Payload<string>): Payload<string> => payload);
+export const deleteLore = createAction(`[Lore] Delete`, (payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => payload);
 
 export const deleteLoreSuccess = createAction(
 	`[Lore] Delete Success`,
-	(payload: Payload<string>): Payload<string> => payload
+	(payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => payload
 );
 export const deleteLoreFailure = createAction(`[Lore] Delete Failure`, (payload: Payload<Error>) => ({ payload }));
 
 export const changeSelectedLore = createAction(
 	`[Lore] Change Selected`,
-	(payload: Payload<string>): Payload<string> => payload
+	(payload: Payload<Partial<Lore>>): Payload<Partial<Lore>> => payload
 );
 
 export const changeSelectedLoreSuccess = createAction(

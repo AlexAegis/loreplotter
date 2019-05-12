@@ -2,7 +2,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
-import { Lore, Planet } from '@app/model/data';
+import { Lore, PLANET_DEFAULT_NAME, PLANET_DEFAULT_RADIUS } from '@app/model/data';
 import { DatabaseService } from '@app/service';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { faEllipsisH, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -12,7 +12,7 @@ import { LoreFormComponent } from '@lore/component/dialog/lore-form.component';
 import { EngineService } from '@lore/engine';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { combineLatest, Observable } from 'rxjs';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { filter, map, switchMap, take, tap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-toolbar',
@@ -60,7 +60,8 @@ export class ToolbarComponent extends BaseDirective implements OnInit {
 
 	public ngOnInit(): void {
 		this.loresButSelected$ = combineLatest([this.lores$, this.selectedLore$]).pipe(
-			map(([lores, selected]) => lores.filter(lore => lore.id !== selected.id))
+			tap(a => console.log(a)),
+			map(([lores, selected]) => lores.filter(lore => selected === undefined || lore.id !== selected.id))
 		);
 	}
 
@@ -81,7 +82,7 @@ export class ToolbarComponent extends BaseDirective implements OnInit {
 
 	public createLore(): void {
 		const createDialogRef = this.dialog.open(LoreFormComponent, {
-			data: { planet: { name: Planet.DEFAULT_NAME, radius: Planet.DEFAULT_RADIUS } } as Lore
+			data: { planet: { name: PLANET_DEFAULT_NAME, radius: PLANET_DEFAULT_RADIUS } } as Lore
 		});
 		createDialogRef.afterClosed().subscribe((result: { tex: Blob } & Lore) => this.storeFacade.createLore(result));
 	}

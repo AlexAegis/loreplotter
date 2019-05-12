@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 
-import { Lore } from '@app/model/data';
+import { Actor, ActorDelta, Lore } from '@app/model/data';
 import { ActorFormResultData } from '@lore/component';
-import { actorQuery } from '@lore/store/selectors/actor.selectors';
+import { Accumulator, actorQuery } from '@lore/store/selectors/actor.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import {
 	bakeCursorOverride,
@@ -24,7 +25,7 @@ import {
 	deleteLore,
 	deleteLoreFailure,
 	deleteLoreSuccess,
-	FeatureActions,
+	FeatureActions, loadLores,
 	loadLoresFailure,
 	loadLoresSuccess,
 	setActorObjectSizeBias,
@@ -51,8 +52,8 @@ import {
 	updateLoreFailure,
 	updateLoreSuccess
 } from './actions';
-import { AppState, InteractionMode } from './reducers';
-import { loreQuery, sceneQuery } from './selectors';
+import { ActorEntity, AppState, InteractionMode } from './reducers';
+import { actorDeltaQuery, loreQuery, sceneQuery } from './selectors';
 
 @Injectable()
 export class StoreFacade {
@@ -60,7 +61,7 @@ export class StoreFacade {
 	public lores$ = this.store$.pipe(select(loreQuery.getLores));
 	public selectedLore$ = this.store$.pipe(
 		select(loreQuery.selected.getSelected),
-		filter(selected => selected !== undefined)
+		// filter(selected => selected !== undefined)
 	);
 	public selectedLorePlanet$ = this.store$.pipe(
 		select(loreQuery.selected.getSelectedPlanet),
@@ -94,8 +95,13 @@ export class StoreFacade {
 	j;
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
+	public actorsWithAccumulators$ = this.store$.pipe(select(actorQuery.getActorsWithAccumulators));
 
 	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
+
+	public accumulate(actor: Actor): Observable<Accumulator> {
+		return this.store$.pipe(select(actorQuery.getActorWithAccumulatorById, { id: actor.id }));
+	}
 
 	public createLore(lore: { tex: Blob } & Lore): void {
 		this.store$.dispatch(createLore({ payload: lore }));
@@ -106,11 +112,11 @@ export class StoreFacade {
 	}
 
 	public deleteLore(id: string): void {
-		this.store$.dispatch(deleteLore({ payload: id }));
+		this.store$.dispatch(deleteLore({ payload: { id } }));
 	}
 
 	public selectLore(lore: Partial<Lore>): void {
-		this.store$.dispatch(changeSelectedLore({ payload: lore.id }));
+		this.store$.dispatch(changeSelectedLore({ payload: { id: lore.id } }));
 	}
 
 	public setPlaySpeed(speed: number): void {

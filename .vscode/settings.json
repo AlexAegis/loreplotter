@@ -55,8 +55,49 @@
 	"terminal.integrated.windowsEnableConpty": true,
 	"plantuml.diagramsRoot": "docs/",
 	"plantuml.exportOutDir": "dist/",
+	"latex-workshop.latex.magic.args": ["-shell-escape", "%DOC%"],
 	"typescript.tsdk": "node_modules\\typescript\\lib",
 	"editor.fontFamily": "'Fira Code Regular', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
 	"editor.mouseWheelZoom": true,
-	"editor.wordWrap": "bounded"
+	"editor.wordWrap": "bounded",
+	"latex-workshop.latex.recipes": [
+		{
+			"name": "lualatex 🔃",
+			"tools": ["lualatex"]
+		},
+		{
+			"name": "latexmk 🔃",
+			"tools": ["latexmk"]
+		},
+		{
+			"name": "pdflatex ➞ bibtex ➞ pdflatex`×2",
+			"tools": ["pdflatex", "bibtex", "pdflatex", "pdflatex"]
+		}
+	],
+	"latex-workshop.latex.tools": [
+		{
+			"name": "lualatex",
+			"command": "lualatex",
+			"args": ["-synctex=1", "-file-line-error", "-shell-escape", "-interaction=nonstopmode", "%DOC%"],
+			"env": {}
+		},
+		{
+			"name": "latexmk",
+			"command": "latexmk",
+			"args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-pdf", "-outdir=%OUTDIR%", "%DOC%"],
+			"env": {}
+		},
+		{
+			"name": "pdflatex",
+			"command": "pdflatex",
+			"args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "%DOC%"],
+			"env": {}
+		},
+		{
+			"name": "bibtex",
+			"command": "bibtex",
+			"args": ["%DOCFILE%"],
+			"env": {}
+		}
+	]
 }

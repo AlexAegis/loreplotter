@@ -1,9 +1,7 @@
-import { Actor } from '@app/model/data';
 import { ClickEvent, DrawEvent } from '@lore/engine/event';
 import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
-import { InteractionMode } from '@lore/store/reducers';
+import { ActorEntity, InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { RxDocument } from 'rxdb';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, scan } from 'rxjs/operators';
 import {
@@ -237,7 +235,7 @@ export class Globe extends Basic {
 		return airCurve;
 	}
 
-	public findPointByActor(actor: RxDocument<Actor>): ActorObject {
+	public findPointByActor(actor: Partial<ActorEntity>): ActorObject {
 		return this.points.filter(point => point.actor.id === actor.id).shift();
 	}
 }

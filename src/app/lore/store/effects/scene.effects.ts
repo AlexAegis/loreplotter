@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
-import { ActorDelta, UnixWrapper } from '@app/model/data';
+import { ActorDelta } from '@app/model/data';
 import { tweenMap } from '@app/operator';
 import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -123,27 +123,27 @@ export class SceneEffects {
 		map(({ base, length }) => setFrameTo({ payload: { start: base, end: base + length } }))
 	);
 
-	@Effect({ dispatch: false })
-	public spawnOnWorld = this.actions$.pipe(
-		ofType(actorSpawnOnWorld.type),
-		tap(e => console.log(e)),
-		withLatestFrom(this.storeFacade.cursor$),
-		switchMap(async ([{ payload }, cursor]) => {
-			payload.actorObject.applyQuaternion(payload.actorObject.globe.quaternion.clone().inverse());
-			payload.actorObject.actor._states.set(
-				new UnixWrapper(cursor),
-				new ActorDelta(undefined, {
-					x: payload.position.x,
-					y: payload.position.y,
-					z: payload.position.z
-				})
-			);
-			const updatedActor = await payload.actorObject.actor.atomicUpdate(
-				a => (a._states = payload.actorObject.actor._states) && a
-			);
-			payload.actorObject.parent.userData.override = false;
-			refreshBlockOfActorObject(payload.actorObject);
-			return updatedActor;
-		})
-	);
+	// @Effect({ dispatch: false })
+	// public spawnOnWorld = this.actions$.pipe(
+	// 	ofType(actorSpawnOnWorld.type),
+	// 	tap(e => console.log(e)),
+	// 	withLatestFrom(this.storeFacade.cursor$),
+	// 	switchMap(async ([{ payload }, cursor]) => {
+	// 		payload.actorObject.applyQuaternion(payload.actorObject.globe.quaternion.clone().inverse());
+	// 		payload.actorObject.actor._states.set(
+	// 			new UnixWrapper(cursor),
+	// 			new ActorDelta(undefined, {
+	// 				x: payload.position.x,
+	// 				y: payload.position.y,
+	// 				z: payload.position.z
+	// 			})
+	// 		);
+	// 		const updatedActor = await payload.actorObject.actor.atomicUpdate(
+	// 			a => (a._states = payload.actorObject.actor._states) && a
+	// 		);
+	// 		payload.actorObject.parent.userData.override = false;
+	// 		refreshBlockOfActorObject(payload.actorObject);
+	// 		return updatedActor;
+	// 	})
+	// );
 }

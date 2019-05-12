@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { denormalize } from '@app/function';
-import { Actor, Lore } from '@app/model/data';
 
 import { tweenMap } from '@app/operator/tween-map.operator';
 import { withTeardown } from '@app/operator/with-teardown.operator';
@@ -8,7 +7,7 @@ import { DatabaseService } from '@app/service/database.service';
 import { Control } from '@lore/engine/control';
 import { ActorObject, DynamicTexture, Globe, Stage } from '@lore/engine/object';
 import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
-import { InteractionMode } from '@lore/store/reducers';
+import { ActorEntity, InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import TWEEN, { Easing } from '@tweenjs/tween.js';
 import {
@@ -23,7 +22,6 @@ import {
 	ToneMappingEffect,
 	VignetteEffect
 } from 'postprocessing';
-import { RxAttachment, RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, merge, of, range, ReplaySubject, Subject, timer, zip } from 'rxjs';
 import {
 	auditTime,
@@ -38,10 +36,8 @@ import {
 	scan,
 	share,
 	shareReplay,
-	switchMap,
 	take,
-	tap,
-	withLatestFrom
+	tap
 } from 'rxjs/operators';
 import {
 	AdditiveBlending,
@@ -77,28 +73,28 @@ export class EngineService {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 
-		this.storeFacade.selectedLore$
-			.pipe(
-				distinctUntilChanged((a, b) => a.id === b.id),
-				withLatestFrom(this.databaseService.database$),
-				switchMap(([lore, database]) => database.lore.findOne({ id: lore.id }).$.pipe(take(1))),
-				switchMap(lore =>
-					of((lore.getAttachment('texture') as any) as RxAttachment<Lore>).pipe(
-						mergeMap(att => (att ? att.getData() : of(undefined))),
-						map(att => ({ lore, att }))
-					)
-				)
-			)
-			.subscribe(({ att }) => {
-				this.globe.points.forEach(point => {
-					point.parent.remove(point);
-				});
-				if (att) {
-					this.globe.displacementTexture.loadFromBlob(att as Blob);
-				} else {
-					this.globe.displacementTexture.clear();
-				}
-			});
+	// this.storeFacade.selectedLore$
+	// 	.pipe(
+	// 		distinctUntilChanged((a, b) => a.id === b.id),
+	// 		withLatestFrom(this.databaseService.database$),
+	// 		switchMap(([lore, database]) => database.lore.findOne({ id: lore.id }).$.pipe(take(1))),
+	// 		switchMap(lore =>
+	// 			of((lore.getAttachment('texture') as any) as RxAttachment<Lore>).pipe(
+	// 				mergeMap(att => (att ? att.getData() : of(undefined))),
+	// 				map(att => ({ lore, att }))
+	// 			)
+	// 		)
+	// 	)
+	// 	.subscribe(({ att }) => {
+	// 		this.globe.points.forEach(point => {
+	// 			point.parent.remove(point);
+	// 		});
+	// 		if (att) {
+	// 			this.globe.displacementTexture.loadFromBlob(att as Blob);
+	// 		} else {
+	// 			this.globe.displacementTexture.clear();
+	// 		}
+	// 	});
 
 		/**
 		 *
@@ -155,7 +151,7 @@ export class EngineService {
 		)
 		.subscribe(next => this.refreshPopupPosition());
 
-	public selectedByActor = new BehaviorSubject<RxDocument<Actor>>(undefined); // Selected Actor on the sidebar
+	public selectedByActor = new BehaviorSubject<Partial<ActorEntity>>(undefined); // Selected Actor on the sidebar
 	public selected = new BehaviorSubject<ActorObject>(undefined); // Selected Actor on map, and it's current position
 	public selectedActorForwarder = this.selectedByActor
 		.pipe(

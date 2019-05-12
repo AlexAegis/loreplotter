@@ -27,7 +27,6 @@ export interface LoreState extends EntityState<Partial<Lore>> {
 	selected: string;
 }
 
-// const initialLoreState: Partial<LoreState> = { loading: false };
 /**
  * Adapter
  */
@@ -40,7 +39,7 @@ export const loreAdapter: EntityAdapter<Partial<Lore>> = createEntityAdapter<Par
  */
 export const initialLoreState: LoreState = loreAdapter.getInitialState({
 	loading: false,
-	selected: '0'
+	selected: '0' // TODO: undefined. The ability to load without a project
 });
 
 /**
@@ -91,7 +90,7 @@ export function loreReducer(state: LoreState = initialLoreState, action: LoreAct
 			return { ...state, loading: true };
 		}
 		case deleteLoreSuccess.type: {
-			return loreAdapter.removeOne(action.payload, { ...state, loading: false });
+			return loreAdapter.removeOne(action.payload.id, { ...state, loading: false });
 		}
 		case deleteLoreFailure.type: {
 			return { ...state, loading: false };

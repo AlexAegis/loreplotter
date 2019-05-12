@@ -17,7 +17,7 @@ import {
 	changeSelectedLoreSuccess,
 	createLore,
 	createLoreFailure,
-	createLoreSuccess,
+	createLoreSuccess, deleteActorDelta, deleteActorSuccess,
 	deleteLore,
 	deleteLoreFailure,
 	deleteLoreSuccess,
@@ -55,12 +55,10 @@ export class LoreEffects {
 		switchMap(db => db.lore.find().$.pipe(take(1))),
 		map(lores =>
 			lores.map(
-				lore =>
-					({
+				lore => ({
 						name: lore.name,
 						id: lore.id,
-						planet: { radius: lore.planet.radius, name: lore.planet.name },
-						locations: lore.locations
+						planet: { radius: lore.planet.radius, name: lore.planet.name }
 					} as Lore)
 			)
 		),
@@ -83,24 +81,24 @@ export class LoreEffects {
 	private deletedLores$ = this.databaseService.database$.pipe(
 		switchMap(db => db.lore.remove$),
 		map(change => change.data.v),
-		map(lore => deleteLoreSuccess({ payload: (lore as Lore).id }))
+		map(lore => deleteLoreSuccess({ payload: { id: (lore as Lore).id } }))
 	);
 
 	@Effect()
 	public allLores$ = concat(this.initialLores$, merge(this.insertedLores$, this.updatedLores$, this.deletedLores$));
 
 	@Effect()
-	public updateSelectedLore$ = this.actions$.pipe(
+	public updateInitialSelectedLore$ = this.actions$.pipe(
 		ofType(loadLoresSuccess.type),
 		flatMap(({ payload }) => payload),
 		take(1),
-		map(lore => changeSelectedLore({ payload: lore.id }))
+		map(lore => changeSelectedLore({ payload: lore }))
 	);
 
 	@Effect()
 	public updateSelectedLoreWhenCreated$ = this.actions$.pipe(
 		ofType(createLoreSuccess.type),
-		map(({ payload }) => changeSelectedLore({ payload: payload.id }))
+		map((payload) => changeSelectedLore(payload))
 	);
 
 	/**
@@ -156,41 +154,11 @@ export class LoreEffects {
 		)
 	);
 
-	/*
-
-
-
-	 */
-
-	/*
-		@Effect({ dispatch: false })
-		public attachTextureToLore$ = this.actions$.pipe(
-			ofType(attachTexture.type),
-			switchMap(({ payload }: Payload<{ texture: Blob; lore: RxDocument<Lore> }>) =>
-				iif(
-					() => payload.texture !== undefined,
-					this.databaseService.lores$.pipe(
-						take(1),
-						flatMap(lores => lores),
-						filter(loreDoc => loreDoc.id === payload.lore.id),
-						switchMap(loreDoc =>
-							loreDoc.putAttachment({
-								id: 'texture',
-								data: payload.texture,
-								type: 'image/jpeg'
-							})
-						)
-					),
-					EMPTY
-				)
-			)
-		);*/
-
 	@Effect()
 	public changeCurrentLore$ = this.actions$.pipe(
 		ofType(changeSelectedLore.type),
 		withLatestFrom(this.storeFacade.lores$),
-		map(([{ payload }, lores]) => lores.find(lore => lore.id === payload) || new Error('No lores with this id')),
+		map(([{ payload }, lores]) => lores.find(lore => lore.id === payload.id) || new Error('No lores with this id')),
 		map(lore => changeSelectedLoreSuccess({ payload: lore })),
 		catchError(error => of(changeSelectedLoreFailure({ payload: error })))
 	);
@@ -201,55 +169,15 @@ export class LoreEffects {
 		map(({ payload }) => loadActors({ payload: payload.id }))
 	);
 
-	/**
-	 * This handles what happens when a lore has been deleted
-	 * If the deleted one is the one that was selected, switch to an existing one. If there is no more existing ones
-	 * create one
-
-	@Effect()
-	public deletedLore$ = this.actions$.pipe(
-		ofType(deleteLoreSuccess.type),
-		withLatestFrom(this.storeFacade.selectedLore$), // For checking if the user deleted the selected project or not
-		mergeMap(([payload, selected]) =>
-			iif(
-				() => payload.payload === selected.id, // if they do
-				this.databaseService.database$.pipe(
-					switchMap(db => db.lore.find().$),
-					take(1),
-					flatMap(lores => lores),
-					filter(l => l.id !== selected.id),
-					endWith(of(undefined)), // making sure that one element will be inside the stream
-					take(1),
-					mergeMap(lore =>
-						iif(
-	 () => lore !== undefined, // if there is something remaining
-	 of(changeSelectedLore({ payload: (lore as Lore).id })).pipe(take(1),tap(a => console.log(a))), // the side effect is to select that
-							this.databaseService.database$.pipe(
-								// else, the side effect is to select create a new example and select it
-								take(1),
-								switchMap(db => this.databaseService.initData(db)),
-								mapTo(voidOperation())
-							)
-						)
-					)
-				),
-				of(voidOperation()) // if its not the selected project, do nothing
-			)
-		)
-	);
-	 */
-	/**
-	 * Also makes sure that all the actors are deleted too.
-	 */
 	@Effect()
 	public deleteLore$ = this.actions$.pipe(
 		ofType(deleteLore.type),
-		mergeMap(({ payload }: Payload<string>) =>
-			this.loreService.delete(payload).pipe(
+		mergeMap(({ payload }) =>
+			this.loreService.delete(payload.id).pipe(
 				take(1),
 				map(result =>
 					result
-						? deleteLoreSuccess({ payload: payload })
+						? voidOperation()
 						: deleteLoreFailure({ payload: new Error('Remove failed') })
 				)
 			)

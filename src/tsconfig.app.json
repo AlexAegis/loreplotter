@@ -6,6 +6,7 @@
 		"outDir": "../out-tsc/app",
 		"types": [],
 		"paths": {
+			"@ngrx/*": ["../node_modules/@ngrx/*"],
 			"@app/*": ["src/app/*"],
 			"@lore/*": ["src/app/lore/*"],
 			"@env/*": ["src/environments/*"]

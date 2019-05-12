@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/cor
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
-import { Lore, Planet } from '@app/model/data';
+import { Lore, PLANET_DEFAULT_NAME, PLANET_DEFAULT_RADIUS } from '@app/model/data';
 import { DatabaseService } from '@app/service';
 import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -30,7 +30,7 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 						flatMap(lores => lores),
 						filter(lore => lore.name === ctrl.value && this.loreForm.controls['id'].value !== lore.id),
 						map(lore => ({ duplicate: `Name already present` })),
-						endWith(of(undefined)),
+						endWith(undefined),
 						take(1)
 					);
 				}
@@ -100,12 +100,12 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 								),
 								tap(o =>
 									(this.loreForm.controls['planet'] as FormGroup).controls['name'].setValue(
-										Planet.DEFAULT_NAME
+										PLANET_DEFAULT_NAME
 									)
 								),
 								tap(o =>
 									(this.loreForm.controls['planet'] as FormGroup).controls['radius'].setValue(
-										Planet.DEFAULT_RADIUS
+										PLANET_DEFAULT_RADIUS
 									)
 								),
 								tap(o => this.dialogRef.close(this.loreForm.value))

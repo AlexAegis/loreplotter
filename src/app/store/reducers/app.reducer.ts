@@ -7,15 +7,15 @@ import { localStorageSync } from 'ngrx-store-localstorage';
 /**
  * Root state
  */
-export interface State {
-	router: fromRouter.RouterReducerState;
+export interface State { // TODO TURN BACK THE ROUTER
+	//router: fromRouter.RouterReducerState;
 }
 
 /**
  * Root reducers
  */
 export const reducers: ActionReducerMap<State> = {
-	router: fromRouter.routerReducer
+	//router: fromRouter.routerReducer
 };
 
 /**
@@ -36,7 +36,7 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
 
 const persistent = [
 	{
-		'app-lore': ['scene']
+		app: ['scene']
 	}
 ];
 

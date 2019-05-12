@@ -5,6 +5,16 @@
 		<app-speed-control class="time-control"></app-speed-control>
 		<app-light-control class="light-control"></app-light-control>
 	</div>
-	<app-timeline #timeline matRipple [matRippleColor]="'#12121206'"></app-timeline>
+	<!--<app-timeline #timeline matRipple [matRippleColor]="'#12121206'"></app-timeline>-->
 </app-sidebar>
-<app-engine></app-engine>
+<!--<app-engine></app-engine>-->
+
+<br/><br/>
+Lores:
+{{ databaseService.lores$ | async | json }}
+<br/><br/>
+Actors:
+{{ databaseService.allActors$ | async | json }}
+<br/><br/>
+Deltas:
+{{ databaseService.allDeltas$ | async | json }}

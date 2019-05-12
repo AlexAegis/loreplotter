@@ -1,12 +1,13 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
 import { BaseDirective } from '@app/component/base-component.class';
-import { Actor } from '@app/model/data/actor.class';
-import { ActorAccumulator, ActorService, DatabaseService } from '@app/service';
+import { Actor } from '@app/model/data/actor.interface';
+import { ActorService } from '@app/service';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { EngineService } from '@lore/engine/engine.service';
+import { ActorEntity } from '@lore/store/reducers';
+import { Accumulator } from '@lore/store/selectors';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -17,8 +18,7 @@ import { take } from 'rxjs/operators';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent extends BaseDirective implements AfterViewInit, OnInit {
-	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
-	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
+	public actorsWithAccumulators$: Observable<Array<Accumulator>>;
 	public sidebarOpen$: Observable<boolean>;
 	public mediaLarge$: Observable<boolean>;
 	@Input()
@@ -32,7 +32,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 			return {};
 		}
 	});
-	private onSelectSubject = new Subject<RxDocument<Actor>>();
+	private onSelectSubject = new Subject<Partial<ActorEntity >>();
 	public over = 'side';
 	public maleIcon = faMale;
 	public maleIconSize = 'lg';
@@ -42,12 +42,10 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		public storeFacade: StoreFacade,
 		public engineService: EngineService,
 		private actorService: ActorService,
-		private databaseService: DatabaseService,
 		private changeDetector: ChangeDetectorRef
 	) {
 		super();
-		this.actorDeltasAtCursor$ = this.actorService.actorDeltasAtCursor$;
-		this.currentLoreActors$ = this.databaseService.currentLoreActors$;
+		this.actorsWithAccumulators$ = this.storeFacade.actorsWithAccumulators$;
 		this.sidebarOpen$ = this.storeFacade.sidebarOpen$;
 		this.mediaLarge$ = this.storeFacade.mediaLarge$;
 	}
@@ -59,8 +57,8 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 
 	public ngOnInit(): void {
 		this.teardown(
-			combineLatest([this.onResizeSubject, this.mediaLarge$, this.sidebarOpen$]).subscribe(
-				([$event, mediaLarge, open]) => {
+			combineLatest([this.onAfterViewInitSubject, this.onResizeSubject, this.mediaLarge$, this.sidebarOpen$]).subscribe(
+				([after, $event, mediaLarge, open]) => {
 					const w = ($event as any).target.innerWidth;
 					const h = ($event as any).target.innerHeight;
 					this.storeFacade.setMediaLarge(w / h >= 1.8); // Standard 16/9 ratio is 1.77 repeating.
@@ -96,7 +94,7 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 		this.onAfterViewInitSubject.next(true);
 	}
 
-	public select($event, actor: RxDocument<Actor>): void {
+	public select($event, actor: Partial<ActorEntity>): void {
 		this.onSelectSubject.next(actor);
 	}
 

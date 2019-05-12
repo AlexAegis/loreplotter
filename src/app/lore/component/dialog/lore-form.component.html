@@ -29,7 +29,7 @@
 </mat-dialog-content>
 <mat-label>Landscape texture change:</mat-label>
 <mat-dialog-actions>
-	<input #file (change)="handleFileInput($event)" type="file"/>
+	<input (change)="handleFileInput($event)" type="file"/>
 
 	<button
 		*ngIf="originalData.id"
@@ -51,3 +51,5 @@
 		{{ originalData.id ? 'Save' : 'Create' }}
 	</button>
 </mat-dialog-actions>
+{{ loreForm.value | json }}
+{{ loreForm.errors | json }}

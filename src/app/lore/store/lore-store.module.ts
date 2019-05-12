@@ -7,7 +7,7 @@ import { StoreModule } from '@ngrx/store';
 
 import { reducers } from './reducers';
 
-export const APP_LORE_FEATURE_STATE_ID = 'app-lore';
+export const APP_LORE_FEATURE_STATE_ID = 'app';
 
 @NgModule({
 	imports: [

@@ -14,7 +14,7 @@ import {
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine';
 import { DatabaseService } from '@app/service';
-import { TimelineComponent } from '@lore/component';
+// import { TimelineComponent } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 
 @Component({
@@ -82,19 +82,20 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 export class LoreComponent extends BaseDirective implements AfterViewInit, OnInit {
 	@ViewChild('container')
 	private container: ElementRef;
-	@ViewChild('timeline')
-	private timeline: TimelineComponent;
+	// @ViewChild('timeline')
+	// private timeline: TimelineComponent;
 	@HostBinding('class')
 	public theme = 'dark';
 
 	public constructor(
 		public engineService: EngineService,
-		private databaseService: DatabaseService,
+		public databaseService: DatabaseService,
 		public overlayContainer: OverlayContainer,
 		private changeDetector: ChangeDetectorRef,
 		private storeFacade: StoreFacade
 	) {
 		super();
+
 	}
 
 	public setTheme(theme: string): void {
