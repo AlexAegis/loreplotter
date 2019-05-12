@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Actor, ActorDelta, Lore } from '@app/model/data';
 import { ActorFormResultData } from '@lore/component';
+import { ActorDeltaEntity } from '@lore/store/reducers/actor-delta.reducer';
 import { Accumulator, actorQuery } from '@lore/store/selectors/actor.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
@@ -96,8 +97,23 @@ export class StoreFacade {
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
 	public actorsWithAccumulators$ = this.store$.pipe(select(actorQuery.getActorsWithAccumulators));
+	// ActorDeltas
+	public actorDeltas$ = this.store$.pipe(select(actorDeltaQuery.getDeltas));
 
 	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
+
+	public actorDeltas(actor: Partial<ActorEntity>): Observable<Array<Partial<ActorDelta>>> {
+		return this.store$.pipe(select(actorDeltaQuery.getAllDeltas, { id: actor.id }));
+	}
+
+	public actorDeltaUnixes(actor: Partial<ActorEntity>) {
+		return this.store$.pipe(select(actorDeltaQuery.getDeltaUnix(actor.id)));
+	}
+
+	public actorDeltaUnixPositions(actor: Partial<ActorEntity>) {
+		return this.store$.pipe(select(actorDeltaQuery.getDeltaUnix(actor.id)), tap(a => console.log(a)));
+	}
+
 
 	public accumulate(actor: Partial<ActorEntity>): Observable<Accumulator> {
 		return this.store$.pipe(select(actorQuery.getActorWithAccumulatorById, { id: actor.id }));

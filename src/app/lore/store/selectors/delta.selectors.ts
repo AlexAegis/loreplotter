@@ -1,27 +1,40 @@
 import { ActorDelta } from '@app/model/data';
-import { actorAdapter } from '@lore/store/reducers';
-import { actorDeltaAdapter } from '@lore/store/reducers/actor-delta.reducer';
+import { actorAdapter, ActorEntity, AppState } from '@lore/store/reducers';
+import { actorDeltaAdapter, ActorDeltaEntity } from '@lore/store/reducers/actor-delta.reducer';
+import { actorQuery } from '@lore/store/selectors/actor.selectors';
 import { getFeatureState } from '@lore/store/selectors/app-lore.selectors';
 import { Dictionary } from '@ngrx/entity';
-import { createSelector } from '@ngrx/store';
+import { createSelector, defaultMemoize, resultMemoize } from '@ngrx/store';
 
 /**
  * Selectors
  */
 
-/*
-const { selectAll, selectEntities } = actorDeltaAdapter.getSelectors();
 
-const getActorState = createSelector(
-	getFeatureState,
-	state => state.actor
+const { selectAll, selectEntities, selectTotal} = actorDeltaAdapter.getSelectors();
+
+
+
+const getDeltas = createSelector(
+	actorQuery.getActorEntityById,
+	(actorEntity) => actorEntity.deltas
 );
 
-const getActors = createSelector(
-	getActorState,
+
+const getAllDeltas = createSelector(
+	getDeltas,
 	selectAll
 );
 
+
+const getDeltaUnix = (actorId: string) => createSelector(
+	(state, props) => actorQuery.getActorEntityById(state, { id: actorId }),
+	(state) => (deltaId: string) => {
+		return state.deltas.entities[deltaId];
+	}
+);
+
+/*
 const getActorDeltaEntities = createSelector(
 	getActorState,
 	selectEntities
@@ -52,11 +65,18 @@ const getAccumulated = createSelector(
 /**
  * Queries
  */
-export const actorDeltaQuery = {/*
+export const actorDeltaQuery = {
+	getDeltas,
+	getAllDeltas,
+	getDeltaUnix,/*
 	getAccumulated,
 	getLoading,
 	getActors,
 	getActorDeltaEntities,
 	getActorDeltaEntityById,
 	getSelected*/
+	raw: {
+		selectAll,
+		selectTotal
+	}
 };

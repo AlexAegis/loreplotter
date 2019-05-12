@@ -1,25 +1,37 @@
-<!--<div
+<div
 	class="node"
-	*ngFor="let node of actor?._states?.nodes()"
-	[ngStyle]="{ 'left.px': nodePosition(node?.key?.unix) }"
-	(panstart)="panNode($event, node)"
-	(panup)="panNode($event, node)"
-	(pandown)="panNode($event, node)"
-	(panleft)="panNode($event, node)"
-	(panright)="panNode($event, node)"
-	(panend)="panNode($event, node)"
-	(tap)="tap($event, node)"
+	*ngFor="let delta of (deltas$ | async)"
+	[ngStyle]="{ 'left.px': (d$(delta) | async) }"
+
 >
 	<button
-		aria-label="Remove Node from Block"
+		aria-label="Remove Node from Bloc"
 		class="remove"
 		mat-icon-button
-		*ngIf="node === selection"
-		(tap)="remove($event, node)"
-		(click)="remove($event, node)"
+		*ngIf="delta === selection"
+
 		[disabled]="isAtMostOneLeft"
 	>
 		<fa-icon [icon]="faTrash" [size]="'lg'"></fa-icon>
 	</button>
 </div>
--->
+
+
+
+
+<!-- 	(panstart)="panNode($event, delta)"
+	(panup)="panNode($event, delta)"
+	(pandown)="panNode($event, delta)"
+	(panleft)="panNode($event, delta)"
+	(panright)="panNode($event, delta)"
+	(panend)="panNode($event, delta)"
+	(tap)="tap($event, delta)"
+
+
+
+
+		(tap)="remove($event, delta)"
+		(click)="remove($event, delta)"
+
+
+		-->

@@ -1,3 +1,4 @@
+import { OverridableProperty } from '@app/model';
 import { Actor, ActorDelta } from '@app/model/data';
 import {
 	ActorActions,
@@ -22,7 +23,12 @@ import {
 import { actorAdapter } from '@lore/store/reducers/actor.reducer';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 
-export interface ActorDeltaState extends EntityState<Partial<ActorDelta>> {
+
+export interface ActorDeltaEntity extends ActorDelta {
+	unixOverride: number;
+}
+
+export interface ActorDeltaState extends EntityState<Partial<ActorDeltaEntity>> {
 	loading: boolean;
 	selected: string;
 }
@@ -30,9 +36,9 @@ export interface ActorDeltaState extends EntityState<Partial<ActorDelta>> {
 /**
  * Adapter
  */
-export const actorDeltaAdapter: EntityAdapter<Partial<ActorDelta>> = createEntityAdapter<Partial<ActorDelta>>({
+export const actorDeltaAdapter: EntityAdapter<Partial<ActorDeltaEntity>> = createEntityAdapter<Partial<ActorDeltaEntity>>({
 	selectId: a => a.id,
-	sortComparer: (a, b) => a.unix - b.unix
+	sortComparer: (a, b) => (a.unixOverride || a.unix) - (b.unixOverride || b.unix)
 });
 
 /**

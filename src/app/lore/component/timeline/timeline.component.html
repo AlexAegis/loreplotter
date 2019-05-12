@@ -21,13 +21,13 @@
 	<ng-scrollbar class="channels" viewClass="noOverflow">
 		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)" (mousewheel)="scrollHandler($event)">
 			{{ (accumulatorFor(actor) | async)?.accumulator?.name?.value }}
-			<!-- <app-block
+			<app-block
 				#block
 				[actor]="actor"
 				[containerWidthListener]="containerWidth"
 				(jump)="easeCursorTo.next($event)"
 			>
-			</app-block> -->
+			</app-block>
 		</div>
 	</ng-scrollbar>
 </div>
