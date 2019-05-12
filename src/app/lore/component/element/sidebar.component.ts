@@ -9,7 +9,7 @@ import { ActorEntity } from '@lore/store/reducers';
 import { Accumulator } from '@lore/store/selectors';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { combineLatest, Observable, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-sidebar',

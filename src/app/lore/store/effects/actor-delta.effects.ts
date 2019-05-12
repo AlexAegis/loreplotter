@@ -3,7 +3,8 @@ import { Actor, ActorDelta, Lore } from '@app/model/data';
 import { DatabaseService } from '@app/service/database.service';
 import { LoreService } from '@app/service/lore.service';
 import {
-	createActorDelta, createActorDeltaSuccess,
+	createActorDelta,
+	createActorDeltaSuccess,
 	deleteActorDelta,
 	deleteActorDeltaFailure,
 	loadActorDeltasForActor,
@@ -15,7 +16,7 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { combineLatest, concat, merge, of } from 'rxjs';
-import { catchError, flatMap, map, mergeMap, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import { catchError, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import {
 	createActorFailure,
@@ -58,18 +59,20 @@ export class ActorDeltaEffects {
 	 *
 	 * When changing projects, this fires for each loaded actor one by one, collecting all the deltas
 	 */
+	@Effect()
 	private initialActorDeltas$ = combineLatest([
 		this.databaseService.database$,
 		this.actions$.pipe(ofType(loadActorDeltasForActor.type))
 	]).pipe(
 		switchMap(([db, { payload }]) =>
-			db.delta.find({ actor: payload }).$.pipe(
+			db.delta.find({ actorId: payload.id }).$.pipe(
 				take(1),
-				map(deltas => ({ deltas, forActor: { id: payload.id } }))
+				map(deltas => ({ deltas, forActor: payload }))
 			)
 		),
 		map(({ deltas, forActor }) => ({
 			deltas: deltas
+				.map(de => de.toJSON())
 				.map(
 					actorDelta =>
 						({
@@ -80,26 +83,35 @@ export class ActorDeltaEffects {
 							maxSpeed: actorDelta.maxSpeed,
 							color: actorDelta.color,
 							position: { ...actorDelta.position },
-							properties: [...actorDelta.properties]
+							properties: actorDelta.properties ? [...actorDelta.properties] : []
 						} as ActorDelta)
 				)
 				.sort((a, b) => a.unix - b.unix),
 			forActor
 		})),
-		map(({ deltas, forActor}) =>
-			loadActorDeltasForActorSuccess({ payload: { forActor, deltas } })
-		), // The reducer will delete the actor (and delta) entity state before inserting these
+		tap(a => console.log(a)),
+		map(({ deltas, forActor }) => loadActorDeltasForActorSuccess({ payload: { forActor, deltas } })), // The reducer will delete the actor (and delta) entity state before inserting these
 		catchError(error => of(loadActorDeltasForActorFailure({ payload: error })))
 	);
 
+	@Effect({ dispatch: false })
+	private initialActorDeltasFailure$ = this.actions$.pipe(
+		ofType(loadActorDeltasForActorFailure.type),
+		tap(error => console.log(error))
+	);
+
+	@Effect()
 	private insertedActorDeltas$ = this.databaseService.database$.pipe(
 		switchMap(db => db.delta.insert$),
 		// withLatestFrom(),
 		map(change => change.data.v),
-		map(actorDelta => createActorDeltaSuccess({ payload: { forActor: { id: actorDelta.actorId }, delta: actorDelta } })),
+		map(actorDelta =>
+			createActorDeltaSuccess({ payload: { forActor: { id: actorDelta.actorId }, delta: actorDelta } })
+		),
 		catchError(error => of(createActorFailure({ payload: error })))
 	);
 
+	@Effect()
 	private updatedActorDeltas$ = this.databaseService.database$.pipe(
 		switchMap(db => db.actor.update$),
 		map(change => change.data.v),
@@ -107,6 +119,7 @@ export class ActorDeltaEffects {
 		catchError(error => of(updateActorFailure({ payload: error })))
 	);
 
+	@Effect()
 	private deletedActorDeltas$ = this.databaseService.database$.pipe(
 		switchMap(db => db.actor.remove$),
 		map(change => change.data.v),
@@ -118,13 +131,6 @@ export class ActorDeltaEffects {
 	public actorDeltas$ = concat(
 		this.initialActorDeltas$,
 		merge(this.insertedActorDeltas$, this.updatedActorDeltas$, this.deletedActorDeltas$)
-	);
-
-	@Effect()
-	public deleteLore$ = this.actions$.pipe(
-		ofType(loadActorDeltasForActor.type),
-		withLatestFrom(this.databaseService.database$),
-		mergeMap(([ac, db]) => db.delta.find({ actorId: ac.payload.id }).$.pipe(take(1)))
 	);
 
 	/**

@@ -31,7 +31,8 @@ export interface ActorDeltaState extends EntityState<Partial<ActorDelta>> {
  * Adapter
  */
 export const actorDeltaAdapter: EntityAdapter<Partial<ActorDelta>> = createEntityAdapter<Partial<ActorDelta>>({
-	selectId: actorDelta => actorDelta.id
+	selectId: a => a.id,
+	sortComparer: (a, b) => a.unix - b.unix
 });
 
 /**
@@ -57,6 +58,7 @@ export function actorDeltaReducer(state: ActorDeltaState, action: ActorDeltaActi
 			return { ...state, loading: true };
 		}
 		case loadActorDeltasForActorSuccess.type: {
+			actorDeltaAdapter.removeAll(state);
 			return actorDeltaAdapter.addAll(action.payload.deltas, { ...state, loading: false});
 		}
 		case loadActorDeltasForActorFailure.type: {

@@ -75,12 +75,13 @@ const getActorsWithAccumulators = createSelector(
 				const accumulator = new ActorDeltaAccumulator();
 				const propertyMap = new Map<string, AccumulatorField<string>>();
 
-				const deltas = actorDeltaAdapter
-					.getSelectors()
-					.selectAll(actor.deltas)
-					.sort((a, b) => a.unix - b.unix);
+				accumulator.color.value = ACTOR_DEFAULT_COLOR;
+				accumulator.maxSpeed.value = ACTOR_DEFAULT_MAX_SPEED;
+
 				let reached = false;
-				for (const delta of deltas) {
+				for (const delta of actorDeltaAdapter
+					.getSelectors()
+					.selectAll(actor.deltas)) {
 					if (delta.unix > cursor) {
 						reached = true;
 					}
@@ -118,30 +119,30 @@ const getActorsWithAccumulators = createSelector(
 							}
 						}
 					} else {
-						if (delta.unix !== undefined && accumulator.unix.value === undefined) {
+						if (delta.unix !== undefined && accumulator.unix.nextAppearance === undefined) {
 							accumulator.unix.nextValue = delta.unix;
 							accumulator.unix.nextAppearance = delta;
 						}
-						if (delta.name !== undefined && accumulator.name.value === undefined) {
+						if (delta.name !== undefined && accumulator.name.nextAppearance === undefined) {
 							accumulator.name.nextValue = delta.name;
 							accumulator.name.nextAppearance = delta;
 						}
-						if (delta.maxSpeed !== undefined && accumulator.maxSpeed.value === undefined) {
+						if (delta.maxSpeed !== undefined && accumulator.maxSpeed.nextAppearance === undefined) {
 							accumulator.maxSpeed.nextValue = delta.maxSpeed;
 							accumulator.maxSpeed.nextAppearance = delta;
 						}
-						if (delta.color !== undefined && accumulator.color.value === undefined) {
+						if (delta.color !== undefined && accumulator.color.nextAppearance === undefined) {
 							accumulator.color.nextValue = delta.color;
 							accumulator.color.nextAppearance = delta;
 						}
-						if (delta.position !== undefined && accumulator.position.value === undefined) {
+						if (delta.position !== undefined && accumulator.position.nextAppearance === undefined) {
 							accumulator.position.nextValue = delta.position;
 							accumulator.position.nextAppearance = delta;
 						}
 						for (const { key, value } of delta.properties) {
 							const prop = propertyMap.get(key);
 							if (prop) {
-								if (prop.nextValue !== undefined) {
+								if (value !== undefined && prop.nextAppearance === undefined ) {
 									prop.nextValue = value;
 									prop.nextAppearance = delta;
 								}
