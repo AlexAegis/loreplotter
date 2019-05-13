@@ -1,0 +1,7 @@
+                @startuml
+                skinparam monochrome true
+                [-> ActorDeltaState: loadActorDeltasForActor
+                Database --> ActorDeltaState: connection
+                ActorDeltaState -> ActorDeltaState: Shim every loaded object
+                ActorDeltaState ->]: loadActorDeltasForActorSuccess
+                @enduml

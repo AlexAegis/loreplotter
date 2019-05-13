@@ -100,20 +100,6 @@ export class EngineService {
 				}
 			});
 
-		/**
-		 *
-		 *
-		 * 	switchMap(lore =>
-		 lore.allAttachments$.pipe(
-		 take(1),
-		 map(att => att.find(a => a.id === 'texture')),
-		 filter(att => !!att),
-		 switchMap(att => att.getData()),
-		 map(att => ({ lore, att })),
-		 endWith({lore, att: undefined as Blob})
-		 )map(a => a as { lore: Lore, att: Blob }),  // Because of an RXJS bug with endWith, can remove in the next version
-		 ),
-		 */
 		this.storeFacade.interactionMode$.subscribe(interactionMode => {
 			this.interactionMode = interactionMode;
 		});
@@ -424,6 +410,7 @@ export class EngineService {
 	}
 
 	public click(coord: Vector2, shift: boolean) {
+		this.control.enabled = true;
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		const intersection = this.raycaster
 			.intersectObject(this.globe, true)
@@ -436,6 +423,7 @@ export class EngineService {
 				shift: shift
 			});
 			if (this.interactionMode === 'draw') {
+				this.control.enabled = false;
 				intersection.object.dispatchEvent({
 					type: this.interactionMode,
 					point: intersection.point,
@@ -448,6 +436,7 @@ export class EngineService {
 				});
 			} else {
 				if (intersection.object.type === 'Point') {
+					this.control.enabled = false;
 					this.selected.next(intersection.object as ActorObject);
 				} else {
 					this.selected.next(undefined);
@@ -468,7 +457,7 @@ export class EngineService {
 	}
 
 	public pan(coord: Vector2, velocity: Vector2, button: number, start: boolean, end: boolean) {
-		this.control.enabled = this.interactionMode === 'move';
+		// this.control.enabled = this.interactionMode === 'move';
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		const intersections = this.raycaster.intersectObject(this.globe, true);
 		const intersectionsFiltered = intersections.filter(i => i.object.type === 'Globe' || i.object.type === 'Point'); // Ignoring arcs
@@ -482,7 +471,7 @@ export class EngineService {
 						break;
 					case 'Globe':
 						this.drag = undefined;
-						this.control.enabled = false;
+						this.control.enabled = true;
 						break;
 				}
 
@@ -492,10 +481,17 @@ export class EngineService {
 						point: intersection.point
 					});
 				}
+
+				if(this.interactionMode === 'draw') {
+					this.control.enabled = false;
+				}
+
+				if(button === 2) {
+					this.control.enabled = true;
+				}
 			}
 
 			if (this.drag !== undefined) {
-				this.control.enabled = false; // if its a point im dragging
 				this.drag.dispatchEvent({
 					type: 'pan',
 					point: intersection.point,
@@ -503,8 +499,8 @@ export class EngineService {
 					final: end
 				});
 			}
-
-			if (this.interactionMode === 'draw') {
+			console.log(button === 0)
+			if (this.interactionMode === 'draw' && button === 0 && !this.control.enabled) {
 				intersection.object.dispatchEvent({
 					type: this.interactionMode,
 					point: intersection.point,
@@ -529,6 +525,10 @@ export class EngineService {
 					}*/
 				// this.controls.enabled = true;
 			}
+		}
+
+		if(end) {
+			this.control.enabled = true;
 		}
 	}
 

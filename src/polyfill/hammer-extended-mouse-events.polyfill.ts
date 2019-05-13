@@ -48,6 +48,8 @@ const IE10_POINTER_TYPE_ENUM = {
 	5: (Hammer as any).INPUT_TYPE_KINECT // see https://twitter.com/jacobrossi/status/480596438489890816
 };
 
+let hammerLastButton = undefined as number;
+
 Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 	handler: function PEhandler(ev) {
 		const store = this.store;
@@ -62,11 +64,10 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 
 		// get index of the event in the store
 		let storeIndex = inArray(store, ev.pointerId, 'pointerId');
-
 		// start and mouse must be down
 		// ? CHANGE: ev.button === 0 changed into: ev.button <= 2
 		if (eventType & (Hammer as any).INPUT_START && (ev.button <= 2 || isTouch)) {
-			this.button = ev.button; // ? CHANGE: new line, save the reference because while panning the buttons code is not sent
+			hammerLastButton = ev.button; // ? CHANGE: new line, save the reference because while panning the buttons code is not sent
 			if (storeIndex < 0) {
 				store.push(ev);
 				storeIndex = store.length - 1;
@@ -85,9 +86,8 @@ Hammer.inherit(Hammer.PointerEventInput as any, Hammer.Input as any, {
 
 		// update the event in the store
 		store[storeIndex] = ev;
-
 		this.callback(this.manager, eventType, {
-			button: this.button, // ? CHANGE: Also send the button end the event
+			button: hammerLastButton, // ? CHANGE: Also send the button end the event
 			pointers: store,
 			changedPointers: [ev],
 			pointerType: pointerType,

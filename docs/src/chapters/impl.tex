@@ -1,9 +1,228 @@
 \chapter{Fejlesztői dokumentáció}
 \label{ch:impl}
 
+Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megvalósításra. Ennek számos előnye van. Az alkalmazás nem igényel telepítést, bármilyen számítógépről, bármikor elérhető. A már ismert webes technológiákat alkalmazhatjuk. És Progresszív Web Alkalmazás (PWA \cite{PWA}) lévén az első megnyitást leszámítva aktív internetelérés sem kell a használatához.
+
 \section{Megoldási terv}
 
-Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megvalósításra. Ennek számos előnye van. Az alkalmazás nem igényel telepítést, bármilyen számítógépről, bármikor elérhető. A már ismert webes technológiákat alkalmazhatjuk. És Progresszív Web Alkalmazás (PWA \cite{PWA}) lévén az első megnyitást leszámítva aktív internetelérés sem kell a használatához.
+Az alkalmazás fő eleme a projekt amit Lore-nak nevezünk, ennek an egy aznosítója mivel dokumentum szintű objektumról van szó, egy neve és ebben tároljuk a világ adatait melyek annak mérete és neve. Valamint ehhez a dokumentumhoz tartozik a világ textúrája is.
+
+Egy projecthez tartoznak még szereplők amik szintén dokumentum szintű objektumok, saját kollekcióval. Ebben tároljuk a szereplő állapotait egy AVL fában \cite{AVL} amiben a kulcs az idő, ezzel biztosítva, hogy minden esemény időben sorban legyen, és gyorsan elérhetőek legyenek.
+
+Egy állapotdelta csak az előző állapotdeltákhoz viszonyított különbséget tartja nyilván, kivéve a pozíciót, ami minden esetben kötelező. Ezeket a deltákat a szereplők és a jelenlegi idő csöveinek összevezetésével egy aggregátoreljárás értékeli ki. Erre feliratkozva bármi azonnal hozzáférhet a legfrissebb adatokhoz ami csak egy helyen, egyszer van emiatt kiszámolva.
+
+\subsection{Az adatmodell}
+\begin{plantuml}
+@startuml
+skinparam monochrome true
+
+note left of Lore: Tartozhat minden példányhoz egy\nRxDocument 'texture' azonosítóval
+
+interface Lore {
+	id: string
+	name: string
+	planet: Planet
+}
+
+interface Planet {
+	name: string
+	radius: number
+}
+
+interface Actor {
+	id: string
+	loreId: string
+	states: Tree
+}
+
+note left of Tree: Nem perzisztálható de szérializálható
+class Tree {
+	root: Node
+}
+
+class Node {
+	key: number
+	value: ActorDelta
+}
+
+note left of ActorDelta: Egy AVL\nfában helyezkednek el
+interface ActorDelta {
+	position: Vec3
+	name?: string
+	maxSpeed?: number
+	color?: string
+	properties?: Array<Property>
+}
+
+interface Vec3 {
+	x: number
+	y: number
+	z: number
+}
+
+interface Property {
+	key: string
+	value: string
+}
+
+Lore -- Planet
+Lore --o Actor
+Actor -- Tree
+Tree --* Node
+Node -- ActorDelta
+
+ActorDelta --* Property
+ActorDelta -- Vec3
+
+@enduml
+\caption{Az adatmodell}
+\label{fig:data-model}
+\end{plantuml}
+%	\caption{Az adatmodell}
+%	\label{fig:data-model}
+%\end{figure}
+
+\subsection{A reaktív modell}
+
+A klasszikus imperatív modell helyett az alkalmazás jelentős részében reaktív komponenseket használunk amik alapjául az RxJS \cite{RxJS} csomag szolgál. Ez azt jelenti, hogy klasszikus adattagok helyett, adatforrásokat, megfigyelhető objektumokat (Lásd Megfigyelő programtervezési minta \cite{ObserverPattern}), függvényhívások helyett pedig mellékhatásokat használunk.
+
+Ez a minta lehetőséget ad arra, hogy bármilyen nézet a böngészőben ami felhasznál valamilyen adatot, azonnal frissüljön mikor a forrása megváltozik.
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		hide empty description
+		[*] -> Observable : Új adat kerül a megfigyelhető objektumba
+		Observable --> Pipes
+		Pipes : A csövek formában és időben is \nmegváltoztathatják a bennük átfolyó adatot
+		Pipes --> SideEffects : A transzformáció közben mellékhatásokat is definiálhatunk
+		Pipes --> ObserversA
+		Pipes --> ObserversB
+		Pipes --> ObserversC : Majd pedig megérkeznek minden feliratkozóhoz
+
+		SideEffects  --> [*]
+		ObserversA --> [*]
+		ObserversB --> [*]
+		ObserversC --> [*] : És kifejtik hatásukat
+		@enduml
+	\end{plantuml}
+	\caption{Adatfolyam a megfigyelő modellben}
+	\label{fig:observer-pattern}
+\end{figure}
+
+Kétfajta adatot különböztetünk meg, perzisztens és temporális. Perzisztens adatnak minősül minden ami egy projekthez tartozik. Temporális meg az amiket az előbbi manipulálásakor használunk fel. Például projekthez tartozó adat az, hogy egy szereplőnk egy adott időpillanatban hol tartózkodik, de az nem, hogy a kurzor épp ezen az időpillanaton áll.
+
+A perzisztens a böngészők beépített noSQL adatbázisában, az IndexedDB-ben kerülnek perzisztálásra, dokumentumok formájában. Az adatbázis elérésehez, és ezzel az alkalmazás reaktív modelljének alapkövének RxDB-t \cite{RxDB} használunk.
+
+Ez a csomag lehetővé teszi, hogy adatok beszúrásakor/módosításakor/törlésekor ezek a folyamatok igéretekként (Lásd Promise \cite{Promise}) jelenjenek meg melyek teljesüléséről értesítést kapunk. Ezzel lehetővé téve olyan featureöket mint, hogy jelezni a felhasználónak, hogy egy adott elem adatainak forrása éppen mentés alatt áll, és a szerkesztését letiltani. A legfőbb előnye viszont az, hogy bármilyen adatbázis kollekciót, lekérdezést megfigyelhetünk. És amint változás történik az adatbázisban, ezek a megfigyelhető Query-k újra jeleznek, frissítve minden mást ami rájuk épül.
+
+A temporális adatokat viszont felesleges adatbázisban tárolni csak azért, hogy reaktív módon kezelhessük őket. Lehetőség van minden ilyen adatnak egy saját forrást (Subject) biztosítani. De mi van ha két adat függ egymástól? Csöveken keresztül futtassuk őket össze, válasszuk szét majd az így keletkező csöveket használjuk ezentúl? Mi van ha erre a változtatásra később kerül sor? Mi van ha valamit elfelejtünk átállítani, hogy a direkt-forrás helyett a transzformált csövet használják? Ezek a problémák és még sok más megoldására jön képbe az NgRX \cite{NgRx} csomag és a Redux (\cite{Redux}) architektúra amit implementál.
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		hide empty description
+		[*] -d-> View : Felhasználói interakció
+		View -d-> Dispatcher : Akció
+		Dispatcher -l-> Effects : Akció
+		Effects -r-> Dispatcher : Akció
+		Effects -l-> [*] : Mellékhatás
+
+		Dispatcher --> Reducer : Akció
+		CurrentState -> Reducer : Az előző állapot
+		Reducer --> Store : Új állapot készül
+		Store -u-> View : Értesíti
+
+		@enduml
+	\end{plantuml}
+	\caption{A Redux architektúra}
+	\label{fig:redux-architecture}
+\end{figure}
+
+A lényeg a globális, nem módosítható (Csak cserélhető) állapot, az úgynevezett "igazság egyetlen forrása" ("Single source of truth") és az egyirányú adatfolyam (Unidirectional data-flow). Ennek hála egy átlátható, eseményeiben könnyen megjósolható programot kapunk, cserébe viszont sok kódot igényel.
+Ezt egy központi Store service-ből tudjuk elérni, a könnyebb interakció miatt pedig egy Facade\cite{Facade} Service-t húzunk elé.
+
+\section{Alkalmazás Architektúra}
+
+Egy Angular alkalmazás modulokra van bontva. Minden modul saját Injection Scope-al rendelkezik, a felhasznált Service-ek pedig egyediek Injection Scope-onként. Mivel ez az alkalmazás csupán egy funkciót lát el megelégedhetnénk egy modullal is, de jobb felhasználói élményt érhetünk el ha az első töltést felgyorsítjuk azzal, hogy az applikációnk első töltési pontját kiürítjük, a tényleges applikációt pedig a gyökér routing pont mögé tesszük. Ez lusta módon \cite{LazyLoad} fogja betölteni a tényleges tartalommal rendelkező modult, nem blokkolva az alap modul tartalmának festését a DOM-ba. Az alap modul így taralmazhat egy egyszerű töltési animációt amit csak addig jelenítünk meg amíg a router tölti az almodult.
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+
+		[-> AppModule: Applikáció indításakor
+		activate AppModule
+		AppModule -> AppModule : Első festés, LoreModule Lazy töltése
+
+		activate  AppModule
+		AppModule -> LoreModule
+		deactivate AppModule
+
+		activate LoreModule
+
+		LoreModule ->]
+		LoreModule <-]
+
+
+		AppModule <- LoreModule: Kilépés
+		deactivate LoreModule
+
+		[<- AppModule: Kilépés
+		deactivate AppModule
+
+		@enduml
+
+
+	\end{plantuml}
+	\caption{Lusta betöltés}
+	\label{fig:lazy-loading}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \subsection{Technológiák}
 
@@ -35,8 +254,6 @@ Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megval
 	\label{tab:technologies}
 \end{table}
 
-
-
 \begin{table}[H]
 	\centering
 	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
@@ -54,61 +271,29 @@ Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megval
 	\label{tab:technologies}
 \end{table}
 
-\section{Modell}
 
-\begin{plantuml}
-@startuml
-skinparam monochrome true
+-
 
-note top of Lore: Tartozhat minden példányhoz egy\nRxDocument 'texture' azonosítóval
 
-interface Lore {
-   id: string
-   name: string
-   planet: Planet
-}
 
-interface Planet {
-   name: string
-   radius: number
-}
 
-interface Actor {
-   id: string
-   loreId: string
-}
 
-interface ActorDelta {
-   id: string
-   actorId: string
-   unix: number
-   name?: string
-   maxSpeed?: number
-   color?: string
-   position?: Vec3
-   properties?: Array<Property>
-}
 
-interface Vec3 {
-	x: number
-	y: number
-	z: number
-}
+A létrehozott projecteket egy Lore nevű dokumentum fogja tárolni
 
-interface Property {
-   key: string
-   value: string
-}
 
-Lore -- Planet
-Lore --o Actor
-Actor --o ActorDelta
 
-ActorDelta --* Property
-ActorDelta -- Vec3
 
-@enduml
-\end{plantuml}
+\section{Adat Modell}
+
+
+
+
+
+
+
+
+
 
 Az alkalmazás induláskor az alábbi folyamat indul el, ez mindig biztosítani fog egy élő adatbáziselérést az applikáció többi részére.
 
@@ -127,8 +312,9 @@ Az alkalmazás induláskor az alábbi folyamat indul el, ez mindig biztosítani 
 		InitializeCollections : Lore
 		InitializeCollections : Actor
 		InitializeCollections : ActorDelta
-		InitializeCollections --> [*]
-
+		InitializeCollections --> InitializeExample
+		InitializeExample : Az alap project létrehozása
+		InitializeExample --> [*]
 		note right of InitializeCollections : Ez a folyamat csak akkor\nhozza létre a kollekciókat\nha szükség van rá
 	}
 
@@ -186,7 +372,7 @@ Az alkalmazás induláskor az alábbi folyamat indul el, ez mindig biztosítani 
 	@enduml
 \end{plantuml}
 
-Az al-állapotokból kifele induló akciók mindíg a globális állapotteret jelentik, amik vissza fognak érkezni egy másik al-állapotba, vagy akár ugyan ebbe.
+Az al-állapotokból kifele induló akciók mindíg a globális állapotteret jelentik, amik vissza fognak érkezni egy másik al-állapotba, vagy akár ugyanebbe.
 
 
 
@@ -272,111 +458,3 @@ Az al-állapotokból kifele induló akciók mindíg a globális állapotteret je
 	\label{fig:global-state-bootstrap}
 \end{figure}
 
-
-\begin{definition}
-Mauris tristique sollicitudin ultrices. Etiam tristique quam sit amet metus dictum imperdiet. Nunc id lorem sed nisl pulvinar aliquet vitae quis arcu. Morbi iaculis eleifend porttitor.
-\end{definition}
-
-Maecenas rutrum eros sem, pharetra interdum nulla porttitor sit amet. In vitae viverra ante. Maecenas sit amet placerat orci, sed tincidunt velit. Vivamus mattis, enim vel suscipit elementum, quam odio venenatis elit, et mollis nulla nunc a risus. Praesent purus magna, tristique sed lacus sit amet, convallis malesuada magna. Phasellus faucibus varius purus, nec tristique enim porta vitae.
-
-\begin{theorem}
-Nulla finibus ante vel arcu tincidunt, ut consectetur ligula finibus. Mauris mollis lectus sed ipsum bibendum, ac ultrices erat dictum. Suspendisse faucibus euismod lacinia. Etiam vel odio ante.
-\end{theorem}
-\begin{proof}
-Etiam pulvinar nibh quis massa auctor congue. Pellentesque quis odio vitae sapien molestie vestibulum sit amet et quam. Pellentesque vel dui eget enim hendrerit finibus at sit amet libero. Quisque sollicitudin ultrices enim, nec porta magna imperdiet vitae. Cras condimentum nunc dui.
-\end{proof}
-
-Donec dapibus sodales ante, at scelerisque nunc laoreet sit amet. Mauris porttitor tincidunt neque, vel ullamcorper neque pulvinar et. Integer eu lorem euismod, faucibus lectus sed, accumsan felis.
-
-\begin{remark}
-Nunc ornare mi at augue vulputate, eu venenatis magna mollis. Nunc sed posuere dui, et varius nulla. Sed mollis nibh augue, eget scelerisque eros ornare nec. Praesent porta, metus eget eleifend consequat, eros ligula eleifend ex, a pellentesque mi est vitae urna. Vivamus turpis nunc, iaculis non leo eget, mattis vulputate tellus.
-\end{remark}
-
-Fusce in aliquet neque, in pretium sem. Donec tincidunt tellus id lectus pretium fringilla. Nunc faucibus, erat pretium tempus tempor, tortor mi fringilla neque, ac congue ex dui vitae mauris. Donec pretium et quam a cursus.
-
-\begin{note}
-Aliquam vehicula luctus mi a pretium. Nulla quam neque, maximus nec velit in, aliquam mollis tortor. Aliquam erat volutpat. Curabitur vitae laoreet turpis. Integer id diam ligula.
-\end{note}
-
-Ut sollicitudin tempus urna et mollis. Aliquam et aliquam turpis, sed fermentum mauris. Nulla eget ex diam. Donec eget tellus pharetra, semper neque eget, rutrum diam.
-
-\subsection{Egyenletek, matematika}
-
-Duis suscipit ipsum nec urna blandit, $2 + 2 = 4$ pellentesque vehicula quam fringilla. Vivamus euismod, lectus sit amet euismod viverra, dolor metus consequat sapien, ut hendrerit nisl nulla id nisi. Nam in leo eu quam sollicitudin semper a quis velit.
-
-$$a^2 + b^2 = c^2$$
-
-Phasellus mollis, elit sed convallis feugiat, dolor quam dapibus nibh, suscipit consectetur lacus risus quis sem. Vivamus scelerisque porta odio, vitae euismod dolor accumsan ut.
-
-In mathematica, identitatem Euleri (equation est scriptor vti etiam notum) sit aequalitatem Equation~\ref{eq:euler}:
-\begin{equation}\label{eq:euler}
-e^{i \times \pi} + 1 = 0
-\end{equation}
-
-
-\section{Forráskódok}
-
-Nulla sodales purus id mi consequat, eu venenatis odio pharetra. Cras a arcu quam. Suspendisse augue risus, pulvinar a turpis et, commodo aliquet turpis. Nulla aliquam scelerisque mi eget pharetra. Mauris sed posuere elit, ac lobortis metus. Proin lacinia sit amet diam sed auctor. Nam viverra orci id sapien sollicitudin, a aliquam lacus suscipit. Quisque ac tincidunt leo Code~\ref{src:cpp} and \ref{src:csharp}:
-
-\lstset{caption={Hello World in C++}, label=src:cpp}
-\begin{lstlisting}[language={C++}]
-#include <stdio>
-
-int main()
-{
-	int c;
-	std::cout << "Hello World!" << std::endl;
-
-	std::cout << "Press any key to exit." << std::endl;
-	std::cin >> c;
-
-	return 0;
-}
-\end{lstlisting}
-
-\lstset{caption={Hello World in C\#}, label=src:csharp}
-\begin{lstlisting}[language={[Sharp]C}]
-using System;
-namespace HelloWorld
-{
-	class Hello
-	{
-		static void Main()
-		{
-			Console.WriteLine("Hello World!");
-
-			Console.WriteLine("Press any key to exit.");
-			Console.ReadKey();
-		}
-	}
-}
-\end{lstlisting}
-
-\subsection{Algoritmusok}
-
-A general Interval Branch and Bound algorithm is shown in Algorithm~\ref{alg:ibb}. One of the following selection rules is applied in Step \ref{step:selrule}.\\
-Példa forrása: \href{https://www.inf.u-szeged.hu/actacybernetica/}{Acta Cybernetica (ez egy link)}.
-
-\begin{algorithm}[H]
-\caption{A general interval B\&B algorithm}
-\label{alg:ibb}
-\textbf{\underline{Funct}} IBB($S,f$)
-\begin{algorithmic}[1] % sorszámok megjelenítése minden n. sor előtt, most n = 1
-\STATE Set the working list ${\cal L}_W$ := $\{S\}$ and the final list ${\cal L}_Q$ := $\{\}$
-\WHILE{( ${\cal L}_W \neq \emptyset$ )} \label{alg:igoend}
-	\STATE  Select an interval $X$ from ${\cal L}_W$ \label{step:selrule}\COMMENT{Selection rule}
-	\STATE Compute $lbf(X)$ \COMMENT{Bounding rule}
-	\IF[Elimination rule]{$X$ cannot be eliminated}
-		\STATE Divide $X$ into $X^j,\ j=1,\dots, p$, subintervals   \COMMENT{Division rule}
-		\FOR{$j=1,\ldots,p$}
-			\IF[Termination rule]{$X^j$ satisfies the termination criterion}
-				\STATE Store $X^j$ in ${\cal L}_W$
-			\ELSE
-				\STATE Store $X^j$ in ${\cal L}_W$
-			\ENDIF
-		\ENDFOR
-	\ENDIF
-\ENDWHILE
-\STATE \textbf{return} ${\cal L}_Q$
-\end{algorithmic}
-\end{algorithm}

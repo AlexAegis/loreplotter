@@ -196,6 +196,13 @@
 \RequirePackage[all]{hypcap}
 \RequirePackage{url}
 \RequirePackage{bookmark}
+
+
+\usepackage[nameinlink,noabbrev]{cleveref}
+\crefformat{figure}{\textsuperscript{#2#1#3}}
+\crefformat{table}{\textsuperscript{#2#1#3}}
+\crefformat{section}{\textsuperscript{#2#1#3}}
+
 % ------------------------------
 
 % ------------------------------
@@ -230,11 +237,13 @@
 %\RequirePackage{mpfnmark}
 % ------------------------------
 
+
+
+
 % ------------------------------
 % Függelék
 \RequirePackage{appendix}
 % ------------------------------
-
 % ------------------------------
 % Irodalomjegyzék
 \RequirePackage[style=english]{csquotes}
@@ -243,6 +252,7 @@
 	style=numeric, % irodalomjegyzék stílusa
 	sorting=none   % idézések rendezettségee
 ]{biblatex}
+% \addbibresource{thesis.bib}
 % ------------------------------
 
 % ------------------------------
