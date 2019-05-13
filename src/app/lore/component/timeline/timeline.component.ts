@@ -205,7 +205,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 
 	/**
 	 * Handles the scroll on the timeline to move the view of the channels up and down
-	 * @param $event
+	 * @param $event input from hammer
 	 */
 	public scrollHandler($event: HammerInput): void {
 		this.scrollRef.scrollYTo(this.scrollRef.view.scrollTop + toUnit($event.deltaY) * 40);

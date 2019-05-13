@@ -64,11 +64,13 @@ import { atmosphereShader } from './shader/atmosphere.shader';
 (BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
 (BufferGeometry.prototype as { [k: string]: any }).disposeBoundsTree = disposeBoundsTree;
 Mesh.prototype.raycast = acceleratedRaycast;
+
 @Injectable()
 export class EngineService {
 	private interactionMode: InteractionMode;
 	private drawHeight: number;
 	private drawSize: number;
+
 	/**
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
@@ -110,6 +112,7 @@ export class EngineService {
 			this.drawSize = drawSize;
 		});
 	}
+
 	// Rendering
 	public clock = new Clock(); // Clock for the renderer
 	private renderer: WebGLRenderer;
@@ -482,11 +485,11 @@ export class EngineService {
 					});
 				}
 
-				if(this.interactionMode === 'draw') {
+				if (this.interactionMode === 'draw') {
 					this.control.enabled = false;
 				}
 
-				if(button === 2) {
+				if (button === 2) {
 					this.control.enabled = true;
 				}
 			}
@@ -499,7 +502,7 @@ export class EngineService {
 					final: end
 				});
 			}
-			console.log(button === 0)
+			console.log(button === 0);
 			if (this.interactionMode === 'draw' && button === 0 && !this.control.enabled) {
 				intersection.object.dispatchEvent({
 					type: this.interactionMode,
@@ -527,7 +530,7 @@ export class EngineService {
 			}
 		}
 
-		if(end) {
+		if (end) {
 			this.control.enabled = true;
 		}
 	}

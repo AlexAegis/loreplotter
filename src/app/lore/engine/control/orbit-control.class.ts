@@ -22,7 +22,7 @@ export class OrbitControls extends EventDispatcher {
 	constructor(public object: PerspectiveCamera | OrthographicCamera, private domElement: HTMLCanvasElement) {
 		super();
 
-		//this.domElement.addEventListener('contextmenu', this._onContextMenu, false);
+		// this.domElement.addEventListener('contextmenu', this._onContextMenu, false);
 
 		this.domElement.addEventListener('mousedown', this._onMouseDown, false);
 		this.domElement.addEventListener('mousewheel', this._onMouseWheel, false);
@@ -31,7 +31,7 @@ export class OrbitControls extends EventDispatcher {
 		this.domElement.addEventListener('panend', this._onTouchEnd, false);
 		this.domElement.addEventListener('panmove', this._onTouchMove, false);
 
-		//window.addEventListener('keydown', this._onKeyDown, false);
+		// window.addEventListener('keydown', this._onKeyDown, false);
 
 		// force an update at start
 

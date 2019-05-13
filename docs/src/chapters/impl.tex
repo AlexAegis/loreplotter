@@ -184,7 +184,13 @@ Egy Angular alkalmazás modulokra van bontva. Minden modul saját Injection Scop
 	\label{fig:lazy-loading}
 \end{figure}
 
+\subsubsection{Servicek}
 
+A serviceink első injectionnél inicializálódnak, Singleton \cite{Singleton} módon viselkednek. Ez tökéletes az adatbázis gyors bootstrappeléséhez.
+
+\paragraph{DatabaseService}
+
+Komponenseink adatait Service-ekből fogjuk kinyerni. Két adatforrást definiáltunk,
 
 
 

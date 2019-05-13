@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 export interface ConfirmData {
@@ -18,8 +18,7 @@ export class ConfirmComponent implements OnInit {
 
 	public constructor(
 		public dialogRef: MatDialogRef<ConfirmComponent>,
-		@Inject(MAT_DIALOG_DATA) public data: ConfirmData,
-		private cd: ChangeDetectorRef
+		@Inject(MAT_DIALOG_DATA) public data: ConfirmData
 	) {
 		this.title = (data && data.title) || 'Warning';
 		this.message = (data && data.message) || 'Are you sure?';
@@ -29,12 +28,10 @@ export class ConfirmComponent implements OnInit {
 	}
 
 	public onConfirm(): void {
-		//this.cd.markForCheck();
 		this.dialogRef.close(true);
 	}
 
 	public onDismiss(): void {
-		// this.cd.markForCheck();
 		this.dialogRef.close(false);
 	}
 }
