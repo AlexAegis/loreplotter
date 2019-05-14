@@ -284,6 +284,9 @@
 \makenomenclature
 % ------------------------------
 
+\usepackage{minted}
+\RequirePackage[cache=false]{minted}
+
 % ------------------------------
 % Algoritmusok és kódblokkok írása
 \RequirePackage{algorithm}

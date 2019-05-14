@@ -184,13 +184,153 @@ Egy Angular alkalmazás modulokra van bontva. Minden modul saját Injection Scop
 	\label{fig:lazy-loading}
 \end{figure}
 
-\subsubsection{Servicek}
 
-A serviceink első injectionnél inicializálódnak, Singleton \cite{Singleton} módon viselkednek. Ez tökéletes az adatbázis gyors bootstrappeléséhez.
+\subsection{Komponensek}
 
-\paragraph{DatabaseService}
+Nézeteinket komponensekben definiáljuk, ezek az adataikat pedig kizárólag a StoreFacade-on keresztül kapják. Egyedül az Engine és a 3D színtér az ami közvetlen az adatbázissal kommunikál.
 
-Komponenseink adatait Service-ekből fogjuk kinyerni. Két adatforrást definiáltunk,
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+
+		database IndexedDB {
+			[LoreCollection]
+			[ActorCollection]
+		}
+
+		database Store {
+			[State]
+		}
+
+		IndexedDB -[hidden]--> LoreModule
+		Store -[hidden]--> LoreModule
+
+		IndexedDB .> (RxDB)
+
+
+		package LoreModule {
+			Store .> (StoreFacade)
+			(RxDB) ..> (DatabaseService)
+			(DatabaseService) .[hidden].> [Lore]
+			(DatabaseService) <.> Engine
+			Store <.. (DatabaseService)
+			(StoreFacade) .> [Lore]
+			(StoreFacade) .> Components
+			(StoreFacade) .> Engine
+			[Lore] <- Components
+			node Components {
+
+				node Control {
+					[LightControl]
+					[SceneControl]
+					[PlayControl] --> [SpeedControl]
+				}
+
+
+				node Timeline {
+					[Block] --> [Timeline]
+					[Cursor] --> [Timeline]
+				}
+			}
+
+			[Lore] <- Engine
+
+			Engine -[hidden]-> Components
+
+			node Engine {
+				(EngineService)
+				[EngineComponent]
+			}
+
+
+		}
+
+
+		@enduml
+	\end{plantuml}
+	\caption{Főbb Komponensek és relációik}
+	\label{fig:services-and-components}
+\end{figure}
+
+\subsection{Timeline}
+
+Az idő az egész alkalmazásban epoch \cite{Epoch} formában van jelen, egy egyszerű számként, az egység a másodperc. Így könnyű egyszerű arithmetikai műveleteket végezni rajta.
+
+Az idővonalat két időpont határoz meg, az eleje és a vége. A nézet szélességét figyelembe véve ezekből ki lehet számolni a vonalzó beosztásait. A beosztásokat napokban mérjük, az albeosztásokat pedig órában.
+
+\subsubsection{Megjelenítés}
+
+A beosztások mennyiségét és pozícióit ki kell számolnunk. Előbbit úgy kapjuk meg ha vesszük a megjelenített időablak hosszát és leosztjuk egy nappal ($86400s$). Az egészrésze lesz a kiférő beosztások száma. Viszont az albeosztások megjelenítésére is figyelnünk kell. Ezek fixen a tőle balra álló nagy beosztástól fognak elhelyezkedni. Ahhoz, hogy az idővonal legelején is lehessenek albeosztások -- az első látszódó beosztás előtt -- el kell tolnunk balra egy egységgel az idővonalat, és a végére még kettőt hozzáadni. Egy beosztás hosszát így kaphatjuk meg:
+
+\begin{tabular}{@{}ll@{}}
+	\textbf{Jel} & \textbf{Leírás} \\
+	$a$ & Időablak kezdete \\
+	$b$ & Időablak vége \\
+	$d$ & A beosztás hossza ($86400$) \\
+	$w$ & A komponens szélessége pixelben \\
+	$d'$ & A beosztás szélessége pixelben \\
+\end{tabular}
+$$d' = \frac{w}{(b - a) / d}$$
+
+A beosztások pozícióinak kiszámolásához, ahelyett, hogy minden beosztás helyét egyenként kiszámolnánk, csupán az első helyét számoljuk ki, a többit pedig ahhoz mérten, fix távolságban eltoljuk. Ezt azért tehetjük meg mert a beosztások egyenlő közönként vannak az idővonal egészén. Elég egyszer kiszámolni, hogy a $86400$ másodperc éppen mekkora távolságot jelent pixelben a képernyőn. Azután elég ennek a többszöröseit hozzáadni az első távolságához, minden egyes beosztásnál.
+
+Az első távolság kiszámolásához viszont tudnunk kell, hogy melyik az a pont a kiválaszott időablakban ami egy napfordulót jelent:
+
+$$ x \in \{[a, a+l] | x \% b = 0\} $$
+
+Ehhez csak hozzá kell adni a beosztás hossza és a kezdeti érték maradékát a kezdeti értékhez miután kivontuk a beosztás hosszából:
+
+$$x = a + (d - (a \% d))$$
+
+Az albeosztásokat már tudjuk, hogy $24 - 1$ darab fog kelleni, kezdeti pozíciójuk meg nem számít, relatív a nagy beosztáshoz vannak elhelyezve. Csak azt kell kiszámolnunk, hogy az adott albeosztás másodpercben mennyit jelent ($0, 3600, 7200 \dots $) és pixelben mért távolsággá alakítani.
+
+
+A két tartomány között lineárisan váltunk. A főbeosztások esetén a kezdeti tartomány az időablak, a céltartomány pedig a $[0, w]$ ahol $w$ a komponens szélessége. Az albeosztások esetén pedig $[0, 86400]$ ból váltunk $[0, d']$ be ahol $d'$ a beosztás hossza pixelben.
+
+\begin{tabular}{@{}ll@{}}
+	\textbf{Jel} & \textbf{Leírás} \\
+	$x$ & A transzformálandó érték \\
+	$a1$ & A forrás tartomány kezdete \\
+	$a2$ & A forrás tartomány vége \\
+	$b1$ & A cél tartomány kezdete \\
+	$b2$ & A cél tartomány vége \\
+\end{tabular}
+
+$$ f(x) = b1 + ( x - a1 ) * ( b2 - b1 ) / ( a2 - a1 )$$
+
+A beosztások mostmár helyesen helyezkedenek el minden időablak esetében.
+
+\subsubsection{Manipulálás}
+
+Folytonos manipuláláskor mint például mikor pásztázunk az egerünkkel a kapott eseményben csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az elsolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig undefined
+
+
+A megjelenített időablakot viszont módosítani is akarjuk. Kétféle módosítás megengedett:
+
+\begin{itemize}
+	\item Eltolás (Translate)
+	\item Merőleges affinitás (Scale)
+\end{itemize}
+
+\paragraph{Eltolásnál} csak egyenlő időmennyiséget vonunk ki vagy adunk hozzá az időablak mindkét végéhez
+
+\paragraph{Affinitáshoz} pedig elég lenne ha nyújtásnál a kezdeti pontból kivonnánk, összenyomásnál pedig hozzáadnánk, a végpontból meg fordítva. Ezzel viszont mindig az időablak közepe lenne a sarkpontunk. A felhasználói élmény miatt ez a sarkpont mindig az egér pozíciója lesz. Szélsőséges esetekben, mikor az egész a komponens legelején helyezkedik el ez azt jeleti, hogy zoom-olásnál csak az időablak vége változik.
+
+Ehhez a két vég módosítását súlyoznunk kell az egér pozíciója szerint. A pozíciót a böngésző belső ablakához relatív kapjuk meg, így a lineáris váltás kezdeti tartománya ${ta, ta + w}$ ahol $ta$ a timeline pozíciója horizontálisan, a céltartomány pedig $[0, 1]$. A kezeti pozíció súlya ez a szám lesz, a végéé pedig ehhez fordítottan arányos.
+
+\subsubsection{A kurzor}
+
+A kurzor egy időpontot jelöl. A színtérben, és a viewben minden aggregált adat ennek függvényében jelenik meg. Pozícióját hasonlóan az eddigikhez lineáris mappeléssel kapjuk meg. Manipulásakor pedig ugyanez történik visszafele.
+
+\subsubsection{A blokkok}
+
+Az idővonal sávjaiban a szereplő egy blokként jelenik meg. Egy blokknak -- hasonlóan az idővonalhoz -- van egy eleje és egy vége. Ezen belül pedig az események elemei helyezkednek el. A blokk eleje és vége mindig az első és az utolsó esemény ideje. Az események pozíciói a blokk elejének pozíciójához mérjük relatív.
+
+
+
+
 
 
 
