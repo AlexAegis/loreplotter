@@ -283,9 +283,8 @@
 % Jelölésjegyzék elkészítse (még nem szúrja be)
 \makenomenclature
 % ------------------------------
+% \RequirePackage[cache=false]{minted}
 
-\usepackage{minted}
-\RequirePackage[cache=false]{minted}
 
 % ------------------------------
 % Algoritmusok és kódblokkok írása
