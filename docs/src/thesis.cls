@@ -183,6 +183,13 @@
 \definecolor{codebackg}{rgb}{0.95,0.95,0.95}
 \definecolor{codecomment}{rgb}{0,0.6,0}
 \colorlet{todobackg}{orange!10}
+
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+
 % ------------------------------
 
 % ------------------------------
@@ -291,27 +298,78 @@
 \RequirePackage{algorithm}
 \RequirePackage{algorithmic}
 \RequirePackage{listingsutf8}
-\lstset{
-	basicstyle=\footnotesize\ttfamily,
-	numbers=left,
-    numberstyle=\tiny,
-    backgroundcolor=\color{codebackg},
-	keywordstyle=\color{blue},
-	commentstyle=\color{codecomment},
-	stepnumber=1,
-	firstnumber=1,
-	numbersep=5pt,
-	showspaces=false,
-	showstringspaces=false,
-	showtabs=false,
-	tabsize=2,
-	breaklines=true,
-	breakatwhitespace=false,
-	float,
-	frame=linesc,
-	captionpos=b,
-	morekeywords={var}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, continue, debugger, default, delete, do, else, false, finally, for, function, if, in, instanceof, new, null, return, switch, this, throw, true, try, typeof, var, void, while, with},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  sensitive=true
 }
+
+%\lstset{
+%   language=JavaScript,
+%   backgroundcolor=\color{lightgray},
+%   extendedchars=true,
+%   basicstyle=\footnotesize\ttfamily,
+%   showstringspaces=false,
+%   showspaces=false,
+%   numbers=left,
+%   numberstyle=\footnotesize,
+%   numbersep=9pt,
+%   tabsize=2,
+%   breaklines=true,
+%   showtabs=false,
+%   captionpos=b
+%}
+
+
+
+%\lstset{
+%	basicstyle=\footnotesize\ttfamily,
+%	numbers=left,
+%    numberstyle=\tiny,
+%    backgroundcolor=\color{codebackg},
+%	keywordstyle=\color{blue},
+%	commentstyle=\color{codecomment},
+%	stepnumber=1,
+%	firstnumber=1,
+%	numbersep=5pt,
+%	showspaces=false,
+%	showstringspaces=false,
+%	showtabs=false,
+%	tabsize=2,
+%	breaklines=true,
+%	breakatwhitespace=false,
+%	float,
+%	frame=linesc,
+%	captionpos=b,
+%	morekeywords={var}
+%}
+
+\lstset{
+   language=JavaScript,
+   backgroundcolor=\color{lightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+
 % Forráskódjegyzék elnevezése
 \renewcommand\lstlistingname{forráskód}
 % Algoritmus kommentek jobb szélre igazítása

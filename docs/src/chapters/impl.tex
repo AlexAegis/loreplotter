@@ -304,10 +304,14 @@ A beosztások mostmár helyesen helyezkedenek el minden időablak esetében.
 
 \subsubsection{Manipulálás}
 
-Folytonos manipuláláskor mint például mikor pásztázunk az egerünkkel a kapott eseményben csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az elsolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig undefined
+\paragraph{Folytonos manipuláláskor} mint például mikor pásztázunk az egerünkkel a kapott eseményben csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az elsolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig \lstinline[columns=fixed]{undefined}.
+
+Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű \lstinline[columns=fixed]{override | original}. Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyagyúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
+
+A folytonos manipuláció végén pedig az \lstinline[columns=fixed]{override} értékét beleírjuk az eredeti változóba majd kiürítjük.
 
 
-A megjelenített időablakot viszont módosítani is akarjuk. Kétféle módosítás megengedett:
+A megjelenített időablakot kétféle módon manipulálhatjuk:
 
 \begin{itemize}
 	\item Eltolás (Translate)
