@@ -34,6 +34,7 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
 	};
 }
 
+// TODO: Exclude every override key
 const persistent = [
 	{
 		'app-lore': ['scene']

@@ -5,7 +5,7 @@ import { ActorFormResultData } from '@lore/component';
 import { actorQuery } from '@lore/store/selectors/actor.selectors';
 import { Actions, ofType } from '@ngrx/effects';
 import { select, Store } from '@ngrx/store';
-import { filter } from 'rxjs/operators';
+import { filter, tap } from 'rxjs/operators';
 import {
 	bakeCursorOverride,
 	bakeFrame,
@@ -76,7 +76,7 @@ export class StoreFacade {
 	public deleteLoresFail$ = this.actions$.pipe(ofType(deleteLoreFailure.type));
 	// Scene
 	public playSpeed$ = this.store$.pipe(select(sceneQuery.play.getPlaySpeed));
-	public isPlaying$ = this.store$.pipe(select(sceneQuery.play.isPlaying));
+	public isPlaying$ = this.store$.pipe(select(sceneQuery.play.isPlaying),tap(a => console.log(a)));
 	// Cursor
 	public cursor$ = this.store$.pipe(select(sceneQuery.cursor.getCursor));
 	public cursorOverride$ = this.store$.pipe(select(sceneQuery.cursor.getCursorOverride));

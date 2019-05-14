@@ -77,11 +77,11 @@ export class LoreService extends BaseDirective {
 				this.overrideNodePosition
 			])
 				.pipe(
-					flatMap(([actors, cursor, overrideNodePositions]) =>
+					flatMap(([actors, cursor, overrides]) =>
 						actors.map(actor => ({
 							actor: actor,
 							cursor: cursor,
-							overrideNodePositions: overrideNodePositions
+							overrideNodePositions: (overrides && actor.id === overrides.actorId ? overrides : undefined)
 						}))
 					)
 				)
@@ -97,8 +97,7 @@ export class LoreService extends BaseDirective {
 
 					if (
 						overrideNodePositions !== undefined &&
-						overrideNodePositions.overrides.length > 0 &&
-						overrideNodePositions.actorId === actor.id
+						overrideNodePositions.overrides.length > 0
 					) {
 						for (const node of actor._states.nodes()) {
 							overrideNodePositions.overrides

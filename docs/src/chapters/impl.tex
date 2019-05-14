@@ -7,7 +7,7 @@ Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megval
 
 Az alkalmazás fő eleme a projekt amit Lore-nak nevezünk, ennek an egy aznosítója mivel dokumentum szintű objektumról van szó, egy neve és ebben tároljuk a világ adatait melyek annak mérete és neve. Valamint ehhez a dokumentumhoz tartozik a világ textúrája is.
 
-Egy projecthez tartoznak még szereplők amik szintén dokumentum szintű objektumok, saját kollekcióval. Ebben tároljuk a szereplő állapotait egy AVL fában \cite{AVL} amiben a kulcs az idő, ezzel biztosítva, hogy minden esemény időben sorban legyen, és gyorsan elérhetőek legyenek.
+Egy projecthez tartoznak még szereplők amik szintén dokumentum szintű objektumok, saját kollekcióval. Ebben tároljuk a szereplő állapotait egy AVL fában \cite{AVL} amiben a kulcs az idő, ezzel biztosítva, hogy minden esemény időben sorban legyen, és gyorsan elérhetőek legyenek. Szükség lesz ehhez a fához néhány segédeljárásra, szerencsére ezen TypeScript implementációja az AVL fának az enyém így ezeket könnyedén hozzáadhatom. A fő motiváló ereje ennek a segédcsomagnak a létrehozására épp az volt, hogy az alapvető implementáció mellé egy gazdag API-t biztosítsak.
 
 Egy állapotdelta csak az előző állapotdeltákhoz viszonyított különbséget tartja nyilván, kivéve a pozíciót, ami minden esetben kötelező. Ezeket a deltákat a szereplők és a jelenlegi idő csöveinek összevezetésével egy aggregátoreljárás értékeli ki. Erre feliratkozva bármi azonnal hozzáférhet a legfrissebb adatokhoz ami csak egy helyen, egyszer van emiatt kiszámolva.
 
@@ -135,7 +135,7 @@ A temporális adatokat viszont felesleges adatbázisban tárolni csak azért, ho
 		Dispatcher --> Reducer : Akció
 		CurrentState -> Reducer : Az előző állapot
 		Reducer --> Store : Új állapot készül
-		Store -u-> View : Értesíti
+		Store -u-> View : Értesít
 
 		@enduml
 	\end{plantuml}
@@ -306,7 +306,7 @@ A beosztások mostmár helyesen helyezkedenek el minden időablak esetében.
 
 \paragraph{Folytonos manipuláláskor} mint például mikor pásztázunk az egerünkkel a kapott eseményben csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az elsolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig \lstinline[columns=fixed]{undefined}.
 
-Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű \lstinline[columns=fixed]{override | original}. Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyagyúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
+Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű (\lstinline[columns=fixed]{override | original}). Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyagyúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
 
 A folytonos manipuláció végén pedig az \lstinline[columns=fixed]{override} értékét beleírjuk az eredeti változóba majd kiürítjük.
 
@@ -331,6 +331,146 @@ A kurzor egy időpontot jelöl. A színtérben, és a viewben minden aggregált 
 \subsubsection{A blokkok}
 
 Az idővonal sávjaiban a szereplő egy blokként jelenik meg. Egy blokknak -- hasonlóan az idővonalhoz -- van egy eleje és egy vége. Ezen belül pedig az események elemei helyezkednek el. A blokk eleje és vége mindig az első és az utolsó esemény ideje. Az események pozíciói a blokk elejének pozíciójához mérjük relatív.
+
+Egy esemény idejének felülírásakor (Fogd-és-vidd ideje alatt) a gyakori változás miatt a fa-szerkezetet amiben az események vannak tárolva nem módosítjuk. Ehelyett egy felülírt esemény eseményt küldünk amiben leírjuk, hogy idő szerint melyik esemény hova került át. A színtér ezt az információt figyelembevéve módosítás közben is helyes adatokat tud kirajzolni.
+
+\section{A színtér}
+
+A 3D színtér komponensén két elem található: A canvas elem amire fest a Three.js és a buborékmenü ami a kijelölt szereplők felett helyezkedik el ha van ilyen. Erre a canvas elemre van felcsatolva az összes EventListener amivel interakcióba lehet lépni a színtérrel. Logikája annyiból áll, hogy ezeket az eseményekből kinyeri a hasznos információt, a pozíciót normalizálja a $[0-1]$ intervallumba, majd továbbítja az EngineService-nek ami aztán ezeket kezeli. Valamint megjelenítés után létrehozza a színtér modelljét és elindítja az animációs loopot.
+
+\subsection{A színpad felépítése}
+
+A színpad fő eleme a bolygó, egy fix $1$ sugarú gömb melyhez kapcsolódik egy másik, kisebb -- $0.98$ sugarú -- gömb ami a vízszintet reprezentálja. A gömb felszíne magas felbontású poligonok terén ($512×512$), hogy a displacement map \cite{Displacement} pontosabb eredeményt adjon.
+
+Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt a raycasting \cite{Raycast} rendkívül lassú a Three.js alap implementációjában. (Raycastingot akkor használunk amikor kiszámoljuk, hogy a színtér épp melyik objektumának melyik pontja felett áll az egér.) Szerencsére létezik gyorsabb eljárás. A Bounding Volume Hierarchy \cite{BVH} fa struktúrába helyezi az objektumok részeit elhelyezésük alapján, jelentősen lecsökkentve azokat a háromszögeket amiket a raycastingnak egyszerre meg kell vizsgálnia.
+
+\begin{figure}[h!]
+	\centering
+
+	\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+	%uncomment if require: \path (0,300); %set diagram left start at 0, and has height of 300
+
+	%Shape: Circle [id:dp8728808526292304]
+	\draw   (45.55,152) .. controls (45.55,99.27) and (88.3,56.52) .. (141.04,56.52) .. controls (193.77,56.52) and (236.52,99.27) .. (236.52,152) .. controls (236.52,204.73) and (193.77,247.48) .. (141.04,247.48) .. controls (88.3,247.48) and (45.55,204.73) .. (45.55,152) -- cycle ;
+	%Shape: Circle [id:dp5674056113092418]
+	\draw   (555,152) .. controls (555,138.47) and (565.97,127.5) .. (579.5,127.5) .. controls (593.03,127.5) and (604,138.47) .. (604,152) .. controls (604,165.53) and (593.03,176.5) .. (579.5,176.5) .. controls (565.97,176.5) and (555,165.53) .. (555,152) -- cycle ;
+	%Shape: Axis 2D [id:dp667037457037013]
+	\draw [line width=0.75]  (86.65,152) -- (630.5,152)(141.04,41.39) -- (141.04,164.29) (623.5,147) -- (630.5,152) -- (623.5,157) (136.04,48.39) -- (141.04,41.39) -- (146.04,48.39)  ;
+	%Shape: Brace [id:dp5709274682232908]
+	\draw   (141,152) .. controls (141,156.67) and (143.33,159) .. (148,159) -- (350.75,159) .. controls (357.42,159) and (360.75,161.33) .. (360.75,166) .. controls (360.75,161.33) and (364.08,159) .. (370.75,159)(367.75,159) -- (573.5,159) .. controls (578.17,159) and (580.5,156.67) .. (580.5,152) ;
+	%Shape: Brace [id:dp38726825382608787]
+	\draw   (237,151) .. controls (237,146.33) and (234.67,144) .. (230,144) -- (179.5,144) .. controls (172.83,144) and (169.5,141.67) .. (169.5,137) .. controls (169.5,141.67) and (166.17,144) .. (159.5,144)(162.5,144) -- (147.5,144) .. controls (142.83,144) and (140.5,146.33) .. (140.5,151) ;
+	%Shape: Circle [id:dp559047975094662]
+	\draw   (52.81,152) .. controls (52.81,103.28) and (92.31,63.78) .. (141.04,63.78) .. controls (189.76,63.78) and (229.26,103.28) .. (229.26,152) .. controls (229.26,200.72) and (189.76,240.22) .. (141.04,240.22) .. controls (92.31,240.22) and (52.81,200.72) .. (52.81,152) -- cycle ;
+	%Shape: Brace [id:dp5585435570718464]
+	\draw   (141,151) .. controls (141,146.33) and (138.67,144) .. (134,144) -- (121.5,144) .. controls (114.83,144) and (111.5,141.67) .. (111.5,137) .. controls (111.5,141.67) and (108.17,144) .. (101.5,144)(104.5,144) -- (60,144) .. controls (55.33,144) and (53,146.33) .. (53,151) ;
+	%Left Arrow [id:dp007055379911458548]
+	\draw   (415.67,45.1) -- (424.63,28.3) -- (426.94,33.9) -- (447.32,25.48) -- (451.94,36.67) -- (431.56,45.08) -- (433.87,50.68) -- cycle ;
+	%Straight Lines [id:da28328227472011247]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (141.04,152) -- (353.5,70) ;
+
+
+	\draw   (235.08,-67.08) -- (416,45.34) -- (360.5,251) ;
+	%Shape: Arc [id:dp11489271218380304]
+	\draw  [draw opacity=0] (399.13,109.64) .. controls (379.34,104.55) and (362.14,90.46) .. (353.9,70.06) .. controls (345.66,49.66) and (348.24,27.59) .. (358.93,10.18) -- (415.67,45.1) -- cycle ; \draw   (399.13,109.64) .. controls (379.34,104.55) and (362.14,90.46) .. (353.9,70.06) .. controls (345.66,49.66) and (348.24,27.59) .. (358.93,10.18) ;
+	%Shape: Circle [id:dp18625067716272725]
+	\draw  [dash pattern={on 0.84pt off 2.51pt}] (31.79,152) .. controls (31.79,91.67) and (80.7,42.76) .. (141.04,42.76) .. controls (201.37,42.76) and (250.28,91.67) .. (250.28,152) .. controls (250.28,212.33) and (201.37,261.24) .. (141.04,261.24) .. controls (80.7,261.24) and (31.79,212.33) .. (31.79,152) -- cycle ;
+	%Shape: Circle [id:dp21219909757761868]
+	\draw  [dash pattern={on 0.84pt off 2.51pt}] (63.44,152) .. controls (63.44,109.15) and (98.18,74.41) .. (141.04,74.41) .. controls (183.89,74.41) and (218.63,109.15) .. (218.63,152) .. controls (218.63,194.85) and (183.89,229.59) .. (141.04,229.59) .. controls (98.18,229.59) and (63.44,194.85) .. (63.44,152) -- cycle ;
+	%Shape: Brace [id:dp5998815658908982]
+	\draw   (139.5,261) .. controls (143.62,261.27) and (145.82,259.35) .. (146.09,255.23) -- (146.09,255.23) .. controls (146.48,249.35) and (148.74,246.55) .. (152.85,246.82) .. controls (148.74,246.55) and (146.87,243.47) .. (147.26,237.59)(147.09,240.23) -- (147.26,237.59) .. controls (147.53,233.47) and (145.61,231.27) .. (141.5,231) ;
+
+	% Text Node
+	\draw (139,272) node  [align=left] {Globe};
+	% Text Node
+	\draw (579,204) node  [align=left] {Sun};
+	% Text Node
+	\draw (361,178) node  [align=left] {20};
+	% Text Node
+	\draw (169,126) node  [align=left] {1};
+	% Text Node
+	\draw (112,125) node  [align=left] {.98};
+	% Text Node
+	\draw (112,109) node  [align=left] {Water};
+	% Text Node
+	\draw (446.5,63) node  [align=left] {Camera};
+	% Text Node
+	\draw (377,61) node  [align=left] {120°};
+	% Text Node
+	\draw (279,245) node  [align=left] {Displacement Range};
+
+
+	\end{tikzpicture}
+
+
+	\caption{A színpad elemei}
+	\label{fig:stage-structure}
+\end{figure}
+
+\subsubsection{A felszín}
+
+A felszín displacement mapja egy memóriában található canvas objektum amit textúraként használunk. A jobb hatás érdekében ezt bumb-mapként \cite{Bump} is használjuk. Egy project betöltésekor és minden további módosításkor ez a textúra az adatbázisból újra betöltődik. Mivel a textúránk egy canvas objektumon létezik, könnyen elérhetjük egy canvas összes rajzfunkcióját, hogy egyszerűen, valós időben módosítsuk a térképet. A projekt szerkesztés menüjében lehetőségünk van bármikor betölteni bármilyen képet amit aztán ilyen textúraként fog használni az alkalmazás. Szerkesztésnél, minden, a bolygó felületén elhelyezkedő objektum megvizsgálja, hogy milyen magasan fog alatta a displacement megjelenni. Ehhez lehetne használni raycastingot, a kamera helyett az adott objektumból a gömb közepe felé vetítve, de sokkal egyszerűbb ha eleve a textúra fényességét vizsgáljuk meg, ugyanúgy ahogy azt a renderer is fogja tenni. Ezzel biztosítva van, hogy minden felszíni elem látszik akkor is ha a displacement alapból eltakarná.
+
+\subsubsection{A szereplők}
+
+A felszíni objektumok nagyrészt szereplőkből állnak. Ők szintén gömbök, saját emisszív felülettel, hogy a bolygó sötét oldalán is látszódjanak. Rendelkeznek még egy körvonallal is ha az egér felettük helyezkedik el, vagy ki vannak választva.
+
+Elhelyezésüknél az egyszerű kezelés volt a fő szempont. Ezért a szereplők nem közvetlenül a bolygó objektumhoz vannak csatolva hanem egy -- szereplőnként egyedi -- csoporthoz vannak rendelve ami fixen a bolygó közepén helyezkedik el. Ez a csoport már a bolygóhoz van csatolva. Egy szereplő relatív pozíciója így mindíg $(0, 0, r + d)$ ahol $r = 1$, a bolygó felszínének sugara, $d$ pedig a displacement map magassága a szereplő objektum végleges helyén. Egy szereplőt elmozdítani így csak annyiba kerül, hogy a szülőjét -- a csoportot -- elforgatjuk.
+
+Egy szereplő pontos pozíciójának meghatározásához a deltáit kell figyelembe vennünk. Az AVL fa implementáció amiben ezek el vannak helyezve rendelkezik olyan eljárással amivel nem fontos olyan kulcsot keresni ami tényleg létezik, mert a kulcshoz mindkét irányban legközelebb álló csomópontokkal fog visszatérni. Pontos egyezés esetén így mindkét csomópont ugyanaz lenne mint ha a hagyományos módon kértük volna le a kulcson található értéket.
+
+A már meglévő csővezetékeink közzül a, szereplők, a jelenlegi idő és az esetlegesen felülírt pozíciók csövét összevezetjük a \lstinline[columns=fixed]{combineLatest} operátorral. Emiatt a pozíciókat kiszámoló eljárás mindig le fog futni, ha a három közzül bármelyik is megváltozik, a másik kettő utolsó eredményével. A felülírás csupán a jelenlegi idő alapján
+
+Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél kiszámolni minden színész csoportjának kvaternióit\cite{Quaternion}, hogy megfelelően legyenek elforgatva.
+
+\begin{algorithm}[H]
+	\caption{Pozícionálás}
+	\label{alg:ibb}
+	\textbf{\underline{Subscription}} pos($A, C, O$), ahol $A$ a szereplő. $C$ az idő. $O$ a felülírások listája.
+	\begin{algorithmic}[1] % sorszámok megjelenítése minden n. sor előtt, most n = 1
+	\STATE $e$ := $C$ körüli delták.
+
+	\IF[Ha vannak felülírások]{$O$}
+		\FOR[A színész összes deltájára]{$d : A$.deltas}
+			\FOR{$o : O$}
+				\IF[Ha ehhez tartozik]{$d.time = o.time$}
+					\STATE $d.time$ := $d.newTime$
+				\ENDIF
+			\ENDFOR
+
+			\IF{$d.time >= e[0].time \wedge d.time <= C$}
+				\STATE $e[0]$ := $d$
+			\ENDIF
+			\IF{$d.time <= e[1].time \wedge d.time >= C$}
+				\STATE $e[1]$ := $d$
+			\ENDIF
+
+		\ENDFOR
+	\ENDIF
+
+	\STATE $t$ := mapLinear($C$, $e[0]$.time, $e[1]$.time, 0, 1)
+	\STATE $g$ := A színész objektumának csoportja a színtéren.  \COMMENT{ID alapján}
+	\IF[Ha nem létezik, akkor itt létrehozzuk.]{!$g$}
+		\STATE $g$ := Új színész objektumának csoportja
+	\ENDIF
+	\STATE $q0$ := $g$.lookAt($e[0]$.pos).q \COMMENT{Az első világpozícióhoz tartozó elforgatás}
+	\STATE $q1$ := $g$.lookAt($e[1]$.pos).q \COMMENT{Az második világpozícióhoz tartozó elforgatás}
+	\IF[Ha $t$ nem ugyanaz a két pont közé lett skálázva]{$t$}
+		\STATE Compute $slerp(q0, q1, g.q, t)$ \COMMENT{Spherical Linear Interpolation}
+	\ENDIF  \COMMENT{Honnan, hova, mit, mennyire}
+	\STATE $A$.updateHeight() \COMMENT{Az eljárás során a cél $g.q$ megváltozása}
+	\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+
 
 
 
