@@ -284,7 +284,7 @@ export class EngineService {
 		});
 
 		const glow = new Mesh(new SphereBufferGeometry(23, 60, 60), glowMaterial);
-		//glow.scale.setScalar(1.04);
+		// glow.scale.setScalar(1.04);
 		this.stage.add(glow);
 		this.initializePostprocessing();
 

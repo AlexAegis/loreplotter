@@ -19,7 +19,12 @@
 
 <div class="channelsContainer">
 	<ng-scrollbar class="channels" viewClass="noOverflow">
-		<div class="channel" *ngFor="let actor of actors$ | async as actors" (tap)="spawnNode($event, actor, block)" (mousewheel)="scrollHandler($event)">
+		<div
+			(mousewheel)="scrollHandler($event)"
+			(tap)="spawnNode($event, actor, block)"
+			*ngFor="let actor of actors$ | async as actors"
+			class="channel"
+		>
 			{{
 			(actorService.accumulatorOf(actor) | async)?.accumulator.name
 				? (actorService.accumulatorOf(actor) | async)?.accumulator.name

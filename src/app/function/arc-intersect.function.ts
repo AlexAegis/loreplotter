@@ -5,7 +5,8 @@ export function arcIntersection(p1: Vector3, pe1: Vector3, p2: Vector3, pe2: Vec
 	const c2 = p2.clone().cross(pe2);
 	const i1 = c1.clone().cross(c2);
 	const i2 = c2.clone().cross(c1);
-	const mid = p1.clone()
+	const mid = p1
+		.clone()
 		.add(p2)
 		.add(pe1)
 		.add(pe2);

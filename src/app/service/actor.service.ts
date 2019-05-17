@@ -147,9 +147,9 @@ export class ActorService {
 		const _lerp = new Vector3();
 		const _from = new Vector3();
 		const _to = new Vector3();
-		return (from: Vector3Serializable, to: Vector3Serializable, t: number, target?: Group): Vector3 => {
-			_from.copy(from as Vector3);
-			_to.copy(to as Vector3);
+		return (a: Vector3Serializable, b: Vector3Serializable, t: number, target?: Group): Vector3 => {
+			_from.copy(a as Vector3);
+			_to.copy(b as Vector3);
 			if (t === Infinity) {
 				_lerp.copy(_from);
 			} else if (t === -Infinity) {

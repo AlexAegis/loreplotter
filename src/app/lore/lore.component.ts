@@ -122,7 +122,6 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 	@HostListener('window:keydown', ['$event'])
 	public onKeyDown($event: KeyboardEvent): void {
 		if (document.activeElement.tagName !== 'INPUT') {
-			$event.preventDefault();
 			switch ($event.code) {
 				case 'Space':
 					this.storeFacade.togglePlay();

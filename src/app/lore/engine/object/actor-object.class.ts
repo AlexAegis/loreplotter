@@ -37,80 +37,6 @@ export class IntersectionHelper {
 	}
 }
 
-export class PanHelper {
-	left = new EventHelper();
-	right = new EventHelper();
-	progressFromFirst = Infinity; // progress between left and right, if applicable
-	normal = new Vector3();
-	lrDist = Infinity;
-	intersection = new IntersectionHelper();
-	distanceSorter: Array<{ d: number; q: Quaternion }> = [
-		{
-			d: Infinity,
-			q: undefined
-		},
-		{
-			d: Infinity,
-			q: undefined
-		},
-		{
-			d: Infinity,
-			q: undefined
-		},
-		{
-			d: Infinity,
-			q: undefined
-		}
-	]; // TODO: Transition from q to vector3
-	distanceSortFunction = (a, b) => a.d - b.d;
-	public reset(): void {
-		this.left.reset();
-		this.right.reset();
-		this.intersection.reset();
-	}
-
-	public calculateIntersection(globe: Globe, preLookHelper: Group) {
-		if (this.left.valid && this.right.valid) {
-			this.normal.copy(this.left.position).cross(this.right.position);
-
-			this.left.toOther.copy(this.right.position).sub(this.left.position);
-			this.right.toOther.copy(this.left.position).sub(this.right.position);
-
-			const intersections = intersection(
-				{ center: this.left.position, radius: this.left.allowedDistance },
-				{ center: this.right.position, radius: this.right.allowedDistance },
-				globe.radius
-			);
-
-			if (intersections.length > 0) {
-				this.intersection.a.position.copy(intersections[0]);
-				preLookHelper.lookAt(this.intersection.a.position);
-				this.intersection.a.quaternion = preLookHelper.quaternion.clone();
-				this.intersection.a.valid = true;
-
-				if (!environment.production) {
-					globe.putPin('intersectA').position.copy(this.intersection.a.position);
-				}
-			} else {
-				this.intersection.a.valid = false;
-			}
-
-			if (intersections.length > 1) {
-				this.intersection.b.position.copy(intersections[1]);
-				preLookHelper.lookAt(this.intersection.b.position);
-				this.intersection.b.quaternion = preLookHelper.quaternion.clone();
-				this.intersection.b.valid = true;
-
-				if (!environment.production) {
-					globe.putPin('intersectB').position.copy(this.intersection.b.position);
-				}
-			} else {
-				this.intersection.b.valid = false;
-			}
-		}
-	}
-}
-
 export class EventHelper {
 	position = new Vector3();
 	nearestAllowedPosition = new Vector3();
@@ -171,7 +97,7 @@ export class EventHelper {
 		this.valid = false;
 	}
 
-	public preparePan(intersection: IntersectionHelper, target: Vector3, globe: Globe, preLookHelper: Group) {
+	public preparePan(i: IntersectionHelper, target: Vector3, globe: Globe, preLookHelper: Group) {
 		this.requestedAngle = this.position.angleTo(target);
 		this.missingAngle = this.requestedAngle - this.allowedAngle;
 		this.normToPointer
@@ -182,11 +108,11 @@ export class EventHelper {
 		this.requestedDistance = this.requestedAngle * globe.radius; // TODO: Ditch
 		preLookHelper.lookAt(this.nearestAllowedPosition); // TODO: Ditch
 		this.nearestQuaternion = preLookHelper.quaternion.clone(); // TODO: Ditch
-		if (intersection.a.valid) {
-			this.intADist = this.position.angleTo(intersection.a.position);
+		if (i.a.valid) {
+			this.intADist = this.position.angleTo(i.a.position);
 		}
-		if (intersection.b.valid) {
-			this.intBDist = this.position.angleTo(intersection.b.position);
+		if (i.b.valid) {
+			this.intBDist = this.position.angleTo(i.b.position);
 		}
 	}
 
@@ -203,6 +129,83 @@ export class EventHelper {
 		return this.angleBetweenOtherAndCenter < Math.PI / 2 ? nearestIsInSmallerArc : !nearestIsInSmallerArc;
 	}
 }
+
+
+export class PanHelper {
+	left = new EventHelper();
+	right = new EventHelper();
+	progressFromFirst = Infinity; // progress between left and right, if applicable
+	normal = new Vector3();
+	lrDist = Infinity;
+	intersection = new IntersectionHelper();
+	distanceSorter: Array<{ d: number; q: Quaternion }> = [
+		{
+			d: Infinity,
+			q: undefined
+		},
+		{
+			d: Infinity,
+			q: undefined
+		},
+		{
+			d: Infinity,
+			q: undefined
+		},
+		{
+			d: Infinity,
+			q: undefined
+		}
+	]; // TODO: Transition from q to vector3
+	distanceSortFunction = (a, b) => a.d - b.d;
+
+	public reset(): void {
+		this.left.reset();
+		this.right.reset();
+		this.intersection.reset();
+	}
+
+	public calculateIntersection(globe: Globe, preLookHelper: Group) {
+		if (this.left.valid && this.right.valid) {
+			this.normal.copy(this.left.position).cross(this.right.position);
+
+			this.left.toOther.copy(this.right.position).sub(this.left.position);
+			this.right.toOther.copy(this.left.position).sub(this.right.position);
+
+			const intersections = intersection(
+				{ center: this.left.position, radius: this.left.allowedDistance },
+				{ center: this.right.position, radius: this.right.allowedDistance },
+				globe.radius
+			);
+
+			if (intersections.length > 0) {
+				this.intersection.a.position.copy(intersections[0]);
+				preLookHelper.lookAt(this.intersection.a.position);
+				this.intersection.a.quaternion = preLookHelper.quaternion.clone();
+				this.intersection.a.valid = true;
+
+				if (!environment.production) {
+					globe.putPin('intersectA').position.copy(this.intersection.a.position);
+				}
+			} else {
+				this.intersection.a.valid = false;
+			}
+
+			if (intersections.length > 1) {
+				this.intersection.b.position.copy(intersections[1]);
+				preLookHelper.lookAt(this.intersection.b.position);
+				this.intersection.b.quaternion = preLookHelper.quaternion.clone();
+				this.intersection.b.valid = true;
+
+				if (!environment.production) {
+					globe.putPin('intersectB').position.copy(this.intersection.b.position);
+				}
+			} else {
+				this.intersection.b.valid = false;
+			}
+		}
+	}
+}
+
 
 export class ActorObject extends Basic {
 	public geometry: SphereBufferGeometry;

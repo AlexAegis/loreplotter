@@ -5,7 +5,6 @@ export interface Circle {
 	radius: number; // In kilometer
 }
 
-
 /**
  * 1)
  * @param c1 first circle, radius in km, center in geocentric coordinates

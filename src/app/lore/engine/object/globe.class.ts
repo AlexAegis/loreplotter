@@ -30,26 +30,6 @@ import { Water } from './water.class';
 
 export class Globe extends Basic {
 
-	public putArrowHelper = (() => {
-		const _normalized = new Vector3();
-
-		return (name: string, from: Vector3, to: Vector3, color?: number): ArrowHelper => {
-			let arrow = this.getObjectByName(name) as ArrowHelper;
-			_normalized.copy(to).normalize();
-			if (arrow === undefined) {
-				arrow = new ArrowHelper(_normalized, from, to.length(), color);
-				arrow.name = name;
-				this.add(arrow);
-			} else {
-				arrow.position.copy(from);
-				arrow.setDirection(_normalized);
-				arrow.setLength(to.length());
-				// arrow.setColor(color);
-			}
-			return arrow;
-		};
-	})();
-
 	public constructor(
 		private zoomSubject: BehaviorSubject<number>,
 		public radius: number = 1,
@@ -165,15 +145,6 @@ export class Globe extends Basic {
 			});
 	}
 
-	public putPin(name: string, color?: string): Pin {
-		let pin = this.getObjectByName(name) as Pin;
-		if (pin === undefined) {
-			pin = new Pin(name, color);
-			this.add(pin);
-		}
-		return pin;
-	}
-
 	public get points(): Array<ActorObject> {
 		return this.children
 			.filter(child => child.children.length === 1) // each group that has one child
@@ -181,18 +152,6 @@ export class Globe extends Basic {
 			.filter(o => o.type === 'Point') // only the Points
 			.map(o => o as ActorObject); // as Points
 	}
-
-	public _indicatorFrom: IndicatorSphere;
-	public _indicatorTo: IndicatorSphere;
-	public material: Material; // Type override, this field exists on the THREE.Mesh already
-	public water = new Water();
-
-	public displacementTexture: DynamicTexture;
-
-	public displacementBias = -0.0345;
-	public displacementScale = 0.15;
-
-	public pointUpdateAudit = new Subject<number>();
 
 	public set indicatorFrom(indicator: IndicatorSphere) {
 		this._indicatorFrom = indicator;
@@ -210,6 +169,47 @@ export class Globe extends Basic {
 
 	public get indicatorTo(): IndicatorSphere {
 		return this._indicatorTo;
+	}
+
+	public putArrowHelper = (() => {
+		const _normalized = new Vector3();
+
+		return (name: string, from: Vector3, to: Vector3, color?: number): ArrowHelper => {
+			let arrow = this.getObjectByName(name) as ArrowHelper;
+			_normalized.copy(to).normalize();
+			if (arrow === undefined) {
+				arrow = new ArrowHelper(_normalized, from, to.length(), color);
+				arrow.name = name;
+				this.add(arrow);
+			} else {
+				arrow.position.copy(from);
+				arrow.setDirection(_normalized);
+				arrow.setLength(to.length());
+				// arrow.setColor(color);
+			}
+			return arrow;
+		};
+	})();
+
+	public _indicatorFrom: IndicatorSphere;
+	public _indicatorTo: IndicatorSphere;
+	public material: Material; // Type override, this field exists on the THREE.Mesh already
+	public water = new Water();
+
+	public displacementTexture: DynamicTexture;
+
+	public displacementBias = -0.0345;
+	public displacementScale = 0.15;
+
+	public pointUpdateAudit = new Subject<number>();
+
+	public putPin(name: string, color?: string): Pin {
+		let pin = this.getObjectByName(name) as Pin;
+		if (pin === undefined) {
+			pin = new Pin(name, color);
+			this.add(pin);
+		}
+		return pin;
 	}
 
 	// public drawSubject = new Subject<DrawEvent>();

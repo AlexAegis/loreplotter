@@ -1,6 +1,14 @@
 {
-	"rulesDirectory": ["node_modules/codelyzer"],
+	"extends": [
+		// "tslint:latest",
+		//"tslint-config-prettier"
+	],
+	"rulesDirectory": [
+		"node_modules/codelyzer",
+		"node_modules/tslint-plugin-prettier"
+	],
 	"rules": {
+		"prettier": true,
 		"arrow-return-shorthand": true,
 		"callable-types": true,
 		"class-name": true,
@@ -9,6 +17,7 @@
 		"deprecation": {
 			"severity": "warn"
 		},
+		"no-submodule-imports": false,
 		"eofline": true,
 		"forin": true,
 		"import-blacklist": [true, "rxjs/Rx"],

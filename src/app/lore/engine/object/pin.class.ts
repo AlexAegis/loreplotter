@@ -11,7 +11,6 @@ export class Pin extends Basic {
 			color: color
 		});
 
-
 		this.name = name;
 		this.position.set(0, 0, 1.01);
 		this.rotateX(90 * ThreeMath.DEG2RAD);
@@ -20,7 +19,5 @@ export class Pin extends Basic {
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
 		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
-
 	}
-
 }

@@ -46,4 +46,3 @@ export const changeSelectedActor = createAction(
 	`[Actor] Change Selected`,
 	(payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => payload
 );
-

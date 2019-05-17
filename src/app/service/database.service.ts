@@ -81,7 +81,7 @@ export class DatabaseService {
 		map(([lore, actors]) => actors.filter(actor => actor.loreId === lore.id)),
 		map(actors => actors.map(DatabaseService.actorStateMapper) as Array<RxDocument<Actor>>),
 		// withTeardown(),
-		shareReplay(1),
+		shareReplay(1)
 	);
 
 	public actorCount$ = this.currentLoreActors$.pipe(

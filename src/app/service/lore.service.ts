@@ -59,13 +59,13 @@ export class LoreService extends BaseDirective {
 			this.storeFacade.cursor$
 				.pipe(
 					filter(
-						cursor =>
-							this.engineService.stage !== undefined && this.engineService.stage.sun !== undefined
+						cursor => this.engineService.stage !== undefined && this.engineService.stage.sun !== undefined
 					)
 				)
 				.subscribe(cursor => {
 					this.engineService.stage.sun.resetPosition();
-					this.engineService.stage.sun.position.applyAxisAngle(Axis.y,
+					this.engineService.stage.sun.position.applyAxisAngle(
+						Axis.y,
 						((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
 					);
 				})
@@ -82,7 +82,7 @@ export class LoreService extends BaseDirective {
 						actors.map(actor => ({
 							actor: actor,
 							cursor: cursor,
-							overrideNodePositions: (overrides && actor.id === overrides.actorId ? overrides : undefined)
+							overrideNodePositions: overrides && actor.id === overrides.actorId ? overrides : undefined
 						}))
 					)
 				)
@@ -96,10 +96,7 @@ export class LoreService extends BaseDirective {
 						enclosure.first = enclosure.last;
 					}
 
-					if (
-						overrideNodePositions !== undefined &&
-						overrideNodePositions.overrides.length > 0
-					) {
+					if (overrideNodePositions !== undefined && overrideNodePositions.overrides.length > 0) {
 						for (const node of actor._states.nodes()) {
 							overrideNodePositions.overrides
 								.filter(ov => ov.previous === node.key.unix)
@@ -147,7 +144,12 @@ export class LoreService extends BaseDirective {
 						enclosure.last !== undefined &&
 						enclosure.first !== undefined
 					) {
-						this.actorService.lookAtInterpolated(enclosure.last.value.position, enclosure.first.value.position, t, group);
+						this.actorService.lookAtInterpolated(
+							enclosure.last.value.position,
+							enclosure.first.value.position,
+							t,
+							group
+						);
 
 						actorObject.updateHeight();
 					} else if (group.userData.override === false) {
