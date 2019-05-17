@@ -6,7 +6,7 @@ export class Pin extends Basic {
 	public material: MeshBasicMaterial;
 
 	public constructor(name: string, color: string = '#e6e000') {
-		super(new SphereBufferGeometry(0.005, 40, 40), undefined);
+		super(new SphereBufferGeometry(0.003, 20, 20), undefined);
 		this.material = new MeshBasicMaterial({
 			color: color
 		});

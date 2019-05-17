@@ -30,6 +30,7 @@ export class IntersectionHelper {
 	abDist = Infinity;
 	abNorm = new Vector3();
 	center = new Vector3();
+	normal = new Vector3(); // beneath center, on the crossing planes of the circles
 
 	public reset(): void {
 		this.a.reset();
@@ -116,9 +117,12 @@ export class EventHelper {
 	iVect = new Vector3();
 	toCenter = new Vector3();
 	toNearestAllowed = new Vector3();
+	toFlatNearestAllowed = new Vector3();
+	circleNormal = new Vector3();
 	toOther = new Vector3();
 	angleBetweenOtherAndCenter = Infinity; // If bigger than PI/2 then the bigger arc is on the intersection
 	valid = false;
+	flatCenter = new Vector3(); // Should be the same as for the other one, This is below the `center`, on the plane of a circle
 
 	public setFromEvent(
 		event: Node<UnixWrapper, ActorDelta>,
@@ -171,6 +175,19 @@ export class EventHelper {
 		if (intersection.b.valid) {
 			this.intBDist = this.position.angleTo(intersection.b.position);
 		}
+	}
+
+	public isOnCorrectArc(): boolean {
+		const intAIntBAngle = this.toIntA.angleTo(this.toIntB);
+		this.circleNormal.copy(this.toIntA).cross(this.toIntB);
+		this.toFlatNearestAllowed.copy(this.toNearestAllowed).projectOnPlane(this.circleNormal);
+
+		const intANearestFlatAngle = this.toIntA.angleTo(this.toFlatNearestAllowed);
+		const intBNearestFlatAngle = this.toIntB.angleTo(this.toFlatNearestAllowed);
+
+		const arcDifference = Math.abs(intANearestFlatAngle + intBNearestFlatAngle - intAIntBAngle);
+		const nearestIsInSmallerArc = arcDifference <= 0.0001;
+		return this.angleBetweenOtherAndCenter < Math.PI / 2 ? nearestIsInSmallerArc : !nearestIsInSmallerArc;
 	}
 }
 
@@ -311,6 +328,7 @@ export class ActorObject extends Basic {
 						this.panHelper.right.toIntA
 							.copy(this.panHelper.intersection.a.position)
 							.sub(this.panHelper.right.position);
+
 						if (!environment.production) {
 							this.globe.putArrowHelper(
 								'leftToIntA',
@@ -533,98 +551,9 @@ export class ActorObject extends Basic {
 							}
 						} else {
 							// If neither requirement is met and there is two intersecting points
-
-							console.log('int: ', this.panHelper.intersection);
-							console.log('near left: ', this.panHelper.left.nearestQuaternion);
-							console.log('near right: ', this.panHelper.right.nearestQuaternion);
-
-							const abIntLeft = arcIntersection(
-								this.panHelper.intersection.a.position,
-								this.panHelper.intersection.b.position,
-								event.point,
-								this.panHelper.left.position
-							).normalize(); // TODO Ditch
-							const abIntRight = arcIntersection(
-								this.panHelper.intersection.a.position,
-								this.panHelper.intersection.b.position,
-								event.point,
-								this.panHelper.right.position
-							).normalize(); // TODO Ditch
-
-							const leftIntAIntBAngle = this.panHelper.left.toIntA.angleTo(this.panHelper.left.toIntB);
-							const leftIntANearestAngle = this.panHelper.left.toIntA.angleTo(
-								this.panHelper.left.nearestAllowedPosition
-							);
-							const leftIntBNearestAngle = this.panHelper.left.toIntB.angleTo(
-								this.panHelper.left.nearestAllowedPosition
-							);
-							const leftArcDifference = Math.abs(
-								leftIntANearestAngle + leftIntBNearestAngle - leftIntAIntBAngle
-							);
-							const leftNearestIsInSmallerArc = leftArcDifference <= 0.001;
-							const leftIsOnIntArc =
-								this.panHelper.left.angleBetweenOtherAndCenter < Math.PI / 2
-									? leftNearestIsInSmallerArc
-									: !leftNearestIsInSmallerArc;
-
-							const rightIntAIntBAngle = this.panHelper.right.toIntA.angleTo(this.panHelper.right.toIntB);
-							const rightIntANearestAngle = this.panHelper.right.toIntA.angleTo(
-								this.panHelper.right.nearestAllowedPosition
-							);
-							const rightIntBNearestAngle = this.panHelper.right.toIntB.angleTo(
-								this.panHelper.right.nearestAllowedPosition
-							);
-							const rightArcDifference = Math.abs(
-								rightIntANearestAngle + rightIntBNearestAngle - rightIntAIntBAngle
-							);
-							const rightNearestIsInSmallerArc = rightArcDifference <= 0.001;
-							const rightIsOnIntArc =
-								this.panHelper.right.angleBetweenOtherAndCenter < Math.PI / 2
-									? rightNearestIsInSmallerArc
-									: !rightNearestIsInSmallerArc;
-
-							console.log('leftArcDifference: ' + leftArcDifference);
-							console.log('rightArcDifference: ' + rightArcDifference);
-
-							const distLeftToRight = this.panHelper.left.quaternion.angleTo(
-								this.panHelper.right.quaternion
-							);
-
-							const leftIntInnerDistDiff = Math.abs(
-								this.panHelper.left.intADist +
-								this.panHelper.left.intBDist -
-								this.panHelper.intersection.abDist
-							);
-							const rightIntInnerDistDiff = Math.abs(
-								this.panHelper.right.intADist +
-								this.panHelper.right.intBDist -
-								this.panHelper.intersection.abDist
-							);
-
-							console.log(
-								`leftIntInnerDistDiff: ${leftIntInnerDistDiff}, rightIntInnerDistDiff: ${rightIntInnerDistDiff}`
-							);
-
-							const leftInside = leftIntInnerDistDiff <= 0.001;
-							const rightInside = rightIntInnerDistDiff <= 0.001;
-
-							console.log(`leftInside: ${leftInside} rightInside: ${rightInside}`);
-
-							// const leftOnArc = leftInside && leftCenterDist >= distPtoIntLeft;
-							// const rightOnArc = rightInside && rightCenterDist >= distPtoIntRight;
-
-							const leftOnArc = leftInside; // OR NOT JSUT INSIDE BUT WHEN THE distance between main circles is less than the distance to the intersection line
-							const rightOnArc = rightInside;
-							console.log(`leftOnArc: ${leftOnArc} rightOnArc: ${rightOnArc}`);
-							/*	if (!leftInside && !rightInside) {
-								this.parent.quaternion.copy(aDist < bDist ? this.intersectionA : this.intersectionB);
-							} else {
-								this.parent.quaternion.copy(
-									leftNearestDist > rightNearestDist
-										? this.panHelper.left.nearestQuaternion
-										: this.panHelper.right.nearestQuaternion
-								);
-							}*/
+							const leftIsOnIntArc = this.panHelper.left.isOnCorrectArc();
+							const rightIsOnIntArc = this.panHelper.right.isOnCorrectArc();
+							console.log('leftIsOnIntArc: ' + leftIsOnIntArc + ' rightIsOnIntArc: ' + rightIsOnIntArc);
 
 							this.parent.quaternion.copy(
 								[
@@ -647,29 +576,21 @@ export class ActorObject extends Basic {
 								].sort((a, b) => a.d - b.d)[0].q
 							);
 
-							//this.parent.quaternion.copy(this.panHelper.left.nearestQuaternion);
-							//} else if(Math.abs(distAtoIntRight + distBtoIntRight - distAtoB) <= 0.0001) {
-							//	this.parent.quaternion.copy(this.panHelper.right.nearestQuaternion);
-							/*} else if(!leftInside && rightInside) {
-								this.parent.quaternion.copy(this.panHelper.left.nearestQuaternion);
-
-							} else if(leftInside && !rightInside) {
-								this.parent.quaternion.copy(this.panHelper.right.nearestQuaternion);
-
-	*/
-
+							// ! Intersections on the intersection plane
 							/*
+							const abIntLeft = arcIntersection(
+								this.panHelper.intersection.a.position,
+								this.panHelper.intersection.b.position,
+								event.point,
+								this.panHelper.left.position
+							).normalize(); // TODO Ditch
+							const abIntRight = arcIntersection(
+								this.panHelper.intersection.a.position,
+								this.panHelper.intersection.b.position,
+								event.point,
+								this.panHelper.right.position
+							).normalize(); // TODO Ditch
 
-							if (Math.abs(distAtoIntLeft + distBtoIntLeft - distAtoB) >= 0.001 || Math.abs(distAtoIntRight + distBtoIntRight - distAtoB) >= 0.001) {
-								this.parent.quaternion.copy(aDist < bDist ? this.intersectionA : this.intersectionB);
-							} else {
-								this.parent.quaternion.copy(
-									leftNearestDist > rightNearestDist
-										? this.panHelper.left.nearestQuaternion
-										: this.panHelper.right.nearestQuaternion
-								);
-							}
-	*/
 							console.log('abInt: ', abIntLeft, abIntRight);
 
 							// TODO remove Pins
@@ -687,77 +608,11 @@ export class ActorObject extends Basic {
 							}
 
 							abIntLeftPin.position.copy(abIntLeft);
-							abIntRightPin.position.copy(abIntRight);
+							abIntRightPin.position.copy(abIntRight);*/
 						}
 					}
 
 					this.updateHeightAndWorldPosAndScale();
-
-					// if both available
-					if (this.enclosing.first && this.enclosing.last) {
-					} else {
-					}
-
-					/*
-
-					if (
-						this.panHelper.left.allowedDistance >= this.panHelper.left.requestedDistance &&
-						this.panHelper.right.allowedDistance >= this.panHelper.right.requestedDistance
-					) {
-						this.parent.lookAt(event.point);
-						this.updateHeightAndWorldPosAndScale();
-					} else {
-						const firstRequest = destinationAngle.clone();
-
-						// FIRST SNAP TO THE CLOSER ONE
-						const snapToCloser =
-							this.panHelper.left.requestedDistance <= this.panHelper.right.requestedDistance
-								? this.panHelper.left
-								: this.panHelper.right;
-						let secondRequest: Quaternion = firstRequest.clone();
-						// Only when needed and can
-						if (
-							snapToCloser.allowedDistance <= snapToCloser.requestedDistance &&
-							snapToCloser.quaternion !== undefined
-						) {
-							const t = ThreeMath.mapLinear(
-								snapToCloser.allowedDistance,
-								0,
-								snapToCloser.requestedDistance,
-								0,
-								1
-							);
-							Quaternion.slerp(snapToCloser.quaternion, firstRequest, this.parent.quaternion, t);
-							this.updateHeightAndWorldPosAndScale();
-							secondRequest = this.parent.quaternion.clone();
-						}
-						// THEN SNAP TO THE OTHER ONE
-						const snapToOther =
-							this.panHelper.left.requestedDistance > this.panHelper.right.requestedDistance
-								? this.panHelper.left
-								: this.panHelper.right;
-						const secondAnchorAngleDiff = quaternionAngle(
-							snapToOther.quaternion || (snapToCloser.quaternion && snapToCloser.quaternion.clone()),
-							secondRequest.clone()
-						);
-						const secondRequestedDistance = secondAnchorAngleDiff * this.globe.radius;
-
-						// Only when needed and can
-						if (
-							snapToOther.allowedDistance <= secondRequestedDistance &&
-							snapToOther.quaternion !== undefined
-						) {
-							const t = ThreeMath.mapLinear(
-								snapToOther.allowedDistance,
-								0,
-								secondRequestedDistance,
-								0,
-								1
-							);
-							Quaternion.slerp(snapToOther.quaternion, secondRequest, this.parent.quaternion, t);
-							this.updateHeightAndWorldPosAndScale();
-						}
-					}*/
 				});
 		});
 		/**

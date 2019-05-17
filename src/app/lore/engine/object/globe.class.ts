@@ -86,7 +86,7 @@ export class Globe extends Basic {
 			displacementBias: this.displacementBias,
 			bumpScale: 0.008,
 			opacity: 0.5, // TODO: Ditch
-			transparent: false // TODO: Ditch
+			transparent: true // TODO: Ditch
 			// roughness: 0.5,
 			// metalness: 0.5,
 			// reflectivity: 0.7,
