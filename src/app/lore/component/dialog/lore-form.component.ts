@@ -47,7 +47,7 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 						this.maxPossiblePlanetRadius$.pipe(
 							take(1),
 							map(maxRad =>
-								this.loreForm.controls['id'] !== undefined && ctrl.value > Math.round(maxRad)
+								this.loreForm.controls['id'].value !== undefined && ctrl.value > Math.round(maxRad)
 									? { large: true }
 									: undefined
 							)

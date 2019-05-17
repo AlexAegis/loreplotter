@@ -25,8 +25,9 @@
 				<mat-error *ngIf="loreForm.hasError('large', 'planet.radius')">Too large for current paths!</mat-error>
 				<mat-error *ngIf="loreForm.hasError('required', 'planet.radius')">Required</mat-error>
 			</mat-form-field>
-
-			Max possible radius right now: {{ maxPossiblePlanetRadius$ | async | mathRound }}
+			<ng-container *ngIf="originalData.id">
+				Max possible radius right now: {{ maxPossiblePlanetRadius$ | async | mathRound }}
+			</ng-container>
 		</div>
 	</form>
 </mat-dialog-content>
