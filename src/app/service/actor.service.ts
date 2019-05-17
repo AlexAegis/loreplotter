@@ -1,4 +1,3 @@
-import { Enclosing, Node } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 import { enclosingProgress } from '@app/function/enclosing-progress.function';
 import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
@@ -10,12 +9,18 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, from, Observable, Subject } from 'rxjs';
 import { filter, map, mergeMap, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
-import { Group, Object3D, Quaternion, Vector3 } from 'three';
+import { Group, Vector3 } from 'three';
 
 export interface ActorAccumulator {
 	cursor: number;
 	actor: RxDocument<Actor, {}>;
-	accumulator: { name: string; maxSpeed: number; lastUnix: number; knowledge: Array<{ key: String; value: String }>; color: string };
+	accumulator: {
+		name: string;
+		maxSpeed: number;
+		lastUnix: number;
+		knowledge: Array<{ key: String; value: String }>;
+		color: string;
+	};
 }
 
 @Injectable()
@@ -134,6 +139,31 @@ export class ActorService {
 		)
 		.subscribe();
 
+	/**
+	 * rotates the position t'th way between the enclosure
+	 * Returns a new worldPositon at radius 1
+	 */
+	public lookAtInterpolated = (() => {
+		const _lerp = new Vector3();
+		const _from = new Vector3();
+		const _to = new Vector3();
+		return (from: Vector3Serializable, to: Vector3Serializable, t: number, target?: Group): Vector3 => {
+			_from.copy(from as Vector3);
+			_to.copy(to as Vector3);
+			if (t === Infinity) {
+				_lerp.copy(_from);
+			} else if (t === -Infinity) {
+				_lerp.copy(_to);
+			} else {
+				_lerp.copy(_from).lerp(_to, t);
+			}
+			if (target) {
+				target.lookAt(_lerp);
+			}
+			return _lerp;
+		};
+	})();
+
 	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
 		let finalPosition: Vector3Serializable;
 		const wrapper = new UnixWrapper(unix);
@@ -150,54 +180,15 @@ export class ActorService {
 			};
 		} else {
 			const progress = enclosingProgress(enclosing, unix);
-			const worldPos = this.lookAtInterpolated(enclosing, progress);
+			const worldPos = this.lookAtInterpolated(
+				enclosing.last.value.position,
+				enclosing.first.value.position,
+				progress
+			);
 			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
 		}
 		return finalPosition;
 	}
-
-	/**
-	 * rotates the position t'th way between the enclosure
-	 * Returns a new worldPositon at radius 1
-	 */
-	public lookAtInterpolated(
-		enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>,
-		t: number,
-		o: Object3D = this.slerperHelper
-	): Vector3 {
-		o.lookAt(enclosure.last.v.position.x, enclosure.last.v.position.y, enclosure.last.v.position.z);
-		o.applyQuaternion(this.engineService.globe.quaternion);
-		const fromQ = o.quaternion.clone();
-		o.lookAt(enclosure.first.v.position.x, enclosure.first.v.position.y, enclosure.first.v.position.z);
-		o.applyQuaternion(this.engineService.globe.quaternion); // if the globe is rotated (it's not) then account it
-		const toQ = o.quaternion.clone();
-		if (t && Math.abs(t) !== Infinity) {
-			Quaternion.slerp(fromQ, toQ, o.quaternion, t);
-			o.updateWorldMatrix(false, true); // The childrens worldpositions won't update unless I call this
-		}
-		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
-	}
-
-
-	/** A closure to avoid creating objects too much
-	 *    public lookAtInterpolated = (() => {
-		const _normal = new Vector3();
-		const _from = new Vector3();
-		const _to = new Vector3();
-		return (
-			from: Vector3Serializable,
-			to: Vector3Serializable,
-			t: number,
-			target = new Vector3()
-		): Vector3 => {
-			_from.copy(from as Vector3);
-			_to.copy(to as Vector3);
-			_normal.copy(_from).cross(_to).normalize();
-			const angle = _from.angleTo(_to);
-			return target.copy(_from).applyAxisAngle(_normal, angle * t);
-		};
-	})();
-	 */
 
 	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
 		return this.actorDeltasAtCursor$.pipe(

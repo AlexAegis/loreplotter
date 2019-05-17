@@ -147,7 +147,7 @@ export class LoreService extends BaseDirective {
 						enclosure.last !== undefined &&
 						enclosure.first !== undefined
 					) {
-						this.actorService.lookAtInterpolated(enclosure, t, group);
+						this.actorService.lookAtInterpolated(enclosure.last.value.position, enclosure.first.value.position, t, group);
 
 						actorObject.updateHeight();
 					} else if (group.userData.override === false) {

@@ -121,60 +121,60 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	@HostListener('window:keydown', ['$event'])
 	public onKeyDown($event: KeyboardEvent): void {
-		console.log(document.activeElement);
-
-
-		switch ($event.code) {
-			case 'Space':
-				this.storeFacade.togglePlay();
-				break;
-			case 'Digit0':
-			case 'Backquote':
-				this.storeFacade.setPlaySpeed(1);
-				break;
-			case 'Digit1':
-				this.storeFacade.setPlaySpeed(2);
-				break;
-			case 'Digit2':
-				this.storeFacade.setPlaySpeed(4);
-				break;
-			case 'Digit3':
-				this.storeFacade.setPlaySpeed(8);
-				break;
-			case 'Digit4':
-				this.storeFacade.setPlaySpeed(16);
-				break;
-			case 'Digit5':
-				this.storeFacade.setPlaySpeed(32);
-				break;
-			case 'Digit6':
-				this.storeFacade.setPlaySpeed(64);
-				break;
-			case 'Digit7':
-				this.storeFacade.setPlaySpeed(128);
-				break;
-			case 'Digit8':
-				this.storeFacade.setPlaySpeed(256);
-				break;
-			case 'Digit9':
-				this.storeFacade.setPlaySpeed(512);
-				break;
-			case 'ArrowDown':
-			case 'NumpadSubtract':
-				this.storeFacade.changePlaySpeed(-60);
-				break;
-			case 'ArrowUp':
-			case 'NumpadAdd':
-				this.storeFacade.changePlaySpeed(60);
-				break;
-			case 'ArrowLeft':
-				this.storeFacade.changePlayDirection(-1);
-				break;
-			case 'ArrowRight':
-				this.storeFacade.changePlayDirection(1);
-				break;
-			default:
-				break;
+		if (document.activeElement.tagName !== 'INPUT') {
+			$event.preventDefault();
+			switch ($event.code) {
+				case 'Space':
+					this.storeFacade.togglePlay();
+					break;
+				case 'Digit0':
+				case 'Backquote':
+					this.storeFacade.setPlaySpeed(1);
+					break;
+				case 'Digit1':
+					this.storeFacade.setPlaySpeed(2);
+					break;
+				case 'Digit2':
+					this.storeFacade.setPlaySpeed(4);
+					break;
+				case 'Digit3':
+					this.storeFacade.setPlaySpeed(8);
+					break;
+				case 'Digit4':
+					this.storeFacade.setPlaySpeed(16);
+					break;
+				case 'Digit5':
+					this.storeFacade.setPlaySpeed(32);
+					break;
+				case 'Digit6':
+					this.storeFacade.setPlaySpeed(64);
+					break;
+				case 'Digit7':
+					this.storeFacade.setPlaySpeed(128);
+					break;
+				case 'Digit8':
+					this.storeFacade.setPlaySpeed(256);
+					break;
+				case 'Digit9':
+					this.storeFacade.setPlaySpeed(512);
+					break;
+				case 'ArrowDown':
+				case 'NumpadSubtract':
+					this.storeFacade.changePlaySpeed(-60);
+					break;
+				case 'ArrowUp':
+				case 'NumpadAdd':
+					this.storeFacade.changePlaySpeed(60);
+					break;
+				case 'ArrowLeft':
+					this.storeFacade.changePlayDirection(-1);
+					break;
+				case 'ArrowRight':
+					this.storeFacade.changePlayDirection(1);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
