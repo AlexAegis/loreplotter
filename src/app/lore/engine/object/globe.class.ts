@@ -84,9 +84,7 @@ export class Globe extends Basic {
 			map: this.displacementTexture,
 			displacementScale: this.displacementScale,
 			displacementBias: this.displacementBias,
-			bumpScale: 0.008,
-			opacity: 0.5, // TODO: Ditch
-			transparent: true // TODO: Ditch
+			bumpScale: 0.008
 			// roughness: 0.5,
 			// metalness: 0.5,
 			// reflectivity: 0.7,
