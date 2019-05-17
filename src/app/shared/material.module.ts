@@ -54,7 +54,6 @@ const modules = [
 	MatToolbarModule,
 	MatListModule,
 	MatProgressSpinnerModule,
-	// FlexLayoutModule,
 	MatAutocompleteModule,
 	MatButtonModule,
 	MatButtonToggleModule,

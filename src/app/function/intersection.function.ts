@@ -43,7 +43,7 @@ export function intersection(c1: Circle, c2: Circle, radius: number): Array<Vect
 	}
 
 	// get the normal vector:
-	const n: Vector3 = x1.clone().cross(x2);
+	const n: Vector3 = x1.clone().cross(x2).normalize();
 	const n2: number = n.clone().dot(n);
 	if (n2 === 0) {
 		// no solution: circle centers are either the same or antipodal

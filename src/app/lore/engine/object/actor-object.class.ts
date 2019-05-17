@@ -118,7 +118,10 @@ export class EventHelper {
 
 	public isOnCorrectArc(): boolean {
 		const intAIntBAngle = this.toIntA.angleTo(this.toIntB);
-		this.circleNormal.copy(this.toIntA).cross(this.toIntB);
+		this.circleNormal
+			.copy(this.toIntA)
+			.cross(this.toIntB)
+			.normalize();
 		this.toFlatNearestAllowed.copy(this.toNearestAllowed).projectOnPlane(this.circleNormal);
 
 		const intANearestFlatAngle = this.toIntA.angleTo(this.toFlatNearestAllowed);
@@ -129,7 +132,6 @@ export class EventHelper {
 		return this.angleBetweenOtherAndCenter < Math.PI / 2 ? nearestIsInSmallerArc : !nearestIsInSmallerArc;
 	}
 }
-
 
 export class PanHelper {
 	left = new EventHelper();
@@ -166,7 +168,10 @@ export class PanHelper {
 
 	public calculateIntersection(globe: Globe, preLookHelper: Group) {
 		if (this.left.valid && this.right.valid) {
-			this.normal.copy(this.left.position).cross(this.right.position);
+			this.normal
+				.copy(this.left.position)
+				.cross(this.right.position)
+				.normalize();
 
 			this.left.toOther.copy(this.right.position).sub(this.left.position);
 			this.right.toOther.copy(this.left.position).sub(this.right.position);
@@ -205,7 +210,6 @@ export class PanHelper {
 		}
 	}
 }
-
 
 export class ActorObject extends Basic {
 	public geometry: SphereBufferGeometry;
@@ -399,7 +403,8 @@ export class ActorObject extends Basic {
 					if (this.panHelper.intersection.a.valid && this.panHelper.intersection.b.valid) {
 						this.panHelper.intersection.abNorm
 							.copy(this.panHelper.intersection.a.position)
-							.cross(this.panHelper.intersection.b.position);
+							.cross(this.panHelper.intersection.b.position)
+							.normalize();
 
 						this.panHelper.intersection.abDist = this.panHelper.intersection.a.position.angleTo(
 							this.panHelper.intersection.b.position
@@ -535,7 +540,10 @@ export class ActorObject extends Basic {
 								// or outside each other but the single intersection not calculated correctly then jump between them
 								this.positionHelper
 									.copy(this.panHelper.left.position)
-									.lerp(this.panHelper.right.position, this.panHelper.progressFromFirst);
+									.applyAxisAngle(
+										this.panHelper.normal,
+										this.panHelper.progressFromFirst * this.panHelper.lrDist
+									);
 								this.parent.lookAt(this.positionHelper);
 							}
 						} else {

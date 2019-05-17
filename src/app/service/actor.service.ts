@@ -144,23 +144,26 @@ export class ActorService {
 	 * Returns a new worldPositon at radius 1
 	 */
 	public lookAtInterpolated = (() => {
-		const _lerp = new Vector3();
+		const _result = new Vector3();
+		const _norm = new Vector3();
 		const _from = new Vector3();
 		const _to = new Vector3();
 		return (a: Vector3Serializable, b: Vector3Serializable, t: number, target?: Group): Vector3 => {
 			_from.copy(a as Vector3);
 			_to.copy(b as Vector3);
 			if (t === Infinity) {
-				_lerp.copy(_from);
+				_result.copy(_from);
 			} else if (t === -Infinity) {
-				_lerp.copy(_to);
+				_result.copy(_to);
 			} else {
-				_lerp.copy(_from).lerp(_to, t);
+				const ang = _from.angleTo(_to);
+				_norm.copy(_from).cross(_to).normalize();
+				_result.copy(_from).applyAxisAngle(_norm, t * ang);
 			}
 			if (target) {
-				target.lookAt(_lerp);
+				target.lookAt(_result);
 			}
-			return _lerp;
+			return _result;
 		};
 	})();
 
