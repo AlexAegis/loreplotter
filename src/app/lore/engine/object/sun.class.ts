@@ -1,5 +1,5 @@
 import { ClickEvent } from '@lore/engine/event';
-import { DirectionalLight, MeshPhongMaterial, SphereBufferGeometry } from 'three';
+import { DirectionalLight, MeshPhongMaterial, SphereBufferGeometry, Vector3 } from 'three';
 import { Basic } from './basic.class';
 
 export class Sun extends Basic {
@@ -8,10 +8,12 @@ export class Sun extends Basic {
 
 	public directionalLight: DirectionalLight;
 	public directionalLightBaseIntensity = 0.6;
+
+	private originalPosition = new Vector3(40, 0, 0);
 	public constructor(public radius: number = 0.6) {
 		super();
 		this.name = 'sun';
-
+		this.position.copy(this.originalPosition);
 		this.material = new MeshPhongMaterial({
 			emissive: '#ffd3a8',
 			emissiveIntensity: 0.7,
@@ -34,5 +36,9 @@ export class Sun extends Basic {
 		this.directionalLight.receiveShadow = true;
 
 		this.add(this.directionalLight);
+	}
+
+	public resetPosition(): void {
+		this.position.copy(this.originalPosition);
 	}
 }

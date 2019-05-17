@@ -158,7 +158,7 @@ export class ActorService {
 
 	/**
 	 * rotates the position t'th way between the enclosure
-	 * Returns a new worldpositon at radius 1
+	 * Returns a new worldPositon at radius 1
 	 */
 	public lookAtInterpolated(
 		enclosure: Enclosing<Node<UnixWrapper, ActorDelta>>,
@@ -177,6 +177,27 @@ export class ActorService {
 		}
 		return o.children.length > 0 && o.children[0].getWorldPosition(this.latestSlerpsWorldPositionHolder);
 	}
+
+
+	/** A closure to avoid creating objects too much
+	 *    public lookAtInterpolated = (() => {
+		const _normal = new Vector3();
+		const _from = new Vector3();
+		const _to = new Vector3();
+		return (
+			from: Vector3Serializable,
+			to: Vector3Serializable,
+			t: number,
+			target = new Vector3()
+		): Vector3 => {
+			_from.copy(from as Vector3);
+			_to.copy(to as Vector3);
+			_normal.copy(_from).cross(_to).normalize();
+			const angle = _from.angleTo(_to);
+			return target.copy(_from).applyAxisAngle(_normal, angle * t);
+		};
+	})();
+	 */
 
 	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
 		return this.actorDeltasAtCursor$.pipe(

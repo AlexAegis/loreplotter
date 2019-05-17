@@ -41,8 +41,11 @@ export class IndicatorSphere extends Basic {
 	 * @param km target
 	 */
 	public setTargetRadius(km: number): void {
-		const c = km / this.globe.radius;
-		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, c);
+		this.setTargetRadian(km / this.globe.radius);
+	}
+
+	public setTargetRadian(radian: number): void {
+		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, radian);
 	}
 }
 

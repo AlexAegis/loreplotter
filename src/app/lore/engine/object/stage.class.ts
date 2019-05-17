@@ -1,10 +1,9 @@
 import { EngineService } from '@lore/engine/engine.service';
-import { AmbientLight, Color, Group, PerspectiveCamera, Scene } from 'three';
+import { AmbientLight, Color, PerspectiveCamera, Scene } from 'three';
 import { Sun } from './sun.class';
 
 export class Stage extends Scene {
 	public camera: PerspectiveCamera;
-	public sunGroup: Group;
 	public sun: Sun;
 	public ambient: AmbientLight;
 
@@ -20,13 +19,9 @@ export class Stage extends Scene {
 		this.add(this.camera);
 		this.background = new Color('#121212');
 
-		this.sunGroup = new Group();
 		this.sun = new Sun();
-		this.sunGroup.add(this.sun);
-		this.sun.position.set(40, 0, 0);
-		this.sunGroup.position.set(0, 0, 0);
-		this.sun.directionalLight.target = this.sunGroup;
-		this.add(this.sunGroup);
+		// this.sun.directionalLight.target = this.engineService.globe;
+		this.add(this.sun);
 
 		// light mode
 		this.ambient = new AmbientLight('#ffd3a8', 1.2);

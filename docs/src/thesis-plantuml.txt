@@ -1,7 +1,35 @@
                 @startuml
                 skinparam monochrome true
-                [-> ActorDeltaState: loadActorDeltasForActor
-                Database --> ActorDeltaState: connection
-                ActorDeltaState -> ActorDeltaState: Shim every loaded object
-                ActorDeltaState ->]: loadActorDeltasForActorSuccess
+                == Initialization ==
+                [-> Database : Database Initialized
+                Database --> LoreState: Load Lores
+                activate LoreState
+                LoreState -> LoreState: Shim each entry
+                LoreState ->]: loadLoresSuccess
+                deactivate LoreState
+                == Loading Lores ==
+                note left of LoreState : updateInitialSelectedLore
+                [-> LoreState : loadLoresSuccess
+                activate LoreState
+                LoreState -> LoreState: Select the first one
+                LoreState ->] : changeSelectedLore
+                deactivate LoreState
+                == On Create Lore ==
+                Database --> LoreState: createLoreSuccess
+                LoreState ->]: changeSelectedLore
+                == On Change Selected ==
+                [-> LoreState: changeSelectedLore
+                LoreState ->]: changeSelectedLoreSuccess
+                == Change Selected ==
+                [-> ActorState: changeSelectedLoreSuccess
+                activate ActorState
+                Database --> ActorState: connection
+                ActorState -> ActorState: Loading everything into state
+                ActorState ->]: loadActorsSuccess
+                deactivate ActorState
+                == On Load Actors ==
+                [-> ActorState: loadActorsSuccess
+                activate ActorState
+                ActorState -> ActorState: Deserilization of deltas
+                deactivate ActorState
                 @enduml

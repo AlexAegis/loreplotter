@@ -78,13 +78,35 @@ ActorDelta -- Vec3
 \caption{Az adatmodell}
 \label{fig:data-model}
 \end{plantuml}
-%	\caption{Az adatmodell}
-%	\label{fig:data-model}
-%\end{figure}
 
-\subsection{A reaktív modell}
+\pagebreak
 
-A klasszikus imperatív modell helyett az alkalmazás jelentős részében reaktív komponenseket használunk amik alapjául az RxJS \cite{RxJS} csomag szolgál. Ez azt jelenti, hogy klasszikus adattagok helyett, adatforrásokat, megfigyelhető objektumokat (Lásd Megfigyelő programtervezési minta \cite{ObserverPattern}), függvényhívások helyett pedig mellékhatásokat használunk.
+Az alkalmazás induláskor az adatbázis modelljeit tároló kollekiókat inicializáljuk.
+
+\begin{plantuml}
+	@startuml
+	hide empty description
+	skinparam monochrome true
+
+	state DatabaseBootstrap {
+		[*] --> InitializeCollections
+		InitializeCollections : Lore
+		InitializeCollections : Actor
+		InitializeCollections : ActorDelta
+		InitializeCollections --> InitializeExample
+		InitializeExample --> [*]
+		note right of InitializeCollections : Ez a folyamat csak akkor\nhozza létre a kollekciókat\nha szükség van rá
+		note right of InitializeExample : Az alap project létrehozása
+	}
+
+	DatabaseBootstrap --> DatabaseBootstrap : On Fail
+
+	@enduml
+\end{plantuml}
+
+\subsection{Reaktív elemek}
+
+Az alkalmazás jelentős részében reaktív komponenseket használunk amik alapjául az RxJS \cite{RxJS} csomag szolgál. Ez azt jelenti, hogy klasszikus adattagok helyett, adatforrásokat, megfigyelhető objektumokat (Lásd Megfigyelő programtervezési minta \cite{ObserverPattern}), függvényhívások helyett pedig mellékhatásokat használunk.
 
 Ez a minta lehetőséget ad arra, hogy bármilyen nézet a böngészőben ami felhasznál valamilyen adatot, azonnal frissüljön mikor a forrása megváltozik.
 
@@ -253,6 +275,51 @@ Nézeteinket komponensekben definiáljuk, ezek az adataikat pedig kizárólag a 
 	\caption{Főbb Komponensek és relációik}
 	\label{fig:services-and-components}
 \end{figure}
+
+
+\begin{figure}[h!]
+	\centering
+	\begin{plantuml}
+		@startuml
+		skinparam monochrome true
+		== Initialization ==
+		[-> Database : Database Initialized
+		Database --> LoreState: Load Lores
+		activate LoreState
+		LoreState -> LoreState: Shim each entry
+		LoreState ->]: loadLoresSuccess
+		deactivate LoreState
+		== Loading Lores ==
+		note left of LoreState : updateInitialSelectedLore
+		[-> LoreState : loadLoresSuccess
+		activate LoreState
+		LoreState -> LoreState: Select the first one
+		LoreState ->] : changeSelectedLore
+		deactivate LoreState
+		== On Create Lore ==
+		Database --> LoreState: createLoreSuccess
+		LoreState ->]: changeSelectedLore
+		== On Change Selected ==
+		[-> LoreState: changeSelectedLore
+		LoreState ->]: changeSelectedLoreSuccess
+		== Change Selected ==
+		[-> ActorState: changeSelectedLoreSuccess
+		activate ActorState
+		Database --> ActorState: connection
+		ActorState -> ActorState: Loading everything into state
+		ActorState ->]: loadActorsSuccess
+		deactivate ActorState
+		== On Load Actors ==
+		[-> ActorState: loadActorsSuccess
+		activate ActorState
+		ActorState -> ActorState: Deserilization of deltas
+		deactivate ActorState
+		@enduml
+	\end{plantuml}
+	\caption{Bootstrap folyamatok}
+	\label{fig:global-state-bootstrap}
+\end{figure}
+
 
 \subsection{Timeline}
 
@@ -463,6 +530,379 @@ Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél k
 \end{algorithm}
 
 
+\subsection{Manipuláció}
+
+A szereplők pozícióját itt a színtéren lehet megváltoztatni, viszont meg kell felelnünk egy nagyon fontos megszorításnak. A szereplő helyzete soha nem lehet olyan távol az előző és a következő helyzettől, hogy azt már képességeinek megfelelően ne tudja elérni.
+
+Ahhoz hogy mindig a megfelelő területen tartsuk a szereplőt, azokban az esetekben amikor vagy a jövőben, vagy a múltban már nincs több esemény, elég az egyetlen környező esemény megengedett távolságán belül tartalni a szereplőt. Ha a kért pozíció távolsága kisebb mint a megengedett, a pozíciót rögzítjük. Ha nem, a legközelebb lévő pozíció lesz rögzítve ami még megengedett.
+
+Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfelületen található kör metszetében keressük a legközelebbi pontot.
+
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+	%uncomment if require: \path (0,389); %set diagram left start at 0, and has height of 389
+
+	%Shape: Circle [id:dp5885912263778241]
+	\draw   (241.35,257.9) .. controls (241.35,204.83) and (284.38,161.81) .. (337.45,161.81) .. controls (390.52,161.81) and (433.54,204.83) .. (433.54,257.9) .. controls (433.54,310.97) and (390.52,354) .. (337.45,354) .. controls (284.38,354) and (241.35,310.97) .. (241.35,257.9) -- cycle ;
+	%Shape: Ellipse [id:dp15448687207841338]
+	\draw  [fill={rgb, 255:red, 255; green, 212; blue, 145 }  ,fill opacity=0 ] (120,155.87) .. controls (120,110.73) and (156.59,74.14) .. (201.73,74.14) .. controls (246.87,74.14) and (283.46,110.73) .. (283.46,155.87) .. controls (283.46,201) and (246.87,237.6) .. (201.73,237.6) .. controls (156.59,237.6) and (120,201) .. (120,155.87) -- cycle ;
+	%Straight Lines [id:da6006500643796313]
+	\draw  [dash pattern={on 0.84pt off 2.51pt}]  (201.73,155.87) -- (337.45,257.9) ;
+
+
+	%Straight Lines [id:da5175683117647778]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (201.73,155.87) -- (460.29,62.75) ;
+
+
+	%Straight Lines [id:da33352637244621164]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (337.45,257.9) -- (460.29,62.75) ;
+
+
+	\draw   (445.43,63.74) .. controls (445.43,55.53) and (452.08,48.88) .. (460.29,48.88) .. controls (468.49,48.88) and (475.15,55.53) .. (475.15,63.74) .. controls (475.15,71.94) and (468.49,78.6) .. (460.29,78.6) .. controls (452.08,78.6) and (445.43,71.94) .. (445.43,63.74) -- cycle ; \draw   (445.43,63.74) -- (475.15,63.74) ; \draw   (460.29,48.88) -- (460.29,78.6) ;
+	%Straight Lines [id:da19257704763660777]
+	\draw    (460.29,62.75) -- (280.67,181.84) ;
+	\draw [shift={(279,182.95)}, rotate = 326.45] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]    (10.93,-3.29) .. controls (6.95,-1.4) and (3.31,-0.3) .. (0,0) .. controls (3.31,0.3) and (6.95,1.4) .. (10.93,3.29)   ;
+
+	%Shape: Brace [id:dp007237602952800293]
+	\draw   (279,127.47) .. controls (277.42,123.08) and (274.43,121.67) .. (270.04,123.25) -- (247.41,131.37) .. controls (241.14,133.62) and (237.21,132.55) .. (235.63,128.16) .. controls (237.21,132.55) and (234.86,135.88) .. (228.59,138.13)(231.41,137.12) -- (205.95,146.26) .. controls (201.56,147.83) and (200.15,150.82) .. (201.73,155.21) ;
+	%Shape: Brace [id:dp7846975839966284]
+	\draw   (336.46,258.23) .. controls (340.4,260.73) and (343.62,260.01) .. (346.12,256.07) -- (362.77,229.81) .. controls (366.34,224.18) and (370.09,222.62) .. (374.04,225.11) .. controls (370.09,222.62) and (369.91,218.55) .. (373.48,212.92)(371.87,215.45) -- (390.13,186.66) .. controls (392.63,182.72) and (391.91,179.5) .. (387.97,177) ;
+	%Shape: Brace [id:dp41704229855363284]
+	\draw   (433.54,12.55) .. controls (431.88,8.19) and (428.87,6.84) .. (424.51,8.5) -- (302.6,54.81) .. controls (296.37,57.18) and (292.42,56.18) .. (290.76,51.81) .. controls (292.42,56.18) and (290.13,59.54) .. (283.9,61.91)(286.71,60.84) -- (182.01,100.61) .. controls (177.65,102.27) and (176.3,105.28) .. (177.95,109.64) ;
+	%Shape: Brace [id:dp09992687654682131]
+	\draw   (409.76,297.86) .. controls (413.71,300.35) and (416.93,299.63) .. (419.42,295.69) -- (476.43,205.57) .. controls (480,199.94) and (483.75,198.37) .. (487.7,200.86) .. controls (483.75,198.37) and (483.56,194.3) .. (487.13,188.67)(485.52,191.2) -- (534.78,113.35) .. controls (537.27,109.41) and (536.55,106.19) .. (532.6,103.69) ;
+
+	% Text Node
+	\draw (203.71,174) node  [align=left] {$M_1$};
+	% Text Node
+	\draw (338.44,274.05) node  [align=left] {$M_2$};
+	% Text Node
+	\draw (230.48,118.73) node  [align=left] {$r_1$};
+	% Text Node
+	\draw (384.8,232.36) node  [align=left] {$r_2$};
+	% Text Node
+	\draw (201.78,253.22) node  [align=left] {$c_1$};
+	% Text Node
+	\draw (336.44,369.17) node  [align=left] {$c_2$};
+	% Text Node
+	\draw (463.26,99.73) node  [align=left] {$P_1$};
+	% Text Node
+	\draw (282.96,18.5) node  [align=left] {$D_1$};
+	% Text Node
+	\draw (522.7,230.5) node  [align=left] {$D_2$};
+	% Text Node
+	\draw (286.48,109.73) node  [align=left] {$N_1$};
+	% Text Node
+	\draw (413.48,172.73) node  [align=left] {$N_2$};
+	% Text Node
+	\draw (290.48,195.73) node  [align=left] {$A$};
+	% Text Node
+	\draw (256.48,235.73) node  [align=left] {$B$};
+
+	\draw   (279.42, 181.3) circle [x radius= 5, y radius= 5]   ;
+	\draw   (247.72, 223.44) circle [x radius= 5, y radius= 5]   ;
+	\draw   (388.64, 176.57) circle [x radius= 5, y radius= 5]   ;
+	\draw   (278.64, 128.17) circle [x radius= 5, y radius= 5]   ;
+	\end{tikzpicture}
+\caption{Körök metszete gömbfelületen}
+\label{fig:spherical-sphere-intersection}
+\end{figure}
+
+\begin{tabular}{@{}ll@{}}
+	\textbf{Jel} & \textbf{Leírás} \\
+	$M_1$ & Előző pozíció \\
+	$M_2$ & Következő pozíció \\
+	$r_1$ & A jelenlegi időpont és $M_1$ időpontja között maximálisan megtehető út \\
+	$r_2$ & A jelenlegi időpont és $M_2$ időpontja között maximálisan megtehető út \\
+	$c_1$ & $M_1$ és $r_1$ által alkotott kör a gömbfelületen \\
+	$c_2$ & $M_2$ és $r_2$ által alkotott kör a gömbfelületen \\
+	$P_1$ & A felhasználó által kiválaszott célpozíció \\
+	$D_1$ & A gömbfelületen vett távolság $P_1$ és $M_1$ között \\
+	$D_2$ & A gömbfelületen vett távolság $P_1$ és $M_2$ között \\
+	$N_1$ & A gömbfelület $M_1$ és $P_1$ pont által meghatározott \\
+	& főkörén az a pont amely pontosan $r_1$ távolságra van $M_1$-től \\
+	$N_2$ & A gömbfelület $M_2$ és $P_1$ pont által meghatározott \\
+	& főkörén az a pont amely pontosan $r_2$ távolságra van $M_2$-től \\
+	$A$ & $c_1$ és $c_2$ kör egyik metszéspontja \\
+	$B$ & $c_1$ és $c_2$ kör másik metszéspontja \\
+	& \\
+\end{tabular}
+
+Ebben az esetben a szereplő nem teljes sebességgel haladt a két pont között ezért ha félúton manipuláljuk, azt látjuk, hogy amellett, hogy mindkét ponthoz még eltudunk jutni, még van egy kis mozgásterünk ahol ugyanúgy eljutna a megadott időn belül $M_2$-be, képességeinek megfelelően. Meg kell határoznunk manipulálás közben, hogy $c_1$ és $c_2$ metszetében melyik pont van $P_1$ ponthoz a legközelebb.
+
+Manipulálás kezdetekor válnak elérhetővé a kellő információk $c_1$ és $c_2$ adatainak a kiszámolásához. Ekkor számoljuk ki $A$ és $B$ pontot is. Ezt manipulálásonként csak egyszer számoljuk ki. Ekkor helyezzük el a két indikátor gömbcikket. A végén pedig el lesznek rejtve. Manipulálás közben pedig folyamatosan számljuk a legközelebbi pont függvényét.
+
+\subsubsection{Két kör metszéspontjai gömbfelületen}
+
+$M_1$ és $M_2$ világ pozíciók, és mivel a bolygó centruma a $(0, 0, 0)$ pontban helyetkedik el, ezért ezek egyben geocentrikus pontok is. A két kör metszéspontját gömbfelületen problémát átfogalmazhatjuk egy egyszerűbb problémává. Ha keresünk az $M_1$ és az origó által meghatározott vonalon egy pontot -- legyen $a$ -- és sugarat amivel egy akkora gömböt képez ami pontosan a $c_1$ körön metszi a bolygó gömbjét, és analóg módon $M_2$-höz egy $b$ pontot és sugarat. Akkor $a$ pont $c_1$ körrel és $b$ pont $c_2$ körrel egy-egy síkot határoznak meg, melyek metszésvonalán fog elhelyezkedni $A$ és $B$ pont is. Így a problémánk egy kör és egy egyenes metszetére redukálódott le.
+
+\begin{figure}[h!]
+	\centering
+
+	\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+	%uncomment if require: \path (0,468); %set diagram left start at 0, and has height of 468
+
+	%Shape: Circle [id:dp2263468573456704]
+	\draw   (197.22,233.48) .. controls (197.22,162.24) and (254.97,104.49) .. (326.21,104.49) .. controls (397.44,104.49) and (455.19,162.24) .. (455.19,233.48) .. controls (455.19,304.72) and (397.44,362.47) .. (326.21,362.47) .. controls (254.97,362.47) and (197.22,304.72) .. (197.22,233.48) -- cycle ;
+	%Shape: Circle [id:dp8130162816265305]
+	\draw   (198.91,144.12) .. controls (198.91,101.69) and (233.3,67.3) .. (275.73,67.3) .. controls (318.15,67.3) and (352.54,101.69) .. (352.54,144.12) .. controls (352.54,186.54) and (318.15,220.93) .. (275.73,220.93) .. controls (233.3,220.93) and (198.91,186.54) .. (198.91,144.12) -- cycle ;
+	%Shape: Circle [id:dp9863650593943492]
+	\draw   (151.15,220.88) .. controls (151.15,185.67) and (179.7,157.12) .. (214.91,157.12) .. controls (250.13,157.12) and (278.68,185.67) .. (278.68,220.88) .. controls (278.68,256.1) and (250.13,284.65) .. (214.91,284.65) .. controls (179.7,284.65) and (151.15,256.1) .. (151.15,220.88) -- cycle ;
+	%Straight Lines [id:da8253130424028727]
+	\draw    (198.67,218.99) -- (326.21,233.48) ;
+
+
+	%Straight Lines [id:da6219323829844645]
+	\draw    (326.21,233.48) -- (263.16,120.43) ;
+
+
+	%Shape: Axis 2D [id:dp7403279305833326]
+	\draw  (132,233.48) -- (520.41,233.48)(326.21,37) -- (326.21,422.25) (513.41,228.48) -- (520.41,233.48) -- (513.41,238.48) (321.21,44) -- (326.21,37) -- (331.21,44)  ;
+	\draw   (269.1,141.46) .. controls (269.92,137.95) and (273.43,135.77) .. (276.94,136.59) .. controls (280.44,137.41) and (282.62,140.92) .. (281.8,144.42) .. controls (280.98,147.93) and (277.48,150.11) .. (273.97,149.29) .. controls (270.46,148.47) and (268.28,144.96) .. (269.1,141.46) -- cycle ; \draw   (269.1,141.46) -- (281.8,144.42) ; \draw   (276.94,136.59) -- (273.97,149.29) ;
+	\draw   (209.39,224.92) .. controls (207,222.22) and (207.26,218.1) .. (209.96,215.72) .. controls (212.66,213.34) and (216.78,213.59) .. (219.17,216.29) .. controls (221.55,218.99) and (221.29,223.12) .. (218.59,225.5) .. controls (215.89,227.88) and (211.77,227.62) .. (209.39,224.92) -- cycle ; \draw   (209.39,224.92) -- (219.17,216.29) ; \draw   (209.96,215.72) -- (218.59,225.5) ;
+	%Straight Lines [id:da08394559625180209]
+	\draw    (237.5,29.33) -- (196.5,367.5) ;
+
+
+	%Straight Lines [id:da6409389593213928]
+	\draw    (415.5,63.33) -- (109.5,236.5) ;
+
+
+	\draw   (216.72,179.07) .. controls (213.7,177.11) and (212.85,173.06) .. (214.81,170.05) .. controls (216.78,167.03) and (220.82,166.18) .. (223.84,168.15) .. controls (226.86,170.11) and (227.71,174.15) .. (225.74,177.17) .. controls (223.77,180.19) and (219.73,181.04) .. (216.72,179.07) -- cycle ; \draw   (216.72,179.07) -- (223.84,168.15) ; \draw   (214.81,170.05) -- (225.74,177.17) ;
+
+	% Text Node
+	\draw (259,110.25) node  [align=left] {$M_1$};
+	% Text Node
+	\draw (183,218.25) node  [align=left] {$M_2$};
+	% Text Node
+	\draw (276,157.25) node  [align=left] {$a$};
+	% Text Node
+	\draw (225,210.25) node  [align=left] {$b$};
+	% Text Node
+	\draw (244,187.25) node  [align=left] {$A$ és $B$};
+
+
+	\end{tikzpicture}
+
+
+
+
+
+\caption{Átfogalmazott példa}
+\label{fig:three-sphere-intersection}
+\end{figure}
+
+
+
+\begin{algorithm}[H]
+	\caption{Két kör metszéspontjai gömbfelületen}
+	\label{alg:intersection}
+	\textbf{\underline{Function}} intersection($M_1, M_2, r_1, r_2, R$) ahol $R$ a bolygó sugara kilóméterben
+	\begin{algorithmic}[1]
+	\STATE $x_1 := M_1$ normalizálva \COMMENT{Valójában $M_1$ és $M_2$ vektor hossza már eleve 1}
+	\STATE $x_2 := M_2$ normalizálva
+	\STATE $rad_1 := r_1 / R$ \COMMENT{Átváltás radiánba}
+	\STATE $rad_2 := r_2 / R$
+	\STATE $q := x_1 \bullet x_2$ \COMMENT{A két vektor skaláris szorzata}
+	\IF{$q^2 = 1$}
+		\STATE return \COMMENT{A két kör nem metszheti egymást mert $M_1 = M_2$  vagy $M_1$ és $M_2$ a centrumhoz képest a szemközti oldalon állnak. Ebben az esetben vagy a körök minden pontja metszi egymást, vagy egy sem.}
+	\ENDIF
+	\STATE $a := \frac{cos(rad_1) - q \cdot cos(rad_2)}{1 - q^2}$
+	\STATE $b := \frac{cos(rad_2) - q \cdot cos(rad_1)}{1 - q^2}$
+	\STATE $x_0 := x_1 \cdot a + x_2 \cdot b$
+	\IF{$x_0^2 > 1$}
+		\STATE return \COMMENT{A két kör nem érintkezik.}
+	\ENDIF
+	\STATE $n := x_1 × x_2$
+	\IF{$n^2 = 0$}
+		\STATE return \COMMENT{A két kör középpontja vagy megegyezik vagy szemközt állnak.}
+	\ENDIF
+	\STATE $t := \sqrt{ \frac{1 - x_0 \bullet x_0}{n^2}}$
+	\STATE $i_0 := x_0 + n \cdot t$
+	\IF[Több eredmény csak pozitív $t$ esetén lehetséges]{$t > 0$}
+		\STATE $i_1 := x_0 + n \cdot -t$
+		\STATE return [$i_0$, $i_1$]
+	\ELSE
+		\STATE return [$i_0$]
+	\ENDIF
+	\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Körívek metszete gömbfelületen}
+
+A legközelebbi pontok lehetnek $N_1$, $N_2$, $A$ és $B$. $N_1$ és $N_2$ viszont nem feltétlen helyezkednek el a metszés körívén. $N_1$ és $N_2$ akkor lesz érvényes, ha az adott $M$ és $P$ pont által meghatározott körív metszi az $A$ és $B$ által rajzolt körívet.
+
+A \ref{fig:nearest-circle-intersection-examples}-es ábrán a $P_0$ szerű pontok megfelelnek mindkét kitételnek így további dolgunk nincs velük. A $P_1$ szerű pontok csak egy feltételnek felelnek meg. Az ő esetükben csak a másik kör középpontja felé kell interpolálnunk a szereplő pozícióját. A $P_2$ és $P_3$ pontok közötti különbség, hogy $P_2$-nél a legközelebbi pont maga a metszés mert se $N_1$ sem pedig $N_2$ nem a megfelelő köríven helyezkedik el.
+
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+	%uncomment if require: \path (0,468); %set diagram left start at 0, and has height of 468
+
+	%Shape: Circle [id:dp8166187689889921]
+	\draw   (134.91,201.6) .. controls (134.91,146.76) and (179.37,102.3) .. (234.21,102.3) .. controls (289.05,102.3) and (333.5,146.76) .. (333.5,201.6) .. controls (333.5,256.43) and (289.05,300.89) .. (234.21,300.89) .. controls (179.37,300.89) and (134.91,256.43) .. (134.91,201.6) -- cycle ;
+	%Shape: Circle [id:dp6909695032298264]
+	\draw   (212.91,233.6) .. controls (212.91,178.76) and (257.37,134.3) .. (312.21,134.3) .. controls (367.05,134.3) and (411.5,178.76) .. (411.5,233.6) .. controls (411.5,288.43) and (367.05,332.89) .. (312.21,332.89) .. controls (257.37,332.89) and (212.91,288.43) .. (212.91,233.6) -- cycle ;
+	%Flowchart: Summing Junction [id:dp009162364923596789]
+	\draw   (250,257.33) .. controls (250,254.02) and (252.69,251.33) .. (256,251.33) .. controls (259.31,251.33) and (262,254.02) .. (262,257.33) .. controls (262,260.65) and (259.31,263.33) .. (256,263.33) .. controls (252.69,263.33) and (250,260.65) .. (250,257.33) -- cycle ; \draw   (251.76,253.09) -- (260.24,261.58) ; \draw   (260.24,253.09) -- (251.76,261.58) ;
+	%Flowchart: Summing Junction [id:dp17652291932752062]
+	\draw   (173,237.25) .. controls (173,233.94) and (175.69,231.25) .. (179,231.25) .. controls (182.31,231.25) and (185,233.94) .. (185,237.25) .. controls (185,240.56) and (182.31,243.25) .. (179,243.25) .. controls (175.69,243.25) and (173,240.56) .. (173,237.25) -- cycle ; \draw   (174.76,233.01) -- (183.24,241.49) ; \draw   (183.24,233.01) -- (174.76,241.49) ;
+	%Flowchart: Summing Junction [id:dp4645172529660282]
+	\draw   (489,258.33) .. controls (489,255.02) and (491.69,252.33) .. (495,252.33) .. controls (498.31,252.33) and (501,255.02) .. (501,258.33) .. controls (501,261.65) and (498.31,264.33) .. (495,264.33) .. controls (491.69,264.33) and (489,261.65) .. (489,258.33) -- cycle ; \draw   (490.76,254.09) -- (499.24,262.58) ; \draw   (499.24,254.09) -- (490.76,262.58) ;
+	%Flowchart: Summing Junction [id:dp5476818076821499]
+	\draw   (335,47.33) .. controls (335,44.02) and (337.69,41.33) .. (341,41.33) .. controls (344.31,41.33) and (347,44.02) .. (347,47.33) .. controls (347,50.65) and (344.31,53.33) .. (341,53.33) .. controls (337.69,53.33) and (335,50.65) .. (335,47.33) -- cycle ; \draw   (336.76,43.09) -- (345.24,51.58) ; \draw   (345.24,43.09) -- (336.76,51.58) ;
+	%Straight Lines [id:da49460456729427316]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (341,47.33) -- (234.21,201.6) ;
+
+
+	%Straight Lines [id:da9864649930793872]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (341,47.33) -- (312.21,233.6) ;
+
+
+	%Straight Lines [id:da1538944910181792]
+	\draw    (341,47.33) -- (307.5,134.33) ;
+
+
+	%Flowchart: Connector [id:dp7527304205187331]
+	\draw   (324,135.17) .. controls (324,133.23) and (325.57,131.67) .. (327.5,131.67) .. controls (329.43,131.67) and (331,133.23) .. (331,135.17) .. controls (331,137.1) and (329.43,138.67) .. (327.5,138.67) .. controls (325.57,138.67) and (324,137.1) .. (324,135.17) -- cycle ;
+	%Flowchart: Connector [id:dp27712539160217364]
+	\draw   (287,120.17) .. controls (287,118.23) and (288.57,116.67) .. (290.5,116.67) .. controls (292.43,116.67) and (294,118.23) .. (294,120.17) .. controls (294,122.1) and (292.43,123.67) .. (290.5,123.67) .. controls (288.57,123.67) and (287,122.1) .. (287,120.17) -- cycle ;
+	%Straight Lines [id:da2513261195102452]
+	\draw    (495,258.33) -- (234.21,201.6) ;
+
+
+	%Flowchart: Connector [id:dp778704099897711]
+	\draw   (328,222.17) .. controls (328,220.23) and (329.57,218.67) .. (331.5,218.67) .. controls (333.43,218.67) and (335,220.23) .. (335,222.17) .. controls (335,224.1) and (333.43,225.67) .. (331.5,225.67) .. controls (329.57,225.67) and (328,224.1) .. (328,222.17) -- cycle ;
+	%Straight Lines [id:da16321655779119704]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (495,258.33) -- (312.21,233.6) ;
+
+
+	%Flowchart: Connector [id:dp00875038400506023]
+	\draw   (408,247.17) .. controls (408,245.23) and (409.57,243.67) .. (411.5,243.67) .. controls (413.43,243.67) and (415,245.23) .. (415,247.17) .. controls (415,249.1) and (413.43,250.67) .. (411.5,250.67) .. controls (409.57,250.67) and (408,249.1) .. (408,247.17) -- cycle ;
+	%Straight Lines [id:da46001771981700856]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (495,258.33) -- (307.5,134.33) ;
+
+
+	%Straight Lines [id:da4073168758118153]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (495,258.33) -- (239,301.25) ;
+
+
+	%Straight Lines [id:da30499884455793724]
+	\draw    (179,237.25) -- (312.21,233.6) ;
+
+
+	%Flowchart: Connector [id:dp8279616571890565]
+	\draw   (209,236.17) .. controls (209,234.23) and (210.57,232.67) .. (212.5,232.67) .. controls (214.43,232.67) and (216,234.23) .. (216,236.17) .. controls (216,238.1) and (214.43,239.67) .. (212.5,239.67) .. controls (210.57,239.67) and (209,238.1) .. (209,236.17) -- cycle ;
+
+	% Text Node
+	\draw (305,148.33) node  [align=left] {$A$};
+	% Text Node
+	\draw (240,317.33) node  [align=left] {$B$};
+	% Text Node
+	\draw (236,213.33) node  [align=left] {$M_1$};
+	% Text Node
+	\draw (311,245.33) node  [align=left] {$M_2$};
+	% Text Node
+	\draw (343,29.33) node  [align=left] {$P_2$};
+	% Text Node
+	\draw (496,276.33) node  [align=left] {$P_3$};
+	% Text Node
+	\draw (256,272.33) node  [align=left] {$P_0$};
+	% Text Node
+	\draw (179,252.33) node  [align=left] {$P_1$};
+
+	\draw   (307.33, 134.42) circle [x radius= 4, y radius= 4]   ;
+	\draw   (239.09, 300.77) circle [x radius= 4, y radius= 4]   ;
+	\end{tikzpicture}
+
+\caption{Különböző esetek a legközelebbi pontok esetében}
+\label{fig:nearest-circle-intersection-examples}
+\end{figure}
+
+\pagebreak
+
+Először is meg kell határoznunk ezeket a metszéspontokat. Nevezzük $M_1$ és $P$ által meghatározott főkör és az $A$ és $B$ által meghatározott főkör metszetét $m_1$-nek. A hasonlóan $M_2$-höz tartozó metszetet pedig $m_2$-nek.
+
+\begin{figure}[h!]
+	\centering
+
+	\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+	%uncomment if require: \path (0,468); %set diagram left start at 0, and has height of 468
+
+	%Shape: Circle [id:dp8166187689889921]
+	\draw   (134.91,201.6) .. controls (134.91,146.76) and (179.37,102.3) .. (234.21,102.3) .. controls (289.05,102.3) and (333.5,146.76) .. (333.5,201.6) .. controls (333.5,256.43) and (289.05,300.89) .. (234.21,300.89) .. controls (179.37,300.89) and (134.91,256.43) .. (134.91,201.6) -- cycle ;
+	%Shape: Circle [id:dp6909695032298264]
+	\draw   (212.91,233.6) .. controls (212.91,178.76) and (257.37,134.3) .. (312.21,134.3) .. controls (367.05,134.3) and (411.5,178.76) .. (411.5,233.6) .. controls (411.5,288.43) and (367.05,332.89) .. (312.21,332.89) .. controls (257.37,332.89) and (212.91,288.43) .. (212.91,233.6) -- cycle ;
+	%Flowchart: Summing Junction [id:dp5476818076821499]
+	\draw   (248,27.5) .. controls (248,24.19) and (250.69,21.5) .. (254,21.5) .. controls (257.31,21.5) and (260,24.19) .. (260,27.5) .. controls (260,30.81) and (257.31,33.5) .. (254,33.5) .. controls (250.69,33.5) and (248,30.81) .. (248,27.5) -- cycle ; \draw   (249.76,23.26) -- (258.24,31.74) ; \draw   (258.24,23.26) -- (249.76,31.74) ;
+	%Straight Lines [id:da49460456729427316]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (254,27.5) -- (214,376.5) ;
+
+
+	%Straight Lines [id:da9864649930793872]
+	\draw    (254,27.5) -- (312.21,233.6) ;
+
+
+	%Straight Lines [id:da1538944910181792]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (254,27.5) -- (316,151.5) ;
+
+
+	%Flowchart: Connector [id:dp7527304205187331]
+	\draw   (281,138.17) .. controls (281,136.23) and (282.57,134.67) .. (284.5,134.67) .. controls (286.43,134.67) and (288,136.23) .. (288,138.17) .. controls (288,140.1) and (286.43,141.67) .. (284.5,141.67) .. controls (282.57,141.67) and (281,140.1) .. (281,138.17) -- cycle ;
+	%Flowchart: Connector [id:dp27712539160217364]
+	\draw   (242,102.17) .. controls (242,100.23) and (243.57,98.67) .. (245.5,98.67) .. controls (247.43,98.67) and (249,100.23) .. (249,102.17) .. controls (249,104.1) and (247.43,105.67) .. (245.5,105.67) .. controls (243.57,105.67) and (242,104.1) .. (242,102.17) -- cycle ;
+	\draw  [dash pattern={on 0.84pt off 2.51pt}] (78.79,137.36) -- (467.29,298.6)(353.66,23.73) -- (192.42,412.23) ;
+	%Flowchart: Connector [id:dp6649804334905414]
+	\draw   (290,168.17) .. controls (290,166.23) and (291.57,164.67) .. (293.5,164.67) .. controls (295.43,164.67) and (297,166.23) .. (297,168.17) .. controls (297,170.1) and (295.43,171.67) .. (293.5,171.67) .. controls (291.57,171.67) and (290,170.1) .. (290,168.17) -- cycle ;
+	%Flowchart: Connector [id:dp289603407901041]
+	\draw   (213,354.17) .. controls (213,352.23) and (214.57,350.67) .. (216.5,350.67) .. controls (218.43,350.67) and (220,352.23) .. (220,354.17) .. controls (220,356.1) and (218.43,357.67) .. (216.5,357.67) .. controls (214.57,357.67) and (213,356.1) .. (213,354.17) -- cycle ;
+	%Flowchart: Summing Junction [id:dp5805131421835337]
+	\draw   (229.21,201.6) .. controls (229.21,198.83) and (231.45,196.6) .. (234.21,196.6) .. controls (236.97,196.6) and (239.21,198.83) .. (239.21,201.6) .. controls (239.21,204.36) and (236.97,206.6) .. (234.21,206.6) .. controls (231.45,206.6) and (229.21,204.36) .. (229.21,201.6) -- cycle ; \draw   (230.67,198.06) -- (237.74,205.13) ; \draw   (237.74,198.06) -- (230.67,205.13) ;
+	%Flowchart: Summing Junction [id:dp23947035784845427]
+	\draw   (307.21,233.6) .. controls (307.21,230.83) and (309.45,228.6) .. (312.21,228.6) .. controls (314.97,228.6) and (317.21,230.83) .. (317.21,233.6) .. controls (317.21,236.36) and (314.97,238.6) .. (312.21,238.6) .. controls (309.45,238.6) and (307.21,236.36) .. (307.21,233.6) -- cycle ; \draw   (308.67,230.06) -- (315.74,237.13) ; \draw   (315.74,230.06) -- (308.67,237.13) ;
+
+	% Text Node
+	\draw (305,148.33) node  [align=left] {$A$};
+	% Text Node
+	\draw (240,317.33) node  [align=left] {$B$};
+	% Text Node
+	\draw (236,213.33) node  [align=left] {$M_1$};
+	% Text Node
+	\draw (311,245.33) node  [align=left] {$M_2$};
+	% Text Node
+	\draw (254,14.33) node  [align=left] {$P_1$};
+	% Text Node
+	\draw (232,361.33) node  [align=left] {$m_1$};
+	% Text Node
+	\draw (312,171.33) node  [align=left] {$m_2$};
+
+	\draw   (307.33, 134.42) circle [x radius= 4, y radius= 4]   ;
+	\draw   (239.09, 300.77) circle [x radius= 4, y radius= 4]   ;
+	\end{tikzpicture}
+
+\caption{Körívek metszete gömbfelületen}
+\label{fig:arc-intersection}
+\end{figure}
+
+\lstset{caption={Pontok által meghatározott körívek metszete}, label=src:arcIntersect}
+\begin{lstlisting}[language={JavaScript}]
+import { Vector3 } from 'three';
+
+export function arcIntersection(p1: Vector3, pe1: Vector3, p2: Vector3, pe2: Vector3): Vector3 {
+	const c1 = p1.clone().cross(pe1);
+	const c2 = p2.clone().cross(pe2);
+	const i1 = c1.clone().cross(c2);
+	const i2 = c2.clone().cross(c1);
+	const mid = p1.clone()
+		.add(p2)
+		.add(pe1)
+		.add(pe2);
+	return mid.dot(i1) > 0 ? i1 : i2;
+}
+\end{lstlisting}
+
+Ha vesszük az $m_1, m_2, A$ és $B$ pontok és $P$ pont közti távolságot, akkor ezek alaján már meghatározhatjuk, hogy végül melyik pontot válasszuk.
 
 
 
@@ -560,191 +1000,3 @@ Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél k
 	\caption{Devops eszközök}
 	\label{tab:technologies}
 \end{table}
-
-
--
-
-
-
-
-
-
-A létrehozott projecteket egy Lore nevű dokumentum fogja tárolni
-
-
-
-
-\section{Adat Modell}
-
-
-
-
-
-
-
-
-
-
-Az alkalmazás induláskor az alábbi folyamat indul el, ez mindig biztosítani fog egy élő adatbáziselérést az applikáció többi részére.
-
-\begin{plantuml}
-	@startuml
-	skinparam monochrome true
-	[*] --> ApplicationBootstrap
-
-	state ApplicationBootstrap {
-		ApplicationBootstrap : Angular Inner Sequences
-	}
-	ApplicationBootstrap --> DatabaseBootstrap
-
-	state DatabaseBootstrap {
-		[*] --> InitializeCollections
-		InitializeCollections : Lore
-		InitializeCollections : Actor
-		InitializeCollections : ActorDelta
-		InitializeCollections --> InitializeExample
-		InitializeExample : Az alap project létrehozása
-		InitializeExample --> [*]
-		note right of InitializeCollections : Ez a folyamat csak akkor\nhozza létre a kollekciókat\nha szükség van rá
-	}
-
-	DatabaseBootstrap --> DatabaseBootstrap : On Fail
-
-	DatabaseBootstrap --> [*]
-
-	@enduml
-\end{plantuml}
-
-
-
-\begin{plantuml}
-	@startuml
-	skinparam monochrome true
-	DatabaseBootstrap --> LoresLoaded: LoadLores
-
-	state LoresLoaded {
-	}
-
-	LoresLoaded --> LoreSelected: ChangeSelectedLore
-
-	ChangeSelectedLore --> asd
-	LoreSelected --> [*]
-
-
-	@enduml
-\end{plantuml}
-
-
-\begin{plantuml}
-	@startuml
-	skinparam monochrome true
-	[-> Database : Database Initialized
-	== Initialization ==
-	group LoadLores
-		Database --> LoreState: Single find
-	end
-	== Repetition ==
-
-	group State refresh hooks
-		Database -> LoreState: On Insert
-		Database -> LoreState: On Update
-		Database -> LoreState: On Delete
-	end
-
-	group Database manipulation
-		DatabasStateFacade -> Database: Do Insert
-		DatabasStateFacade -> Database: Do Update
-		DatabasStateFacade -> Database: Do Delete
-	end
-
-	LoreState --> LoreState: ChangeSelectedLore
-
-	@enduml
-\end{plantuml}
-
-Az al-állapotokból kifele induló akciók mindíg a globális állapotteret jelentik, amik vissza fognak érkezni egy másik al-állapotba, vagy akár ugyanebbe.
-
-
-
-\begin{figure}[h!]
-	\centering
-	\begin{plantuml}
-		@startuml
-		skinparam monochrome true
-		[-> Database : Database Initialized
-		== Initialization ==
-
-		Database --> LoreState: Load Lores
-		LoreState -> LoreState: Shim each entry
-		LoreState ->]: loadLoresSuccess
-		@enduml
-	\end{plantuml}
-	\caption{A globális állapottér bootstrap folyamata}
-	\label{fig:global-state-bootstrap}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\begin{plantuml}
-		@startuml
-		skinparam monochrome true
-		note left of LoreState : updateInitialSelectedLore
-		[-> LoreState : loadLoresSuccess
-		LoreState -> LoreState: Select the first one
-		LoreState ->] : changeSelectedLore
-		@enduml
-	\end{plantuml}
-	\caption{Az első kiválaszott project kiválasztása}
-	\label{fig:global-state-bootstrap}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\begin{plantuml}
-		@startuml
-		skinparam monochrome true
-		Database --> LoreState: createLoreSuccess
-		LoreState ->]: changeSelectedLore
-		@enduml
-	\end{plantuml}
-	\caption{Új projekt létrehozásakor automatikusan kiválasztásra kerül}
-	\label{fig:global-state-bootstrap}
-\end{figure}
-
-
-\begin{figure}[h!]
-	\centering
-	\begin{plantuml}
-		@startuml
-		skinparam monochrome true
-		[-> LoreState: changeSelectedLore
-		LoreState ->]: changeSelectedLoreSuccess
-		[-> ActorState: changeSelectedLoreSuccess
-		Database --> ActorState: connection
-		ActorState -> ActorState: loading everything into state
-		ActorState ->]: loadActorsSuccess
-		[-> ActorState: loadActorsSuccess
-		loop for each actor object that has been loaded
-		ActorState ->]: loadActorDeltasForActor
-		end
-		@enduml
-	\end{plantuml}
-	\caption{Projekt kiválasztásakor betöltődik az összes szereplő és azok összes deltái}
-	\label{fig:global-state-bootstrap}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\begin{plantuml}
-		@startuml
-		skinparam monochrome true
-		[-> ActorDeltaState: loadActorDeltasForActor
-		Database --> ActorDeltaState: connection
-		ActorDeltaState -> ActorDeltaState: Shim every loaded object
-		ActorDeltaState ->]: loadActorDeltasForActorSuccess
-		@enduml
-	\end{plantuml}
-	\caption{Szereplő első betöltődésekor az összes deltáit is betöltjük}
-	\label{fig:global-state-bootstrap}
-\end{figure}
-

@@ -502,7 +502,6 @@ export class EngineService {
 					final: end
 				});
 			}
-			console.log(button === 0);
 			if (this.interactionMode === 'draw' && button === 0 && !this.control.enabled) {
 				intersection.object.dispatchEvent({
 					type: this.interactionMode,

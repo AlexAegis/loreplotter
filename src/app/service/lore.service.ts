@@ -11,12 +11,13 @@ import { ActorService } from '@app/service/actor.service';
 import { LoreDocumentMethods } from '@app/service/database';
 import { DatabaseService } from '@app/service/database.service';
 import { EngineService } from '@lore/engine/engine.service';
+import { Axis } from '@lore/engine/helper';
 
 import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, from, Observable, Subject, zip } from 'rxjs';
-import { filter, flatMap, map, mergeMap, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { filter, flatMap, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
 const DAY_IN_SECONDS = 86400;
@@ -59,12 +60,12 @@ export class LoreService extends BaseDirective {
 				.pipe(
 					filter(
 						cursor =>
-							this.engineService.stage !== undefined && this.engineService.stage.sunGroup !== undefined
+							this.engineService.stage !== undefined && this.engineService.stage.sun !== undefined
 					)
 				)
 				.subscribe(cursor => {
-					this.engineService.stage.sunGroup.rotation.set(0, 0, 0);
-					this.engineService.stage.sunGroup.rotateY(
+					this.engineService.stage.sun.resetPosition();
+					this.engineService.stage.sun.position.applyAxisAngle(Axis.y,
 						((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
 					);
 				})
