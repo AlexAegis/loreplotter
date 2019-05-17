@@ -218,7 +218,7 @@ export class LoreEffects {
 					take(1),
 					flatMap(lores => lores),
 					filter(l => l.id !== selected.id),
-					endWith(of(undefined)), // making sure that one element will be inside the stream
+	 endWith(undefined as {}), // making sure that one element will be inside the stream
 					take(1),
 					mergeMap(lore =>
 						iif(

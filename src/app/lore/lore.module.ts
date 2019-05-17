@@ -7,6 +7,7 @@ import { APP_FORMATS } from '@app/core.module';
 import { FocusDirective, RepeatDirective } from '@app/directive';
 import { VarDirective } from '@app/directive/var.directive';
 import { EngineComponent, EngineService } from '@app/lore/engine';
+import { MathRoundPipe } from '@app/pipe';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
 import { MaterialModule, SharedModule } from '@app/shared';
 import {
@@ -56,7 +57,8 @@ import { LoreComponent } from './lore.component';
 		LoreFormComponent,
 		ExportComponent,
 		ConfirmComponent,
-		ToolbarComponent
+		ToolbarComponent,
+		MathRoundPipe
 	],
 	imports: [
 		LoreStoreModule,
@@ -67,7 +69,6 @@ import { LoreComponent } from './lore.component';
 		NgxMaskModule.forRoot({}),
 		ColorPickerModule
 	],
-	entryComponents: [ActorFormComponent, LoreFormComponent],
 	providers: [
 		LoreService,
 		EngineService,

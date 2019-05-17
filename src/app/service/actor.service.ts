@@ -7,8 +7,8 @@ import { DatabaseService } from '@app/service/database.service';
 import { ActorFormResultData } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { combineLatest, from, Observable, Subject } from 'rxjs';
-import { filter, map, mergeMap, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
+import { combineLatest, from, Observable, of, Subject } from 'rxjs';
+import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
 import { Group, Vector3 } from 'three';
 
 export interface ActorAccumulator {
@@ -30,6 +30,37 @@ export class ActorService {
 	public slerperHelper: Group;
 	public latestSlerpsWorldPositionHolder: Vector3;
 	public pseudoPoint: Group;
+	/**
+	 * rotates the position t'th way between the enclosure
+	 * Returns a new worldPositon at radius 1
+	 */
+	public lookAtInterpolated = (() => {
+		const _result = new Vector3();
+		const _norm = new Vector3();
+		const _from = new Vector3();
+		const _to = new Vector3();
+		return (a: Vector3Serializable, b: Vector3Serializable, t: number, target?: Group): Vector3 => {
+			_from.copy(a as Vector3);
+			_to.copy(b as Vector3);
+			if (t === Infinity || isNaN(t)) {
+				_result.copy(_from);
+			} else if (t === -Infinity) {
+				_result.copy(_to);
+			} else {
+				const ang = _from.angleTo(_to);
+				_norm
+					.copy(_from)
+					.cross(_to)
+					.normalize();
+				_result.copy(_from).applyAxisAngle(_norm, t * ang);
+			}
+			if (target) {
+				target.lookAt(_result);
+			}
+			return _result;
+		};
+	})();
+	private _va = new Vector3(); // Helper vector objects
 
 	public constructor(
 		private engineService: EngineService,
@@ -102,6 +133,7 @@ export class ActorService {
 		map(([all, selected]) => all.find(acc => acc.actor.id === selected.id)),
 		filter(delta => delta !== undefined)
 	);
+	private _vb = new Vector3();
 
 	public actorDialogSubscription = this.actorFormSave
 		.pipe(
@@ -138,34 +170,32 @@ export class ActorService {
 			tap(({ object }) => refreshBlockOfActorObject(object))
 		)
 		.subscribe();
-
-	/**
-	 * rotates the position t'th way between the enclosure
-	 * Returns a new worldPositon at radius 1
-	 */
-	public lookAtInterpolated = (() => {
-		const _result = new Vector3();
-		const _norm = new Vector3();
-		const _from = new Vector3();
-		const _to = new Vector3();
-		return (a: Vector3Serializable, b: Vector3Serializable, t: number, target?: Group): Vector3 => {
-			_from.copy(a as Vector3);
-			_to.copy(b as Vector3);
-			if (t === Infinity) {
-				_result.copy(_from);
-			} else if (t === -Infinity) {
-				_result.copy(_to);
-			} else {
-				const ang = _from.angleTo(_to);
-				_norm.copy(_from).cross(_to).normalize();
-				_result.copy(_from).applyAxisAngle(_norm, t * ang);
-			}
-			if (target) {
-				target.lookAt(_result);
-			}
-			return _result;
-		};
-	})();
+	public maxPossiblePlanetRadius$ = this.databaseService.currentLoreActors$.pipe(
+		mergeMap(actors => of(...actors).pipe(mergeScan((acc, actor) =>
+			of(...actor._states.nodes()).pipe(
+				pairwise(),
+				scan(
+					(acc, [a, b]) => {
+						if (a.value.maxSpeed !== undefined) {
+							acc.lastMaxSpeed = a.value.maxSpeed;
+						}
+						this._va.copy(a.value.position as Vector3);
+						this._vb.copy(b.value.position as Vector3);
+						const time = Math.abs(b.key.unix - a.key.unix); // s
+						const maxDistance = acc.lastMaxSpeed * (time / 3600); // km/h * h = km, arc-length
+						const angle = this._va.angleTo(this._vb); // radian
+						const maxRadius = maxDistance / angle; // km, radius
+						if (acc.maxRadius >= maxRadius) { // Min search
+							acc.maxRadius = maxRadius;
+						}
+						return acc;
+					},
+					{ lastMaxSpeed: Actor.DEFAULT_MAX_SPEED, maxRadius: Infinity }
+				),
+				map(({ maxRadius }) => (acc > maxRadius ? maxRadius : acc)) // the smallest maximum
+			), Infinity))),
+		shareReplay(1)
+	);
 
 	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
 		let finalPosition: Vector3Serializable;

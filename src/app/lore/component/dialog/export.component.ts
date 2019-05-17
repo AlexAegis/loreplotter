@@ -124,7 +124,7 @@ export class ExportComponent implements OnInit {
 					)
 				),
 				flatMap(({ attachments, name }) =>
-					from(attachments).pipe(
+					of(...attachments).pipe(
 						switchMap(attachment => attachment.getData()),
 						map(blob => ({ blob, name }))
 					)

@@ -3,11 +3,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
 import { Lore, Planet } from '@app/model/data';
-import { DatabaseService } from '@app/service';
+import { ActorService, DatabaseService } from '@app/service';
 import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { combineLatest, from, iif, of } from 'rxjs';
+import { combineLatest, from, iif, Observable, of } from 'rxjs';
 import { endWith, filter, flatMap, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 
 @Component({
@@ -17,6 +17,8 @@ import { endWith, filter, flatMap, map, mergeMap, switchMap, take, tap } from 'r
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoreFormComponent extends BaseDirective implements OnInit {
+	public maxPossiblePlanetRadius$: Observable<number>;
+
 	public loreForm = this.formBuilder.group({
 		id: this.formBuilder.control(''),
 		tex: this.formBuilder.control(''),
@@ -24,21 +26,34 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 			'',
 			[Validators.required],
 			[
-				ctrl => {
-					return this.storeFacade.lores$.pipe(
+				ctrl =>
+					this.storeFacade.lores$.pipe(
 						take(1),
 						flatMap(lores => lores),
 						filter(lore => lore.name === ctrl.value && this.loreForm.controls['id'].value !== lore.id),
 						map(lore => ({ duplicate: `Name already present` })),
-						endWith(of(undefined)),
+						endWith(undefined as {}),
 						take(1)
-					);
-				}
+					)
 			]
 		),
 		planet: this.formBuilder.group({
 			name: this.formBuilder.control('', [Validators.required]),
-			radius: this.formBuilder.control('', [Validators.required])
+			radius: this.formBuilder.control(
+				'',
+				[Validators.required],
+				[
+					ctrl =>
+						this.maxPossiblePlanetRadius$.pipe(
+							take(1),
+							map(maxRad =>
+								this.loreForm.controls['id'] !== undefined && ctrl.value > Math.round(maxRad)
+									? { large: true }
+									: undefined
+							)
+						)
+				]
+			)
 		})
 	});
 
@@ -54,9 +69,11 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 		private dialog: MatDialog,
 		private formBuilder: FormBuilder,
 		private databaseService: DatabaseService,
+		private actorService: ActorService,
 		private storeFacade: StoreFacade
 	) {
 		super();
+		this.maxPossiblePlanetRadius$ = actorService.maxPossiblePlanetRadius$;
 		this.loreForm.controls['id'].setValue(originalData.id);
 		this.loreForm.controls['name'].setValue(originalData.name);
 		(this.loreForm.controls['planet'] as FormGroup).controls['name'].setValue(originalData.planet.name);

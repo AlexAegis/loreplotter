@@ -28,6 +28,7 @@ const DAY_IN_SECONDS = 86400;
 @Injectable()
 export class LoreService extends BaseDirective {
 	public spawnOnWorld = new Subject<{ point: ActorObject; position: Vector3 }>();
+
 	constructor(
 		private engineService: EngineService,
 		private databaseService: DatabaseService,
@@ -35,6 +36,7 @@ export class LoreService extends BaseDirective {
 		private actorService: ActorService
 	) {
 		super();
+
 		// This subscription makes sure that always the current texture is shown
 		this.teardown(
 			this.databaseService.currentLore$
@@ -95,7 +97,6 @@ export class LoreService extends BaseDirective {
 					} else if (enclosure.first === undefined && enclosure.last !== undefined) {
 						enclosure.first = enclosure.last;
 					}
-
 					if (overrideNodePositions !== undefined && overrideNodePositions.overrides.length > 0) {
 						for (const node of actor._states.nodes()) {
 							overrideNodePositions.overrides

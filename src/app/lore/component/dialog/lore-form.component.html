@@ -22,8 +22,11 @@
 			<mat-form-field class="radius" floatLabel="never">
 				<mat-label>{{ originalData?.planet?.radius }}</mat-label>
 				<input formControlName="radius" mask="9*" matInput/>
+				<mat-error *ngIf="loreForm.hasError('large', 'planet.radius')">Too large for current paths!</mat-error>
 				<mat-error *ngIf="loreForm.hasError('required', 'planet.radius')">Required</mat-error>
 			</mat-form-field>
+
+			Max possible radius right now: {{ maxPossiblePlanetRadius$ | async | mathRound }}
 		</div>
 	</form>
 </mat-dialog-content>

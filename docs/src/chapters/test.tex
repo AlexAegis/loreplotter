@@ -1,5 +1,102 @@
 \chapter{Tesztelés}
 \label{ch:intro}
 
-A tesztelés inkrementálisan, fejlesztés közben manuálisan zajlott
+A tesztelés inkrementálisan, fejlesztés közben manuálisan zajlott.
 
+Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, hogy maximális lefedést érjünk el:
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Az alkalmazás elindult  \\
+		\hline
+		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra  \\
+		\hline
+		\emph{Sikertelen Eredmény} & Az előzőleg kiválasztott projekt marad megnyitva. Új adat nem kerül mentésre.  \\
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}
+			\item A felhasználó a jobb fent található lenyíló menüben rákattint a 'Create' gombra
+			\item Megjelenik a projekt készítő form
+			\item A kötelező név mezőt kitölti
+			\begin{enumerate}
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+			\end{enumerate}
+			\item A 'Create' gombra kattint.
+			\begin{enumerate}
+				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
+			\end{enumerate}
+		\end{enumerate}
+
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Projekt készítése textúra nélkül}
+	\label{tab:story-project-create}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Az alkalmazás elindult  \\
+		\hline
+		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra textúrával  \\
+		\hline
+		\emph{Sikertelen Eredmény} & Az előzőleg kiválasztott projekt marad megnyitva. Új adat nem kerül mentésre.  \\
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}
+			\item A felhasználó a jobb fent található lenyíló menüben rákattint a 'Create' gombra
+			\item Megjelenik a projekt készítő form
+			\item A kötelező név mezőt kitölti
+			\begin{enumerate}
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+			\end{enumerate}
+			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
+			\item A 'Create' gombra kattint
+			\begin{enumerate}
+				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
+			\end{enumerate}
+		\end{enumerate}
+
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Projekt készítése textúrával}
+	\label{tab:story-project-create-texture}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
+		\hline
+		\emph{Eredmény} & Azonnal megváltoznak a projekt adatai  \\
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}
+			\item A felhasználó a jobb fent található projekt gombra rákatting
+			\item Megjelenik a projekt szerkesztő form
+			\item Módosításokat hajt végre
+
+
+
+			\begin{enumerate}
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+			\end{enumerate}
+			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
+			\item A 'Create' gombra kattint
+		\end{enumerate}
+
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Projekt Szerkesztése}
+	\label{tab:story-project-edit}
+\end{table}
