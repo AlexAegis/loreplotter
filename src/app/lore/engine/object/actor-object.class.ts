@@ -64,7 +64,6 @@ export class PanHelper {
 				globe.radius
 			);
 
-
 			if (intersections.length > 0) {
 				this.intersection.a.position.copy(intersections[0]);
 				preLookHelper.lookAt(this.intersection.a.position);
@@ -264,8 +263,16 @@ export class ActorObject extends Basic {
 							this.panHelper.calculateIntersection(this.globe, this.prelookHelper);
 
 							if (!environment.production) {
-								this.globe.putArrowHelper('leftToOther', this.panHelper.left.position, this.panHelper.left.toOther);
-								this.globe.putArrowHelper('rightToOther', this.panHelper.right.position, this.panHelper.right.toOther);
+								this.globe.putArrowHelper(
+									'leftToOther',
+									this.panHelper.left.position,
+									this.panHelper.left.toOther
+								);
+								this.globe.putArrowHelper(
+									'rightToOther',
+									this.panHelper.right.position,
+									this.panHelper.right.toOther
+								);
 							}
 						}
 					})
@@ -318,7 +325,6 @@ export class ActorObject extends Basic {
 								0xffbc00
 							);
 						}
-
 					}
 					if (this.panHelper.intersection.b.valid) {
 						this.panHelper.intersection.b.distanceP = this.panHelper.intersection.b.position.angleTo(
@@ -336,7 +342,8 @@ export class ActorObject extends Basic {
 								'leftToIntB',
 								this.panHelper.left.position,
 								this.panHelper.left.toIntB,
-								0xff0101);
+								0xff0101
+							);
 							this.globe.putArrowHelper(
 								'rightToIntB',
 								this.panHelper.right.position,
@@ -344,7 +351,6 @@ export class ActorObject extends Basic {
 								0x00ff4e
 							);
 						}
-
 					}
 
 					if (this.panHelper.intersection.a.valid && this.panHelper.intersection.b.valid) {
@@ -361,13 +367,14 @@ export class ActorObject extends Basic {
 							.applyAxisAngle(this.panHelper.intersection.abNorm, this.panHelper.intersection.abDist * Math.PI / 2);
 */
 
-						this.panHelper.intersection.center.copy(arcIntersection(
-							this.panHelper.intersection.a.position,
-							this.panHelper.intersection.b.position,
-							this.panHelper.left.position,
-							this.panHelper.right.position
-						));
-
+						this.panHelper.intersection.center.copy(
+							arcIntersection(
+								this.panHelper.intersection.a.position,
+								this.panHelper.intersection.b.position,
+								this.panHelper.left.position,
+								this.panHelper.right.position
+							)
+						);
 
 						this.panHelper.left.toCenter
 							.copy(this.panHelper.intersection.center)
@@ -389,7 +396,6 @@ export class ActorObject extends Basic {
 								0x0000ff
 							);
 						}
-
 
 						this.panHelper.left.toNearestAllowed
 							.copy(this.panHelper.left.nearestAllowedPosition)
@@ -413,7 +419,6 @@ export class ActorObject extends Basic {
 								0x90c5ff
 							);
 						}
-
 
 						this.panHelper.left.angleBetweenOtherAndCenter = this.panHelper.left.toOther.angleTo(
 							this.panHelper.left.toCenter
@@ -455,7 +460,6 @@ export class ActorObject extends Basic {
 								0x9e00ff
 							);
 						}
-
 					}
 
 					// PREPARATION END
