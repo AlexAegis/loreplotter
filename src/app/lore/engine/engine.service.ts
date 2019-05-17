@@ -274,18 +274,17 @@ export class EngineService {
 			uniforms: {
 				c: { type: 'f', value: 0.5 },
 				p: { type: 'f', value: 12 },
-				glowColor: { type: 'c', value: new Color('#2f91ff') },
+				glowColor: { type: 'c', value: new Color('#256cc3') },
 				viewVector: { type: 'v3', value: this.stage.camera.position }
 			},
 			vertexShader: atmosphereShader.vertexShader,
 			fragmentShader: atmosphereShader.fragmentShader,
 			side: BackSide,
-			blending: AdditiveBlending,
-			transparent: false
+			blending: AdditiveBlending
 		});
 
-		const glow = new Mesh(new SphereBufferGeometry(this.globe.radius, 60, 60), glowMaterial);
-		glow.scale.setScalar(1.04);
+		const glow = new Mesh(new SphereBufferGeometry(23, 60, 60), glowMaterial);
+		//glow.scale.setScalar(1.04);
 		this.stage.add(glow);
 		this.initializePostprocessing();
 

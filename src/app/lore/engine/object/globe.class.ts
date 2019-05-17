@@ -1,12 +1,14 @@
 import { Actor } from '@app/model/data';
 import { ClickEvent, DrawEvent } from '@lore/engine/event';
 import { IndicatorSphere } from '@lore/engine/object/indicator-sphere.class';
+import { Pin } from '@lore/engine/object/pin.class';
 import { InteractionMode } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { auditTime, scan } from 'rxjs/operators';
 import {
+	ArrowHelper,
 	BufferGeometry,
 	Group,
 	Line,
@@ -27,6 +29,27 @@ import { DynamicTexture } from './dynamic-texture.class';
 import { Water } from './water.class';
 
 export class Globe extends Basic {
+
+	public putArrowHelper = (() => {
+		const _normalized = new Vector3();
+
+		return (name: string, from: Vector3, to: Vector3, color?: number): ArrowHelper => {
+			let arrow = this.getObjectByName(name) as ArrowHelper;
+			_normalized.copy(to).normalize();
+			if (arrow === undefined) {
+				arrow = new ArrowHelper(_normalized, from, to.length(), color);
+				arrow.name = name;
+				this.add(arrow);
+			} else {
+				arrow.position.copy(from);
+				arrow.setDirection(_normalized);
+				arrow.setLength(to.length());
+				// arrow.setColor(color);
+			}
+			return arrow;
+		};
+	})();
+
 	public constructor(
 		private zoomSubject: BehaviorSubject<number>,
 		public radius: number = 1,
@@ -61,7 +84,9 @@ export class Globe extends Basic {
 			map: this.displacementTexture,
 			displacementScale: this.displacementScale,
 			displacementBias: this.displacementBias,
-			bumpScale: 0.008
+			bumpScale: 0.008,
+			opacity: 0.5, // TODO: Ditch
+			transparent: false // TODO: Ditch
 			// roughness: 0.5,
 			// metalness: 0.5,
 			// reflectivity: 0.7,
@@ -140,6 +165,15 @@ export class Globe extends Basic {
 				this.points.forEach(point => (point as ActorObject).updateHeightAndWorldPosAndScale(next));
 				this.changed();
 			});
+	}
+
+	public putPin(name: string, color?: string): Pin {
+		let pin = this.getObjectByName(name) as Pin;
+		if (pin === undefined) {
+			pin = new Pin(name, color);
+			this.add(pin);
+		}
+		return pin;
 	}
 
 	public get points(): Array<ActorObject> {

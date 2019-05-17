@@ -3,6 +3,7 @@ import { arcIntersection } from '@app/function/arc-intersect.function';
 import { intersection } from '@app/function/intersection.function';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { ActorAccumulator, ActorService, LoreService } from '@app/service';
+import { environment } from '@env/environment';
 import { Pin } from '@lore/engine/object/pin.class';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
@@ -12,50 +13,50 @@ import { Group, Math as ThreeMath, MeshBasicMaterial, Quaternion, SphereBufferGe
 import { Basic } from './basic.class';
 import { Globe } from './globe.class';
 
+export class IntersectionConnectorHelper {
+	position = new Vector3();
+	quaternion = new Quaternion();
+	distanceP = Infinity;
+	valid = false;
+
+	public reset(): void {
+		this.valid = false;
+	}
+}
 
 export class IntersectionHelper {
+	a = new IntersectionConnectorHelper();
+	b = new IntersectionConnectorHelper();
+	abDist = Infinity;
+	abNorm = new Vector3();
+	center = new Vector3();
+
+	public reset(): void {
+		this.a.reset();
+		this.b.reset();
+	}
+}
+
+export class PanHelper {
 	left = new EventHelper();
 	right = new EventHelper();
 	time = Infinity;
 	normal = new Vector3();
 	lrDist = Infinity;
-	intersection = {
-		a: {
-			postition: new Vector3(),
-			quaternion: new Quaternion(),
-			distanceP: Infinity,
-			valid: false
-		},
-		b: {
-			postition: new Vector3(),
-			quaternion: new Quaternion(),
-			distanceP: Infinity,
-			valid: false
-		},
-		abDist: Infinity,
-		abNorm: new Vector3(),
-		center: new Vector3()
-	};
+	intersection = new IntersectionHelper();
 
 	public reset(): void {
 		this.left.reset();
 		this.right.reset();
-		this.intersection.a.valid = false;
-		this.intersection.b.valid = false;
+		this.intersection.reset();
 	}
 
 	public calculateIntersection(globe: Globe, preLookHelper: Group) {
 		if (this.left.valid && this.right.valid) {
-			this.normal
-				.copy(this.left.position)
-				.cross(this.right.position);
+			this.normal.copy(this.left.position).cross(this.right.position);
 
-			this.left.toOther
-				.copy(this.right.position)
-				.sub(this.left.position);
-			this.right.toOther
-				.copy(this.left.position)
-				.sub(this.right.position);
+			this.left.toOther.copy(this.right.position).sub(this.left.position);
+			this.right.toOther.copy(this.left.position).sub(this.right.position);
 
 			const intersections = intersection(
 				{ center: this.left.position, radius: this.left.allowedDistance },
@@ -63,42 +64,37 @@ export class IntersectionHelper {
 				globe.radius
 			);
 
-			let intersectA = globe.getObjectByName('intersectA');
-			let intersectB = globe.getObjectByName('intersectB');
-
-			// TODO remove Pins
-			if (intersectA === undefined) {
-				intersectA = new Pin('intersectA', '#00ff95');
-				globe.add(intersectA);
-			}
-			if (intersectB === undefined) {
-				intersectB = new Pin('intersectB', '#00e9ff');
-				globe.add(intersectB);
-			}
 
 			if (intersections.length > 0) {
-				this.intersection.a.postition.copy(intersections[0]);
-				intersectA.position.copy(this.intersection.a.postition);
-				preLookHelper.lookAt(this.intersection.a.postition);
+				this.intersection.a.position.copy(intersections[0]);
+				preLookHelper.lookAt(this.intersection.a.position);
 				this.intersection.a.quaternion = preLookHelper.quaternion.clone();
 				this.intersection.a.valid = true;
+
+				if (!environment.production) {
+					let intersectA = globe.putPin('intersectA');
+					intersectA.position.copy(this.intersection.a.position);
+				}
 			} else {
 				this.intersection.a.valid = false;
 			}
 
 			if (intersections.length > 1) {
-				this.intersection.b.postition.copy(intersections[1]);
-				intersectB.position.copy(this.intersection.b.postition);
-				preLookHelper.lookAt(this.intersection.b.postition);
+				this.intersection.b.position.copy(intersections[1]);
+				preLookHelper.lookAt(this.intersection.b.position);
 				this.intersection.b.quaternion = preLookHelper.quaternion.clone();
 				this.intersection.b.valid = true;
+
+				if (!environment.production) {
+					let intersectB = globe.putPin('intersectB');
+					intersectB.position.copy(this.intersection.b.position);
+				}
 			} else {
 				this.intersection.b.valid = false;
 			}
 
 			console.log('this.intersection: ', this.intersection);
 		}
-
 	}
 }
 
@@ -125,38 +121,59 @@ export class EventHelper {
 	angleBetweenOtherAndCenter = Infinity; // If bigger than PI/2 then the bigger arc is on the intersection
 	valid = false;
 
-
-	public setFromEvent(event: Node<UnixWrapper, ActorDelta>, globe: Globe, next: ActorAccumulator, preLookHelper: Group): void {
+	public setFromEvent(
+		event: Node<UnixWrapper, ActorDelta>,
+		globe: Globe,
+		next: ActorAccumulator,
+		preLookHelper: Group
+	): void {
 		this.position.copy(event.value.position as Vector3);
 		this.time = Math.abs(event.key.unix - next.cursor);
-		this.allowedDistance =
-			(this.time / 3600) * next.accumulator.maxSpeed;
+		this.allowedDistance = (this.time / 3600) * next.accumulator.maxSpeed;
 		this.allowedAngle = this.allowedDistance / globe.radius;
 
-		if (next.cursor > event.key.unix) { // future
+		if (next.cursor > event.key.unix) {
+			// future
 			globe.indicatorFrom.setTargetRadian(this.allowedAngle);
 			globe.indicatorFrom.parent.lookAt(this.position);
 			globe.indicatorFrom.doShow();
-		} else { // past
+		} else {
+			// past
 			globe.indicatorTo.setTargetRadian(this.allowedAngle);
 			globe.indicatorTo.parent.lookAt(this.position);
 			globe.indicatorTo.doShow();
 		}
-
 
 		this.valid = true;
 
 		// Quaternion stuff TODO: Ditch
 		preLookHelper.lookAt(this.position);
 		this.quaternion = preLookHelper.quaternion.clone();
-
 	}
 
 	public reset(): void {
 		this.valid = false;
 	}
-}
 
+	public preparePan(intersection: IntersectionHelper, target: Vector3, globe: Globe, preLookHelper: Group) {
+		this.requestedAngle = this.position.angleTo(target);
+		this.missingAngle = this.requestedAngle - this.allowedAngle;
+		this.normToPointer
+			.copy(this.position)
+			.cross(target)
+			.normalize();
+		this.nearestAllowedPosition.copy(this.position).applyAxisAngle(this.normToPointer, this.allowedAngle);
+		this.requestedDistance = this.requestedAngle * globe.radius; // TODO: Ditch
+		preLookHelper.lookAt(this.nearestAllowedPosition); // TODO: Ditch
+		this.nearestQuaternion = preLookHelper.quaternion.clone(); // TODO: Ditch
+		if (intersection.a.valid) {
+			this.intADist = this.position.angleTo(intersection.a.position);
+		}
+		if (intersection.b.valid) {
+			this.intBDist = this.position.angleTo(intersection.b.position);
+		}
+	}
+}
 
 export class ActorObject extends Basic {
 	public geometry: SphereBufferGeometry;
@@ -171,7 +188,7 @@ export class ActorObject extends Basic {
 	private prelookHelper = new Group();
 	private panFinishedSubject = new Subject<boolean>();
 	private panEventSubject = new Subject<{ point: Vector3 }>();
-	private panHelper = new IntersectionHelper();
+	private panHelper = new PanHelper();
 
 	private enclosing: Enclosing<Node<UnixWrapper, ActorDelta>>;
 	private actorAccumulator$: Observable<ActorAccumulator>;
@@ -225,16 +242,31 @@ export class ActorObject extends Basic {
 						}
 						// If there is an event in the past
 						if (this.enclosing.first) {
-							this.panHelper.left.setFromEvent(this.enclosing.first, this.globe, next, this.prelookHelper);
+							this.panHelper.left.setFromEvent(
+								this.enclosing.first,
+								this.globe,
+								next,
+								this.prelookHelper
+							);
 						}
 						// If there is an event in the future
 						if (this.enclosing.last) {
-							this.panHelper.right.setFromEvent(this.enclosing.last, this.globe, next, this.prelookHelper);
+							this.panHelper.right.setFromEvent(
+								this.enclosing.last,
+								this.globe,
+								next,
+								this.prelookHelper
+							);
 						}
 
 						// get the intersecting points
 						if (this.enclosing.first && this.enclosing.last) {
 							this.panHelper.calculateIntersection(this.globe, this.prelookHelper);
+
+							if (!environment.production) {
+								this.globe.putArrowHelper('leftToOther', this.panHelper.left.position, this.panHelper.left.toOther);
+								this.globe.putArrowHelper('rightToOther', this.panHelper.right.position, this.panHelper.right.toOther);
+							}
 						}
 					})
 				),
@@ -245,94 +277,119 @@ export class ActorObject extends Basic {
 					// Actual panning
 					// PREPARATION
 					if (this.enclosing.first) {
-						this.panHelper.left.requestedAngle = this.panHelper.left.position.angleTo(event.point);
-						this.panHelper.left.missingAngle =
-							this.panHelper.left.requestedAngle - this.panHelper.left.allowedAngle;
-						this.panHelper.left.normToPointer
-							.copy(this.panHelper.left.position)
-							.cross(event.point)
-							.normalize();
-						this.panHelper.left.nearestAllowedPosition
-							.copy(this.panHelper.left.position)
-							.applyAxisAngle(this.panHelper.left.normToPointer, this.panHelper.left.allowedAngle);
-						this.panHelper.left.requestedDistance = this.panHelper.left.requestedAngle * this.globe.radius; // TODO: Ditch
-						this.prelookHelper.lookAt(this.panHelper.left.nearestAllowedPosition); // TODO: Ditch
-						this.panHelper.left.nearestQuaternion = this.prelookHelper.quaternion.clone(); // TODO: Ditch
-						if (this.panHelper.intersection.a.valid) {
-							this.panHelper.left.intADist = this.panHelper.left.position.angleTo(
-								this.panHelper.intersection.a.postition
-							);
-						}
-						if (this.panHelper.intersection.b.valid) {
-							this.panHelper.left.intBDist = this.panHelper.left.position.angleTo(
-								this.panHelper.intersection.b.postition
-							);
-						}
+						this.panHelper.left.preparePan(
+							this.panHelper.intersection,
+							event.point,
+							this.globe,
+							this.prelookHelper
+						);
 					}
 
 					if (this.enclosing.last) {
-						this.panHelper.right.requestedAngle = this.panHelper.right.position.angleTo(event.point);
-						this.panHelper.right.missingAngle =
-							this.panHelper.right.requestedAngle - this.panHelper.right.allowedAngle;
-						this.panHelper.right.normToPointer
-							.copy(this.panHelper.right.position)
-							.cross(event.point)
-							.normalize();
-						this.panHelper.right.nearestAllowedPosition
-							.copy(this.panHelper.left.position)
-							.applyAxisAngle(this.panHelper.right.normToPointer, this.panHelper.right.allowedAngle);
-						this.panHelper.right.requestedDistance = this.panHelper.left.requestedAngle * this.globe.radius; // TODO: Ditch
-						this.prelookHelper.lookAt(this.panHelper.right.nearestAllowedPosition); // TODO: Ditch
-						this.panHelper.right.nearestQuaternion = this.prelookHelper.quaternion.clone(); // TODO: Ditch
-						if (this.panHelper.intersection.a.valid) {
-							this.panHelper.right.intADist = this.panHelper.right.position.angleTo(
-								this.panHelper.intersection.a.postition
-							);
-						}
-						if (this.panHelper.intersection.b.valid) {
-							this.panHelper.right.intBDist = this.panHelper.right.position.angleTo(
-								this.panHelper.intersection.b.postition
-							);
-						}
+						this.panHelper.right.preparePan(
+							this.panHelper.intersection,
+							event.point,
+							this.globe,
+							this.prelookHelper
+						);
 					}
 
 					if (this.panHelper.intersection.a.valid) {
-						this.panHelper.intersection.a.distanceP = this.panHelper.intersection.a.postition.angleTo(event.point);
+						this.panHelper.intersection.a.distanceP = this.panHelper.intersection.a.position.angleTo(
+							event.point
+						);
 						this.panHelper.left.toIntA
-							.copy(this.panHelper.intersection.a.postition)
+							.copy(this.panHelper.intersection.a.position)
 							.sub(this.panHelper.left.position);
 						this.panHelper.right.toIntA
-							.copy(this.panHelper.intersection.a.postition)
+							.copy(this.panHelper.intersection.a.position)
 							.sub(this.panHelper.right.position);
+						if (!environment.production) {
+							this.globe.putArrowHelper(
+								'leftToIntA',
+								this.panHelper.left.position,
+								this.panHelper.left.toIntA,
+								0xff0022
+							);
+							this.globe.putArrowHelper(
+								'rightToIntA',
+								this.panHelper.right.position,
+								this.panHelper.right.toIntA,
+								0xffbc00
+							);
+						}
+
 					}
 					if (this.panHelper.intersection.b.valid) {
-						this.panHelper.intersection.b.distanceP = this.panHelper.intersection.b.postition.angleTo(event.point);
+						this.panHelper.intersection.b.distanceP = this.panHelper.intersection.b.position.angleTo(
+							event.point
+						);
 						this.panHelper.left.toIntB
-							.copy(this.panHelper.intersection.b.postition)
+							.copy(this.panHelper.intersection.b.position)
 							.sub(this.panHelper.left.position);
 						this.panHelper.right.toIntB
-							.copy(this.panHelper.intersection.b.postition)
+							.copy(this.panHelper.intersection.b.position)
 							.sub(this.panHelper.right.position);
+
+						if (!environment.production) {
+							this.globe.putArrowHelper(
+								'leftToIntB',
+								this.panHelper.left.position,
+								this.panHelper.left.toIntB,
+								0xff0101);
+							this.globe.putArrowHelper(
+								'rightToIntB',
+								this.panHelper.right.position,
+								this.panHelper.right.toIntB,
+								0x00ff4e
+							);
+						}
+
 					}
 
 					if (this.panHelper.intersection.a.valid && this.panHelper.intersection.b.valid) {
 						this.panHelper.intersection.abNorm
-							.copy(this.panHelper.intersection.a.postition)
-							.cross(this.panHelper.intersection.b.postition);
+							.copy(this.panHelper.intersection.a.position)
+							.cross(this.panHelper.intersection.b.position);
 
-						this.panHelper.intersection.abDist = this.panHelper.intersection.a.postition.angleTo(this.panHelper.intersection.b.postition);
-						/*this.intersection.flatCenter
-							.copy(this.intersection.a.postition)
-							.sub(this.intersection.b.postition)
-							.multiplyScalar(0.5)
-							.sub(this.panHelper.left.position);*/
+						this.panHelper.intersection.abDist = this.panHelper.intersection.a.position.angleTo(
+							this.panHelper.intersection.b.position
+						);
 
-						this.panHelper.intersection.center
-							.copy(this.panHelper.intersection.a.postition)
-							.applyAxisAngle(this.panHelper.intersection.abNorm, this.panHelper.intersection.abDist / 2);
+						/*this.panHelper.intersection.center
+							.copy(this.panHelper.intersection.a.position)
+							.applyAxisAngle(this.panHelper.intersection.abNorm, this.panHelper.intersection.abDist * Math.PI / 2);
+*/
 
-						this.panHelper.left.toCenter.copy(this.panHelper.intersection.center).sub(this.panHelper.left.position);
-						this.panHelper.right.toCenter.copy(this.panHelper.intersection.center).sub(this.panHelper.right.position);
+						this.panHelper.intersection.center.copy(arcIntersection(
+							this.panHelper.intersection.a.position,
+							this.panHelper.intersection.b.position,
+							this.panHelper.left.position,
+							this.panHelper.right.position
+						));
+
+
+						this.panHelper.left.toCenter
+							.copy(this.panHelper.intersection.center)
+							.sub(this.panHelper.left.position);
+						this.panHelper.right.toCenter
+							.copy(this.panHelper.intersection.center)
+							.sub(this.panHelper.right.position);
+						if (!environment.production) {
+							this.globe.putArrowHelper(
+								'leftToCenter',
+								this.panHelper.left.position,
+								this.panHelper.left.toCenter,
+								0x00ff00
+							);
+							this.globe.putArrowHelper(
+								'rightToCenter',
+								this.panHelper.right.position,
+								this.panHelper.right.toCenter,
+								0x0000ff
+							);
+						}
+
 
 						this.panHelper.left.toNearestAllowed
 							.copy(this.panHelper.left.nearestAllowedPosition)
@@ -341,6 +398,21 @@ export class ActorObject extends Basic {
 						this.panHelper.right.toNearestAllowed
 							.copy(this.panHelper.right.nearestAllowedPosition)
 							.sub(this.panHelper.right.position);
+
+						if (!environment.production) {
+							this.globe.putArrowHelper(
+								'leftToNearestAllowed',
+								this.panHelper.left.position,
+								this.panHelper.left.toNearestAllowed,
+								0xbeffb9
+							);
+							this.globe.putArrowHelper(
+								'rightToNearestAllowed',
+								this.panHelper.right.position,
+								this.panHelper.right.toNearestAllowed,
+								0x90c5ff
+							);
+						}
 
 
 						this.panHelper.left.angleBetweenOtherAndCenter = this.panHelper.left.toOther.angleTo(
@@ -362,8 +434,28 @@ export class ActorObject extends Basic {
 						}
 						intersectCenterPin.position.copy(this.panHelper.intersection.center);
 
-						this.panHelper.left.iVect.copy(this.panHelper.intersection.center).sub(this.panHelper.left.position);
-						this.panHelper.right.iVect.copy(this.panHelper.intersection.center).sub(this.panHelper.right.position);
+						this.panHelper.left.iVect
+							.copy(this.panHelper.intersection.center)
+							.sub(this.panHelper.left.position);
+						this.panHelper.right.iVect
+							.copy(this.panHelper.intersection.center)
+							.sub(this.panHelper.right.position);
+
+						if (!environment.production) {
+							this.globe.putArrowHelper(
+								'leftIVect',
+								this.panHelper.left.position,
+								this.panHelper.left.iVect,
+								0xff0000
+							);
+							this.globe.putArrowHelper(
+								'rightIVect',
+								this.panHelper.right.position,
+								this.panHelper.right.iVect,
+								0x9e00ff
+							);
+						}
+
 					}
 
 					// PREPARATION END
@@ -443,47 +535,66 @@ export class ActorObject extends Basic {
 							console.log('near right: ', this.panHelper.right.nearestQuaternion);
 
 							const abIntLeft = arcIntersection(
-								this.panHelper.intersection.a.postition,
-								this.panHelper.intersection.b.postition,
+								this.panHelper.intersection.a.position,
+								this.panHelper.intersection.b.position,
 								event.point,
 								this.panHelper.left.position
-							).normalize();// TODO Ditch
+							).normalize(); // TODO Ditch
 							const abIntRight = arcIntersection(
-								this.panHelper.intersection.a.postition,
-								this.panHelper.intersection.b.postition,
+								this.panHelper.intersection.a.position,
+								this.panHelper.intersection.b.position,
 								event.point,
 								this.panHelper.right.position
 							).normalize(); // TODO Ditch
 
-
 							const leftIntAIntBAngle = this.panHelper.left.toIntA.angleTo(this.panHelper.left.toIntB);
-							const leftIntANearestAngle = this.panHelper.left.toIntA.angleTo(this.panHelper.left.nearestAllowedPosition);
-							const leftIntBNearestAngle = this.panHelper.left.toIntB.angleTo(this.panHelper.left.nearestAllowedPosition);
-							const leftArcDifference = Math.abs(leftIntANearestAngle + leftIntBNearestAngle - leftIntAIntBAngle);
+							const leftIntANearestAngle = this.panHelper.left.toIntA.angleTo(
+								this.panHelper.left.nearestAllowedPosition
+							);
+							const leftIntBNearestAngle = this.panHelper.left.toIntB.angleTo(
+								this.panHelper.left.nearestAllowedPosition
+							);
+							const leftArcDifference = Math.abs(
+								leftIntANearestAngle + leftIntBNearestAngle - leftIntAIntBAngle
+							);
 							const leftNearestIsInSmallerArc = leftArcDifference <= 0.001;
-							const leftIsOnIntArc = this.panHelper.left.angleBetweenOtherAndCenter < Math.PI / 2 ? leftNearestIsInSmallerArc : !leftNearestIsInSmallerArc;
-
+							const leftIsOnIntArc =
+								this.panHelper.left.angleBetweenOtherAndCenter < Math.PI / 2
+									? leftNearestIsInSmallerArc
+									: !leftNearestIsInSmallerArc;
 
 							const rightIntAIntBAngle = this.panHelper.right.toIntA.angleTo(this.panHelper.right.toIntB);
-							const rightIntANearestAngle = this.panHelper.right.toIntA.angleTo(this.panHelper.right.nearestAllowedPosition);
-							const rightIntBNearestAngle = this.panHelper.right.toIntB.angleTo(this.panHelper.right.nearestAllowedPosition);
-							const rightArcDifference = Math.abs(rightIntANearestAngle + rightIntBNearestAngle - rightIntAIntBAngle);
+							const rightIntANearestAngle = this.panHelper.right.toIntA.angleTo(
+								this.panHelper.right.nearestAllowedPosition
+							);
+							const rightIntBNearestAngle = this.panHelper.right.toIntB.angleTo(
+								this.panHelper.right.nearestAllowedPosition
+							);
+							const rightArcDifference = Math.abs(
+								rightIntANearestAngle + rightIntBNearestAngle - rightIntAIntBAngle
+							);
 							const rightNearestIsInSmallerArc = rightArcDifference <= 0.001;
-							const rightIsOnIntArc = this.panHelper.right.angleBetweenOtherAndCenter < Math.PI / 2 ? rightNearestIsInSmallerArc : !rightNearestIsInSmallerArc;
+							const rightIsOnIntArc =
+								this.panHelper.right.angleBetweenOtherAndCenter < Math.PI / 2
+									? rightNearestIsInSmallerArc
+									: !rightNearestIsInSmallerArc;
 
 							console.log('leftArcDifference: ' + leftArcDifference);
 							console.log('rightArcDifference: ' + rightArcDifference);
-
 
 							const distLeftToRight = this.panHelper.left.quaternion.angleTo(
 								this.panHelper.right.quaternion
 							);
 
 							const leftIntInnerDistDiff = Math.abs(
-								this.panHelper.left.intADist + this.panHelper.left.intBDist - this.panHelper.intersection.abDist
+								this.panHelper.left.intADist +
+								this.panHelper.left.intBDist -
+								this.panHelper.intersection.abDist
 							);
 							const rightIntInnerDistDiff = Math.abs(
-								this.panHelper.right.intADist + this.panHelper.right.intBDist - this.panHelper.intersection.abDist
+								this.panHelper.right.intADist +
+								this.panHelper.right.intBDist -
+								this.panHelper.intersection.abDist
 							);
 
 							console.log(
@@ -521,8 +632,14 @@ export class ActorObject extends Basic {
 										d: rightIsOnIntArc ? this.panHelper.right.missingAngle : Infinity,
 										q: this.panHelper.right.nearestQuaternion
 									},
-									{ d: this.panHelper.intersection.a.distanceP, q: this.panHelper.intersection.a.quaternion },
-									{ d: this.panHelper.intersection.b.distanceP, q: this.panHelper.intersection.b.quaternion }
+									{
+										d: this.panHelper.intersection.a.distanceP,
+										q: this.panHelper.intersection.a.quaternion
+									},
+									{
+										d: this.panHelper.intersection.b.distanceP,
+										q: this.panHelper.intersection.b.quaternion
+									}
 								].sort((a, b) => a.d - b.d)[0].q
 							);
 
