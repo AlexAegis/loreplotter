@@ -3,7 +3,6 @@ import { arcIntersection } from '@app/function/arc-intersect.function';
 import { intersection } from '@app/function/intersection.function';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { ActorAccumulator, ActorService, LoreService } from '@app/service';
-import { Pin } from '@lore/engine/object/pin.class';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, Subject } from 'rxjs';
@@ -476,12 +475,9 @@ export class ActorObject extends Basic {
 								0x90c5ff
 							);
 
-							let intersectCenterPin = this.globe.getObjectByName('intersectCenter');
-							if (intersectCenterPin === undefined) {
-								intersectCenterPin = new Pin('intersectCenter', '#4a00ff');
-								this.globe.add(intersectCenterPin);
-							}
-							intersectCenterPin.position.copy(this.panHelper.intersection.center);
+							this.globe
+								.putPin('debugIntersectCenter', '#4a00ff')
+								.position.copy(this.panHelper.intersection.center);
 
 							this.globe.putArrowHelper(
 								'debugLeftIVect',
