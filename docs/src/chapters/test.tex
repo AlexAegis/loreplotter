@@ -5,6 +5,8 @@ A tesztelés inkrementálisan, fejlesztés közben manuálisan zajlott.
 
 Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, hogy maximális lefedést érjünk el:
 
+\section{Projekt interakciók}
+
 \begin{table}[H]
 	\centering
 	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
@@ -14,6 +16,7 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra  \\
 		\hline
 		\emph{Sikertelen Eredmény} & Az előzőleg kiválasztott projekt marad megnyitva. Új adat nem kerül mentésre.  \\
+		\hline
 		\hline
 		\emph{Események} &
 
@@ -49,6 +52,7 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\hline
 		\emph{Sikertelen Eredmény} & Az előzőleg kiválasztott projekt marad megnyitva. Új adat nem kerül mentésre.  \\
 		\hline
+		\hline
 		\emph{Események} &
 
 		\begin{enumerate}
@@ -81,6 +85,9 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
 		\hline
 		\emph{Eredmény} & A projekt adatai megváltoznak. Ha töltött fel textúrát akkor a bolygó magasságtérképe is megváltozik    \\
+		\hline
+		\emph{Sikertelen Eredmény} & Nem történik változás.  \\
+		\hline
 		\hline
 		\emph{Események} &
 
@@ -117,6 +124,8 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
 		\hline
 		\emph{Eredmény} & A bolygó felülete az alapértelmezett föld felületre változik.    \\
+		\emph{Sikertelen Eredmény} & Nem történik változás.  \\
+		\hline
 		\hline
 		\emph{Események} &
 
@@ -144,3 +153,35 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 	\caption{Sztori: Alapértelmezett Föld textúra visszaállítása}
 	\label{tab:story-project-edit-earth-texture}
 \end{table}
+
+\section{Szereplő interakciók}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt meg van nyitva, az oldalsáv látszik  \\
+		\hline
+		\emph{Eredmény} & A bolygó felületén az egér alatt a szereplő megjelnik. Az idővonalon a szereplő sávja megjelenik 1 eseménnyel.   \\
+		\emph{Sikertelen Eredmény} & Nem jelenik meg új szereplő.  \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}
+			\item A felhasználó az oldalsáv 'Actor' gombját fogd és vidd módon ráhúzza a bolygó egy pontjára
+			\item Vagy rákattint az 'Actor' gombra majd a bolygó egy pontjára
+			\item Ha nem a bolygó egy pontjára kattint vagy dob, akkor sikertelen eredménnyel zár
+		\end{enumerate}
+
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő készítése}
+	\label{tab:story-actor-create}
+\end{table}
+
+
+\section{Szereplő interakciók}
+
+\section{Idővonal interakciók}

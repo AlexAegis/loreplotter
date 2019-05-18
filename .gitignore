@@ -125,3 +125,4 @@ docs/**/*.png
 *.tdo
 *.toc
 *.synctex.gz
+thesis.synctex.gz
