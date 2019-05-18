@@ -122,6 +122,7 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		if (document.activeElement.tagName !== 'INPUT') {
 			switch ($event.code) {
 				case 'Space':
+					$event.preventDefault();
 					this.storeFacade.togglePlay();
 					break;
 				case 'Digit0':

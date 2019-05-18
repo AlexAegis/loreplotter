@@ -1,4 +1,4 @@
-import { Color, MeshPhysicalMaterial, RepeatWrapping, SphereBufferGeometry, Texture, TextureLoader } from 'three';
+import { AdditiveBlending, Color, MeshPhysicalMaterial, SphereBufferGeometry, Texture } from 'three';
 import { Basic } from './basic.class';
 
 export class Water extends Basic {
@@ -8,13 +8,8 @@ export class Water extends Basic {
 
 	public constructor(public radius: number = Water.NATURAL_LEVEL_RATIO) {
 		super(new SphereBufferGeometry(radius, 512, 512), undefined);
-		this.texture = new TextureLoader().load(`assets/textures/water/ripple.gif`, tex => {
-			tex.wrapS = tex.wrapT = RepeatWrapping;
-			tex.offset.set(0, 0);
-			tex.repeat.set(100, 100);
-			tex.anisotropy = 4;
-		}); // TODO: Animate the gif
 
+		// new VideoTexture();
 		(this.geometry as any).computeFaceNormals();
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
@@ -22,21 +17,15 @@ export class Water extends Basic {
 
 		// (this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 		this.material = new MeshPhysicalMaterial({
-			color: new Color('#63acff'), // 63acff
-			emissive: new Color('#29b6f6'), // 2863a3
-			emissiveIntensity: 0.004,
+			color: new Color('#0e43ff'), // 63acff
+			emissive: new Color('#63acff'), // 2863a3
+			emissiveIntensity: 0.001,
 			opacity: 0.7,
 			transparent: true,
 			//  alphaMap: this.texture,
-			// blendEquationAlpha: 1.1,
-			// blending: MultiplyBlending,
-			bumpMap: this.texture,
-			bumpScale: 0.0001,
-			roughness: 0.6,
-			metalness: 0.3,
-			reflectivity: 0.3,
-			clearCoat: 0.3,
-			clearCoatRoughness: 0.8
+			// blendEquationAlpha: 0.6,
+			blending: AdditiveBlending,
+			roughness: 0.9
 		});
 
 		this.frustumCulled = false;

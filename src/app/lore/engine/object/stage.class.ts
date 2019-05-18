@@ -20,17 +20,11 @@ export class Stage extends Scene {
 		this.background = new Color('#121212');
 
 		this.sun = new Sun();
-		// this.sun.directionalLight.target = this.engineService.globe;
 		this.add(this.sun);
 
 		// light mode
-		this.ambient = new AmbientLight('#ffd3a8', 1.2);
+		this.ambient = new AmbientLight('#d3f3ff', 2.6);
 		this.add(this.ambient);
 		// soft white light
-		// this.light = new THREE.AmbientLight(0x002020);
-		// this.light.position.z = 100;
-		// this.light.intensity = 0;
-		// this.add(this.light);
-		// this.fog = new THREE.Fog(0x2040aa, 2, 100);
 	}
 }
