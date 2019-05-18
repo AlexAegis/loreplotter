@@ -261,7 +261,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				closestCorrectUnixToReachNext = nextNodeNow.key.unix - correctedTime;
 			}
 		}
-		console.log(rescaledUnix, closestCorrectUnixToReachPrevious, closestCorrectUnixToReachNext);
 
 		this.closestCorrectUnixToTarget =
 			Math.abs(closestCorrectUnixToReachPrevious - rescaledUnix) <=
