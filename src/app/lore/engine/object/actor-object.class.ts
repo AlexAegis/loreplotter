@@ -327,7 +327,7 @@ export class ActorObject extends Basic {
 			])
 				.pipe(takeUntil(this.panFinishedSubject))
 				.subscribe(([isDebugMode, next, event]) => {
-					//const isDebugMode = false;
+					// const isDebugMode = false;
 					// Actual panning
 					// PREPARATION
 					if (this.enclosing.first) {
@@ -604,48 +604,9 @@ export class ActorObject extends Basic {
 			this.positionHelper.set(0, 0, 0);
 			this.parent.userData.override = false;
 			this.panHelper.reset();
-			// this.panHelper.left.requestedDistance = Infinity;
-			// this.panHelper.left.requestedAngle = Infinity;
-			// this.panHelper.left.allowedDistance = Infinity;
-			// this.panHelper.left.time = Infinity;
-			// this.panHelper.left.quaternion = undefined;
-			// this.panHelper.left.nearestQuaternion = undefined;
-			// this.panHelper.left.intADist = Infinity;
-			// this.panHelper.left.intBDist = Infinity;
-			// this.panHelper.left.valid = false;
-			// this.panHelper.right.requestedDistance = Infinity;
-			// this.panHelper.right.requestedAngle = Infinity;
-			// this.panHelper.right.allowedDistance = Infinity;
-			// this.panHelper.right.time = Infinity;
-			// this.panHelper.right.quaternion = undefined;
-			// this.panHelper.right.nearestQuaternion = undefined;
-			// this.panHelper.right.intADist = Infinity;
-			// this.panHelper.right.intBDist = Infinity;
-			// this.panHelper.right.valid = false;
-			// this.panHelper.lrDist = Infinity;
-			// this.enclosing = undefined;
-			// this.panHelper.intersection.a.valid = false;
-			// this.panHelper.intersection.b.valid = false;
 			this.globe.indicatorFrom.doHide();
 			this.globe.indicatorTo.doHide();
 		});
-		/*class GuiConf {
-			constructor(private material) {}
-			set color(color: string) {
-				this.material.color.setHex(color);
-			}
-
-			get color() {
-				return this.material.color.getHex();
-			}
-
-			size: number = 0;
-		}
-		const guiObj = new GuiConf(this.material);
-		const gui = new dat.GUI();
-		gui.addColor(guiObj, 'color');
-		gui.add(guiObj, 'size');*/
-
 		this.storeFacade.actorObjectSizeBias$.pipe(filter(next => next !== undefined)).subscribe(next => {
 			this.scalarScaleBias = next;
 			this.scale.setScalar(this.scalarScale + this.scalarScaleBias);
@@ -687,28 +648,4 @@ export class ActorObject extends Basic {
 			);
 		}
 	}
-
-	/**
-	 *    public updateHeight(): void {
-		const engineService = this.stage.engineService;
-		const globe = this.parent as Globe;
-		// console.log(worldPos);
-		this.position.multiplyScalar(1.1); // Look start further away;
-		const toCenter = this.position
-			.clone()
-			.multiplyScalar(-1)
-			.normalize();
-		engineService.raycaster.set(this.position, toCenter);
-
-		// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
-		const i = engineService.raycaster.intersectObject(globe)[0];
-		if (i) {
-			//  but there's always be an intersection as the globe is spherical
-			const displacementHere = globe.displacementTexture.heightAt(i.uv);
-			this.position.setScalar(
-				this.baseHeight + displacementHere * globe.displacementScale + globe.displacementBias
-			);
-		}
-	}
-	 */
 }

@@ -19,6 +19,7 @@ import { OverridableProperty } from '@app/model/overridable-property.class';
 import { LoreService } from '@app/service';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ConfirmComponent } from '@lore/component/dialog/confirm.component';
+import { EngineService } from '@lore/engine';
 import { BlockService } from '@lore/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
@@ -87,15 +88,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		return this._frameEnd;
 	}
 
-	constructor(
-		public loreService: LoreService,
-		public blockService: BlockService,
-		private storeFacade: StoreFacade,
-		public cd: ChangeDetectorRef,
-		private dialog: MatDialog
-	) {
-		super();
-	}
+	public invalidNodeForPan: Node<UnixWrapper, ActorDelta>;
 
 	public get isAtMostOneLeft(): boolean {
 		return this.actor._states.length <= 1;
@@ -108,6 +101,17 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public faTrash = faTrash; // Node remove icon
 	public isPanning = false;
 	public isSaving = false;
+
+	constructor(
+		public loreService: LoreService,
+		private engineService: EngineService,
+		public blockService: BlockService,
+		private storeFacade: StoreFacade,
+		public cd: ChangeDetectorRef,
+		private dialog: MatDialog
+	) {
+		super();
+	}
 	public selection: Node<UnixWrapper, ActorDelta>;
 
 	@Output()
@@ -199,6 +203,46 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				this._beforeLastUnix = last.value.key.unix;
 			}
 		}
+
+		let prevNodeNow: Node<UnixWrapper, ActorDelta>;
+		let nextNodeNow: Node<UnixWrapper, ActorDelta>;
+		let speedFromPrevious = Actor.DEFAULT_MAX_SPEED;
+
+		for (const n of this.actor._states.nodes()) {
+			if (n.key.unix > node.key.unix) {
+				nextNodeNow = n;
+				break;
+			}
+			if (n.key.unix < node.key.unix) {
+				prevNodeNow = n;
+				if (n.value.maxSpeed !== undefined) {
+					speedFromPrevious = n.value.maxSpeed;
+				}
+			}
+		}
+		const speedToNext = speedFromPrevious || node.value.maxSpeed; // If the dragged node modifies the speed, use that
+		const canReachPrevious =
+			!prevNodeNow ||
+			this.engineService.canReach(
+				prevNodeNow.value.position,
+				node.value.position,
+				speedFromPrevious,
+				Math.abs(node.key.unix - prevNodeNow.key.unix)
+			);
+
+		const canReachNext =
+			!nextNodeNow ||
+			this.engineService.canReach(
+				nextNodeNow.value.position,
+				node.value.position,
+				speedToNext,
+				Math.abs(node.key.unix - nextNodeNow.key.unix)
+			);
+
+		this.invalidNodeForPan = canReachPrevious && canReachNext ? undefined : node;
+		this.cd.markForCheck();
+		console.log(canReachPrevious, canReachNext);
+
 		const ogUnix = this._originalUnixesForPan.get(node);
 		const previous = node.key.unix;
 		const pos = this.nodePosition(ogUnix) + this.left;
@@ -254,7 +298,8 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 
 		if ($event.type === 'panend') {
 			this.isPanning = false;
-			this.finalizeNewPositions();
+			this.finalizeNewPositions(!this.invalidNodeForPan);
+			this.invalidNodeForPan = undefined;
 			this.update();
 		}
 	}
@@ -311,18 +356,24 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		}
 	}
 
-	private finalizeNewPositions(): void {
+	public isNodeInvalid(node: Node<UnixWrapper, ActorDelta>): boolean {
+		return node === this.invalidNodeForPan;
+	}
+
+	private finalizeNewPositions(valid: boolean = true): void {
 		this.isSaving = true;
 		this.actor
 			.atomicUpdate(a => {
 				this.resetEveryNodeToOriginalUnix();
-				this.loreService.overrideNodePosition.value.overrides.forEach(override => {
-					const delta = this.actor._states.remove(new UnixWrapper(override.original)); // TODO Replace this with moveNode once it's fixed
-					if (delta) {
-						this.actor._states.set(new UnixWrapper(override.new), delta);
-					}
-				});
-				a._states = this.actor._states;
+				if (valid) {
+					this.loreService.overrideNodePosition.value.overrides.forEach(override => {
+						const delta = this.actor._states.remove(new UnixWrapper(override.original));
+						if (delta) {
+							this.actor._states.set(new UnixWrapper(override.new), delta);
+						}
+					});
+					a._states = this.actor._states;
+				}
 				return a;
 			})
 			.then(actor => {

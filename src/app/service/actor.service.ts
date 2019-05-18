@@ -171,7 +171,7 @@ export class ActorService {
 		mergeMap(actors =>
 			of(...actors).pipe(
 				mergeScan(
-					(acc, actor) =>
+					(maxAcc, actor) =>
 						of(...actor._states.nodes()).pipe(
 							pairwise(),
 							scan(
@@ -193,7 +193,7 @@ export class ActorService {
 								},
 								{ lastMaxSpeed: Actor.DEFAULT_MAX_SPEED, maxRadius: Infinity }
 							),
-							map(({ maxRadius }) => (acc > maxRadius ? maxRadius : acc)) // the smallest maximum
+							map(({ maxRadius }) => (maxAcc > maxRadius ? maxRadius : maxAcc)) // the smallest maximum
 						),
 					Infinity
 				)

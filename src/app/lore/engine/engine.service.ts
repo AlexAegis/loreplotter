@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { denormalize } from '@app/function';
-import { Actor, Lore } from '@app/model/data';
+import { Actor, Lore, Planet, Vector3Serializable } from '@app/model/data';
 
 import { tweenMap } from '@app/operator/tween-map.operator';
 import { withTeardown } from '@app/operator/with-teardown.operator';
@@ -596,4 +596,22 @@ export class EngineService {
 		this.refreshPopupPosition();
 	}
 
+	/**
+	 * Calculates whether or not is possible to reach a position from another in a given time with a given speed
+	 *
+	 * @param from position
+	 * @param to position
+	 * @param withSpeed km/h
+	 * @param inTime s
+	 */
+	public canReach = (() => {
+		const _from = new Vector3();
+		const _to = new Vector3();
+		return (fr: Vector3Serializable, to: Vector3Serializable, withSpeed: number, inTime: number): boolean => {
+			_from.copy(fr as Vector3);
+			_to.copy(to as Vector3);
+			const radius = this.globe ? this.globe.radius : Planet.DEFAULT_RADIUS;
+			return _from.angleTo(_to) * radius <= withSpeed * inTime / 3600;
+		};
+	})();
 }

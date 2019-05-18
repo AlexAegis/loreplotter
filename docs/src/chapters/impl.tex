@@ -926,7 +926,7 @@ Ha vesszük az $m_1, m_2, A$ és $B$ pontok és $P$ pont közti távolságot, ak
 \lstset{caption={Legnagyobb még lehetséges bolygó sugár ahhoz, hogy az összes jelenlegi útja a szereplőknek még érvényes legyen.}, label=src:max-possible-radius}
 \begin{lstlisting}[language={JavaScript}]
 	public maxPossiblePlanetRadius$ = this.databaseService.currentLoreActors$.pipe(
-		mergeMap(actors => of(...actors).pipe(mergeScan((acc, actor) =>
+		mergeMap(actors => of(...actors).pipe(mergeScan((maxAcc, actor) =>
 			of(...actor._states.nodes()).pipe(
 				pairwise(),
 				scan(
@@ -950,7 +950,7 @@ Ha vesszük az $m_1, m_2, A$ és $B$ pontok és $P$ pont közti távolságot, ak
 						maxRadius: Infinity
 					}
 				),
-				map(({ maxRadius }) => (acc > maxRadius ? maxRadius : acc))
+				map(({ maxRadius }) => (maxAcc > maxRadius ? maxRadius : maxAcc))
 			), Infinity))),
 		shareReplay(1)
 	);

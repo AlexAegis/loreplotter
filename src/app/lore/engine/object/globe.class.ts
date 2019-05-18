@@ -148,10 +148,6 @@ export class Globe extends Basic {
 		};
 	})();
 
-	public removeDebugItems(): void {
-		this.children.filter(child => child.name.startsWith('debug')).forEach(child => child.parent.remove(child));
-	}
-
 	public _indicatorFrom: IndicatorSphere;
 	public _indicatorTo: IndicatorSphere;
 	public material: Material; // Type override, this field exists on the THREE.Mesh already
@@ -163,6 +159,10 @@ export class Globe extends Basic {
 	public displacementScale = 0.15;
 
 	public pointUpdateAudit = new Subject<number>();
+
+	public removeDebugItems(): void {
+		this.children.filter(child => child.name.startsWith('debug')).forEach(child => child.parent.remove(child));
+	}
 
 	public putPin(name: string, color?: string): Pin {
 		let pin = this.getObjectByName(name) as Pin;
