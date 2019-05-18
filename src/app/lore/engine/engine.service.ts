@@ -603,15 +603,18 @@ export class EngineService {
 	 * @param to position
 	 * @param withSpeed km/h
 	 * @param inTime s
+	 *
+	 * @return undefined if the distance is reachable, and a new time period in seconds if not. This one will be enough.
 	 */
 	public canReach = (() => {
 		const _from = new Vector3();
 		const _to = new Vector3();
-		return (fr: Vector3Serializable, to: Vector3Serializable, withSpeed: number, inTime: number): boolean => {
+		return (fr: Vector3Serializable, to: Vector3Serializable, withSpeed: number, inTime: number): number => {
 			_from.copy(fr as Vector3);
 			_to.copy(to as Vector3);
 			const radius = this.globe ? this.globe.radius : Planet.DEFAULT_RADIUS;
-			return _from.angleTo(_to) * radius <= withSpeed * inTime / 3600;
+			const timeToDoDist = _from.angleTo(_to) * radius / withSpeed * 3600;
+			return timeToDoDist <= inTime ? undefined : timeToDoDist;
 		};
 	})();
 }

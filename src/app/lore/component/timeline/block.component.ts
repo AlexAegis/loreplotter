@@ -89,6 +89,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	}
 
 	public invalidNodeForPan: Node<UnixWrapper, ActorDelta>;
+	public closestCorrectUnixToTarget: number;
 
 	public get isAtMostOneLeft(): boolean {
 		return this.actor._states.length <= 1;
@@ -204,6 +205,19 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			}
 		}
 
+		const ogUnix = this._originalUnixesForPan.get(node);
+		const previous = node.key.unix;
+		const pos = this.nodePosition(ogUnix) + this.left;
+		const rescaledUnix = ThreeMath.mapLinear(
+			pos + $event.deltaX,
+			0,
+			this.containerWidth,
+			this.frameStart,
+			this.frameEnd
+		);
+
+		// VALIDATION START
+
 		let prevNodeNow: Node<UnixWrapper, ActorDelta>;
 		let nextNodeNow: Node<UnixWrapper, ActorDelta>;
 		let speedFromPrevious = Actor.DEFAULT_MAX_SPEED;
@@ -221,38 +235,46 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			}
 		}
 		const speedToNext = speedFromPrevious || node.value.maxSpeed; // If the dragged node modifies the speed, use that
-		const canReachPrevious =
-			!prevNodeNow ||
-			this.engineService.canReach(
+
+		let closestCorrectUnixToReachPrevious = rescaledUnix;
+		if (prevNodeNow) {
+			const correctedTime = this.engineService.canReach(
 				prevNodeNow.value.position,
 				node.value.position,
 				speedFromPrevious,
 				Math.abs(node.key.unix - prevNodeNow.key.unix)
 			);
+			if (correctedTime !== undefined) {
+				closestCorrectUnixToReachPrevious = prevNodeNow.key.unix + correctedTime;
+			}
+		}
 
-		const canReachNext =
-			!nextNodeNow ||
-			this.engineService.canReach(
+		let closestCorrectUnixToReachNext = rescaledUnix;
+		if (nextNodeNow) {
+			const correctedTime = this.engineService.canReach(
 				nextNodeNow.value.position,
 				node.value.position,
 				speedToNext,
 				Math.abs(node.key.unix - nextNodeNow.key.unix)
 			);
+			if (correctedTime !== undefined) {
+				closestCorrectUnixToReachNext = nextNodeNow.key.unix - correctedTime;
+			}
+		}
+		console.log(rescaledUnix, closestCorrectUnixToReachPrevious, closestCorrectUnixToReachNext);
 
-		this.invalidNodeForPan = canReachPrevious && canReachNext ? undefined : node;
+		this.closestCorrectUnixToTarget =
+			Math.abs(closestCorrectUnixToReachPrevious - rescaledUnix) <=
+			Math.abs(closestCorrectUnixToReachNext - rescaledUnix)
+				? closestCorrectUnixToReachPrevious
+				: closestCorrectUnixToReachNext;
+
+		this.invalidNodeForPan =
+			closestCorrectUnixToReachPrevious === rescaledUnix && closestCorrectUnixToReachNext === rescaledUnix
+				? undefined
+				: node;
 		this.cd.markForCheck();
-		console.log(canReachPrevious, canReachNext);
-
-		const ogUnix = this._originalUnixesForPan.get(node);
-		const previous = node.key.unix;
-		const pos = this.nodePosition(ogUnix) + this.left;
-		const rescaledUnix = ThreeMath.mapLinear(
-			pos + $event.deltaX,
-			0,
-			this.containerWidth,
-			this.frameStart,
-			this.frameEnd
-		);
+		// VALIDATION END
 
 		let firstLimit: number;
 
@@ -270,7 +292,8 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			lastLimit = this.blockEnd.original;
 		}
 
-		if (rescaledUnix <= firstLimit) {
+		// only when shift is pressed
+		if (this.closestCorrectUnixToTarget <= firstLimit) {
 			this.blockStart.override = rescaledUnix;
 		} else {
 			this.blockStart.override = firstLimit;
@@ -287,6 +310,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			this.blockStart.override = rescaledUnix;
 			this.blockEnd.override = rescaledUnix + 1;
 		}
+
 		if (!isNaN(previous) && !isNaN(rescaledUnix)) {
 			// node.key.unix = rescaledUnix; // ! HEY You can probably remove this
 			this.loreService.overrideNodePosition.next({
@@ -301,6 +325,18 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			this.finalizeNewPositions(!this.invalidNodeForPan);
 			this.invalidNodeForPan = undefined;
 			this.update();
+		}
+	}
+
+	public correctedUnix(node: Node<UnixWrapper, ActorDelta>): number {
+		if (node !== undefined) {
+			if (node === this.invalidNodeForPan) {
+				return this.closestCorrectUnixToTarget;
+			} else {
+				return node.key.unix;
+			}
+		} else {
+			return undefined;
 		}
 	}
 

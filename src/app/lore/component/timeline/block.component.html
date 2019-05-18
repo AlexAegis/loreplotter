@@ -1,7 +1,7 @@
 <div
 	class="node"
 	*ngFor="let node of actor?._states?.nodes()"
-	[ngStyle]="{ 'left.px': nodePosition(node?.key?.unix) }"
+	[ngStyle]="{ 'left.px': nodePosition(correctedUnix(node)) }"
 	[ngClass]="{ invalidNode: isNodeInvalid(node) }"
 	(panstart)="panNode($event, node)"
 	(panup)="panNode($event, node)"
