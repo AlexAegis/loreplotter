@@ -67,9 +67,6 @@ Mesh.prototype.raycast = acceleratedRaycast;
 
 @Injectable()
 export class EngineService {
-	private interactionMode: InteractionMode;
-	private drawHeight: number;
-	private drawSize: number;
 
 	/**
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
@@ -118,6 +115,30 @@ export class EngineService {
 			this.drawSize = drawSize;
 		});
 	}
+
+	/**
+	 * Calculates whether or not is possible to reach a position from another in a given time with a given speed
+	 *
+	 * @param from position
+	 * @param to position
+	 * @param withSpeed km/h
+	 * @param inTime s
+	 *
+	 * @return undefined if the distance is reachable, and a new time period in seconds if not. This one will be enough.
+	 */
+	public canReach = (() => {
+		const _from = new Vector3();
+		const _to = new Vector3();
+		return (fr: Vector3Serializable, to: Vector3Serializable, withSpeed: number, inTime: number): number => {
+			_from.copy(fr as Vector3);
+			_to.copy(to as Vector3);
+			const radius = this.globe ? this.globe.radius : Planet.DEFAULT_RADIUS;
+			const timeToDoDist = _from.angleTo(_to) * radius / withSpeed * 3600;
+			return timeToDoDist <= inTime ? undefined : timeToDoDist;
+		};
+	})();
+	private interactionMode: InteractionMode;
+	private drawHeight: number;
 
 	// Rendering
 	public clock = new Clock(); // Clock for the renderer
@@ -254,6 +275,7 @@ export class EngineService {
 		map(({ light }) => light),
 		share()
 	);
+	private drawSize: number;
 
 	public createScene(canvas: HTMLCanvasElement): void {
 		this.renderer = new WebGLRenderer({
@@ -595,26 +617,4 @@ export class EngineService {
 		this.composer.setSize(window.innerWidth, window.innerHeight);
 		this.refreshPopupPosition();
 	}
-
-	/**
-	 * Calculates whether or not is possible to reach a position from another in a given time with a given speed
-	 *
-	 * @param from position
-	 * @param to position
-	 * @param withSpeed km/h
-	 * @param inTime s
-	 *
-	 * @return undefined if the distance is reachable, and a new time period in seconds if not. This one will be enough.
-	 */
-	public canReach = (() => {
-		const _from = new Vector3();
-		const _to = new Vector3();
-		return (fr: Vector3Serializable, to: Vector3Serializable, withSpeed: number, inTime: number): number => {
-			_from.copy(fr as Vector3);
-			_to.copy(to as Vector3);
-			const radius = this.globe ? this.globe.radius : Planet.DEFAULT_RADIUS;
-			const timeToDoDist = _from.angleTo(_to) * radius / withSpeed * 3600;
-			return timeToDoDist <= inTime ? undefined : timeToDoDist;
-		};
-	})();
 }
