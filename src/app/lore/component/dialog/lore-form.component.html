@@ -34,9 +34,9 @@
 		</div>
 	</form>
 </mat-dialog-content>
-<mat-label>Landscape texture change:</mat-label>
+<mat-label>Landscape texture {{ originalData.id ? 'change' : '' }}:</mat-label>
 <mat-dialog-actions>
-	<input #file (change)="handleFileInput($event)" type="file"/>
+	<input (change)="handleFileInput($event)" type="file"/>
 
 	<button
 		*ngIf="originalData.id"

@@ -7,8 +7,7 @@ import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { concat, EMPTY, merge, of } from 'rxjs';
-import { fromPromise } from 'rxjs/internal-compatibility';
+import { concat, EMPTY, from, merge, of } from 'rxjs';
 import { catchError, delayWhen, flatMap, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 
 import {
@@ -115,7 +114,7 @@ export class LoreEffects {
 			this.loreService.create(payload).pipe(
 				delayWhen(lore => {
 					if (payload.tex) {
-						return fromPromise(
+						return from(
 							lore.putAttachment({
 								id: 'texture',
 								data: payload.tex as Blob,
@@ -139,7 +138,7 @@ export class LoreEffects {
 			this.loreService.update(payload).pipe(
 				delayWhen(lore => {
 					if (payload.tex) {
-						return fromPromise(
+						return from(
 							lore.putAttachment({
 								id: 'texture',
 								data: payload.tex as Blob,

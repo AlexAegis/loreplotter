@@ -7,8 +7,7 @@ import { DatabaseService } from '@app/service/database.service';
 import { ActorFormResultData } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { combineLatest, Observable, of, Subject } from 'rxjs';
-import { fromPromise } from 'rxjs/internal-compatibility';
+import { combineLatest, from, Observable, of, Subject } from 'rxjs';
 import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
 import { Group, Vector3 } from 'three';
 
@@ -157,7 +156,7 @@ export class ActorService {
 
 				object.actor._states.set(wrapper, delta);
 
-				return fromPromise(
+				return from(
 					object.actor.atomicUpdate(actor => {
 						actor._states = object.actor._states;
 						return actor;

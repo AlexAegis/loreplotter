@@ -7,8 +7,7 @@ import { ActorService, DatabaseService } from '@app/service';
 import { ConfirmComponent, ConfirmData } from '@lore/component/dialog/confirm.component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { combineLatest, iif, Observable, of } from 'rxjs';
-import { fromPromise } from 'rxjs/internal-compatibility';
+import { combineLatest, from, iif, Observable, of } from 'rxjs';
 import { endWith, filter, flatMap, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 
 @Component({
@@ -104,10 +103,10 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 									)
 								)
 							),
-							fromPromise(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
+							from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
 						]).pipe(
 							switchMap(([lore, image]) =>
-								fromPromise(
+								from(
 									(lore as RxDocument<Lore>).putAttachment({
 										id: 'texture', // string, name of the attachment like 'cat.jpg'
 										data: image as Blob, // (string|Blob|Buffer) data of the attachment
