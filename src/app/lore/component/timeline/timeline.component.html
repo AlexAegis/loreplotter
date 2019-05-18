@@ -23,6 +23,8 @@
 			(mousewheel)="scrollHandler($event)"
 			(tap)="spawnNode($event, actor, block)"
 			*ngFor="let actor of actors$ | async as actors"
+			(mouseenter)="mouseenter(actor)"
+			(mouseleave)="mouseleave()"
 			class="channel"
 		>
 			{{

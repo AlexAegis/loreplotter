@@ -22,6 +22,8 @@ import { DatabaseService } from '@app/service/database.service';
 import { LoreService } from '@app/service/lore.service';
 import { BlockComponent } from '@lore/component/timeline/block.component';
 import { CursorComponent } from '@lore/component/timeline/cursor.component';
+import { EngineService } from '@lore/engine';
+import { ActorObject } from '@lore/engine/object';
 import { BlockService } from '@lore/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Easing } from '@tweenjs/tween.js';
@@ -59,6 +61,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		public db: DatabaseService,
 		public loreService: LoreService,
 		public databaseService: DatabaseService,
+		private engineService: EngineService,
 		public blockService: BlockService,
 		private storeFacade: StoreFacade,
 		private actorService: ActorService,
@@ -339,6 +342,14 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 
 	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent): void {
 		this.nodeSpawner.next({ $event, actor, block });
+	}
+
+	public mouseenter(actor: RxDocument<Actor>): void {
+		this.engineService.hovered.next(this.engineService.globe.getObjectByName(actor.id) as ActorObject);
+	}
+
+	public mouseleave(): void {
+		this.engineService.hovered.next(undefined);
 	}
 
 	public toPx(number: number): string {

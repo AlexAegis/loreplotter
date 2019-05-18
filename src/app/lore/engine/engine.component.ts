@@ -3,7 +3,6 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChil
 import { BaseDirective } from '@app/component/base-component.class';
 import { normalizeFromWindow } from '@app/function';
 import { DatabaseService, LoreService } from '@app/service';
-import { PopupComponent } from '@lore/component';
 import { EngineService } from '@lore/engine/engine.service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Subject } from 'rxjs';
@@ -21,9 +20,6 @@ export class EngineComponent extends BaseDirective implements AfterViewInit {
 
 	@ViewChild('canvas')
 	public canvas: ElementRef;
-
-	@ViewChild('indicator')
-	public indicator: PopupComponent;
 
 	public drop = this.dnd.dropTarget('Actor', {
 		drop: monitor => this.loreService.spawnActorOnClientOffset.next(monitor.getClientOffset())
