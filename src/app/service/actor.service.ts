@@ -171,29 +171,37 @@ export class ActorService {
 		)
 		.subscribe();
 	public maxPossiblePlanetRadius$ = this.databaseService.currentLoreActors$.pipe(
-		mergeMap(actors => of(...actors).pipe(mergeScan((acc, actor) =>
-			of(...actor._states.nodes()).pipe(
-				pairwise(),
-				scan(
-					(acc, [a, b]) => {
-						if (a.value.maxSpeed !== undefined) {
-							acc.lastMaxSpeed = a.value.maxSpeed;
-						}
-						this._va.copy(a.value.position as Vector3);
-						this._vb.copy(b.value.position as Vector3);
-						const time = Math.abs(b.key.unix - a.key.unix); // s
-						const maxDistance = acc.lastMaxSpeed * (time / 3600); // km/h * h = km, arc-length
-						const angle = this._va.angleTo(this._vb); // radian
-						const maxRadius = maxDistance / angle; // km, radius
-						if (acc.maxRadius >= maxRadius) { // Min search
-							acc.maxRadius = maxRadius;
-						}
-						return acc;
-					},
-					{ lastMaxSpeed: Actor.DEFAULT_MAX_SPEED, maxRadius: Infinity }
-				),
-				map(({ maxRadius }) => (acc > maxRadius ? maxRadius : acc)) // the smallest maximum
-			), Infinity))),
+		mergeMap(actors =>
+			of(...actors).pipe(
+				mergeScan(
+					(acc, actor) =>
+						of(...actor._states.nodes()).pipe(
+							pairwise(),
+							scan(
+								(acc, [a, b]) => {
+									if (a.value.maxSpeed !== undefined) {
+										acc.lastMaxSpeed = a.value.maxSpeed;
+									}
+									this._va.copy(a.value.position as Vector3);
+									this._vb.copy(b.value.position as Vector3);
+									const time = Math.abs(b.key.unix - a.key.unix); // s
+									const maxDistance = acc.lastMaxSpeed * (time / 3600); // km/h * h = km, arc-length
+									const angle = this._va.angleTo(this._vb); // radian
+									const maxRadius = maxDistance / angle; // km, radius
+									if (acc.maxRadius >= maxRadius) {
+										// Min search
+										acc.maxRadius = maxRadius;
+									}
+									return acc;
+								},
+								{ lastMaxSpeed: Actor.DEFAULT_MAX_SPEED, maxRadius: Infinity }
+							),
+							map(({ maxRadius }) => (acc > maxRadius ? maxRadius : acc)) // the smallest maximum
+						),
+					Infinity
+				)
+			)
+		),
 		shareReplay(1)
 	);
 

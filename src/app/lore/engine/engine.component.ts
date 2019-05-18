@@ -37,10 +37,9 @@ export class EngineComponent extends BaseDirective implements AfterViewInit {
 		private dnd: SkyhookDndService
 	) {
 		super();
-		this.sink = this.tapSubject
+		this.teardown = this.tapSubject
 			.pipe(withLatestFrom(this.storeFacade.isActorCreateMode$))
 			.subscribe(([$event, isActorCreateMode]) => {
-
 				switch (($event as any).button) {
 					case undefined:
 					case 0:
@@ -59,7 +58,6 @@ export class EngineComponent extends BaseDirective implements AfterViewInit {
 						break;
 				}
 				this.engineService.refreshPopupPosition();
-
 			});
 	}
 

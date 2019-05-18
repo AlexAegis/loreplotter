@@ -19,15 +19,11 @@ export class BaseDirective implements OnDestroy {
 	 *
 	 * @param subscription to be torn down on destroy
 	 */
-	protected teardown(subscription: Subscription): void {
+	protected set teardown(subscription: Subscription) {
 		this.subscriptions.add(subscription);
 	}
 
 	public ngOnDestroy(): void {
 		this.subscriptions.unsubscribe();
-	}
-
-	set sink(subscription: Subscription) {
-		this.subscriptions.add(subscription);
 	}
 }

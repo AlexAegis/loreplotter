@@ -105,15 +105,13 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 
 	public ngAfterViewInit(): void {
 		this.setTheme('default-theme');
-		this.teardown(
-			this.engineService.light$.subscribe(light => {
-				if (light <= 0.5) {
-					this.setTheme('dark-theme');
-				} else {
-					this.setTheme('light-theme');
-				}
-			})
-		);
+		this.teardown = this.engineService.light$.subscribe(light => {
+			if (light <= 0.5) {
+				this.setTheme('dark-theme');
+			} else {
+				this.setTheme('light-theme');
+			}
+		});
 		this.changeDetector.markForCheck();
 	}
 

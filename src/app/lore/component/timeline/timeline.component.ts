@@ -275,72 +275,66 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	}
 
 	public ngOnInit(): void {
-		this.teardown(
-			this.easeCursorTo
-				.pipe(
-					withLatestFrom(this.storeFacade.cursor$, this.storeFacade.frame$, this.containerWidth),
-					map(([position, cursor, { start, end }, containerWidth]) => ({
-						from: { cursor: cursor },
-						to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
-					})),
-					tweenMap({
-						duration: 220,
-						easing: Easing.Exponential.Out,
-						pingpongInterrupt: true,
-						pingpongAfterFinish: false,
-						sendUndefined: true,
-						doOnNext: next => {
-							if (next) {
-								this.storeFacade.setCursorOverride(next.cursor);
-							}
-						},
-						doOnComplete: () => {
-							this.storeFacade.bakeCursorOverride();
+		this.teardown = this.easeCursorTo
+			.pipe(
+				withLatestFrom(this.storeFacade.cursor$, this.storeFacade.frame$, this.containerWidth),
+				map(([position, cursor, { start, end }, containerWidth]) => ({
+					from: { cursor: cursor },
+					to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
+				})),
+				tweenMap({
+					duration: 220,
+					easing: Easing.Exponential.Out,
+					pingpongInterrupt: true,
+					pingpongAfterFinish: false,
+					sendUndefined: true,
+					doOnNext: next => {
+						if (next) {
+							this.storeFacade.setCursorOverride(next.cursor);
 						}
-					})
-				)
-				.subscribe()
-		);
-
-		this.teardown(
-			this.frameShifter
-				.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
-				.subscribe(([shift, frame, containerWidth]) => {
-					if (shift !== undefined) {
-						this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
-					} else {
-						this.storeFacade.bakeFrame();
+					},
+					doOnComplete: () => {
+						this.storeFacade.bakeCursorOverride();
 					}
 				})
-		);
+			)
+			.subscribe();
 
-		this.teardown(
-			this.nodeSpawner
-				.pipe(
-					tap(({ $event }) => $event.stopPropagation()),
-					withLatestFrom(this.storeFacade.frame$, this.containerWidth),
-					map(([{ $event, actor, block }, frame, containerWidth]) => {
-						const unix = ThreeMath.mapLinear(
-							$event.center.x - this.el.nativeElement.offsetLeft,
-							0,
-							containerWidth,
-							frame.start,
-							frame.end
-						);
-						const position = this.actorService.actorPositionAt(actor, unix);
-						// Todo make this save a sideeffect and control the block with that
-						actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
-						block.isSaving = true;
-						actor
-							.atomicUpdate(a => (a._states = actor._states) && a)
-							.then(a => {
-								block.isSaving = false;
-								block.actor = a;
-							});
-					})
-				)
-				.subscribe()
-		);
+		this.teardown = this.frameShifter
+			.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
+			.subscribe(([shift, frame, containerWidth]) => {
+				if (shift !== undefined) {
+					this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
+				} else {
+					this.storeFacade.bakeFrame();
+				}
+			});
+
+		this.teardown = this.nodeSpawner
+			.pipe(
+				tap(({ $event }) => $event.stopPropagation()),
+				withLatestFrom(this.storeFacade.frame$, this.containerWidth),
+				map(([{ $event, actor, block }, frame, containerWidth]) => {
+					const unix = ThreeMath.mapLinear(
+						$event.center.x - this.el.nativeElement.offsetLeft,
+						0,
+						containerWidth,
+						frame.start,
+						frame.end
+					);
+					const position = this.actorService.actorPositionAt(actor, unix);
+					// Todo make this save a sideeffect and control the block with that
+					actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));
+					block.isSaving = true;
+					actor
+						.atomicUpdate(a => (a._states = actor._states) && a)
+						.then(a => {
+							block.isSaving = false;
+							block.actor = a;
+						});
+				})
+			)
+			.subscribe();
 	}
 
 	public spawnNode($event: any, actor: RxDocument<Actor>, block: BlockComponent): void {

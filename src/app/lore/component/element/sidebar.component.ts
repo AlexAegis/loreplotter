@@ -58,31 +58,25 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 	}
 
 	public ngOnInit(): void {
-		this.teardown(
-			combineLatest([this.onResizeSubject, this.mediaLarge$, this.sidebarOpen$]).subscribe(
-				([$event, mediaLarge, open]) => {
-					const w = ($event as any).target.innerWidth;
-					const h = ($event as any).target.innerHeight;
-					this.storeFacade.setMediaLarge(w / h >= 1.8); // Standard 16/9 ratio is 1.77 repeating.
-					if (!open && mediaLarge) {
-						this.storeFacade.setSidebarOpen(true);
-					}
-					this.over = mediaLarge ? 'side' : 'over';
-					this.changeDetector.markForCheck();
+		this.teardown = combineLatest([this.onResizeSubject, this.mediaLarge$, this.sidebarOpen$]).subscribe(
+			([$event, mediaLarge, open]) => {
+				const w = ($event as any).target.innerWidth;
+				const h = ($event as any).target.innerHeight;
+				this.storeFacade.setMediaLarge(w / h >= 1.8); // Standard 16/9 ratio is 1.77 repeating.
+				if (!open && mediaLarge) {
+					this.storeFacade.setSidebarOpen(true);
 				}
-			)
+				this.over = mediaLarge ? 'side' : 'over';
+				this.changeDetector.markForCheck();
+			}
 		);
-		this.teardown(
-			combineLatest([this.mediaLarge$, this.onBeginDragSubject]).subscribe(([mediaLarge, on]) => {
-				this.storeFacade.setSidebarOpen(mediaLarge);
-			})
-		);
-		this.teardown(
-			combineLatest([this.mediaLarge$, this.onSelectSubject]).subscribe(([mediaLarge, actor]) => {
-				this.engineService.selectedByActor.next(actor);
-				this.storeFacade.setSidebarOpen(mediaLarge || false);
-			})
-		);
+		this.teardown = combineLatest([this.mediaLarge$, this.onBeginDragSubject]).subscribe(([mediaLarge, on]) => {
+			this.storeFacade.setSidebarOpen(mediaLarge);
+		});
+		this.teardown = combineLatest([this.mediaLarge$, this.onSelectSubject]).subscribe(([mediaLarge, actor]) => {
+			this.engineService.selectedByActor.next(actor);
+			this.storeFacade.setSidebarOpen(mediaLarge || false);
+		});
 		combineLatest([this.onAfterViewInitSubject, this.mediaLarge$, this.sidebarOpen$])
 			.pipe(take(1))
 			.subscribe(([afterView, mediaLarge, open]) => {

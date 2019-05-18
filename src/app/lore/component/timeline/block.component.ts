@@ -390,18 +390,14 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public ngOnInit() {}
 
 	public ngAfterViewInit(): void {
-		this.teardown(
-			this.storeFacade.frame$.subscribe(frame => {
-				this._frameStart = frame.start;
-				this._frameEnd = frame.end;
-				this.update();
-			})
-		);
-		this.teardown(
-			this.containerWidthListener.subscribe(width => {
-				this.containerWidth = width;
-			})
-		);
+		this.teardown = this.storeFacade.frame$.subscribe(frame => {
+			this._frameStart = frame.start;
+			this._frameEnd = frame.end;
+			this.update();
+		});
+		this.teardown = this.containerWidthListener.subscribe(width => {
+			this.containerWidth = width;
+		});
 	}
 
 	/**

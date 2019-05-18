@@ -81,58 +81,56 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 	}
 
 	public loadDefaultEarth(): void {
-		this.teardown(
-			this.dialog
-				.open(ConfirmComponent, {
-					data: {
-						title: 'Warning!',
-						message:
-							'Are you sure? This will immediately overwrite your current landscape, planet name and planet radius!'
-					} as ConfirmData
-				})
-				.afterClosed()
-				.pipe(
-					mergeMap(result =>
-						iif(
-							() => result,
-							combineLatest([
-								this.databaseService.database$.pipe(
-									switchMap(db =>
-										db.lore.find({ id: this.originalData.id }).$.pipe(
-											flatMap(l => l),
-											take(1)
-										)
+		this.teardown = this.dialog
+			.open(ConfirmComponent, {
+				data: {
+					title: 'Warning!',
+					message:
+						'Are you sure? This will immediately overwrite your current landscape, planet name and planet radius!'
+				} as ConfirmData
+			})
+			.afterClosed()
+			.pipe(
+				mergeMap(result =>
+					iif(
+						() => result,
+						combineLatest([
+							this.databaseService.database$.pipe(
+								switchMap(db =>
+									db.lore.find({ id: this.originalData.id }).$.pipe(
+										flatMap(l => l),
+										take(1)
 									)
-								),
-								from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
-							]).pipe(
-								switchMap(([lore, image]) =>
-									from(
-										(lore as RxDocument<Lore>).putAttachment({
-											id: 'texture', // string, name of the attachment like 'cat.jpg'
-											data: image as Blob, // (string|Blob|Buffer) data of the attachment
-											type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
-										})
-									)
-								),
-								tap(o =>
-									(this.loreForm.controls['planet'] as FormGroup).controls['name'].setValue(
-										Planet.DEFAULT_NAME
-									)
-								),
-								tap(o =>
-									(this.loreForm.controls['planet'] as FormGroup).controls['radius'].setValue(
-										Planet.DEFAULT_RADIUS
-									)
-								),
-								tap(o => this.dialogRef.close(this.loreForm.value))
+								)
 							),
-							of(false)
-						)
+							from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
+						]).pipe(
+							switchMap(([lore, image]) =>
+								from(
+									(lore as RxDocument<Lore>).putAttachment({
+										id: 'texture', // string, name of the attachment like 'cat.jpg'
+										data: image as Blob, // (string|Blob|Buffer) data of the attachment
+										type: 'image/jpeg' // (string) type of the attachment-data like 'image/jpeg'
+									})
+								)
+							),
+							tap(o =>
+								(this.loreForm.controls['planet'] as FormGroup).controls['name'].setValue(
+									Planet.DEFAULT_NAME
+								)
+							),
+							tap(o =>
+								(this.loreForm.controls['planet'] as FormGroup).controls['radius'].setValue(
+									Planet.DEFAULT_RADIUS
+								)
+							),
+							tap(o => this.dialogRef.close(this.loreForm.value))
+						),
+						of(false)
 					)
 				)
-				.subscribe()
-		);
+			)
+			.subscribe();
 	}
 
 	public ngOnInit(): void {}

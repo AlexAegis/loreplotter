@@ -14,13 +14,11 @@ export class AppComponent extends BaseDirective implements OnInit {
 	public constructor(private router: Router) {
 		super();
 		this.loaded = false;
-		this.teardown(
-			this.router.events.pipe().subscribe((event: Event) => {
-				if (event instanceof ChildActivationEnd) {
-					this.loaded = true;
-				}
-			})
-		);
+		this.teardown = this.router.events.pipe().subscribe((event: Event) => {
+			if (event instanceof ChildActivationEnd) {
+				this.loaded = true;
+			}
+		});
 	}
 
 	public ngOnInit(): void {}

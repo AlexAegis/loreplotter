@@ -29,7 +29,6 @@ import { DynamicTexture } from './dynamic-texture.class';
 import { Water } from './water.class';
 
 export class Globe extends Basic {
-
 	public constructor(
 		private zoomSubject: BehaviorSubject<number>,
 		public radius: number = 1,
