@@ -8,7 +8,7 @@ import { EngineService } from '@lore/engine/engine.service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, Subject } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { startWith, take, tap, withLatestFrom } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-sidebar',
@@ -58,26 +58,30 @@ export class SidebarComponent extends BaseDirective implements AfterViewInit, On
 	}
 
 	public ngOnInit(): void {
-		this.teardown = combineLatest([this.onResizeSubject, this.mediaLarge$, this.sidebarOpen$]).subscribe(
-			([$event, mediaLarge, open]) => {
-				const w = ($event as any).target.innerWidth;
-				const h = ($event as any).target.innerHeight;
-				this.storeFacade.setMediaLarge(w / h >= 1.8); // Standard 16/9 ratio is 1.77 repeating.
-				if (!open && mediaLarge) {
-					this.storeFacade.setSidebarOpen(true);
-				}
-				this.over = mediaLarge ? 'side' : 'over';
-				this.changeDetector.markForCheck();
+		this.teardown = this.onResizeSubject.subscribe($event => {
+			const w = ($event as any).target.innerWidth;
+			const h = ($event as any).target.innerHeight;
+			this.storeFacade.setMediaLarge(w / h >= 1.8); // Standard 16/9 ratio is 1.77 repeating.
+		});
+		this.teardown = combineLatest([
+			this.mediaLarge$,
+			this.onBeginDragSubject.pipe(startWith(undefined as boolean)),
+			this.onSelectSubject.pipe(
+				startWith(undefined as RxDocument<Actor>),
+				tap(actor => actor && this.engineService.selectedByActor.next(actor))
+			)
+		]).subscribe(([mediaLarge]) => {
+			this.over = mediaLarge ? 'side' : 'over';
+			this.storeFacade.setSidebarOpen(mediaLarge); // When dragging, close it if its not mediaLarge
+		});
+		this.teardown = this.sidebarOpen$.pipe(withLatestFrom(this.mediaLarge$)).subscribe(([open, mediaLarge]) => {
+			if (!mediaLarge) {
+				this.storeFacade.setSidebarOpen(open);
 			}
-		);
-		this.teardown = combineLatest([this.mediaLarge$, this.onBeginDragSubject]).subscribe(([mediaLarge, on]) => {
-			this.storeFacade.setSidebarOpen(mediaLarge);
+			this.changeDetector.markForCheck();
 		});
-		this.teardown = combineLatest([this.mediaLarge$, this.onSelectSubject]).subscribe(([mediaLarge, actor]) => {
-			this.engineService.selectedByActor.next(actor);
-			this.storeFacade.setSidebarOpen(mediaLarge || false);
-		});
-		combineLatest([this.onAfterViewInitSubject, this.mediaLarge$, this.sidebarOpen$])
+
+		this.teardown = combineLatest([this.onAfterViewInitSubject, this.mediaLarge$, this.sidebarOpen$])
 			.pipe(take(1))
 			.subscribe(([afterView, mediaLarge, open]) => {
 				this.onResizeSubject.next({ target: window } as any);
