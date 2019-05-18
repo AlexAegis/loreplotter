@@ -41,7 +41,7 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 			name: this.formBuilder.control('', [Validators.required]),
 			radius: this.formBuilder.control(
 				'',
-				[Validators.required],
+				[Validators.required, ctrl => (ctrl.value < 500 ? { small: true } : undefined)],
 				[
 					ctrl =>
 						this.maxPossiblePlanetRadius$.pipe(

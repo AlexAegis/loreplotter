@@ -1,9 +1,13 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { BaseDirective } from '@app/component/base-component.class';
 import { normalizeFromWindow } from '@app/function';
 import { DatabaseService, LoreService } from '@app/service';
 import { PopupComponent } from '@lore/component';
 import { EngineService } from '@lore/engine/engine.service';
+import { StoreFacade } from '@lore/store/store-facade.service';
+import { Subject } from 'rxjs';
+import { withLatestFrom } from 'rxjs/operators';
 import { Vector2 } from 'three';
 
 @Component({
@@ -12,7 +16,9 @@ import { Vector2 } from 'three';
 	styleUrls: ['./engine.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EngineComponent implements AfterViewInit {
+export class EngineComponent extends BaseDirective implements AfterViewInit {
+	private tapSubject = new Subject<HammerInput>();
+
 	@ViewChild('canvas')
 	public canvas: ElementRef;
 
@@ -25,10 +31,37 @@ export class EngineComponent implements AfterViewInit {
 
 	public constructor(
 		public engineService: EngineService,
+		private storeFacade: StoreFacade,
 		public db: DatabaseService,
 		public loreService: LoreService,
 		private dnd: SkyhookDndService
-	) {}
+	) {
+		super();
+		this.sink = this.tapSubject
+			.pipe(withLatestFrom(this.storeFacade.isActorCreateMode$))
+			.subscribe(([$event, isActorCreateMode]) => {
+
+				switch (($event as any).button) {
+					case undefined:
+					case 0:
+						this.engineService.click(
+							normalizeFromWindow($event.center.x, $event.center.y),
+							$event.srcEvent.shiftKey
+						);
+
+						if (isActorCreateMode) {
+							this.loreService.spawnActorOnClientOffset.next({ x: $event.center.x, y: $event.center.y });
+							this.storeFacade.setActorCreateMode(false);
+						}
+						break;
+					case 2:
+						this.engineService.context(normalizeFromWindow($event.center.x, $event.center.y));
+						break;
+				}
+				this.engineService.refreshPopupPosition();
+
+			});
+	}
 
 	public ngAfterViewInit(): void {
 		this.engineService.createScene(this.canvas.nativeElement);
@@ -59,21 +92,9 @@ export class EngineComponent implements AfterViewInit {
 		return false;
 	}
 
-	public tap($event: any): void {
-		$event.stopPropagation();
-		switch ($event.button) {
-			case undefined:
-			case 0:
-				this.engineService.click(
-					normalizeFromWindow($event.center.x, $event.center.y),
-					$event.srcEvent.shiftKey
-				);
-				break;
-			case 2:
-				this.engineService.context(normalizeFromWindow($event.center.x, $event.center.y));
-				break;
-		}
-		this.engineService.refreshPopupPosition();
+	public tap($event: HammerInput): void {
+		($event as any).stopPropagation();
+		this.tapSubject.next($event);
 	}
 
 	public hover($event: any): void {

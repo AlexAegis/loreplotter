@@ -46,3 +46,10 @@ export const changeSelectedActor = createAction(
 	`[Actor] Change Selected`,
 	(payload: Payload<Partial<Actor>>): Payload<Partial<Actor>> => payload
 );
+
+export const toggleActorCreateMode = createAction(`[Actor] Toggle Actor Create Mode`);
+
+export const setActorCreateMode = createAction(
+	`[Actor] Set Actor Create Mode`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);

@@ -19,6 +19,11 @@ const getActors = createSelector(
 	selectAll
 );
 
+const getActorCreateMode = createSelector(
+	getActorState,
+	state => state.actorCreateMode
+);
+
 const getActorEntities = createSelector(
 	getActorState,
 	selectEntities
@@ -48,5 +53,6 @@ export const actorQuery = {
 	getActors,
 	getActorEntities,
 	getActorEntityById,
-	getSelected
+	getSelected,
+	getActorCreateMode
 };

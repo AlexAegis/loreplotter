@@ -23,6 +23,8 @@
 				<mat-label>{{ originalData?.planet?.radius }}</mat-label>
 				<input formControlName="radius" mask="9*" matInput/>
 				<mat-error *ngIf="loreForm.hasError('large', 'planet.radius')">Too large for current paths!</mat-error>
+				<mat-error *ngIf="loreForm.hasError('small', 'planet.radius')">Too small, must be larger than 500!
+				</mat-error>
 				<mat-error *ngIf="loreForm.hasError('required', 'planet.radius')">Required</mat-error>
 			</mat-form-field>
 			<ng-container *ngIf="originalData.id">

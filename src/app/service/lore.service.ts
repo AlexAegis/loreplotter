@@ -16,7 +16,7 @@ import { Axis } from '@lore/engine/helper';
 import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, from, Observable, Subject, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, from, Observable, Subject, zip } from 'rxjs';
 import { filter, flatMap, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
@@ -173,13 +173,17 @@ export class LoreService extends BaseDirective {
 					),
 					switchMap(([offset, lore, nextId, cursor]) => {
 						const dropVector = this.engineService.intersection(normalizeFromWindow(offset.x, offset.y));
-						dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
-						const actor = new Actor(nextId, lore.id);
-						actor._states.set(
-							new UnixWrapper(cursor),
-							new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
-						);
-						return lore.collection.database.actor.upsert(actor);
+						if (dropVector) {
+							dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
+							const actor = new Actor(nextId, lore.id);
+							actor._states.set(
+								new UnixWrapper(cursor),
+								new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
+							);
+							return lore.collection.database.actor.upsert(actor);
+						} else {
+							return EMPTY;
+						}
 					})
 				)
 				.subscribe()

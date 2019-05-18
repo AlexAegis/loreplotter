@@ -27,6 +27,7 @@ import {
 	FeatureActions,
 	loadLoresFailure,
 	loadLoresSuccess,
+	setActorCreateMode,
 	setActorObjectSizeBias,
 	setAutoLight,
 	setDrawHeight,
@@ -42,6 +43,7 @@ import {
 	setMediaLarge,
 	setPlaySpeed,
 	setSidebarOpen,
+	toggleActorCreateMode,
 	toggleAutoLight,
 	toggleManualLightAlwaysOn,
 	togglePlaying,
@@ -94,6 +96,7 @@ export class StoreFacade {
 	j;
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
+	public isActorCreateMode$ = this.store$.pipe(select(actorQuery.getActorCreateMode));
 
 	public constructor(private store$: Store<AppState>, private actions$: Actions<FeatureActions>) {}
 
@@ -107,6 +110,14 @@ export class StoreFacade {
 
 	public deleteLore(id: string): void {
 		this.store$.dispatch(deleteLore({ payload: id }));
+	}
+
+	public toggleActorCreateMode(): void {
+		this.store$.dispatch(toggleActorCreateMode());
+	}
+
+	public setActorCreateMode(to: boolean): void {
+		this.store$.dispatch(setActorCreateMode({ payload: to }));
 	}
 
 	public selectLore(lore: Partial<Lore>): void {

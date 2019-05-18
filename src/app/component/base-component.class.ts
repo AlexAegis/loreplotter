@@ -26,4 +26,8 @@ export class BaseDirective implements OnDestroy {
 	public ngOnDestroy(): void {
 		this.subscriptions.unsubscribe();
 	}
+
+	set sink(subscription: Subscription) {
+		this.subscriptions.add(subscription);
+	}
 }

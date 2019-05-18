@@ -23,7 +23,9 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 			\item A kötelező név mezőt kitölti
 			\begin{enumerate}
 				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
 			\end{enumerate}
+			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre (sugár minimum 500)
 			\item A 'Create' gombra kattint.
 			\begin{enumerate}
 				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
@@ -55,7 +57,9 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 			\item A kötelező név mezőt kitölti
 			\begin{enumerate}
 				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
 			\end{enumerate}
+			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre (sugár minimum 500)
 			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
 			\item A 'Create' gombra kattint
 			\begin{enumerate}
@@ -76,22 +80,26 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\hline
 		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
 		\hline
-		\emph{Eredmény} & Azonnal megváltoznak a projekt adatai  \\
+		\emph{Eredmény} & A projekt adatai megváltoznak. Ha töltött fel textúrát akkor a bolygó magasságtérképe is megváltozik    \\
 		\hline
 		\emph{Események} &
 
 		\begin{enumerate}
-			\item A felhasználó a jobb fent található projekt gombra rákatting
+			\item A felhasználó a jobb fent található projekt gombra rákattint
 			\item Megjelenik a projekt szerkesztő form
 			\item Módosításokat hajt végre
-
-
-
 			\begin{enumerate}
 				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg
 			\end{enumerate}
-			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
+			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
 			\item A 'Create' gombra kattint
+			\begin{enumerate}
+				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
+			\end{enumerate}
 		\end{enumerate}
 
 		\\
@@ -99,4 +107,40 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 	\end{tabular}
 	\caption{Sztori: Projekt Szerkesztése}
 	\label{tab:story-project-edit}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
+		\hline
+		\emph{Eredmény} & A bolygó felülete az alapértelmezett föld felületre változik.    \\
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}
+			\item A felhasználó a jobb fent található projekt gombra rákattint
+			\item Megjelenik a projekt szerkesztő form
+			\item Módosításokat hajt végre
+			\begin{enumerate}
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg
+				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg
+				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg
+			\end{enumerate}
+			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
+			\item A 'Create' gombra kattint
+			\begin{enumerate}
+				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
+			\end{enumerate}
+		\end{enumerate}
+
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Alapértelmezett Föld textúra visszaállítása}
+	\label{tab:story-project-edit-earth-texture}
 \end{table}

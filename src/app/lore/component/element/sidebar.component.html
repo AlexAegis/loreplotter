@@ -9,7 +9,13 @@
 	>
 		<h2>Objects</h2>
 		<div class="spawnables">
-			<button aria-label="Create Actor, drag it to the scene" mat-raised-button [dragSource]="actorSource">
+			<button
+				(click)="storeFacade.toggleActorCreateMode()"
+				[dragSource]="actorSource"
+				[ngStyle]="{ backgroundColor: (storeFacade.isActorCreateMode$ | async) ? '#77c04e' : '' }"
+				aria-label="Create Actor, drag it to the scene"
+				mat-raised-button
+			>
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
 		</div>

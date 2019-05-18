@@ -1,5 +1,12 @@
 import { Actor } from '@app/model/data';
-import { ActorActions, loadActors, loadActorsFailure, loadActorsSuccess } from '@lore/store/actions';
+import {
+	ActorActions,
+	loadActors,
+	loadActorsFailure,
+	loadActorsSuccess,
+	setActorCreateMode,
+	toggleActorCreateMode
+} from '@lore/store/actions';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 
 export interface BlockState {
@@ -10,6 +17,7 @@ export interface BlockState {
 export interface ActorState extends EntityState<Partial<Actor>> {
 	loading: boolean;
 	selected: string;
+	actorCreateMode: boolean;
 	block: BlockState;
 }
 
@@ -26,6 +34,7 @@ export const actorAdapter: EntityAdapter<Partial<Actor>> = createEntityAdapter<P
 export const initialActorState: ActorState = actorAdapter.getInitialState({
 	loading: false,
 	selected: undefined,
+	actorCreateMode: false,
 	block: {
 		leftMost: undefined,
 		rightMost: undefined
@@ -49,6 +58,12 @@ export function actorReducer(state: ActorState = initialActorState, action: Acto
 		}
 		case loadActorsFailure.type: {
 			return { ...state, loading: false };
+		}
+		case toggleActorCreateMode.type: {
+			return { ...state, actorCreateMode: !state.actorCreateMode };
+		}
+		case setActorCreateMode.type: {
+			return { ...state, actorCreateMode: action.payload };
 		}
 		default: {
 			return state;
