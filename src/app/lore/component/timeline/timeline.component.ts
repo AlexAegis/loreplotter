@@ -55,6 +55,7 @@ import { Math as ThreeMath } from 'three';
 export class TimelineComponent extends BaseDirective implements OnInit, AfterViewInit {
 	public cursorUnix$: Observable<number>;
 	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
+	public hovered$: Subject<ActorObject>;
 
 	public constructor(
 		public el: ElementRef,
@@ -68,6 +69,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		private changeDetectorRef: ChangeDetectorRef
 	) {
 		super();
+		this.hovered$ = this.engineService.hovered;
 		this.cursorUnix$ = this.storeFacade.cursor$;
 		this.actorDeltasAtCursor$ = this.actorService.actorDeltasAtCursor$;
 	}
@@ -345,11 +347,15 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	}
 
 	public mouseenter(actor: RxDocument<Actor>): void {
-		this.engineService.hovered.next(this.engineService.globe.getObjectByName(actor.id) as ActorObject);
+		if (this.loreService.overrideNodePosition.value === undefined) {
+			this.hovered$.next(this.engineService.globe.getObjectByName(actor.id) as ActorObject);
+		}
 	}
 
 	public mouseleave(): void {
-		this.engineService.hovered.next(undefined);
+		if (this.loreService.overrideNodePosition.value === undefined) {
+			this.hovered$.next(undefined);
+		}
 	}
 
 	public toPx(number: number): string {

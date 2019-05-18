@@ -14,6 +14,11 @@
 	bottom: 0;
 	overflow: hidden; // Hides the blocks and the cursor when the sidebar is expanded
 	z-index: -10;
+
+	.name {
+		display: inline;
+	}
+
 	.ruler {
 		// background-color: rgba(0, 0, 0, 0.05);
 		display: flex;

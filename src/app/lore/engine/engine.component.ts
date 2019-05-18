@@ -92,6 +92,8 @@ export class EngineComponent extends BaseDirective implements AfterViewInit {
 	}
 
 	public hover($event: any): void {
-		this.engineService.hover(normalizeFromWindow($event.clientX, $event.clientY));
+		if (this.loreService.overrideNodePosition.value === undefined) {
+			this.engineService.hover(normalizeFromWindow($event.clientX, $event.clientY));
+		}
 	}
 }
