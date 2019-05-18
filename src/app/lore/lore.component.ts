@@ -14,6 +14,7 @@ import {
 import { BaseDirective } from '@app/component/base-component.class';
 import { EngineService } from '@app/lore/engine';
 import { DatabaseService } from '@app/service';
+import { environment } from '@env/environment';
 import { TimelineComponent } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 
@@ -95,8 +96,8 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		private storeFacade: StoreFacade
 	) {
 		super();
-		// this.storeFacade.bakeCursorOverride();
-		// this.storeFacade.setDebugMode(!environment.production)
+		this.storeFacade.bakeCursorOverride();
+		this.storeFacade.setDebugMode(!environment.production);
 	}
 
 	public setTheme(theme: string): void {

@@ -113,7 +113,10 @@ function cursorReducer(cursor: CursorState, action: SceneActions): CursorState {
 			return { ...cursor, unix: { ...cursor.unix, override: action.payload } };
 		}
 		case bakeCursorOverride.type: {
-			return { ...cursor, unix: { ...cursor.unix, original: cursor.unix.override, override: undefined } };
+			return {
+				...cursor,
+				unix: { ...cursor.unix, original: cursor.unix.override || cursor.unix.original, override: undefined }
+			};
 		}
 		case clearCursorOverride.type: {
 			return { ...cursor, unix: { ...cursor.unix, override: undefined } };
