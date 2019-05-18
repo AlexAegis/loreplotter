@@ -155,3 +155,10 @@ export const setMediaLarge = createAction(
 	`[Scene] Set Media Large`,
 	(payload: Payload<boolean>): Payload<boolean> => payload
 );
+
+export const setDebugMode = createAction(
+	`[Scene] Set Debug Mode`,
+	(payload: Payload<boolean>): Payload<boolean> => payload
+);
+
+export const toggleDebugMode = createAction(`[Scene] Toggle Debug Mode`);

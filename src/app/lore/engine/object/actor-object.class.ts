@@ -3,7 +3,6 @@ import { arcIntersection } from '@app/function/arc-intersect.function';
 import { intersection } from '@app/function/intersection.function';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
 import { ActorAccumulator, ActorService, LoreService } from '@app/service';
-import { environment } from '@env/environment';
 import { Pin } from '@lore/engine/object/pin.class';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
@@ -166,7 +165,7 @@ export class PanHelper {
 		this.intersection.reset();
 	}
 
-	public calculateIntersection(globe: Globe, preLookHelper: Group) {
+	public calculateIntersection(globe: Globe, preLookHelper: Group, isDebugMode: boolean) {
 		if (this.left.valid && this.right.valid) {
 			this.normal
 				.copy(this.left.position)
@@ -188,8 +187,8 @@ export class PanHelper {
 				this.intersection.a.quaternion = preLookHelper.quaternion.clone();
 				this.intersection.a.valid = true;
 
-				if (!environment.production) {
-					globe.putPin('intersectA').position.copy(this.intersection.a.position);
+				if (isDebugMode) {
+					globe.putPin('debugIntersectA').position.copy(this.intersection.a.position);
 				}
 			} else {
 				this.intersection.a.valid = false;
@@ -201,8 +200,8 @@ export class PanHelper {
 				this.intersection.b.quaternion = preLookHelper.quaternion.clone();
 				this.intersection.b.valid = true;
 
-				if (!environment.production) {
-					globe.putPin('intersectB').position.copy(this.intersection.b.position);
+				if (isDebugMode) {
+					globe.putPin('debugIntersectB').position.copy(this.intersection.b.position);
 				}
 			} else {
 				this.intersection.b.valid = false;
@@ -262,8 +261,9 @@ export class ActorObject extends Basic {
 			this.positionAtStart = this.parent.quaternion.clone();
 			this.parent.userData.override = true; // Switched off in the LoreService
 			combineLatest([
-				this.actorAccumulator$.pipe(
-					tap(next => {
+				this.storeFacade.isDebugMode$,
+				combineLatest([this.actorAccumulator$, this.storeFacade.isDebugMode$]).pipe(
+					tap(([next, isDebugMode]) => {
 						// Prepare
 						// Get the enclosing events that are defining the time and position
 						this.enclosing = this.actor._states.enclosingNodes(new UnixWrapper(next.cursor));
@@ -297,7 +297,7 @@ export class ActorObject extends Basic {
 
 						// if there's both get the intersecting points
 						if (this.enclosing.first && this.enclosing.last) {
-							this.panHelper.calculateIntersection(this.globe, this.prelookHelper);
+							this.panHelper.calculateIntersection(this.globe, this.prelookHelper, isDebugMode);
 
 							this.panHelper.progressFromFirst = ThreeMath.mapLinear(
 								next.cursor,
@@ -308,14 +308,14 @@ export class ActorObject extends Basic {
 							);
 
 							this.panHelper.lrDist = this.panHelper.left.position.angleTo(this.panHelper.right.position);
-							if (!environment.production) {
+							if (isDebugMode) {
 								this.globe.putArrowHelper(
-									'leftToOther',
+									'debugLeftToOther',
 									this.panHelper.left.position,
 									this.panHelper.left.toOther
 								);
 								this.globe.putArrowHelper(
-									'rightToOther',
+									'debugRightToOther',
 									this.panHelper.right.position,
 									this.panHelper.right.toOther
 								);
@@ -326,7 +326,8 @@ export class ActorObject extends Basic {
 				this.panEventSubject
 			])
 				.pipe(takeUntil(this.panFinishedSubject))
-				.subscribe(([next, event]) => {
+				.subscribe(([isDebugMode, next, event]) => {
+					//const isDebugMode = false;
 					// Actual panning
 					// PREPARATION
 					if (this.enclosing.first) {
@@ -358,15 +359,15 @@ export class ActorObject extends Basic {
 							.copy(this.panHelper.intersection.a.position)
 							.sub(this.panHelper.right.position);
 
-						if (!environment.production) {
+						if (isDebugMode) {
 							this.globe.putArrowHelper(
-								'leftToIntA',
+								'debugLeftToIntA',
 								this.panHelper.left.position,
 								this.panHelper.left.toIntA,
 								0xff0022
 							);
 							this.globe.putArrowHelper(
-								'rightToIntA',
+								'debugRightToIntA',
 								this.panHelper.right.position,
 								this.panHelper.right.toIntA,
 								0xffbc00
@@ -384,15 +385,15 @@ export class ActorObject extends Basic {
 							.copy(this.panHelper.intersection.b.position)
 							.sub(this.panHelper.right.position);
 
-						if (!environment.production) {
+						if (isDebugMode) {
 							this.globe.putArrowHelper(
-								'leftToIntB',
+								'debugLeftToIntB',
 								this.panHelper.left.position,
 								this.panHelper.left.toIntB,
 								0xff0101
 							);
 							this.globe.putArrowHelper(
-								'rightToIntB',
+								'debugRightToIntB',
 								this.panHelper.right.position,
 								this.panHelper.right.toIntB,
 								0x00ff4e
@@ -448,28 +449,28 @@ export class ActorObject extends Basic {
 							.copy(this.panHelper.intersection.center)
 							.sub(this.panHelper.right.position);
 
-						if (!environment.production) {
+						if (isDebugMode) {
 							this.globe.putArrowHelper(
-								'leftToCenter',
+								'debugLeftToCenter',
 								this.panHelper.left.position,
 								this.panHelper.left.toCenter,
 								0x00ff00
 							);
 							this.globe.putArrowHelper(
-								'rightToCenter',
+								'debugRightToCenter',
 								this.panHelper.right.position,
 								this.panHelper.right.toCenter,
 								0x0000ff
 							);
 
 							this.globe.putArrowHelper(
-								'leftToNearestAllowed',
+								'debugLeftToNearestAllowed',
 								this.panHelper.left.position,
 								this.panHelper.left.toNearestAllowed,
 								0xbeffb9
 							);
 							this.globe.putArrowHelper(
-								'rightToNearestAllowed',
+								'debugRightToNearestAllowed',
 								this.panHelper.right.position,
 								this.panHelper.right.toNearestAllowed,
 								0x90c5ff
@@ -483,13 +484,13 @@ export class ActorObject extends Basic {
 							intersectCenterPin.position.copy(this.panHelper.intersection.center);
 
 							this.globe.putArrowHelper(
-								'leftIVect',
+								'debugLeftIVect',
 								this.panHelper.left.position,
 								this.panHelper.left.iVect,
 								0xff0000
 							);
 							this.globe.putArrowHelper(
-								'rightIVect',
+								'debugRightIVect',
 								this.panHelper.right.position,
 								this.panHelper.right.iVect,
 								0x9e00ff

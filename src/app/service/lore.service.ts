@@ -16,7 +16,8 @@ import { Axis } from '@lore/engine/helper';
 import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, EMPTY, from, Observable, Subject, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, Observable, of, Subject, zip } from 'rxjs';
+import { fromPromise } from 'rxjs/internal-compatibility';
 import { filter, flatMap, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
@@ -202,7 +203,7 @@ export class LoreService extends BaseDirective {
 
 		this.teardown = this.engineService.textureChange$
 			.pipe(
-				switchMap(texture => from(new Promise<Blob>(res => texture.canvas.toBlob(res, 'image/jpeg')))),
+				switchMap(texture => fromPromise(new Promise<Blob>(res => texture.canvas.toBlob(res, 'image/jpeg')))),
 				withLatestFrom(this.databaseService.currentLore$),
 				switchMap(([texture, loreDoc]) =>
 					loreDoc.putAttachment({
@@ -265,7 +266,7 @@ export class LoreService extends BaseDirective {
 					)
 			),
 			mergeMap(({ lores, actors }) =>
-				zip(from(lores).pipe(switchMap(l => l.remove())), from(actors).pipe(switchMap(a => a.remove())))
+				zip(of(...lores).pipe(switchMap(l => l.remove())), of(...actors).pipe(switchMap(a => a.remove())))
 			),
 			map(([l, a]) => l || a)
 		);

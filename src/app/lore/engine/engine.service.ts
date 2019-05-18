@@ -79,6 +79,12 @@ export class EngineService {
 		this.selection$.subscribe();
 		this.hover$.subscribe();
 
+		this.storeFacade.isDebugMode$.subscribe(isDebugMode => {
+			if (!isDebugMode && this.globe) {
+				this.globe.removeDebugItems();
+			}
+		});
+
 		this.storeFacade.selectedLore$
 			.pipe(
 				distinctUntilChanged((a, b) => a.id === b.id),
@@ -374,9 +380,7 @@ export class EngineService {
 		this.pass = new EffectPass(
 			this.stage.camera,
 			this.godRays,
-			/*smaaEffect,*/
 			this.bloomEffect,
-			// 	this.toneMappingEffect,
 			this.hoverOutlineEffect,
 			this.selectOutlineEffect,
 			this.vignetteEffect
@@ -387,7 +391,7 @@ export class EngineService {
 		this.composer.addPass(this.pass);
 	}
 
-	spawnActor(coord: Vector2): void {
+	public spawnActor(coord: Vector2): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		this.raycaster
 			.intersectObject(this.globe, true)
@@ -533,11 +537,11 @@ export class EngineService {
 		}
 	}
 
-	putCurve(_from: Vector3, _to: Vector3): void {
+	public putCurve(_from: Vector3, _to: Vector3): void {
 		this.globe.putCurve(_from, _to);
 	}
 
-	public hover(coord: Vector2) {
+	public hover(coord: Vector2): void {
 		this.raycaster.setFromCamera(coord, this.stage.camera);
 		const intersection = this.raycaster.intersectObject(this.globe, true).shift();
 
@@ -559,10 +563,19 @@ export class EngineService {
 		});
 	}
 
+	public refreshPopupPosition(): void {
+		const point: ActorObject = this.selected.value;
+		if (point) {
+			this.popupTarget.next(denormalize(point.getWorldPosition(new Vector3()).project(this.stage.camera)));
+		} else {
+			this.popupTarget.next(undefined);
+		}
+	}
+
 	/**
 	 * Main render loop
 	 */
-	private render() {
+	private render(): void {
 		requestAnimationFrame(() => this.render());
 		TWEEN.update(Date.now());
 		if (this.control) {
@@ -575,7 +588,7 @@ export class EngineService {
 	/**
 	 * Adjust camera and renderer on resize
 	 */
-	private resize() {
+	private resize(): void {
 		this.stage.camera.aspect = window.innerWidth / window.innerHeight;
 		this.stage.camera.updateProjectionMatrix();
 		this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -583,12 +596,4 @@ export class EngineService {
 		this.refreshPopupPosition();
 	}
 
-	public refreshPopupPosition() {
-		const point: ActorObject = this.selected.value;
-		if (point) {
-			this.popupTarget.next(denormalize(point.getWorldPosition(new Vector3()).project(this.stage.camera)));
-		} else {
-			this.popupTarget.next(undefined);
-		}
-	}
 }

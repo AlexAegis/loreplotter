@@ -30,6 +30,7 @@ import {
 	setActorCreateMode,
 	setActorObjectSizeBias,
 	setAutoLight,
+	setDebugMode,
 	setDrawHeight,
 	setDrawSize,
 	setFrameDeltaTo,
@@ -45,6 +46,7 @@ import {
 	setSidebarOpen,
 	toggleActorCreateMode,
 	toggleAutoLight,
+	toggleDebugMode,
 	toggleManualLightAlwaysOn,
 	togglePlaying,
 	toggleSidebarOpen,
@@ -93,6 +95,7 @@ export class StoreFacade {
 	// UI
 	public sidebarOpen$ = this.store$.pipe(select(sceneQuery.ui.isSidebarOpen));
 	public mediaLarge$ = this.store$.pipe(select(sceneQuery.ui.isMediaLarge));
+	public isDebugMode$ = this.store$.pipe(select(sceneQuery.ui.isDebugMode));
 	j;
 	// Actors
 	public actors$ = this.store$.pipe(select(actorQuery.getActors));
@@ -202,6 +205,14 @@ export class StoreFacade {
 
 	public setInteractionMode(mode: InteractionMode): void {
 		this.store$.dispatch(setInteractionMode({ payload: mode }));
+	}
+
+	public setDebugMode(to: boolean): void {
+		this.store$.dispatch(setDebugMode({ payload: to }));
+	}
+
+	public toggleDebugMode(): void {
+		this.store$.dispatch(toggleDebugMode());
 	}
 
 	public setDrawSize(size: number): void {

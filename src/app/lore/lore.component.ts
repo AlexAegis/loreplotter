@@ -95,6 +95,8 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 		private storeFacade: StoreFacade
 	) {
 		super();
+		// this.storeFacade.bakeCursorOverride();
+		// this.storeFacade.setDebugMode(!environment.production)
 	}
 
 	public setTheme(theme: string): void {

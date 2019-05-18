@@ -7,7 +7,8 @@ import { DatabaseService } from '@app/service/database.service';
 import { ActorFormResultData } from '@lore/component';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
-import { combineLatest, from, Observable, of, Subject } from 'rxjs';
+import { combineLatest, Observable, of, Subject } from 'rxjs';
+import { fromPromise } from 'rxjs/internal-compatibility';
 import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
 import { Group, Vector3 } from 'three';
 
@@ -79,7 +80,7 @@ export class ActorService {
 		this.storeFacade.cursor$
 	]).pipe(
 		mergeMap(([actors, cursor]) =>
-			from(actors).pipe(
+			of(...actors).pipe(
 				map(actor => {
 					const accumulator = {
 						name: undefined as string,
@@ -142,7 +143,6 @@ export class ActorService {
 				const wrapper = new UnixWrapper(date.unix());
 				const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
 				const knowledgeMap = new Map<String, String | undefined>();
-				console.log(knowledge);
 				knowledge
 					.filter(e => e.value || e.forget)
 					.map(k => {
@@ -155,12 +155,9 @@ export class ActorService {
 				newKnowledge.filter(({ value }) => !!value).forEach(({ key, value }) => knowledgeMap.set(key, value));
 				const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap, maxSpeed, color);
 
-				console.log(delta);
-
 				object.actor._states.set(wrapper, delta);
 
-				console.log(object.actor._states.toArray());
-				return from(
+				return fromPromise(
 					object.actor.atomicUpdate(actor => {
 						actor._states = object.actor._states;
 						return actor;

@@ -14,6 +14,7 @@ import {
 	SceneActions,
 	setActorObjectSizeBias,
 	setAutoLight,
+	setDebugMode,
 	setDrawHeight,
 	setDrawSize,
 	setFrameDeltaTo,
@@ -31,6 +32,7 @@ import {
 	setPlaySpeed,
 	setSidebarOpen,
 	toggleAutoLight,
+	toggleDebugMode,
 	toggleManualLightAlwaysOn,
 	togglePlaying,
 	toggleSidebarOpen
@@ -61,6 +63,7 @@ export interface SceneState {
 	manualLight: boolean;
 	manualLightAlwaysOn: boolean;
 	sidebarOpen: boolean;
+	debugMode: boolean;
 	mediaLarge: boolean; // Large screen or not (Like mobile)
 	title: string; // Large screen or not (Like mobile)
 }
@@ -95,6 +98,7 @@ export const initialSceneState: SceneState = {
 	drawSize: 10,
 	drawHeight: 1,
 	manualLight: true,
+	debugMode: false,
 	manualLightAlwaysOn: false,
 	sidebarOpen: false, // Will be set correctly on application startup
 	mediaLarge: false // Will be set correctly on application startup
@@ -233,6 +237,12 @@ export function sceneReducer(state: SceneState = initialSceneState, action: Scen
 		}
 		case setMediaLarge.type: {
 			return { ...state, mediaLarge: action.payload };
+		}
+		case setDebugMode.type: {
+			return { ...state, debugMode: action.payload };
+		}
+		case toggleDebugMode.type: {
+			return { ...state, debugMode: !state.debugMode };
 		}
 		case changeCursorBy.type:
 		case changeCursorOverrideTo.type:

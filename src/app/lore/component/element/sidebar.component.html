@@ -8,7 +8,7 @@
 		(closedStart)="onCloseStart()"
 	>
 		<h2>Objects</h2>
-		<div class="spawnables">
+		<div class="grid">
 			<button
 				[matTooltipShowDelay]="500"
 				matTooltip="Click here then to the planet to create an actor. You can also drag this button to the planet and drop it!"
@@ -22,7 +22,7 @@
 			</button>
 		</div>
 		<h2>Actors {{ (currentLoreActors$ | async)?.length }}</h2>
-		<div class="spawnables">
+		<div class="grid">
 			<button
 				aria-label="Select Actor"
 				mat-raised-button
@@ -34,6 +34,18 @@
 				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }} ({{ actor?._states?.length }})
 			</button>
 		</div>
+		<div class="tools grid">
+			<button
+				(click)="storeFacade.toggleDebugMode()"
+				[ngStyle]="{ backgroundColor: (storeFacade.isDebugMode$ | async) ? '#77c04e' : '' }"
+				aria-label="Set Debug Mode"
+				mat-raised-button
+			>
+				Debug Mode
+			</button>
+		</div>
 	</mat-sidenav>
-	<mat-sidenav-content> <ng-content id="content"> </ng-content> </mat-sidenav-content>
+	<mat-sidenav-content>
+		<ng-content></ng-content>
+	</mat-sidenav-content>
 </mat-sidenav-container>

@@ -106,6 +106,11 @@ const isMediaLarge = createSelector(
 	state => state.mediaLarge
 );
 
+const isDebugMode = createSelector(
+	getSceneState,
+	state => state.debugMode
+);
+
 export const sceneQuery = {
 	getLoadingScenes,
 	play: {
@@ -131,6 +136,7 @@ export const sceneQuery = {
 	},
 	ui: {
 		isSidebarOpen,
-		isMediaLarge
+		isMediaLarge,
+		isDebugMode
 	}
 };

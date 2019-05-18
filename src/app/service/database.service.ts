@@ -8,13 +8,14 @@ import moment from 'moment';
 
 import * as idb from 'pouchdb-adapter-idb';
 import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
-import { combineLatest, forkJoin, from, Observable, zip } from 'rxjs';
+import { combineLatest, forkJoin, Observable, zip } from 'rxjs';
+import { fromPromise } from 'rxjs/internal-compatibility';
 import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
 
 @Injectable()
 export class DatabaseService {
-	public database$ = from(
+	public database$ = fromPromise(
 		RxDB.create<RxCollections>({
 			name: 'lore',
 			adapter: 'idb'
@@ -218,7 +219,7 @@ export class DatabaseService {
 				locations: [],
 				planet: new Planet(Planet.DEFAULT_NAME, Planet.DEFAULT_RADIUS)
 			}),
-			from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
+			fromPromise(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
 		).pipe(
 			delayWhen(() =>
 				forkJoin(
@@ -228,7 +229,7 @@ export class DatabaseService {
 				)
 			),
 			mergeMap(([lore, image]) =>
-				from(
+				fromPromise(
 					lore.putAttachment({
 						id: 'texture', // string, name of the attachment like 'cat.jpg'
 						data: image, // (string|Blob|Buffer) data of the attachment

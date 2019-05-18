@@ -64,49 +64,7 @@ export class Globe extends Basic {
 			displacementScale: this.displacementScale,
 			displacementBias: this.displacementBias,
 			bumpScale: 0.008
-			// roughness: 0.5,
-			// metalness: 0.5,
-			// reflectivity: 0.7,
-			// clearCoat: 0.9,
-			// clearCoatRoughness: 0.9
 		});
-		/*
-		class GuiConf {
-			constructor(private material) {}
-			set color(color: string) {
-				this.material.color.setHex(color);
-			}
-
-			get color() {
-				return this.material.color.getHex();
-			}
-
-			set emissive(color: string) {
-				this.material.emissive.setHex(color);
-			}
-
-			get emissive() {
-				return this.material.emissive.getHex();
-			}
-
-			set emissiveIntensity(intensity: number) {
-				this.material.emissiveIntensity = intensity;
-			}
-
-			get emissiveIntensity() {
-				return this.material.emissiveIntensity;
-			}
-		}
-		const guiObj = new GuiConf(this.material);
-		const gui = new dat.GUI();
-		gui.addColor(guiObj, 'color');
-		gui.addColor(guiObj, 'emissive');
-		gui.add(guiObj, 'emissiveIntensity', 0, 0.5, 0.001);
-		this.receiveShadow = true;
-		this.castShadow = true;*/
-		/*texture.onUpdate = () => {
-			console.log('-------- d9isp tex updated');
-		};*/
 
 		this.geometry = new SphereBufferGeometry(radius, 512, 512);
 
@@ -189,6 +147,10 @@ export class Globe extends Basic {
 			return arrow;
 		};
 	})();
+
+	public removeDebugItems(): void {
+		this.children.filter(child => child.name.startsWith('debug')).forEach(child => child.parent.remove(child));
+	}
 
 	public _indicatorFrom: IndicatorSphere;
 	public _indicatorTo: IndicatorSphere;
