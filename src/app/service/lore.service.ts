@@ -18,7 +18,7 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxAttachment, RxDocument } from 'rxdb';
 import { BehaviorSubject, combineLatest, EMPTY, from, Observable, Subject, zip } from 'rxjs';
 import { filter, flatMap, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
-import { Group, Math as ThreeMath, Vector3 } from 'three';
+import { Math as ThreeMath, Vector3 } from 'three';
 
 const DAY_IN_SECONDS = 86400;
 
@@ -112,11 +112,7 @@ export class LoreService extends BaseDirective {
 
 				const t = enclosingProgress(enclosure, cursor);
 				let actorObject = this.engineService.globe.getObjectByName(actor.id) as ActorObject;
-				let group: Group;
-				if (actorObject) {
-					group = actorObject.parent as Group;
-				} else {
-					group = new Group();
+				if (!actorObject) {
 					actorObject = new ActorObject(
 						actor,
 						this.storeFacade,
@@ -124,28 +120,26 @@ export class LoreService extends BaseDirective {
 						this.actorService,
 						engineService.globe
 					);
-					group.add(actorObject);
-					this.engineService.globe.add(group);
+					this.engineService.globe.add(actorObject);
 
 					this.engineService.control.zoomUpdate(this.engineService.stage.camera.position.length());
 					actorObject.updateHeightAndWorldPosAndScale();
 				}
 
 				if (
-					group.userData.override === undefined &&
+					actorObject.userData.override === undefined &&
 					enclosure.last !== undefined &&
 					enclosure.first !== undefined
 				) {
-					this.actorService.lookAtInterpolated(
+					actorObject.position.copy(this.actorService.lookAtInterpolated(
 						enclosure.last.value.position,
 						enclosure.first.value.position,
-						t,
-						group
-					);
+						t
+					));
 
 					actorObject.updateHeight();
-				} else if (group.userData.override === false) {
-					delete group.userData.override;
+				} else if (actorObject.userData.override === false) {
+					delete actorObject.userData.override;
 				}
 
 				engineService.refreshPopupPosition();
@@ -192,7 +186,7 @@ export class LoreService extends BaseDirective {
 						})
 					);
 					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
-					point.parent.userData.override = false;
+					point.userData.override = false;
 					refreshBlockOfActorObject(point);
 
 					return updatedActor;

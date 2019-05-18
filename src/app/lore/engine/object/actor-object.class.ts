@@ -9,15 +9,14 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, Subject } from 'rxjs';
 import { filter, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
-import { Group, Math as ThreeMath, MeshBasicMaterial, Quaternion, SphereBufferGeometry, Vector3 } from 'three';
+import { Group, Math as ThreeMath, MeshBasicMaterial, SphereBufferGeometry, Vector3 } from 'three';
 import { Basic } from './basic.class';
 import { Globe } from './globe.class';
 
 export class IntersectionConnectorHelper {
-	position = new Vector3();
-	quaternion = new Quaternion();
-	distanceP = Infinity;
-	valid = false;
+	public position = new Vector3();
+	public distanceP = Infinity;
+	public valid = false;
 
 	public reset(): void {
 		this.valid = false;
@@ -25,11 +24,11 @@ export class IntersectionConnectorHelper {
 }
 
 export class IntersectionHelper {
-	a = new IntersectionConnectorHelper();
-	b = new IntersectionConnectorHelper();
-	abDist = Infinity;
-	abNorm = new Vector3();
-	center = new Vector3();
+	public a = new IntersectionConnectorHelper();
+	public b = new IntersectionConnectorHelper();
+	public abDist = Infinity;
+	public abNorm = new Vector3();
+	public center = new Vector3();
 
 	public reset(): void {
 		this.a.reset();
@@ -38,30 +37,27 @@ export class IntersectionHelper {
 }
 
 export class EventHelper {
-	position = new Vector3();
-	nearestAllowedPosition = new Vector3();
-	normToPointer = new Vector3();
-	time = Infinity;
-	requestedAngle = Infinity;
-	requestedDistance = Infinity;
-	allowedDistance = Infinity;
-	allowedAngle = Infinity;
-	missingAngle = Infinity;
-	quaternion: Quaternion;
-	nearestQuaternion: Quaternion;
-	intADist = Infinity;
-	intBDist = Infinity;
-	toIntA = new Vector3();
-	toIntB = new Vector3();
-	iVect = new Vector3();
-	toCenter = new Vector3();
-	toNearestAllowed = new Vector3();
-	toFlatNearestAllowed = new Vector3();
-	circleNormal = new Vector3();
-	toOther = new Vector3();
-	angleBetweenOtherAndCenter = Infinity; // If bigger than PI/2 then the bigger arc is on the intersection
-	valid = false;
-	flatCenter = new Vector3(); // Should be the same as for the other one, This is below the `center`, on the plane of a circle
+	public position = new Vector3();
+	public nearestAllowedPosition = new Vector3();
+	public normToPointer = new Vector3();
+	public time = Infinity;
+	public requestedAngle = Infinity;
+	public requestedDistance = Infinity;
+	public allowedDistance = Infinity;
+	public allowedAngle = Infinity;
+	public missingAngle = Infinity;
+	public intADist = Infinity;
+	public intBDist = Infinity;
+	public toIntA = new Vector3();
+	public toIntB = new Vector3();
+	public toNearestAllowed = new Vector3();
+	public toFlatNearestAllowed = new Vector3();
+	public circleNormal = new Vector3();
+	public toOther = new Vector3();
+	public toCenter = new Vector3();
+	public iVect = new Vector3();
+	public angleBetweenOtherAndCenter = Infinity; // If bigger than PI/2 then the bigger arc is on the intersection
+	public valid = false;
 
 	public setFromEvent(
 		event: Node<UnixWrapper, ActorDelta>,
@@ -87,17 +83,13 @@ export class EventHelper {
 		}
 
 		this.valid = true;
-
-		// Quaternion stuff TODO: Ditch
-		preLookHelper.lookAt(this.position);
-		this.quaternion = preLookHelper.quaternion.clone();
 	}
 
 	public reset(): void {
 		this.valid = false;
 	}
 
-	public preparePan(i: IntersectionHelper, target: Vector3, globe: Globe, preLookHelper: Group) {
+	public preparePan(i: IntersectionHelper, target: Vector3, globe: Globe, preLookHelper: Group): void {
 		this.requestedAngle = this.position.angleTo(target);
 		this.missingAngle = this.requestedAngle - this.allowedAngle;
 		this.normToPointer
@@ -105,9 +97,7 @@ export class EventHelper {
 			.cross(target)
 			.normalize();
 		this.nearestAllowedPosition.copy(this.position).applyAxisAngle(this.normToPointer, this.allowedAngle);
-		this.requestedDistance = this.requestedAngle * globe.radius; // TODO: Ditch
-		preLookHelper.lookAt(this.nearestAllowedPosition); // TODO: Ditch
-		this.nearestQuaternion = preLookHelper.quaternion.clone(); // TODO: Ditch
+		this.requestedDistance = this.requestedAngle * globe.radius;
 		if (i.a.valid) {
 			this.intADist = this.position.angleTo(i.a.position);
 		}
@@ -134,31 +124,31 @@ export class EventHelper {
 }
 
 export class PanHelper {
-	left = new EventHelper();
-	right = new EventHelper();
-	progressFromFirst = Infinity; // progress between left and right, if applicable
-	normal = new Vector3();
-	lrDist = Infinity;
-	intersection = new IntersectionHelper();
-	distanceSorter: Array<{ d: number; q: Quaternion }> = [
+	public left = new EventHelper();
+	public right = new EventHelper();
+	public progressFromFirst = Infinity; // progress between left and right, if applicable
+	public normal = new Vector3();
+	public lrDist = Infinity;
+	public intersection = new IntersectionHelper();
+	public distanceSorter: Array<{ d: number; p: Vector3 }> = [
 		{
 			d: Infinity,
-			q: undefined
+			p: undefined
 		},
 		{
 			d: Infinity,
-			q: undefined
+			p: undefined
 		},
 		{
 			d: Infinity,
-			q: undefined
+			p: undefined
 		},
 		{
 			d: Infinity,
-			q: undefined
+			p: undefined
 		}
-	]; // TODO: Transition from q to vector3
-	distanceSortFunction = (a, b) => a.d - b.d;
+	];
+	public distanceSortFunction = (a, b) => a.d - b.d;
 
 	public reset(): void {
 		this.left.reset();
@@ -185,7 +175,6 @@ export class PanHelper {
 			if (intersections.length > 0) {
 				this.intersection.a.position.copy(intersections[0]);
 				preLookHelper.lookAt(this.intersection.a.position);
-				this.intersection.a.quaternion = preLookHelper.quaternion.clone();
 				this.intersection.a.valid = true;
 
 				if (!environment.production) {
@@ -198,7 +187,6 @@ export class PanHelper {
 			if (intersections.length > 1) {
 				this.intersection.b.position.copy(intersections[1]);
 				preLookHelper.lookAt(this.intersection.b.position);
-				this.intersection.b.quaternion = preLookHelper.quaternion.clone();
 				this.intersection.b.valid = true;
 
 				if (!environment.production) {
@@ -219,7 +207,6 @@ export class ActorObject extends Basic {
 	private scalarScale = 1;
 	private scalarScaleBias = 0;
 	// panning/distance restriction
-	private positionAtStart: Quaternion;
 	private positionHelper = new Vector3();
 	private prelookHelper = new Group();
 	private panFinishedSubject = new Subject<boolean>();
@@ -259,8 +246,7 @@ export class ActorObject extends Basic {
 		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 
 		this.addEventListener('panstart', e => {
-			this.positionAtStart = this.parent.quaternion.clone();
-			this.parent.userData.override = true; // Switched off in the LoreService
+			this.userData.override = true; // Switched off in the LoreService
 			combineLatest([
 				this.actorAccumulator$.pipe(
 					tap(next => {
@@ -503,15 +489,15 @@ export class ActorObject extends Basic {
 
 					if (this.panHelper.left.valid && !this.panHelper.right.valid) {
 						if (this.panHelper.left.allowedAngle >= this.panHelper.left.requestedAngle) {
-							this.parent.lookAt(event.point);
+							this.position.copy(event.point);
 						} else {
-							this.parent.quaternion.copy(this.panHelper.left.nearestQuaternion);
+							this.position.copy(this.panHelper.left.nearestAllowedPosition);
 						}
 					} else if (!this.panHelper.left.valid && this.panHelper.right.valid) {
 						if (this.panHelper.right.allowedAngle >= this.panHelper.right.requestedAngle) {
-							this.parent.lookAt(event.point);
+							this.position.copy(event.point);
 						} else {
-							this.parent.quaternion.copy(this.panHelper.right.nearestQuaternion);
+							this.position.copy(this.panHelper.right.nearestAllowedPosition);
 						}
 					} else {
 						// both valid
@@ -520,9 +506,9 @@ export class ActorObject extends Basic {
 							this.panHelper.left.allowedAngle >= this.panHelper.left.requestedAngle &&
 							this.panHelper.right.allowedAngle >= this.panHelper.right.requestedAngle
 						) {
-							this.parent.lookAt(event.point);
+							this.position.copy(event.point);
 						} else if (this.panHelper.intersection.a.valid && !this.panHelper.intersection.b.valid) {
-							this.parent.quaternion.copy(this.panHelper.intersection.a.quaternion);
+							this.position.copy(this.panHelper.intersection.a.position);
 						} else if (!this.panHelper.intersection.a.valid && !this.panHelper.intersection.b.valid) {
 							// Either
 							// Circle inside the circle
@@ -530,21 +516,20 @@ export class ActorObject extends Basic {
 								this.panHelper.lrDist + this.panHelper.left.allowedAngle <=
 								this.panHelper.right.allowedAngle
 							) {
-								this.parent.quaternion.copy(this.panHelper.left.nearestQuaternion);
+								this.position.copy(this.panHelper.left.nearestAllowedPosition);
 							} else if (
 								this.panHelper.lrDist + this.panHelper.right.allowedAngle <=
 								this.panHelper.left.allowedAngle
 							) {
-								this.parent.quaternion.copy(this.panHelper.right.nearestQuaternion);
+								this.position.copy(this.panHelper.right.nearestAllowedPosition);
 							} else {
 								// or outside each other but the single intersection not calculated correctly then jump between them
-								this.positionHelper
+								this.position
 									.copy(this.panHelper.left.position)
 									.applyAxisAngle(
 										this.panHelper.normal,
 										this.panHelper.progressFromFirst * this.panHelper.lrDist
 									);
-								this.parent.lookAt(this.positionHelper);
 							}
 						} else {
 							// If neither requirement is met and there is two intersecting points
@@ -554,21 +539,21 @@ export class ActorObject extends Basic {
 							this.panHelper.distanceSorter[0].d = leftIsOnIntArc
 								? Math.abs(this.panHelper.left.missingAngle)
 								: Infinity;
-							this.panHelper.distanceSorter[0].q = this.panHelper.left.nearestQuaternion;
+							this.panHelper.distanceSorter[0].p = this.panHelper.left.nearestAllowedPosition;
 
 							this.panHelper.distanceSorter[1].d = rightIsOnIntArc
 								? Math.abs(this.panHelper.right.missingAngle)
 								: Infinity;
-							this.panHelper.distanceSorter[1].q = this.panHelper.right.nearestQuaternion;
+							this.panHelper.distanceSorter[1].p = this.panHelper.right.nearestAllowedPosition;
 
 							this.panHelper.distanceSorter[2].d = this.panHelper.intersection.a.distanceP;
-							this.panHelper.distanceSorter[2].q = this.panHelper.intersection.a.quaternion;
+							this.panHelper.distanceSorter[2].p = this.panHelper.intersection.a.position;
 
 							this.panHelper.distanceSorter[3].d = this.panHelper.intersection.b.distanceP;
-							this.panHelper.distanceSorter[3].q = this.panHelper.intersection.b.quaternion;
+							this.panHelper.distanceSorter[3].p = this.panHelper.intersection.b.position;
 
-							this.parent.quaternion.copy(
-								this.panHelper.distanceSorter.sort(this.panHelper.distanceSortFunction)[0].q
+							this.position.copy(
+								this.panHelper.distanceSorter.sort(this.panHelper.distanceSortFunction)[0].p
 							);
 						}
 					}
@@ -599,32 +584,9 @@ export class ActorObject extends Basic {
 			// and if you're panning this and not the cursor, it's fine to clear it here
 			this.loreService.spawnOnWorld.next({ point: this, position: this.getWorldPosition(new Vector3()) });
 			this.storeFacade.clearCursorOverride();
-			this.positionAtStart = undefined;
 			this.positionHelper.set(0, 0, 0);
-			this.parent.userData.override = false;
+			this.userData.override = false;
 			this.panHelper.reset();
-			// this.panHelper.left.requestedDistance = Infinity;
-			// this.panHelper.left.requestedAngle = Infinity;
-			// this.panHelper.left.allowedDistance = Infinity;
-			// this.panHelper.left.time = Infinity;
-			// this.panHelper.left.quaternion = undefined;
-			// this.panHelper.left.nearestQuaternion = undefined;
-			// this.panHelper.left.intADist = Infinity;
-			// this.panHelper.left.intBDist = Infinity;
-			// this.panHelper.left.valid = false;
-			// this.panHelper.right.requestedDistance = Infinity;
-			// this.panHelper.right.requestedAngle = Infinity;
-			// this.panHelper.right.allowedDistance = Infinity;
-			// this.panHelper.right.time = Infinity;
-			// this.panHelper.right.quaternion = undefined;
-			// this.panHelper.right.nearestQuaternion = undefined;
-			// this.panHelper.right.intADist = Infinity;
-			// this.panHelper.right.intBDist = Infinity;
-			// this.panHelper.right.valid = false;
-			// this.panHelper.lrDist = Infinity;
-			// this.enclosing = undefined;
-			// this.panHelper.intersection.a.valid = false;
-			// this.panHelper.intersection.b.valid = false;
 			this.globe.indicatorFrom.doHide();
 			this.globe.indicatorTo.doHide();
 		});
@@ -662,33 +624,34 @@ export class ActorObject extends Basic {
 		this.updateHeight();
 	}
 
+	/* TODO: Ditch old implementation
+		public updateHeight(): void {
+			const engineService = this.stage.engineService;
+			const globe = this.parent.parent as Globe;
+			const worldPos = this.getWorldPosition(this.lastWorldPosition);
+			// console.log(worldPos);
+			worldPos.multiplyScalar(1.1); // Look start further away;
+			const toCenter = worldPos
+				.clone()
+				.multiplyScalar(-1)
+				.normalize();
+			engineService.raycaster.set(worldPos, toCenter);
+
+			// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
+			const i = engineService.raycaster.intersectObject(globe)[0];
+			if (i) {
+				//  but there's always be an intersection as the globe is spherical
+				const displacementHere = globe.displacementTexture.heightAt(i.uv);
+				this.position.set(
+					0,
+					0,
+					this.baseHeight + displacementHere * globe.displacementScale + globe.displacementBias
+				);
+			}
+		}*/
+
+
 	public updateHeight(): void {
-		const engineService = this.stage.engineService;
-		const globe = this.parent.parent as Globe;
-		const worldPos = this.getWorldPosition(this.lastWorldPosition);
-		// console.log(worldPos);
-		worldPos.multiplyScalar(1.1); // Look start further away;
-		const toCenter = worldPos
-			.clone()
-			.multiplyScalar(-1)
-			.normalize();
-		engineService.raycaster.set(worldPos, toCenter);
-
-		// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
-		const i = engineService.raycaster.intersectObject(globe)[0];
-		if (i) {
-			//  but there's always be an intersection as the globe is spherical
-			const displacementHere = globe.displacementTexture.heightAt(i.uv);
-			this.position.set(
-				0,
-				0,
-				this.baseHeight + displacementHere * globe.displacementScale + globe.displacementBias
-			);
-		}
-	}
-
-	/**
-	 *    public updateHeight(): void {
 		const engineService = this.stage.engineService;
 		const globe = this.parent as Globe;
 		// console.log(worldPos);
@@ -709,5 +672,4 @@ export class ActorObject extends Basic {
 			);
 		}
 	}
-	 */
 }

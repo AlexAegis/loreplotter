@@ -16,7 +16,6 @@ import {
 	mergeMapTo,
 	switchMap,
 	switchMapTo,
-	distinctUntilChanged,
 	takeUntil,
 	tap,
 	throttleTime,
@@ -142,7 +141,7 @@ export class SceneEffects {
 			const updatedActor = await payload.actorObject.actor.atomicUpdate(
 				a => (a._states = payload.actorObject.actor._states) && a
 			);
-			payload.actorObject.parent.userData.override = false;
+			payload.actorObject.userData.override = false;
 			refreshBlockOfActorObject(payload.actorObject);
 			return updatedActor;
 		})

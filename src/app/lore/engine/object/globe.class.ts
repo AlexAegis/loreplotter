@@ -16,7 +16,6 @@ import {
 	Material,
 	Mesh,
 	MeshStandardMaterial,
-	Object3D,
 	SphereBufferGeometry,
 	Spherical,
 	Vector2,
@@ -146,8 +145,6 @@ export class Globe extends Basic {
 
 	public get points(): Array<ActorObject> {
 		return this.children
-			.filter(child => child.children.length === 1) // each group that has one child
-			.reduce((acc: Array<Object3D>, child) => acc.push(...child.children) && acc, []) // each of those children
 			.filter(o => o.type === 'Point') // only the Points
 			.map(o => o as ActorObject); // as Points
 	}
