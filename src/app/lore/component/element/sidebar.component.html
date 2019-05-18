@@ -10,6 +10,8 @@
 		<h2>Objects</h2>
 		<div class="spawnables">
 			<button
+				[matTooltipShowDelay]="500"
+				matTooltip="Click here then to the planet to create an actor. You can also drag this button to the planet and drop it!"
 				(click)="storeFacade.toggleActorCreateMode()"
 				[dragSource]="actorSource"
 				[ngStyle]="{ backgroundColor: (storeFacade.isActorCreateMode$ | async) ? '#77c04e' : '' }"
