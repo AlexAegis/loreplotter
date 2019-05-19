@@ -16,8 +16,7 @@ import { nextWhole } from '@app/function';
 import { toUnit } from '@app/function/to-unit.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { Actor } from '@app/model/data/actor.class';
-import { tweenMap } from '@app/operator';
-import { ActorAccumulator, ActorService } from '@app/service';
+import { Accumulator, ActorService } from '@app/service';
 import { DatabaseService } from '@app/service/database.service';
 import { LoreService } from '@app/service/lore.service';
 import { BlockComponent } from '@lore/component/timeline/block.component';
@@ -26,12 +25,11 @@ import { EngineService } from '@lore/engine';
 import { ActorObject } from '@lore/engine/object';
 import { BlockService } from '@lore/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { Easing } from '@tweenjs/tween.js';
 import moment from 'moment';
 import { NgScrollbar } from 'ngx-scrollbar';
 import ResizeObserver from 'resize-observer-polyfill';
 import { RxDocument } from 'rxdb';
-import { combineLatest, Observable, ReplaySubject, Subject } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
 import { map, share, tap, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 
@@ -54,7 +52,7 @@ import { Math as ThreeMath } from 'three';
 })
 export class TimelineComponent extends BaseDirective implements OnInit, AfterViewInit {
 	public cursorUnix$: Observable<number>;
-	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
+	public actorDeltasAtCursor$: Observable<Array<Accumulator>>;
 	public hovered$: Subject<ActorObject>;
 
 	public constructor(
@@ -107,7 +105,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	// eg.: how many of the current scale's unit, fits into it.
 	public distanceBetweenUnits: number;
 	// The resizeObserver keeps this property updated and call the change calculation
-	public containerWidth = new ReplaySubject<number>(1);
+
 	public currentUnitIndex = 3;
 	public units: Array<{ unitName: moment.unitOfTime.DurationConstructor; frame: number; seconds: number }> = [
 		{ unitName: 'second', frame: 1000, seconds: moment.duration(1, 'second').asSeconds() },
@@ -141,9 +139,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 
 	private panTypeAtStart: string;
 
-	private easeCursorTo = new Subject<number>();
-
-	public firstDist$ = combineLatest([this.storeFacade.frame$, this.containerWidth]).pipe(
+	public firstDist$ = combineLatest([this.storeFacade.frame$, this.loreService.containerWidth]).pipe(
 		map(([frame, containerWidth]) => {
 			this.unitsBetween = frame.length / this.currentUnitSeconds;
 			this.distanceBetweenUnits = containerWidth / this.unitsBetween;
@@ -163,13 +159,13 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	public frameShifter = new Subject<number>();
 
 	public ngAfterViewInit(): void {
-		this.containerWidth.next(this.el.nativeElement.offsetWidth); // Initial value
+		this.loreService.containerWidth.next(this.el.nativeElement.offsetWidth); // Initial value
 		// ResizeObserver is not really supported outside of chrome.
 		// It can also make the app crash on MacOS, here is a workaround: https://github.com/que-etc/resize-observer-polyfill/issues/36
 		// this will keep the containerWidth property updated
 		const resize$ = new ResizeObserver(e => {
 			e.forEach(change => {
-				this.containerWidth.next(change.contentRect.width);
+				this.loreService.containerWidth.next(change.contentRect.width);
 				this.changeDetectorRef.detectChanges();
 			});
 		});
@@ -188,6 +184,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	public zoomScrollHandler($event: any): void {
 		const direction = toUnit($event.deltaY); // -1 or 1
 		const prog = ThreeMath.mapLinear($event.clientX, 0, window.innerWidth, 0, 1);
+		const speed = 2;
 		// This will be the cursor position or the center of the pinch, right now it's just the cursors position
 		/*
 		if (
@@ -203,8 +200,8 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		}*/
 
 		this.storeFacade.changeFrameBy({
-			start: -direction * prog * this.currentUnitSeconds,
-			end: direction * (1 - prog) * this.currentUnitSeconds
+			start: -direction * prog * this.currentUnitSeconds * speed,
+			end: direction * (1 - prog) * this.currentUnitSeconds * speed
 		});
 	}
 
@@ -276,37 +273,13 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	 */
 	public tap($event: any): void {
 		$event.stopPropagation();
-		this.easeCursorTo.next($event.center.x - this.el.nativeElement.offsetLeft);
+		this.loreService.easeCursorTo.next($event.center.x - this.el.nativeElement.offsetLeft);
 	}
 
 	public ngOnInit(): void {
-		this.teardown = this.easeCursorTo
-			.pipe(
-				withLatestFrom(this.storeFacade.cursor$, this.storeFacade.frame$, this.containerWidth),
-				map(([position, cursor, { start, end }, containerWidth]) => ({
-					from: { cursor: cursor },
-					to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
-				})),
-				tweenMap({
-					duration: 220,
-					easing: Easing.Exponential.Out,
-					pingpongInterrupt: true,
-					pingpongAfterFinish: false,
-					sendUndefined: true,
-					doOnNext: next => {
-						if (next) {
-							this.storeFacade.setCursorOverride(next.cursor);
-						}
-					},
-					doOnComplete: () => {
-						this.storeFacade.bakeCursorOverride();
-					}
-				})
-			)
-			.subscribe();
 
 		this.teardown = this.frameShifter
-			.pipe(withLatestFrom(this.storeFacade.frame$, this.containerWidth))
+			.pipe(withLatestFrom(this.storeFacade.frame$, this.loreService.containerWidth))
 			.subscribe(([shift, frame, containerWidth]) => {
 				if (shift !== undefined) {
 					this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
@@ -318,7 +291,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		this.teardown = this.nodeSpawner
 			.pipe(
 				tap(({ $event }) => $event.stopPropagation()),
-				withLatestFrom(this.storeFacade.frame$, this.containerWidth),
+				withLatestFrom(this.storeFacade.frame$, this.loreService.containerWidth),
 				map(([{ $event, actor, block }, frame, containerWidth]) => {
 					const unix = ThreeMath.mapLinear(
 						$event.center.x - this.el.nativeElement.offsetLeft,

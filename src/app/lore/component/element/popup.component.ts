@@ -2,8 +2,9 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ChangeDetectionStrategy, Component, HostBinding, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
-import { ActorAccumulator, ActorService } from '@app/service/actor.service';
-import { ActorFormComponent, ActorFormComponentData, ActorFormResultData } from '@lore/component/dialog/actor-form.component';
+import { LoreService } from '@app/service';
+import { Accumulator, ActorService } from '@app/service/actor.service';
+import { ActorFormComponent, ActorFormResultData } from '@lore/component/dialog/actor-form.component';
 import { EngineService } from '@lore/engine/engine.service';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
@@ -53,10 +54,11 @@ export class PopupComponent extends BaseDirective implements OnInit {
 		return this._pos;
 	}
 
-	public selectedActorAccumulatorAtCursor$: Observable<ActorAccumulator>;
+	public selectedActorAccumulatorAtCursor$: Observable<Accumulator>;
 	public constructor(
 		private actorService: ActorService,
 		private engineService: EngineService,
+		private loreService: LoreService,
 		private dialog: MatDialog
 	) {
 		super();
@@ -73,20 +75,16 @@ export class PopupComponent extends BaseDirective implements OnInit {
 				withLatestFrom(this.engineService.selection$),
 				map(([payload, selection]) => {
 					return this.dialog.open(ActorFormComponent, {
-						data: {
-							lastUnix: payload.accumulator.lastUnix,
-							name: payload.accumulator.name,
-							maxSpeed: payload.accumulator.maxSpeed,
-							knowledge: payload.accumulator.knowledge,
-							selected: selection,
-							cursor: payload.cursor,
-							color: payload.accumulator.color
-						} as ActorFormComponentData
+						data: payload
 					});
 				}),
 				switchMap(dialog => dialog.afterClosed())
 			)
 			.subscribe((result: ActorFormResultData) => this.actorService.actorFormSave.next(result));
+	}
+
+	public cursorEaseTo(cursor: number): void {
+		this.loreService.easeCursorToUnix.next(cursor);
 	}
 
 	public ngOnInit(): void {}

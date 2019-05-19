@@ -1,6 +1,7 @@
+import { Node } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
+import { refreshBlockOfActor } from '@app/function';
 import { enclosingProgress } from '@app/function/enclosing-progress.function';
-import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
 import { EngineService } from '@app/lore/engine/engine.service';
 import { Actor, ActorDelta, UnixWrapper, Vector3Serializable } from '@app/model/data';
 import { DatabaseService } from '@app/service/database.service';
@@ -11,6 +12,7 @@ import { combineLatest, from, Observable, of, Subject } from 'rxjs';
 import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
 import { Group, Vector3 } from 'three';
 
+/*
 export interface ActorAccumulator {
 	cursor: number;
 	actor: RxDocument<Actor, {}>;
@@ -21,6 +23,36 @@ export interface ActorAccumulator {
 		knowledge: Array<{ key: String; value: String }>;
 		color: string;
 	};
+}
+*/
+
+export interface Accumulator {
+	cursor: number;
+	actor: RxDocument<Actor>;
+	accumulator: ActorDeltaAccumulator;
+}
+
+
+export class AccumulatorField<T> {
+	appearedIn: Node<UnixWrapper, ActorDelta>;
+	value: T;
+	nextValue: T;
+	nextAppearance: Node<UnixWrapper, ActorDelta>;
+}
+
+export class Property<T> {
+	key: T;
+	value: T;
+}
+
+export class ActorDeltaAccumulator {
+	id = new AccumulatorField<string>();
+	unix = new AccumulatorField<number>();
+	name = new AccumulatorField<string>();
+	maxSpeed = new AccumulatorField<number>();
+	color = new AccumulatorField<string>();
+	position = new AccumulatorField<Vector3Serializable>();
+	properties: Array<AccumulatorField<Property<String>>> = [];
 }
 
 @Injectable()
@@ -74,47 +106,104 @@ export class ActorService {
 		this.latestSlerpsWorldPositionHolder = new Vector3();
 	}
 
-	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>> = combineLatest([
+	// TODO: This makes a bunch of objects during run
+	public actorDeltasAtCursor$: Observable<Array<Accumulator>> = combineLatest([
 		this.databaseService.currentLoreActors$,
 		this.storeFacade.cursor$
 	]).pipe(
 		mergeMap(([actors, cursor]) =>
 			of(...actors).pipe(
 				map(actor => {
-					const accumulator = {
-						name: undefined as string,
-						maxSpeed: Actor.DEFAULT_MAX_SPEED,
-						color: Actor.DEFAULT_COLOR,
-						lastUnix: undefined as number,
-						knowledge: []
-					};
-					const knowledgeMap = new Map<String, String>();
+					const accumulator = new ActorDeltaAccumulator();
+					const propertyMap = new Map<String, AccumulatorField<String>>();
+
+					accumulator.color.value = Actor.DEFAULT_COLOR;
+					accumulator.maxSpeed.value = Actor.DEFAULT_MAX_SPEED;
+
+					let reached = false;
 					for (const node of actor._states.nodes()) {
 						if (node.key.unix > cursor) {
-							break;
+							reached = true;
 						}
-						accumulator.lastUnix = node.key.unix;
-
-						for (const [key, value] of node.value.knowledge.entries()) {
-							if (value !== '') {
-								knowledgeMap.set(key, value);
-							} else {
-								knowledgeMap.delete(key);
+						if (!reached) {
+							if (node.key.unix !== undefined) {
+								accumulator.unix.value = node.key.unix;
+								accumulator.unix.appearedIn = node;
+							}
+							if (node.value.name !== undefined) {
+								accumulator.name.value = node.value.name;
+								accumulator.name.appearedIn = node;
+							}
+							if (node.value.maxSpeed !== undefined) {
+								accumulator.maxSpeed.value = node.value.maxSpeed;
+								accumulator.maxSpeed.appearedIn = node;
+							}
+							if (node.value.color !== undefined) {
+								accumulator.color.value = node.value.color;
+								accumulator.color.appearedIn = node;
+							}
+							if (node.value.position !== undefined) {
+								accumulator.position.value = node.value.position;
+								accumulator.position.appearedIn = node;
+							}
+							for (const [key, value] of node.value.knowledge.entries()) {
+								const prop = propertyMap.get(key);
+								if (prop) {
+									prop.value = value;
+									prop.appearedIn = node;
+								} else {
+									const propField = new AccumulatorField<String>();
+									propField.value = value;
+									propField.appearedIn = node;
+									propertyMap.set(key, propField);
+								}
+							}
+						} else {
+							if (node.key.unix !== undefined && accumulator.unix.nextAppearance === undefined) {
+								accumulator.unix.nextValue = node.key.unix;
+								accumulator.unix.nextAppearance = node;
+							}
+							if (node.value.name !== undefined && accumulator.name.nextAppearance === undefined) {
+								accumulator.name.nextValue = node.value.name;
+								accumulator.name.nextAppearance = node;
+							}
+							if (node.value.maxSpeed !== undefined && accumulator.maxSpeed.nextAppearance === undefined) {
+								accumulator.maxSpeed.nextValue = node.value.maxSpeed;
+								accumulator.maxSpeed.nextAppearance = node;
+							}
+							if (node.value.color !== undefined && accumulator.color.nextAppearance === undefined) {
+								accumulator.color.nextValue = node.value.color;
+								accumulator.color.nextAppearance = node;
+							}
+							if (node.value.position !== undefined && accumulator.position.nextAppearance === undefined) {
+								accumulator.position.nextValue = node.value.position;
+								accumulator.position.nextAppearance = node;
+							}
+							for (const [key, value] of node.value.knowledge.entries()) {
+								const prop = propertyMap.get(key);
+								if (prop) {
+									if (value !== undefined && prop.nextAppearance === undefined) {
+										prop.nextValue = value;
+										prop.nextAppearance = node;
+									}
+								} else {
+									const propField = new AccumulatorField<String>();
+									propField.nextValue = value;
+									propField.nextAppearance = node;
+									propertyMap.set(key, propField);
+								}
 							}
 						}
-						if (node.value.name !== undefined) {
-							accumulator.name = node.value.name;
-						}
-						if (node.value.maxSpeed !== undefined) {
-							accumulator.maxSpeed = node.value.maxSpeed;
-						}
-						if (node.value.color !== undefined) {
-							accumulator.color = node.value.color;
-						}
 					}
-					for (const [key, value] of knowledgeMap.entries()) {
-						accumulator.knowledge.push({ key, value });
+					for (const [key, value] of propertyMap.entries()) {
+						const accField = new AccumulatorField<Property<String>>();
+						accField.nextValue = { key, value: value.nextValue };
+						accField.nextAppearance = value.nextAppearance;
+						accField.appearedIn = value.appearedIn;
+						accField.value = { key, value: value.value };
+						accumulator.properties.push(accField);
 					}
+
 					return { cursor, actor, accumulator };
 				}),
 				toArray()
@@ -123,7 +212,8 @@ export class ActorService {
 		shareReplay(1)
 	);
 
-	public selectedActorAccumulatorAtCursor$: Observable<ActorAccumulator> = combineLatest([
+
+	public selectedActorAccumulatorAtCursor$: Observable<Accumulator> = combineLatest([
 		this.actorDeltasAtCursor$,
 		this.engineService.selected.pipe(
 			filter(actorObject => actorObject !== undefined),
@@ -133,14 +223,15 @@ export class ActorService {
 		map(([all, selected]) => all.find(acc => acc.actor.id === selected.id)),
 		filter(delta => delta !== undefined)
 	);
+
 	private _vb = new Vector3();
 
 	public actorDialogSubscription = this.actorFormSave
 		.pipe(
 			filter(data => data !== undefined),
-			switchMap(({ object, name, maxSpeed, date, knowledge, newKnowledge, color }) => {
+			switchMap(({ actor, name, maxSpeed, date, knowledge, newKnowledge, color }) => {
 				const wrapper = new UnixWrapper(date.unix());
-				const finalPosition = this.actorPositionAt(object.actor, wrapper.unix);
+				const finalPosition = this.actorPositionAt(actor, wrapper.unix);
 				const knowledgeMap = new Map<String, String | undefined>();
 				knowledge
 					.filter(e => e.value || e.forget)
@@ -154,16 +245,16 @@ export class ActorService {
 				newKnowledge.filter(({ value }) => !!value).forEach(({ key, value }) => knowledgeMap.set(key, value));
 				const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap, maxSpeed, color);
 
-				object.actor._states.set(wrapper, delta);
+				actor._states.set(wrapper, delta);
 
 				return from(
-					object.actor.atomicUpdate(actor => {
-						actor._states = object.actor._states;
-						return actor;
+					actor.atomicUpdate(a => {
+						a._states = actor._states;
+						return a;
 					})
-				).pipe(map(actor => ({ actor, object })));
+				).pipe(map(actor => actor));
 			}),
-			tap(({ object }) => refreshBlockOfActorObject(object))
+			tap((actor) => refreshBlockOfActor(actor))
 		)
 		.subscribe();
 	public maxPossiblePlanetRadius$ = this.databaseService.currentLoreActors$.pipe(
@@ -227,7 +318,7 @@ export class ActorService {
 		return finalPosition;
 	}
 
-	public accumulatorOf(actor: RxDocument<Actor>): Observable<ActorAccumulator> {
+	public accumulatorOf(actor: RxDocument<Actor>): Observable<Accumulator> {
 		return this.actorDeltasAtCursor$.pipe(
 			map(actorAccs => actorAccs.find(actorAcc => actorAcc.actor.id === actor.id)),
 			filter(accumulator => accumulator !== undefined)

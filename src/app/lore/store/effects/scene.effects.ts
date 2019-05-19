@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
+import { refreshBlockOfActor } from '@app/function/refresh-block-component.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { tweenMap } from '@app/operator';
 import { FeatureState } from '@lore/store/reducers';
@@ -16,7 +16,6 @@ import {
 	mergeMapTo,
 	switchMap,
 	switchMapTo,
-	distinctUntilChanged,
 	takeUntil,
 	tap,
 	throttleTime,
@@ -143,7 +142,7 @@ export class SceneEffects {
 				a => (a._states = payload.actorObject.actor._states) && a
 			);
 			payload.actorObject.parent.userData.override = false;
-			refreshBlockOfActorObject(payload.actorObject);
+			refreshBlockOfActor(payload.actorObject.actor);
 			return updatedActor;
 		})
 	);

@@ -2,9 +2,9 @@
 	<mat-form-field hideRequiredMarker *ngIf="!existing" floatLabel="never" required>
 		<input matInput formControlName="key" type="text" />
 	</mat-form-field>
-	<mat-label *ngIf="!!existing">{{ existing.key }}</mat-label>
+	<mat-label *ngIf="!!existing">{{ existing?.value.key }}</mat-label>
 	<mat-form-field floatLabel="never">
-		<input matInput formControlName="value" [placeholder]="existing?.value" type="text" />
+		<input [placeholder]="existing?.value.value" formControlName="value" matInput type="text"/>
 	</mat-form-field>
 	<button
 		aria-label="Toggle Forget Entry"

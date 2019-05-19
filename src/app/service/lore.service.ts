@@ -4,9 +4,10 @@ import { Injectable } from '@angular/core';
 import { BaseDirective } from '@app/component/base-component.class';
 import { normalizeFromWindow } from '@app/function';
 import { enclosingProgress } from '@app/function/enclosing-progress.function';
-import { refreshBlockOfActorObject } from '@app/function/refresh-block-component.function';
+import { refreshBlockOfActor } from '@app/function/refresh-block-component.function';
 import { Actor, ActorDelta, Lore, Planet } from '@app/model/data';
 import { UnixWrapper } from '@app/model/data/unix-wrapper.class';
+import { tweenMap } from '@app/operator';
 import { ActorService } from '@app/service/actor.service';
 import { LoreDocumentMethods } from '@app/service/database';
 import { DatabaseService } from '@app/service/database.service';
@@ -15,8 +16,9 @@ import { Axis } from '@lore/engine/helper';
 
 import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
+import { Easing } from '@tweenjs/tween.js';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, EMPTY, from, Observable, of, Subject, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, from, merge, Observable, of, ReplaySubject, Subject, zip } from 'rxjs';
 import { filter, flatMap, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
@@ -28,6 +30,9 @@ const DAY_IN_SECONDS = 86400;
 @Injectable()
 export class LoreService extends BaseDirective {
 	public spawnOnWorld = new Subject<{ point: ActorObject; position: Vector3 }>();
+	public containerWidth = new ReplaySubject<number>(1);
+	public easeCursorTo = new Subject<number>();
+	public easeCursorToUnix = new Subject<number>();
 
 	constructor(
 		private engineService: EngineService,
@@ -66,6 +71,45 @@ export class LoreService extends BaseDirective {
 					((cursor % DAY_IN_SECONDS) / DAY_IN_SECONDS) * -360 * ThreeMath.DEG2RAD
 				);
 			});
+
+		const eastCursorFromPosToUnixConvert$ = this.easeCursorTo
+			.pipe(
+				filter(to => to !== undefined),
+				withLatestFrom(this.storeFacade.cursor$, this.storeFacade.frame$, this.containerWidth),
+				map(([position, cursor, { start, end }, containerWidth]) => ({
+					from: { cursor: cursor },
+					to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
+				}))
+			);
+		const eastCursorFromUnixConvert$ = this.easeCursorToUnix
+			.pipe(
+				filter(to => to !== undefined),
+				withLatestFrom(this.storeFacade.cursor$),
+				map(([target, cursor]) => ({
+					from: { cursor: cursor },
+					to: { cursor: target }
+				}))
+			);
+
+		this.teardown = merge(eastCursorFromPosToUnixConvert$, eastCursorFromUnixConvert$) // , eastCursorFromUnixConvert$
+			.pipe(
+				tweenMap({
+					duration: 220,
+					easing: Easing.Exponential.Out,
+					pingpongInterrupt: true,
+					pingpongAfterFinish: false,
+					sendUndefined: true,
+					doOnNext: next => {
+						if (next) {
+							this.storeFacade.setCursorOverride(next.cursor);
+						}
+					},
+					doOnComplete: () => {
+						this.storeFacade.bakeCursorOverride();
+					}
+				})
+			)
+			.subscribe();
 		// This subscriber's job is end map each actors state end the map based on the current cursor
 		this.teardown = combineLatest([
 			this.databaseService.currentLoreActors$,
@@ -193,7 +237,7 @@ export class LoreService extends BaseDirective {
 					);
 					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
 					point.parent.userData.override = false;
-					refreshBlockOfActorObject(point);
+					refreshBlockOfActor(point.actor);
 
 					return updatedActor;
 				})

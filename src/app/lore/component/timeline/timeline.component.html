@@ -1,5 +1,5 @@
 <div class="ruler" (mousewheel)="zoomScrollHandler($event)">
-	<app-cursor #cursor id="cursor" [containerWidth]="containerWidth">{{
+	<app-cursor #cursor [containerWidth]="loreService.containerWidth" id="cursor">{{
 		cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm'
 	}}</app-cursor>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
@@ -28,14 +28,14 @@
 			class="channel"
 		>
 			<div [ngClass]="{ hovered: (hovered$ | async)?.name === actor.id }" class="name">
-				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }}
+				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name.value }}
 			</div>
 
 			<app-block
 				#block
 				[actor]="actor"
-				[containerWidthListener]="containerWidth"
-				(jump)="easeCursorTo.next($event)"
+				(jump)="loreService.easeCursorTo.next($event)"
+				[containerWidthListener]="loreService.containerWidth"
 			>
 			</app-block>
 		</div>

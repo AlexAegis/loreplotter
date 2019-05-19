@@ -2,7 +2,7 @@ import { Enclosing, Node } from '@alexaegis/avl';
 import { arcIntersection } from '@app/function/arc-intersect.function';
 import { intersection } from '@app/function/intersection.function';
 import { Actor, ActorDelta, UnixWrapper } from '@app/model/data';
-import { ActorAccumulator, ActorService, LoreService } from '@app/service';
+import { Accumulator, ActorService, LoreService } from '@app/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { combineLatest, Observable, Subject } from 'rxjs';
@@ -64,12 +64,12 @@ export class EventHelper {
 	public setFromEvent(
 		event: Node<UnixWrapper, ActorDelta>,
 		globe: Globe,
-		next: ActorAccumulator,
+		next: Accumulator,
 		preLookHelper: Group
 	): void {
 		this.position.copy(event.value.position as Vector3);
 		this.time = Math.abs(event.key.unix - next.cursor);
-		this.allowedDistance = (this.time / 3600) * next.accumulator.maxSpeed;
+		this.allowedDistance = (this.time / 3600) * next.accumulator.maxSpeed.value;
 		this.allowedAngle = this.allowedDistance / globe.radius;
 
 		if (next.cursor > event.key.unix) {
@@ -225,7 +225,7 @@ export class ActorObject extends Basic {
 	private panHelper = new PanHelper();
 
 	private enclosing: Enclosing<Node<UnixWrapper, ActorDelta>>;
-	private actorAccumulator$: Observable<ActorAccumulator>;
+	private actorAccumulator$: Observable<Accumulator>;
 	public constructor(
 		public actor: RxDocument<Actor>,
 		private storeFacade: StoreFacade,
@@ -243,7 +243,7 @@ export class ActorObject extends Basic {
 			shareReplay(1)
 		);
 		this.actorAccumulator$.subscribe(next => {
-			this.material.color.set(next.accumulator.color);
+			this.material.color.set(next.accumulator.color.value);
 		});
 
 		this.name = actor.id;

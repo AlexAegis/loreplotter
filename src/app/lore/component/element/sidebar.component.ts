@@ -2,7 +2,7 @@ import { SkyhookDndService } from '@angular-skyhook/core';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
 import { BaseDirective } from '@app/component/base-component.class';
 import { Actor } from '@app/model/data/actor.class';
-import { ActorAccumulator, ActorService, DatabaseService } from '@app/service';
+import { Accumulator, ActorService, DatabaseService } from '@app/service';
 import { faMale } from '@fortawesome/free-solid-svg-icons';
 import { EngineService } from '@lore/engine/engine.service';
 import { StoreFacade } from '@lore/store/store-facade.service';
@@ -17,7 +17,7 @@ import { startWith, take, tap, withLatestFrom } from 'rxjs/operators';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent extends BaseDirective implements AfterViewInit, OnInit {
-	public actorDeltasAtCursor$: Observable<Array<ActorAccumulator>>;
+	public actorDeltasAtCursor$: Observable<Array<Accumulator>>;
 	public currentLoreActors$: Observable<Array<RxDocument<Actor>>>;
 	public sidebarOpen$: Observable<boolean>;
 	public mediaLarge$: Observable<boolean>;

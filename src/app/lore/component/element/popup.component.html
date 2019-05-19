@@ -1,9 +1,23 @@
-<div [@visibility]="visibility" class="popup">
-	<h1>{{ (selectedActorAccumulatorAtCursor$ | async)?.accumulator.name }}</h1>
-	<span> Current max speed: {{ (selectedActorAccumulatorAtCursor$ | async)?.accumulator.maxSpeed }} km/h </span>
+<div *ngIf="selectedActorAccumulatorAtCursor$ | async as acc" [@visibility]="visibility" class="popup">
+	<div *ngIf="acc?.accumulator.name as name" class="accumulated">
+		<h1>{{ name.value }}</h1>
+		<button (click)="cursorEaseTo(name.appearedIn?.k.unix)" *ngIf="name.appearedIn" mat-stroked-button>
+			{{ name.appearedIn?.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		</button>
+	</div>
+
+	<div *ngIf="acc?.accumulator.maxSpeed as maxSpeed" class="accumulated">
+		<span> Current max speed: {{ maxSpeed.value }} km/h </span>
+		<button (click)="cursorEaseTo(maxSpeed.appearedIn?.k.unix)" *ngIf="maxSpeed.appearedIn" mat-stroked-button>
+			{{ maxSpeed.appearedIn?.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		</button>
+	</div>
 	<hr class="divider" />
-	<div *ngFor="let entry of (selectedActorAccumulatorAtCursor$ | async)?.accumulator.knowledge">
-		{{ entry.key }}: {{ entry.value }}
+	<div *ngFor="let entry of acc?.accumulator.properties" class="accumulated">
+		<span> {{ entry?.value.key }}: {{ entry?.value.value }} </span>
+		<button (click)="cursorEaseTo(entry?.appearedIn?.k.unix)" *ngIf="entry?.appearedIn" mat-stroked-button>
+			{{ entry?.appearedIn?.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		</button>
 	</div>
 	<button (click)="edit($event)" aria-label="Edit Actor" class="popupEditButton" mat-stroked-button>Edit</button>
 </div>
