@@ -49,6 +49,7 @@ import {
 	BufferGeometry,
 	Clock,
 	Color,
+	Math as ThreeMath,
 	Mesh,
 	Raycaster,
 	ShaderMaterial,
@@ -64,6 +65,8 @@ import { atmosphereShader } from './shader/atmosphere.shader';
 (BufferGeometry.prototype as { [k: string]: any }).computeBoundsTree = computeBoundsTree;
 (BufferGeometry.prototype as { [k: string]: any }).disposeBoundsTree = disposeBoundsTree;
 Mesh.prototype.raycast = acceleratedRaycast;
+
+export const SPEED_FOR_MAX_LIGHT = 4000;
 
 @Injectable()
 export class EngineService {
@@ -258,7 +261,7 @@ export class EngineService {
 	);
 
 	public zoomSpeedLight$ = combineLatest([this.zoomSubject, this.dampenedSpeed$]).pipe(
-		map(([zoom, speed]) => zoom <= 0.15 || Math.abs(speed) >= 4000),
+		map(([zoom, speed]) => zoom <= 0.15 || Math.abs(speed) >= SPEED_FOR_MAX_LIGHT),
 		distinctUntilChanged()
 	);
 
@@ -325,6 +328,19 @@ export class EngineService {
 			this.stage.ambient.intensity = light * 0.5;
 			this.stage.sun.material.opacity = (1 - light) * 0.5;
 			this.stage.sun.directionalLight.intensity = (1 - light) * this.stage.sun.directionalLightBaseIntensity;
+		});
+
+		combineLatest([this.dampenedSpeed$, this.light$]).subscribe(([speed, light]) => {
+			if (light < 0.5) {
+				const speedAmbient = Math.max(
+					0.05,
+					Math.min(ThreeMath.mapLinear(speed, 500, SPEED_FOR_MAX_LIGHT + 500, 0.05, 1), 1)
+				);
+				this.stage.ambient.intensity = speedAmbient / 5;
+
+				this.stage.sun.directionalLight.intensity =
+					(1 - speedAmbient * 0.9) * this.stage.sun.directionalLightBaseIntensity;
+			}
 		});
 	}
 

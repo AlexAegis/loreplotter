@@ -6,6 +6,7 @@ export class Stage extends Scene {
 	public camera: PerspectiveCamera;
 	public sun: Sun;
 	public ambient: AmbientLight;
+	public baseAmbientIntensity = 2.6;
 
 	public constructor(public engineService: EngineService) {
 		super();
@@ -23,7 +24,7 @@ export class Stage extends Scene {
 		this.add(this.sun);
 
 		// light mode
-		this.ambient = new AmbientLight('#d3f3ff', 2.6);
+		this.ambient = new AmbientLight('#d3f3ff', this.baseAmbientIntensity);
 		this.add(this.ambient);
 		// soft white light
 	}

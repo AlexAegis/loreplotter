@@ -127,20 +127,41 @@ function cursorReducer(cursor: CursorState, action: SceneActions): CursorState {
 	}
 }
 
+export const MIN_FRAME_SIZE = 86400;
+
 function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 	switch (action.type) {
 		case setFrameTo.type: {
-			return {
-				...frame,
-				start: { ...frame.start, base: action.payload.start },
-				end: { ...frame.end, base: action.payload.end }
-			};
+			let start = action.payload.start || frame.start.base;
+			let end = action.payload.end || frame.end.base;
+
+			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
+				return frame;
+			} else {
+				return {
+					...frame,
+					start: { ...frame.start, base: start },
+					end: { ...frame.end, base: end }
+				};
+			}
 		}
 		case setFrameStartTo.type: {
-			return { ...frame, start: { ...frame.start, base: action.payload } };
+			let start = action.payload || frame.start.base;
+			let end = frame.end.base;
+
+			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
+				return frame;
+			}
+			return { ...frame, start: { ...frame.start, base: action.payload || frame.start.base } };
 		}
 		case setFrameEndTo.type: {
-			return { ...frame, end: { ...frame.end, base: action.payload } };
+			let start = frame.start.base;
+			let end = action.payload || frame.end.base;
+
+			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
+				return frame;
+			}
+			return { ...frame, end: { ...frame.end, base: action.payload || frame.end.base } };
 		}
 		case setFrameDeltaTo.type: {
 			return {
@@ -173,10 +194,16 @@ function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 			return { ...frame, end: { ...frame.end, base: bakedEnd, delta: undefined } };
 		}
 		case changeFrameBy.type: {
+			let start = (action.payload.start || 0) + frame.start.base;
+			let end = (action.payload.end || 0) + frame.end.base;
+
+			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
+				return frame;
+			}
 			return {
 				...frame,
-				start: { ...frame.start, base: frame.start.base + action.payload.start },
-				end: { ...frame.end, base: frame.end.base + action.payload.end }
+				start: { ...frame.start, base: start },
+				end: { ...frame.end, base: end }
 			};
 		}
 		default: {
