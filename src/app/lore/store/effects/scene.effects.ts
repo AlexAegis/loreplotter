@@ -140,7 +140,7 @@ export class SceneEffects {
 		switchMap(async ([{ payload }, cursor]) => {
 			payload.actorObject.applyQuaternion(payload.actorObject.globe.quaternion.clone().inverse());
 			payload.actorObject.actor._states.set(
-				new UnixWrapper(cursor),
+				new UnixWrapper(Math.floor(cursor)),
 				new ActorDelta(undefined, {
 					x: payload.position.x,
 					y: payload.position.y,

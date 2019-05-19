@@ -404,9 +404,9 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				this.resetEveryNodeToOriginalUnix();
 				if (valid) {
 					this.loreService.overrideNodePosition.value.overrides.forEach(override => {
-						const delta = this.actor._states.remove(new UnixWrapper(override.original));
+						const delta = this.actor._states.remove(new UnixWrapper(Math.floor(override.original)));
 						if (delta) {
-							this.actor._states.set(new UnixWrapper(override.new), delta);
+							this.actor._states.set(new UnixWrapper(Math.floor(override.new)), delta);
 						}
 					});
 					a._states = this.actor._states;

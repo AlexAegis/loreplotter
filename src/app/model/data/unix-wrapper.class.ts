@@ -7,7 +7,7 @@ export class UnixWrapper implements Comparable<UnixWrapper> {
 	public unix: number;
 
 	public constructor(unix?: number) {
-		this.unix = unix;
+		this.unix = Math.floor(unix);
 	}
 
 	public compareTo(other: UnixWrapper): number {

@@ -84,9 +84,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.originalDate = this.originalMoment.format('YYYY-MM-DD');
 		this.originalTime = this.originalMoment.format('HH:mm:ss');
 		if (originalData.accumulator) {
-			this.color = this.originalData.accumulator.color
-				? this.originalData.accumulator.color.value
-				: Actor.DEFAULT_COLOR;
+			this.color = this.originalData.accumulator.color && this.originalData.accumulator.color.value;
 
 			if (
 				originalData.accumulator.name.appearedIn &&

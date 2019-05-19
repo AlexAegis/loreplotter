@@ -210,7 +210,7 @@ export class LoreService extends BaseDirective {
 						dropVector.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 						const actor = new Actor(nextId, lore.id);
 						actor._states.set(
-							new UnixWrapper(cursor),
+							new UnixWrapper(Math.floor(cursor)),
 							new ActorDelta(undefined, { x: dropVector.x, y: dropVector.y, z: dropVector.z })
 						);
 						return lore.collection.database.actor.upsert(actor);
@@ -228,7 +228,7 @@ export class LoreService extends BaseDirective {
 				switchMap(async ([{ point, position }, cursor]) => {
 					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
 					point.actor._states.set(
-						new UnixWrapper(cursor),
+						new UnixWrapper(Math.floor(cursor)),
 						new ActorDelta(undefined, {
 							x: position.x,
 							y: position.y,

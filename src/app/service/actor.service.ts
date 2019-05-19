@@ -124,7 +124,7 @@ export class ActorService {
 								accumulator.unix.value = node.key.unix;
 								accumulator.unix.appearedIn = node;
 							}
-							if (node.value.name !== undefined) {
+							if (node.value.name) {
 								accumulator.name.value = node.value.name;
 								accumulator.name.appearedIn = node;
 							}
@@ -132,7 +132,7 @@ export class ActorService {
 								accumulator.maxSpeed.value = node.value.maxSpeed;
 								accumulator.maxSpeed.appearedIn = node;
 							}
-							if (node.value.color !== undefined) {
+							if (node.value.color) {
 								accumulator.color.value = node.value.color;
 								accumulator.color.appearedIn = node;
 							}
@@ -157,7 +157,7 @@ export class ActorService {
 								accumulator.unix.nextValue = node.key.unix;
 								accumulator.unix.nextAppearance = node;
 							}
-							if (node.value.name !== undefined && accumulator.name.nextAppearance === undefined) {
+							if (node.value.name && accumulator.name.nextAppearance === undefined) {
 								accumulator.name.nextValue = node.value.name;
 								accumulator.name.nextAppearance = node;
 							}
@@ -168,7 +168,7 @@ export class ActorService {
 								accumulator.maxSpeed.nextValue = node.value.maxSpeed;
 								accumulator.maxSpeed.nextAppearance = node;
 							}
-							if (node.value.color !== undefined && accumulator.color.nextAppearance === undefined) {
+							if (node.value.color && accumulator.color.nextAppearance === undefined) {
 								accumulator.color.nextValue = node.value.color;
 								accumulator.color.nextAppearance = node;
 							}
@@ -229,7 +229,7 @@ export class ActorService {
 		.pipe(
 			filter(data => data !== undefined),
 			switchMap(({ actor, name, maxSpeed, date, knowledge, newKnowledge, color }) => {
-				const wrapper = new UnixWrapper(date.unix());
+				const wrapper = new UnixWrapper(Math.floor(date.unix()));
 				const finalPosition = this.actorPositionAt(actor, wrapper.unix);
 				const knowledgeMap = new Map<String, String | undefined>();
 				knowledge
