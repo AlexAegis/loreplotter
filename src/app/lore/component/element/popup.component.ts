@@ -2,7 +2,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ChangeDetectionStrategy, Component, HostBinding, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
-import { LoreService } from '@app/service';
+import { AccumulatorField, LoreService, Property } from '@app/service';
 import { Accumulator, ActorService } from '@app/service/actor.service';
 import { ActorFormComponent, ActorFormResultData } from '@lore/component/dialog/actor-form.component';
 import { EngineService } from '@lore/engine/engine.service';
@@ -88,4 +88,8 @@ export class PopupComponent extends BaseDirective implements OnInit {
 	}
 
 	public ngOnInit(): void {}
+
+	public nonEmpty(properties: Array<AccumulatorField<Property<String>>>) {
+		return properties.filter(property => property.value.value !== undefined);
+	}
 }

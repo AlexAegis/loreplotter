@@ -12,20 +12,6 @@ import { combineLatest, from, Observable, of, Subject } from 'rxjs';
 import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
 import { Group, Vector3 } from 'three';
 
-/*
-export interface ActorAccumulator {
-	cursor: number;
-	actor: RxDocument<Actor, {}>;
-	accumulator: {
-		name: string;
-		maxSpeed: number;
-		lastUnix: number;
-		knowledge: Array<{ key: String; value: String }>;
-		color: string;
-	};
-}
-*/
-
 export interface Accumulator {
 	cursor: number;
 	actor: RxDocument<Actor>;
@@ -64,7 +50,7 @@ export class ActorService {
 	public pseudoPoint: Group;
 	/**
 	 * rotates the position t'th way between the enclosure
-	 * Returns a new worldPositon at radius 1
+	 * Returns a new worldPosition at radius 1
 	 */
 	public lookAtInterpolated = (() => {
 		const _result = new Vector3();

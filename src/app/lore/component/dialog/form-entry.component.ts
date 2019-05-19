@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AccumulatorField, Property } from '@app/service';
 import { faCommentSlash, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -16,7 +15,7 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 	public index: number;
 
 	@Input()
-	public existing: AccumulatorField<Property<String>>;
+	public existing: boolean;
 
 	@Input()
 	public control: FormGroup;
@@ -26,10 +25,14 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 
 	private hiddenValue: any;
 
+	public originalKey: string;
+	public originalValue: string;
+
 	public static create(formBuilder: FormBuilder): FormGroup {
 		return formBuilder.group({
 			key: ['', [Validators.required]],
-			value: ['']
+			value: [''],
+			forget: ['']
 		});
 	}
 
@@ -58,9 +61,8 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 			this.parent.push(this.control);
 		}
 		if (this.existing) {
-			this.control.controls['key'].setValue(this.existing.value.key);
-			this.control.addControl('forget', this.formBuilder.control(''));
-			this.control.controls['forget'].setValue(false);
+			this.originalKey = this.control.controls['key'].value;
+			this.originalValue = this.control.controls['value'].value;
 		}
 	}
 

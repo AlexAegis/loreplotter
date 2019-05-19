@@ -75,45 +75,42 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.originalMoment = moment.unix(this.originalData.cursor);
 		this.originalDate = this.originalMoment.format('YYYY-MM-DD');
 		this.originalTime = this.originalMoment.format('HH:mm:ss');
-		console.log(originalData);
 		if (originalData.accumulator) {
 			this.color = this.originalData.accumulator.color
 				? this.originalData.accumulator.color.value
 				: Actor.DEFAULT_COLOR;
 
-			if (originalData.accumulator.name.appearedIn.key.unix === originalData.cursor) {
+			if (
+				originalData.accumulator.name.appearedIn &&
+				originalData.accumulator.name.appearedIn.key.unix === originalData.cursor
+			) {
 				this.actorForm.controls['name'].setValue(originalData.accumulator.name.value);
 			}
 
-			if (originalData.accumulator.maxSpeed.appearedIn.key.unix === originalData.cursor) {
+			if (
+				originalData.accumulator.maxSpeed.appearedIn &&
+				originalData.accumulator.maxSpeed.appearedIn.key.unix === originalData.cursor
+			) {
 				this.actorForm.controls['maxSpeed'].setValue(originalData.accumulator.maxSpeed.value);
 			}
 
 			originalData.accumulator.properties.forEach(property => {
-				if (property.appearedIn.key.unix === originalData.cursor) {
-					const group = this.addNewKnowledge();
-					group.controls['key'].setValue(property.value.key);
-					group.controls['value'].setValue(property.value.value);
+				if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor) {
+					this.addKnowledge(property.value.key as string, property.value.value as string, this.newKnowledgeArray);
 				} else {
-					const group = this.addExistingKnowledge();
-					group.controls['key'].setValue(property.value.key);
-					group.controls['value'].setValue(property.value.value);
+					this.addKnowledge(property.value.key as string, property.value.value as string, this.knowledgeArray);
 				}
 			});
 		}
-	}
-
-	public addNewKnowledge(): FormGroup {
-		const control = FormEntryComponent.create(this.formBuilder);
-		this.newKnowledgeArray.push(control);
-		return control;
 	}
 
 	public get result(): ActorFormResultData {
 		const maxSpeed = this.actorForm.controls['maxSpeed'].value;
 		const time = this.actorForm.controls['time'].value || this.originalTime;
 		const finalDatetime =
-			((this.actorForm.controls['date'].value as Moment) || this.originalMoment).format('YYYY-MM-DD') + 'T' + time;
+			((this.actorForm.controls['date'].value as Moment) || this.originalMoment).format('YYYY-MM-DD') +
+			'T' +
+			time;
 		return {
 			date: moment(finalDatetime),
 			name: this.actorForm.controls['name'].value,
@@ -125,18 +122,30 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		};
 	}
 
+	public addKnowledge(key?: string, value?: string, to?: FormArray): FormGroup {
+		const control = FormEntryComponent.create(this.formBuilder);
+		if (key) {
+			control.controls['key'].setValue(key);
+		}
+		if (value) {
+			control.controls['value'].setValue(value);
+		}
+		if (to) {
+			to.push(control);
+		}
+		return control;
+	}
+
+	public addNewKnowledge(): FormGroup {
+		return this.addKnowledge(undefined, undefined, this.newKnowledgeArray);
+	}
+
 	public get filledNewKnowledgeCount(): number {
 		return this.newKnowledgeArray.controls.filter(control => !!(control as FormGroup).controls['key'].value).length;
 	}
 
 	public get newKnowledgeCount(): number {
 		return this.newKnowledgeArray.controls.length - 1;
-	}
-
-	public addExistingKnowledge(): FormGroup {
-		const control = FormEntryComponent.create(this.formBuilder);
-		this.knowledgeArray.push(control);
-		return control;
 	}
 
 	public ngOnInit() {}

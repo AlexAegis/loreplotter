@@ -35,9 +35,10 @@
 		<app-form-entry
 			[parent]="knowledgeArray"
 			[index]="i"
-			[existing]="entry"
+			*ngFor="let control of knowledgeArray.controls; let i = index"
+			[control]="control"
 			class="entries"
-			*ngFor="let entry of originalData?.accumulator?.properties; let i = index"
+			[existing]="true"
 		>
 		</app-form-entry>
 		<h2>New knowledge:</h2>

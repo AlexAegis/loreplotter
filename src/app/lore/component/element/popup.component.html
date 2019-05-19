@@ -13,11 +13,13 @@
 		</button>
 	</div>
 	<hr class="divider" />
-	<div *ngFor="let entry of acc?.accumulator.properties" class="accumulated">
-		<span> {{ entry?.value.key }}: {{ entry?.value.value }} </span>
-		<button (click)="cursorEaseTo(entry?.appearedIn?.k.unix)" *ngIf="entry?.appearedIn" mat-stroked-button>
-			{{ entry?.appearedIn?.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
-		</button>
-	</div>
+	<ng-scrollbar>
+		<div *ngFor="let entry of nonEmpty(acc?.accumulator.properties)" class="accumulated">
+			<span> {{ entry?.value.key }}: {{ entry?.value.value }} </span>
+			<button (click)="cursorEaseTo(entry?.appearedIn?.k.unix)" *ngIf="entry?.appearedIn" mat-stroked-button>
+				{{ entry?.appearedIn?.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+			</button>
+		</div>
+	</ng-scrollbar>
 	<button (click)="edit($event)" aria-label="Edit Actor" class="popupEditButton" mat-stroked-button>Edit</button>
 </div>

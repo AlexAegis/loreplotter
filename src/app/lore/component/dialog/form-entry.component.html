@@ -1,16 +1,16 @@
-<div [formGroup]="control" class="group" [ngClass]="{ existing: !!existing }">
+<div [formGroup]="control" [ngClass]="{ existing: existing }" class="group">
 	<mat-form-field hideRequiredMarker *ngIf="!existing" floatLabel="never" required>
 		<input matInput formControlName="key" type="text" />
 	</mat-form-field>
-	<mat-label *ngIf="!!existing">{{ existing?.value.key }}</mat-label>
+	<mat-label *ngIf="existing">{{ originalKey }}</mat-label>
 	<mat-form-field floatLabel="never">
-		<input [placeholder]="existing?.value.value" formControlName="value" matInput type="text"/>
+		<input [placeholder]="originalValue" formControlName="value" matInput type="text"/>
 	</mat-form-field>
 	<button
 		aria-label="Toggle Forget Entry"
 		mat-flat-button
-		*ngIf="!!existing"
-		[ngClass]="{ forget: (control?.controls)['forget'].value }"
+		*ngIf="existing"
+		[ngClass]="{ forget: (control?.controls)['forget']?.value }"
 		(click)="changeForget($event)"
 	>
 		<fa-icon [icon]="forgetIcon"></fa-icon>

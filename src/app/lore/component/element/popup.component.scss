@@ -4,23 +4,23 @@
 	transform-origin: top left;
 	margin-top: -40px;
 	margin-left: 10px;
-
+	width: 26rem;
+	overflow: hidden;
 	h1 {
 		margin: 0;
 	}
-	div {
+
+	> div {
 		pointer-events: all;
 		border-radius: 15px;
 		flex-direction: column;
 		padding: 10px;
 		position: relative;
 
-		display: grid;
 		grid-gap: 0.2rem;
-		grid-auto-columns: 1fr;
 	}
 
-	div::after {
+	> div::after {
 		position: absolute;
 		top: 30px;
 		left: -10px;
@@ -30,5 +30,21 @@
 		z-index: -50;
 		clip-path: polygon(0 0, 0% 100%, 100% 100%);
 		content: '';
+	}
+
+	.popup {
+		display: grid;
+		justify-content: center;
+
+		div {
+			display: grid;
+			justify-content: center;
+			grid-template-columns: 13rem 10rem;
+			grid-gap: 0.2rem;
+		}
+	}
+
+	.accumulated {
+		margin-bottom: 0.4rem;
 	}
 }
