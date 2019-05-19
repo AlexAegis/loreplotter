@@ -5,7 +5,18 @@
 	$accent: map-get($theme, accent);
 	$warn: map-get($theme, warn);
 
-	mat-toolbar {
+	app-toolbar {
 		background-color: rgba(mat-color($primary, 'lighter'), 0.8);
+
+
 	}
+
+	.exportImportButton {
+		background-color: rgba(mat-color($accent, 'lighter'), 0.8);
+	}
+
+	.repoButton, .exportImportButton {
+		color: rgba(mat-color($primary, 'darker'), 1);
+	}
+
 }

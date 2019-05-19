@@ -21,7 +21,7 @@ export class SceneControlsComponent implements OnInit {
 	public drawIcon = faPencilAlt;
 
 	public actorObjectSizeBiasOptions: Options = {
-		floor: 0,
+		floor: 0.15,
 		step: 0.01,
 		ceil: 2
 	};

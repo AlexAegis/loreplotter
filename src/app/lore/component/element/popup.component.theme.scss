@@ -6,10 +6,9 @@
 	$warn: map-get($theme, warn);
 
 	app-popup {
-		div, div::after {
+		.popup, .popup::after {
 			background-color: rgba(mat-color($primary, 'lighter'), 0.9);
 		}
-
 
 		color: mat-color($primary, 'darker');
 	}

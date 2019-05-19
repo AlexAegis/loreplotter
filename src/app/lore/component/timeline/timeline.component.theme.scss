@@ -22,5 +22,9 @@
 		.channel {
 			color: rgba(mat-color($primary, 'darker'), 0.2);
 		}
+
+		.hovered {
+			color: rgba(mat-color($accent), 0.9);
+		}
 	}
 }

@@ -1,14 +1,13 @@
 import { Tree } from '@alexaegis/avl';
 import { Injectable } from '@angular/core';
 
-import { Actor, ActorDelta, Lore, Planet, serializeActor, UnixWrapper } from '@app/model/data';
+import { Actor, ActorDelta, exampleActors, exampleLore, Lore, serializeActor, UnixWrapper } from '@app/model/data';
 import { actorSchema, loreSchema } from '@app/model/schema';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import moment from 'moment';
 
 import * as idb from 'pouchdb-adapter-idb';
 import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
-import { combineLatest, forkJoin, from, Observable, zip } from 'rxjs';
+import { combineLatest, from, Observable, zip } from 'rxjs';
 import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
 
@@ -45,7 +44,7 @@ export class DatabaseService {
 				serializeActor(actor);
 			}, true);
 		}),
-		// delayWhen(db => this.initData(db)),
+		delayWhen(db => this.initData(db)),
 		shareReplay(1)
 	);
 
@@ -121,116 +120,12 @@ export class DatabaseService {
 	}
 
 	public initData(conn: RxDatabase<RxCollections>): Observable<RxDocument<Lore>> {
-		const testKMA = new Map();
-		testKMA.set('Favourite color', 'blue');
-		testKMA.set('Has a cat', 'yes');
-		const testKMB = new Map();
-		testKMB.set('Favourite color', 'red');
-		const testActor1 = new Actor('1');
-		testActor1._states.set(
-			new UnixWrapper(moment('2019-05-02').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 }, testKMA, 6)
-		);
-		testActor1._states.set(
-			new UnixWrapper(moment('2019-05-03').unix()),
-			new ActorDelta(undefined, {
-				x: 0.09669254683261017,
-				y: -0.497612862967823,
-				z: 0.8617354361375862
-			})
-		);
-		testActor1._states.set(
-			new UnixWrapper(moment('2019-05-04').unix()),
-			new ActorDelta(undefined, {
-				x: 0.39117893980613805,
-				y: 0.386437376899397,
-				z: 0.8346608718892985
-			})
-		);
-		testActor1._states.set(
-			new UnixWrapper(moment('2019-05-05').unix()),
-			new ActorDelta(undefined, { x: -0.605726277152065, y: 0.5558722625716483, z: 0.5690292996108239 }, testKMB)
-		);
-
-		const testActor2 = new Actor('2');
-		testActor2._states.set(
-			new UnixWrapper(moment('2019-05-03').unix()),
-			new ActorDelta(undefined, {
-				x: 0.09669254683261017,
-				y: -0.497612862967823,
-				z: 0.8617354361375862
-			})
-		);
-
-		const testActor3 = new Actor('3');
-		testActor3._states.set(
-			new UnixWrapper(moment('2019-05-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
-		);
-		testActor3._states.set(
-			new UnixWrapper(moment('2019-05-08').unix()),
-			new ActorDelta(undefined, {
-				x: 0.09669254683261017,
-				y: -0.497612862967823,
-				z: 0.8617354361375862
-			})
-		);
-
-		const testActor4 = new Actor('4');
-		testActor4._states.set(
-			new UnixWrapper(moment('2019-05-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
-		);
-		testActor4._states.set(
-			new UnixWrapper(moment('2019-05-08').unix()),
-			new ActorDelta(undefined, {
-				x: 0.09669254683261017,
-				y: -0.497612862967823,
-				z: 0.8617354361375862
-			})
-		);
-		testActor4._states.set(
-			new UnixWrapper(moment('2019-05-10').unix()),
-			new ActorDelta(undefined, {
-				x: -0.605726277152065,
-				y: 0.5558722625716483,
-				z: 0.5690292996108239
-			})
-		);
-		const testActor5 = new Actor('5');
-		testActor5._states.set(
-			new UnixWrapper(moment('2019-05-07').unix()),
-			new ActorDelta('a', { x: -0.3757916966063185, y: -0.281843772454739, z: 0.8827749608149299 })
-		);
-		testActor5._states.set(
-			new UnixWrapper(moment('2019-05-10').unix()),
-			new ActorDelta(undefined, {
-				x: -0.605726277152065,
-				y: 0.5558722625716483,
-				z: 0.5690292996108239
-			})
-		);
-
-		const loreId = '0';
-		const loreName = 'Example';
-
 		return zip(
-			conn.lore.upsert({
-				id: loreId,
-				name: loreName,
-				locations: [],
-				planet: new Planet(Planet.DEFAULT_NAME, Planet.DEFAULT_RADIUS)
-			}),
+			conn.lore.upsert(exampleLore),
+			from(exampleActors).pipe(mergeMap(actor => conn.actor.upsert(actor))),
 			from(fetch(`assets/elev_bump_8k.jpg`)).pipe(switchMap(p => p.blob()))
 		).pipe(
-			delayWhen(() =>
-				forkJoin(
-					[testActor1, testActor2, testActor3, testActor4, testActor5].map(
-						actor => (actor.loreId = loreId) && conn.actor.upsert(actor)
-					)
-				)
-			),
-			mergeMap(([lore, image]) =>
+			mergeMap(([lore, actors, image]) =>
 				from(
 					lore.putAttachment({
 						id: 'texture', // string, name of the attachment like 'cat.jpg'

@@ -4,7 +4,7 @@
 	}}</app-cursor>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
 		<div
-			*appRepeat="let c; from: unitsBetween + 1"
+			*appRepeat="let c; from: unitsBetween + 5"
 			class="divisor"
 			[ngStyle]="{ left: toPx((firstDist$ | async) + deltaDist(c)) }"
 		>
@@ -27,7 +27,7 @@
 			(mouseleave)="mouseleave()"
 			class="channel"
 		>
-			<div [ngStyle]="{ color: (hovered$ | async)?.name === actor.id ? '#368fd4' : '' }" class="name">
+			<div [ngClass]="{ hovered: (hovered$ | async)?.name === actor.id }" class="name">
 				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }}
 			</div>
 

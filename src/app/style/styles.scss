@@ -18,6 +18,7 @@
 @import '../lore/lore.component.theme';
 @import '../lore/component/element/sidebar.component.theme';
 @import '../lore/component/element/hamburger.component.theme';
+@import '../lore/component/element/toolbar.component.theme';
 @import '../lore/component/timeline/timeline.component.theme';
 @import '../lore/component/timeline/cursor.component.theme';
 @import '../lore/component/timeline/block.component.theme';
@@ -33,6 +34,7 @@
 	@include loading-component-theme($theme);
 	@include sidebar-component-theme($theme);
 	@include hamburger-component-theme($theme);
+	@include toolbar-component-theme($theme);
 	@include timeline-component-theme($theme);
 	@include cursor-component-theme($theme);
 	@include block-component-theme($theme);
@@ -67,7 +69,7 @@
 }
 
 body {
-	font-family: Roboto, 'Helvetica Neue', sans-serif;
+	font-family: "Trebuchet MS", Roboto, 'Helvetica Neue', sans-serif;
 	overflow: hidden;
 	margin: 0;
 	user-select: none;

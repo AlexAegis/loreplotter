@@ -23,27 +23,21 @@
 			</div>
 
 			<span class="buttonRow">
-				<button
-					(click)="exportDatabase()"
-					aria-label="Export"
-					class="exportImportButton"
-					color="warn"
-					mat-flat-button
-				>
+				<button (click)="exportDatabase()" aria-label="Export" class="exportImportButton" mat-stroked-button>
 					Export
+				</button>
+				<button (click)="navigateToRepo()" aria-label="Open Repo" class="repoButton" mat-icon-button>
+					<fa-icon [icon]="githubIcon" size="lg"></fa-icon>
 				</button>
 			</span>
 		</mat-menu>
 
 		<span class="menuButton">
-			<button aria-label="Open Repo" mat-icon-button>
-				<fa-icon (click)="navigateToRepo()" [icon]="githubIcon" size="lg"></fa-icon>
-			</button>
 			<button
 				(click)="editLoreCurrent()"
 				*ngIf="!!(selectedLore$ | async)"
 				aria-label="Edit Current"
-				mat-flat-button
+				mat-stroked-button
 			>
 				{{ (selectedLore$ | async).name }}
 			</button>

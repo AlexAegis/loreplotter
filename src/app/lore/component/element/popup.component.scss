@@ -4,6 +4,10 @@
 	transform-origin: top left;
 	margin-top: -40px;
 	margin-left: 10px;
+
+	h1 {
+		margin: 0;
+	}
 	div {
 		pointer-events: all;
 		border-radius: 15px;
@@ -19,11 +23,12 @@
 	div::after {
 		position: absolute;
 		top: 30px;
-		left: -6px;
+		left: -10px;
 		width: 20px;
 		height: 20px;
 		transform: rotate(45deg);
 		z-index: -50;
+		clip-path: polygon(0 0, 0% 100%, 100% 100%);
 		content: '';
 	}
 }

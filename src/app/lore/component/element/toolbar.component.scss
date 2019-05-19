@@ -22,6 +22,10 @@
 			grid-column: 1;
 		}
 
+		mat-menu {
+			padding: 0.5rem;
+		}
+
 		.title {
 			grid-column: 2;
 			height: 100%;
@@ -56,16 +60,18 @@
 	}
 }
 
-.exportImportButton {
+.exportImportButton, .repoButton {
 	width: 90%;
 	margin: auto;
 }
 
 .buttonRow {
-	display: flex;
-	margin-top: 0.5rem;
+	display: grid;
+	margin: 0.5rem 0.5rem 0 0.5rem;
+	grid-template-columns: 3fr 1fr;
 
 	.removeButton {
 		margin-left: auto;
 	}
 }
+

@@ -435,6 +435,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public select(node: Node<UnixWrapper, ActorDelta>): void {
 		this.selection = node;
 		this.jump.next(this.nodePosition(node.key.unix) + this.left);
+		this.engineService.selectedByActor.next(this.actor);
 		this.cd.detectChanges();
 	}
 

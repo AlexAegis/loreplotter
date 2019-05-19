@@ -233,7 +233,7 @@ export class ActorObject extends Basic {
 		private actorService: ActorService,
 		public globe: Globe
 	) {
-		super(new SphereBufferGeometry(0.04, 40, 40), undefined);
+		super(new SphereBufferGeometry(0.02, 40, 40), undefined);
 		this.material = new MeshBasicMaterial({
 			color: 0x1a56e6
 		});

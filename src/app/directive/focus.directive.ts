@@ -36,7 +36,7 @@ export class FocusDirective extends BaseDirective implements OnInit, AfterViewIn
 	@Output()
 	public focusChange = new EventEmitter<boolean>();
 
-	private _focus = false;
+	private _focus = true;
 
 	@Input()
 	public set focus(focus: boolean) {
