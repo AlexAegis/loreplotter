@@ -71,7 +71,11 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	public knowledgeArray: FormArray = this.actorForm.controls.knowledge as FormArray;
 	public newKnowledgeArray: FormArray = this.actorForm.controls.newKnowledge as FormArray;
 
-	public constructor(public dialogRef: MatDialogRef<ActorFormComponent>, @Inject(MAT_DIALOG_DATA) public originalData: Accumulator, private formBuilder: FormBuilder) {
+	public constructor(
+		public dialogRef: MatDialogRef<ActorFormComponent>,
+		@Inject(MAT_DIALOG_DATA) public originalData: Accumulator,
+		private formBuilder: FormBuilder
+	) {
 		this.originalMoment = moment.unix(this.originalData.cursor);
 		this.originalDate = this.originalMoment.format('YYYY-MM-DD');
 		this.originalTime = this.originalMoment.format('HH:mm:ss');

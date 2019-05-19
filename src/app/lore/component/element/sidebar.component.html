@@ -14,7 +14,7 @@
 				matTooltip="Click here then to the planet to create an actor. You can also drag this button to the planet and drop it!"
 				(click)="storeFacade.toggleActorCreateMode()"
 				[dragSource]="actorSource"
-				[ngClass]="{ active: (storeFacade.isActorCreateMode$ | async) }"
+				[ngClass]="{ active: storeFacade.isActorCreateMode$ | async }"
 				aria-label="Create Actor, drag it to the scene"
 				mat-stroked-button
 			>
@@ -37,7 +37,7 @@
 		<div class="tools grid">
 			<button
 				(click)="storeFacade.toggleDebugMode()"
-				[ngClass]="{ active: (storeFacade.isDebugMode$ | async) }"
+				[ngClass]="{ active: storeFacade.isDebugMode$ | async }"
 				aria-label="Set Debug Mode"
 				mat-stroked-button
 			>

@@ -25,7 +25,6 @@ export class Water extends Basic {
 			blendEquationAlpha: 0.6,
 			blending: AdditiveBlending,
 			roughness: 0.9
-
 		});
 
 		this.frustumCulled = false;

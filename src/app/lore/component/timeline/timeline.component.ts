@@ -277,7 +277,6 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 	}
 
 	public ngOnInit(): void {
-
 		this.teardown = this.frameShifter
 			.pipe(withLatestFrom(this.storeFacade.frame$, this.loreService.containerWidth))
 			.subscribe(([shift, frame, containerWidth]) => {

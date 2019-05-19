@@ -4,7 +4,10 @@ import { InteractionMode } from '@lore/store/reducers';
 import { createAction } from '@ngrx/store';
 import { Vector3 } from 'three';
 
-export const setPlaySpeed = createAction(`[Scene] Set Speed`, (payload: Payload<{ speed: number, retainDirection: boolean }>) => payload);
+export const setPlaySpeed = createAction(
+	`[Scene] Set Speed`,
+	(payload: Payload<{ speed: number; retainDirection: boolean }>) => payload
+);
 export const changePlaySpeed = createAction(
 	`[Scene] Change Speed`,
 	(payload: Payload<number>): Payload<number> => payload

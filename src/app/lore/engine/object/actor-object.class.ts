@@ -308,27 +308,15 @@ export class ActorObject extends Basic {
 						this.enclosing.first = this.actor._states.enclosingNodes(
 							new UnixWrapper(next.cursor - 1)
 						).first;
-						this.enclosing.last = this.actor._states.enclosingNodes(
-							new UnixWrapper(next.cursor + 1)
-						).last;
+						this.enclosing.last = this.actor._states.enclosingNodes(new UnixWrapper(next.cursor + 1)).last;
 					}
 					// If there is an event in the past
 					if (this.enclosing.first) {
-						this.panHelper.left.setFromEvent(
-							this.enclosing.first,
-							this.globe,
-							next,
-							this.prelookHelper
-						);
+						this.panHelper.left.setFromEvent(this.enclosing.first, this.globe, next, this.prelookHelper);
 					}
 					// If there is an event in the future
 					if (this.enclosing.last) {
-						this.panHelper.right.setFromEvent(
-							this.enclosing.last,
-							this.globe,
-							next,
-							this.prelookHelper
-						);
+						this.panHelper.right.setFromEvent(this.enclosing.last, this.globe, next, this.prelookHelper);
 					}
 
 					// if there's both get the intersecting points

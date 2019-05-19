@@ -185,7 +185,6 @@ export class EngineService {
 			item => this.selectOutlineEffect.setSelection([item]),
 			item => () => {
 				this.selectOutlineEffect.deselectObject(item);
-
 			} // clearSelection() // deselectObject(item)
 		),
 		tap(() => this.refreshPopupPosition()),

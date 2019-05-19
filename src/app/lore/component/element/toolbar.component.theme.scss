@@ -5,18 +5,17 @@
 	$accent: map-get($theme, accent);
 	$warn: map-get($theme, warn);
 
-	app-toolbar, .menu {
+	app-toolbar,
+	.menu {
 		background-color: rgba(mat-color($primary, 'lighter'), 0.8);
-
-
 	}
 
 	.exportImportButton {
 		background-color: rgba(mat-color($accent, 'lighter'), 0.8);
 	}
 
-	.repoButton, .exportImportButton {
+	.repoButton,
+	.exportImportButton {
 		color: rgba(mat-color($primary, 'darker'), 1);
 	}
-
 }

@@ -6,7 +6,6 @@
 	$warn: map-get($theme, warn);
 
 	app-sidebar {
-
 		.mat-drawer {
 			background-color: rgba(mat-color($primary, 'lighter'), 0.8);
 		}
@@ -15,5 +14,4 @@
 			background-color: mat-color($accent);
 		}
 	}
-
 }

@@ -20,7 +20,6 @@ export interface Accumulator {
 	lastEvent: Node<UnixWrapper, ActorDelta>;
 }
 
-
 export class AccumulatorField<T> {
 	appearedIn: Node<UnixWrapper, ActorDelta>;
 	value: T;
@@ -117,7 +116,6 @@ export class ActorService {
 						}
 						lastEvent = node;
 
-
 						if (node.key.unix > cursor) {
 							reached = true;
 						}
@@ -163,7 +161,10 @@ export class ActorService {
 								accumulator.name.nextValue = node.value.name;
 								accumulator.name.nextAppearance = node;
 							}
-							if (node.value.maxSpeed !== undefined && accumulator.maxSpeed.nextAppearance === undefined) {
+							if (
+								node.value.maxSpeed !== undefined &&
+								accumulator.maxSpeed.nextAppearance === undefined
+							) {
 								accumulator.maxSpeed.nextValue = node.value.maxSpeed;
 								accumulator.maxSpeed.nextAppearance = node;
 							}
@@ -171,7 +172,10 @@ export class ActorService {
 								accumulator.color.nextValue = node.value.color;
 								accumulator.color.nextAppearance = node;
 							}
-							if (node.value.position !== undefined && accumulator.position.nextAppearance === undefined) {
+							if (
+								node.value.position !== undefined &&
+								accumulator.position.nextAppearance === undefined
+							) {
 								accumulator.position.nextValue = node.value.position;
 								accumulator.position.nextAppearance = node;
 							}
@@ -207,7 +211,6 @@ export class ActorService {
 		),
 		shareReplay(1)
 	);
-
 
 	public selectedActorAccumulatorAtCursor$: Observable<Accumulator> = combineLatest([
 		this.actorDeltasAtCursor$,
@@ -250,7 +253,7 @@ export class ActorService {
 					})
 				).pipe(map(a => actor));
 			}),
-			tap((actor) => refreshBlockOfActor(actor))
+			tap(actor => refreshBlockOfActor(actor))
 		)
 		.subscribe();
 	public maxPossiblePlanetRadius$ = this.databaseService.currentLoreActors$.pipe(

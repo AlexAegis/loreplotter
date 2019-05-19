@@ -51,7 +51,12 @@ export class CursorComponent extends BaseDirective implements OnInit, AfterViewI
 	private shifter = new Subject<number>();
 	private viewInit = new BehaviorSubject<boolean>(false);
 
-	constructor(private storeFacade: StoreFacade, private cd: ChangeDetectorRef, private el: ElementRef, private loreService: LoreService) {
+	constructor(
+		private storeFacade: StoreFacade,
+		private cd: ChangeDetectorRef,
+		private el: ElementRef,
+		private loreService: LoreService
+	) {
 		super();
 		this.frame$ = this.storeFacade.frame$;
 		this.cursorUnix$ = combineLatest([this.storeFacade.cursor$, this.viewInit.pipe(delay(100))]).pipe(
