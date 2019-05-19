@@ -42,6 +42,14 @@ import {
  */
 @Injectable()
 export class SceneEffects {
+	private doPlay$ = this.actions$.pipe(
+		ofType(_play.type),
+		withLatestFrom(this.storeFacade.cursorOverride$),
+		filter(([time, override]) => !override),
+		switchMapTo(timer(0, 1000 / 60).pipe(takeUntil(this.actions$.pipe(ofType(_stop.type))))),
+		withLatestFrom(this.storeFacade.playSpeed$)
+	);
+
 	@Effect()
 	public autoFrame = merge(
 		this.loreService.easeCursorToUnix.pipe(map(target => [target, 1, target])),
@@ -110,14 +118,6 @@ export class SceneEffects {
 		ofType(setPlayingSuccess.type),
 		filter(({ payload }) => !payload),
 		map(payload => _stop(payload))
-	);
-
-	private doPlay$ = this.actions$.pipe(
-		ofType(_play.type),
-		withLatestFrom(this.storeFacade.cursorOverride$),
-		filter(([time, override]) => !override),
-		switchMapTo(timer(0, 1000 / 60).pipe(takeUntil(this.actions$.pipe(ofType(_stop.type))))),
-		withLatestFrom(this.storeFacade.playSpeed$)
 	);
 
 	@Effect()
