@@ -1,7 +1,5 @@
 <div class="ruler" (mousewheel)="zoomScrollHandler($event)">
-	<app-cursor #cursor [containerWidth]="loreService.containerWidth" id="cursor">{{
-		cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm'
-	}}</app-cursor>
+	<app-cursor #cursor [containerWidth]="loreService.containerWidth" id="cursor"></app-cursor>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
 		<div
 			*appRepeat="let c; from: unitsBetween + 5"

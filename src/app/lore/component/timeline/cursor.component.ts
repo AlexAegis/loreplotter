@@ -1,8 +1,22 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostBinding, HostListener, Input, OnInit } from '@angular/core';
+import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	HostBinding,
+	HostListener,
+	Input,
+	OnInit,
+	ViewChild
+} from '@angular/core';
+import { MatFormField } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
+import { LoreService } from '@app/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
-import { combineLatest, Observable, Subject } from 'rxjs';
-import { filter, map, withLatestFrom } from 'rxjs/operators';
+import moment from 'moment';
+import { BehaviorSubject, combineLatest, Observable, Subject } from 'rxjs';
+import { delay, filter, map, tap, withLatestFrom } from 'rxjs/operators';
 import { Math as ThreeMath } from 'three';
 
 @Component({
@@ -11,14 +25,19 @@ import { Math as ThreeMath } from 'three';
 	styleUrls: ['./cursor.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CursorComponent extends BaseDirective implements OnInit {
+export class CursorComponent extends BaseDirective implements OnInit, AfterViewInit {
 	/**
-	 * Still needed to protect agains out of bounds problems
 	 *
 	 * @param width of the parent container
 	 */
 	@Input()
 	public containerWidth: Subject<number>;
+
+	@ViewChild('formField')
+	public cursorInputFormField: MatFormField;
+
+	@ViewChild('cursorInput')
+	public cursorInput: ElementRef;
 
 	public frame$: Observable<{ start: number; end: number; length: number }>;
 	public cursorUnix$: Observable<number>;
@@ -30,11 +49,15 @@ export class CursorComponent extends BaseDirective implements OnInit {
 
 	public panStartPosition: number;
 	private shifter = new Subject<number>();
+	private viewInit = new BehaviorSubject<boolean>(false);
 
-	constructor(private storeFacade: StoreFacade, private cd: ChangeDetectorRef, private el: ElementRef) {
+	constructor(private storeFacade: StoreFacade, private cd: ChangeDetectorRef, private el: ElementRef, private loreService: LoreService) {
 		super();
 		this.frame$ = this.storeFacade.frame$;
-		this.cursorUnix$ = this.storeFacade.cursor$;
+		this.cursorUnix$ = combineLatest([this.storeFacade.cursor$, this.viewInit.pipe(delay(100))]).pipe(
+			map(([cursor, wakeUp]) => cursor),
+			tap(cursor => this.cd.markForCheck())
+		);
 	}
 
 	public ngOnInit() {
@@ -65,6 +88,16 @@ export class CursorComponent extends BaseDirective implements OnInit {
 			});
 	}
 
+	public easeTo($event: KeyboardEvent): void {
+		if ($event.key === 'Enter') {
+			try {
+				const unix = moment(this.cursorInput.nativeElement.value).unix();
+				this.loreService.easeCursorToUnix.next(unix);
+			} catch (e) {
+			}
+		}
+	}
+
 	@HostListener('panstart', ['$event'])
 	@HostListener('panleft', ['$event'])
 	@HostListener('panright', ['$event'])
@@ -80,5 +113,9 @@ export class CursorComponent extends BaseDirective implements OnInit {
 		if ($event.type === 'panend') {
 			this.storeFacade.bakeCursorOverride();
 		}
+	}
+
+	public ngAfterViewInit(): void {
+		this.viewInit.next(true);
 	}
 }

@@ -1,3 +1,11 @@
 <div class="cursor">
-	<div><ng-content></ng-content></div>
+	<mat-form-field #formField class="smallMatInput" floatLabel="never" hideRequiredMarker>
+		<input
+			#cursorInput
+			(keydown)="easeTo($event)"
+			[value]="cursorUnix$ | async | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm:ss'"
+			mask="0000-M0-d0 Hh:m0:s0"
+			matInput
+		/>
+	</mat-form-field>
 </div>

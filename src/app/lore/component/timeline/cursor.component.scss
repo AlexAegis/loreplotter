@@ -27,6 +27,35 @@
 		height: 1rem;
 		content: '';
 	}
+
+	::ng-deep .smallMatInput {
+		padding: 0;
+
+		.mat-form-field-wrapper {
+			padding: 0;
+		}
+
+		.mat-form-field-infix {
+			border-top: 0;
+			padding: 0;
+		}
+
+		.mat-form-field {
+			padding: 0;
+		}
+
+		.mat-input-element {
+			text-align: center;
+		}
+
+		.mat-input-underline {
+			display: none;
+		}
+	}
+
+	::ng-deep .mat-form-field-underline {
+		display: none;
+	}
 }
 
 :host::after {
