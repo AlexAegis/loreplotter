@@ -480,9 +480,11 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				.subscribe(result => {
 					if (result) {
 						this.isSaving = true;
+						this.engineService.globe.removeActor(this.actor);
 						this.actor.remove().then(() => {
 							this.isSaving = false;
 						});
+
 					}
 				});
 		}

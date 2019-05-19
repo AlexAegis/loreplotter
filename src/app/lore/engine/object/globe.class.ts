@@ -233,4 +233,9 @@ export class Globe extends Basic {
 	public findPointByActor(actor: RxDocument<Actor>): ActorObject {
 		return this.points.filter(point => point.actor.id === actor.id).shift();
 	}
+
+	public removeActor(actor: RxDocument<Actor>) {
+		const obj = this.findPointByActor(actor);
+		obj.parent.remove(obj);
+	}
 }
