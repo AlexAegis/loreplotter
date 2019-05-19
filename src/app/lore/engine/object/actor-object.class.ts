@@ -293,7 +293,7 @@ export class ActorObject extends Basic {
 		});
 	}
 
-	public onPanStart(event: any): void {
+	public onPanStart(e: any): void {
 		this.positionAtStart = this.parent.quaternion.clone();
 		this.parent.userData.override = true; // Switched off in the LoreService
 		combineLatest([
@@ -609,7 +609,7 @@ export class ActorObject extends Basic {
 
 				this.updateHeightAndWorldPosAndScale();
 			});
-	};
+	}
 
 	public updateHeightAndWorldPosAndScale(scalarScale?: number): void {
 		if (this.parent) {

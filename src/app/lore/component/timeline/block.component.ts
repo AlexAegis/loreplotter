@@ -234,7 +234,9 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				}
 			}
 		}
-		const speedToNext = node.value.maxSpeed !== undefined ? node.value.maxSpeed : speedFromPrevious; // If the dragged node modifies the speed, use that
+
+		// If the dragged node modifies the speed, use that
+		const speedToNext = node.value.maxSpeed !== undefined ? node.value.maxSpeed : speedFromPrevious;
 
 		let closestCorrectUnixToReachPrevious = rescaledUnix;
 		if (prevNodeNow) {
