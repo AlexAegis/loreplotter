@@ -100,6 +100,8 @@ export class CursorComponent extends BaseDirective implements OnInit, AfterViewI
 				this.loreService.easeCursorToUnix.next(unix);
 			} catch (e) {
 			}
+		} else if ($event.key === ' ') {
+			this.cursorInput.nativeElement.blur();
 		}
 	}
 
