@@ -292,13 +292,15 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 				tap(({ $event }) => $event.stopPropagation()),
 				withLatestFrom(this.storeFacade.frame$, this.loreService.containerWidth),
 				map(([{ $event, actor, block }, frame, containerWidth]) => {
-					const unix = Math.floor(ThreeMath.mapLinear(
-						$event.center.x - this.el.nativeElement.offsetLeft,
-						0,
-						containerWidth,
-						frame.start,
-						frame.end
-					));
+					const unix = Math.floor(
+						ThreeMath.mapLinear(
+							$event.center.x - this.el.nativeElement.offsetLeft,
+							0,
+							containerWidth,
+							frame.start,
+							frame.end
+						)
+					);
 					const position = this.actorService.actorPositionAt(actor, unix);
 					// Todo make this save a sideeffect and control the block with that
 					actor._states.set(new UnixWrapper(unix), new ActorDelta(undefined, position));

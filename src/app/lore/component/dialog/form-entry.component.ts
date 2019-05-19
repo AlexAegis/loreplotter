@@ -32,12 +32,14 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 		return formBuilder.group({
 			key: ['', [Validators.required]],
 			value: [''],
-			forget: ['']
+			forget: [''],
+			valuePlaceholder: ['']
 		});
 	}
 
 	public changeForget($event): void {
 		this.control.controls['forget'].setValue(!(this.control.controls['forget'] as FormControl).value);
+
 		if ((this.control.controls['forget'] as FormControl).value) {
 			this.hiddenValue = (this.control.controls['value'] as FormControl).value;
 			(this.control.controls['value'] as FormControl).setValue(undefined);
@@ -56,6 +58,7 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 	}
 
 	public ngOnInit(): void {
+
 		if (!this.control) {
 			this.control = FormEntryComponent.create(this.formBuilder);
 			this.parent.push(this.control);
@@ -64,6 +67,7 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 			this.originalKey = this.control.controls['key'].value;
 			this.originalValue = this.control.controls['value'].value;
 		}
+		this.originalValue = (this.control.controls['valuePlaceholder'] as FormControl).value;
 	}
 
 	public ngAfterViewInit(): void {}

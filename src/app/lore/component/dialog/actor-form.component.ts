@@ -105,14 +105,18 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 					this.addKnowledge(
 						property.value.key as string,
 						property.value.value as string,
+						property.value.value as string,
 						this.newKnowledgeArray
 					);
 				} else {
-					this.addKnowledge(
-						property.value.key as string,
-						property.value.value as string,
-						this.knowledgeArray
-					);
+					if (property.value.value) {
+						this.addKnowledge(
+							property.value.key as string,
+							undefined,
+							property.value.value as string,
+							this.knowledgeArray
+						);
+					}
 				}
 			});
 		}
@@ -159,13 +163,16 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.afterViewInit = true;
 	}
 
-	public addKnowledge(key?: string, value?: string, to?: FormArray): FormGroup {
+	public addKnowledge(key?: string, value?: string, valuePlaceholder?: string, to?: FormArray): FormGroup {
 		const control = FormEntryComponent.create(this.formBuilder);
 		if (key) {
 			control.controls['key'].setValue(key);
 		}
 		if (value) {
 			control.controls['value'].setValue(value);
+		}
+		if (valuePlaceholder) {
+			control.controls['valuePlaceholder'].setValue(valuePlaceholder);
 		}
 		if (to) {
 			to.push(control);
@@ -174,7 +181,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	}
 
 	public addNewKnowledge(): FormGroup {
-		return this.addKnowledge(undefined, undefined, this.newKnowledgeArray);
+		return this.addKnowledge(undefined, undefined, undefined, this.newKnowledgeArray);
 	}
 
 	public get filledNewKnowledgeCount(): number {

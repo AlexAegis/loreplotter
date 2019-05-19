@@ -10,7 +10,8 @@ export class Sun extends Basic {
 	public directionalLightBaseIntensity = 0.6;
 
 	private originalPosition = new Vector3(40, 0, 0);
-	public constructor(public radius: number = 0.6) {
+
+	public constructor(public radius: number = 1.2) {
 		super();
 		this.name = 'sun';
 		this.position.copy(this.originalPosition);

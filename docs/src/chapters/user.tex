@@ -32,9 +32,7 @@ Minden projekt\cref{fig:basic-project-structure} három fő elemből áll, ezek 
 	\label{fig:create-project-button}
 \end{figure}
 
-Új projekt létrehozásakor a projekt készítő dialógust kapjuk melyen lehetőséget kapunk a projektünknek a nevét és a világbeállításait megadni, mint a bolygó neve és mérete ami alatt a bolygó sugarát értjük kilóméterben megadva. Valamint egy tetszőleges fekete-fehér magasságtérképet is megadhatunk amivel inicializálhatjuk a bolygó felületét. A vízmagasság alapértelmezetten 40\%-os szürkeségnél van.
-
-A 'Create' gombra kattintva azonnal megnyílik az elkészített projekt.
+Új projekt létrehozásakor a projekt készítő dialógust kapjuk melyen lehetőséget kapunk a projektünknek a nevét, a világ nevét és méretét megadni, utóbbi alatt a bolygó sugarát értjük kilóméterben megadva. Valamint egy tetszőleges fekete-fehér magasságtérképet is megadhatunk amivel inicializálhatjuk a bolygó felületét. A vízmagasság alapértelmezetten 40\%-os szürkeségnél van. A 'Create' gombra kattintva azonnal megnyílik az elkészített projekt.
 
 \begin{figure}[h!]
 	\centering
@@ -84,7 +82,7 @@ A kezelőfelület az alábbi elemeket tartalmazza:
 
 \subsection{Szereplőtár} \label{section:ui-actor-tool}
 
-A szereplőtár legfelső elemével lehet újabb szereplőket hozzáadni a színtérhez. A gombot fogd-és-vidd módon lehet a bolygó valamely pontjára ráhúzni, ami majd a karakter kiindulási pontja lesz. Ez akármikor megváltoztatható.
+A szereplőtár legfelső elemével lehet újabb szereplőket hozzáadni a színtérhez. A gombot fogd-és-vidd módon lehet a bolygó bármely pontjára ráhúzni, ami majd a karakter kiindulási pontja lesz. Ez akármikor megváltoztatható, amíg egyedül van pedig korlátok nélkül.
 
 Ez alatt az elkészített karakterek listája van, mellette az összes karakter számával. Egy karakter itt az alábbi információt tartalmazza:
 
@@ -100,11 +98,11 @@ A idővonalat elsősorban három elemre tudjuk bontani:
 
 \subsubsection{A Kurzor}
 
-A vonalzón helyezkedik el. Mindig a jelenlegi időpontra mutat, melyet a kurzoron, fogd-és-vidd módszerrel megváltoztathatunk. Egy fölötte megjelenő buborék a pontos időt mutatja másodperc pontossággal.
+A vonalzón helyezkedik el. Mindig a jelenlegi időpontra mutat, melyet a kurzoron, fogd-és-vidd módszerrel megváltoztathatunk. Egy fölötte megjelenő buborék a pontos időt mutatja másodperc pontossággal. Ez egyben szerkeszthető is ha egy konkrét időpontra akarunk ugrani. Ha átszerkesztettük az időpontot a kurzoron akkor az 'Enter' billentyűvel a megadott időpontra ugrik. Ha megváltozik az idő akkor az azonnal bekerül értékként ide így lejátszás közben ez nem szerkeszthető.
 
 \paragraph{A Vonalzó}
 
-Beosztásai napokban értendőek, a kisebb fogai pedig óráknak. A vonalzót fogd és vidd módon tudjuk az időben előre vagy hátra eltolni. Az egérgörgővel pedig az aktív idősávot tudjuk kibővíteni, szűkíteni.
+Beosztásai napokban értendőek, a kisebb fogai pedig óráknak. A vonalzót fogd és vidd módon tudjuk az időben előre vagy hátra eltolni. Az egérgörgővel pedig az aktív idősávot tudjuk kibővíteni, szűkíteni. A legközelebbi megengedett nagyítás 2 napot foglal magában.
 
 \paragraph{A Karakter Sávok}
 
@@ -112,16 +110,17 @@ Minden karakter saját sávval rendelkezik. Bal oldalt a sávhoz tartozó karakt
 
 Egy blokk az alábbi interakciós lehetőségeket nyújtja:
 \begin{enumerate}
-	\item Egy eseményre kattintva a kurzor arra az időpontra ugrik és az esemény kiválasztásra kerül. Kiválasztás után lehetőség van kitörölni az adott eseményt egy megerősítést követően.
-	\item Egy esemény fogd-és-vidd módon áthelyezhetünk bárhova az idővonalon. Figyeljünk oda, hogy ha a jövőben egy esemény függ ettől, és későbbi időpontra helyezzük, akkor ez a függőség sérül.
-	\item A blokk egészét is mozgathatjuk fogd és vidd módon, ezzel az összes esemény párhuzamosan fog elmozdulni.
+	\item Egy eseményre kattintva a kurzor arra az időpontra ugrik és az esemény kiválasztásra kerül. Kiválasztás után lehetőség van kitörölni az adott eseményt egy megerősítést követően. Emellett kiválasztásra kerül a hozzá tartozó szereplő is a színtéren.
+	\item Egy esemény fogd-és-vidd módon áthelyezhetünk bárhova az idővonalon. A művelet érvénytelen ha az környező események megengedett sebességei és távolsága alapján a szereplő már nem tudná teljesíteni az adott utat. Ha ez sérül akkor a művelet érvénytelen és az esemény visszaugrik eredeti pozíciójára. Figyeljünk oda, hogy ha a jövőben egy esemény függ ettől, és egy annál későbbi időpontra helyezzük, akkor ez a függőség sérül. Ez viszont már nincs ellenőrizve.
+	\item A blokk egészét is mozgathatjuk fogd és vidd módon, ezzel az összes esemény párhuzamosan fog elmozdulni. Figyeljünk oda, hogy ha egy másik szereplő egy vagy több eseménye függ a mozgatott szereplő eseményeitől, akkor ezek a függőségek sérülhetnek. Ez nincs ellenőrizve.
+	\item Az egeret a karakter sávja felett tartva a színtéren a hozzá tartozó objektum körül egy körvonal jelenik meg a gyors azonosításért. Ez akkor is látszik ha a szereplő a bolygó másik oldalán van.
 \end{enumerate}
 
 Az idővonalon egyszerre 4 sáv fér el. A többi sávot görgetéssel, függőleges pásztázással, vagy a görgősávval érjük el.
 
 \subsection{A Színtér} \label{section:ui-scene}
 
-A kezelőfelület közepén helyezkedik el a 3D színtér és az azt közvetlen kezelő eszközök. A színtér fő eleme a bolygó és rajta a szereplők. A bolygó fogd-és-vidd módon forgatható, az egérgörgővel pedig közelíthető/távolítható.
+A kezelőfelület közepén helyezkedik el a 3D színtér és az azt közvetlen kezelő eszközök. A színtér fő eleme a bolygó és rajta a szereplők. A bolygó mozgatás módban a felületét pásztázva forgatható, az egérgörgővel pedig közelíthető/távolítható.
 
 A bolygó felületén lévő szereplők helyét, a szereplőt reprezentáló színes gömb fogd-és-vidd módon történő áthelyezésével lehet megtenni. Ennek a viselkedése nagyban függ a jelenlegi időtől és a szereplő azon eseményeitől mely a jelenlegi időponton, vagy a körül helyezkednek el. Minden szereplő rendelkezik egy maximum elérhető sebességgel. Hogy ez be legyen tartva, egy szereplő áthelyezésekor, csak olyan távolságba engedett az áthelyezés, amivel még el lehet érni az előző és a következő esemény helyét. Egy esemény helye áthelyezhető ha áthelyezéskor az az esemény ideje van kiválasztva, egyéb esetekben új esemény jön létre.
 
@@ -139,21 +138,21 @@ A színtér 3 sarkában 3 eszköztár látható.
 	\label{fig:tool-interaction}
 \end{figure}
 
-A ceruza ikonnal ellátott gombbal rajzolás módba válthatunk, a mellette lévő két csúszka pedig az ecset paraméterei mint magasság és méret. A bolygó felületét pászázva azt megváltoztathatjuk. Alacsony magassággal tengereket is rajzolhatunk.
+A ceruza ikonnal ellátott gombbal rajzolás módba válthatunk, a mellette lévő két csúszka pedig az ecset paraméterei: magasság és méret. A bolygó felületét pászázva azt megváltoztathatjuk. Alacsony magassággal tengereket is rajzolhatunk. A bolygón kívül pásztázva ugyanúgy forgathatjuk mintha mozgatás módban lennénk.
 
-A tengely ikonnal ellátott gombbal az alap, színtér mozgatáshoz szükséges módba térhetünk vissza. A mellette lévő csúszka a szereplőket reprezentáló gömbök méretét állítja. A gömbök mérete ettől, és a zoom mértékétől is függ.
+A tengely ikonnal ellátott gombbal az alap, színtér mozgatáshoz szükséges módba térhetünk vissza. A mellette lévő csúszka a szereplőket reprezentáló gömbök méretét állítja. A gömbök mérete ettől, és a közelítés mértékétől is függ.
 
 
 \subsubsection{Az fény eszköztár}
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.20\textwidth,scale=1]{tool-light-manual-dark}
-	\caption{A fény eszköztár manuális módban, sötétre állítva. A színtér bal alsó részén.}
-	\label{fig:tool-light-manual-dark}
+	\includegraphics[width=0.20\textwidth,scale=1]{tool-light-manual-light}
+	\caption{A fény eszköztár manuális módban, világosra állítva. A színtér bal alsó részén.}
+	\label{fig:tool-light-manual-light}
 \end{figure}
 
-A kör alakú gombbal manuális és automata módok között válthatunk. A jobb oldali gomb csak manuális módban látszik. Ezzel tudunk váltani a permanens világos és sötét mód között.
+A kör alakú gombbal manuális és automata módok között válthatunk. A jobb oldali gomb csak manuális módban látszik. Ezzel tudunk váltani az állandó világos és a sötét mód között.
 
 \paragraph{Világos mód}
 
@@ -161,7 +160,7 @@ Világos módban a kezelőfelület teljes egésze fehérre vált, ahogy színté
 
 \paragraph{Sötét mód}
 
-Sötét módban a kezelőfelület teljes egésze sötétre vált, ahogy a színtér háttere is. A színtérben a nap csak ebben a módban van jelen, és a bolygót érő legerősebb fényforrássá válik.
+Sötét módban a kezelőfelület teljes egésze sötétre vált, ahogy a színtér háttere is. A színtérben a nap csak ebben a módban van jelen, és a bolygót érő legerősebb fényforrássá válik. Ebben a módban is változhat a megvilágítás a sebességnek megfelelően. \ref{fig:tool-time}
 
 \paragraph{Automata mód}
 
@@ -172,9 +171,9 @@ Automata módban alapértelmezetten a sötét mód aktív de túl közeli zoomn�
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.40\textwidth,scale=1]{tool-time-dark}
+	\includegraphics[width=0.40\textwidth,scale=1]{tool-time}
 	\caption{Az idő eszköztár, a színtér jobb alsó részén}
-	\label{fig:tool-time-dark}
+	\label{fig:tool-time}
 \end{figure}
 
 Az idő eszköztár fő eleme a lejátszás gomb. Erre kattintva a csúszkával vagy a gombokkal beállított sebességgel megkezdődik a lejátszás. A sebesség egysége egy percet jelent minden valódi másodpercre. A lejátszás megkezdésével a színtér szereplői az eseményeik pozíciói között fognak mozogni.
@@ -206,7 +205,7 @@ Az alábbi billentyűkkel is vezérelhető a lejátszás:
 
 \subsection{A Szereplők} \label{section:ui-actors}
 
-A színtér szereplői kattintással, vagy a bal oldali menüből is kiválaszthatóak. Kiválasztást követően egy kis ablak jelenik meg a szereplő színtérbeli pozíciójánál mutatva az összes akkumulált adatát.
+A színtér szereplői kattintással, egy eseményét kiválasztva vagy a bal oldali menüből is kiválaszthatóak. Kiválasztást követően egy kis ablak jelenik meg a szereplő színtérbeli pozíciójánál mutatva az összes akkumulált adatát, és hogy melyik eseménynél lett utoljára módosítva. Utóbbi gombra kattintva a kurzor egyből arra az időre ugrik. A tetején van két speciális gomb amikkel a legkorábbi és a legkésőbbi eseményhez ugorhatunk. Ugrás közben az időablak követi a kurzort így az sose megy ki a képernyőről. Hasznos ha az időablak nagyon messzire elment.
 
 \begin{figure}[h!]
 	\centering
@@ -215,8 +214,7 @@ A színtér szereplői kattintással, vagy a bal oldali menüből is kiválaszth
 	\label{fig:actor-popup}
 \end{figure}
 
-A szerkesztés gombra kattintva pedig az adott időpillanat, adott helyzetén szerkeszthetjük a szereplő adatait. Minden változtatás a fent megjelenő időtől lesz érvényes.
-
+A szerkesztés gombra kattintva pedig az adott időpillanat, adott helyzetén szerkeszthetjük a szereplő adatait. Minden változtatás a fent megjelenő időtől lesz érvényes. Egy ilyen változtatás nem befolyásolja a karakter pozícióját, mentéskor a megadott dátum alapján -- ugyanúgy ahogy a lejátszás teszi -- kiszámolja, hogy hol tartózkodna akkor a szereplő és azzal a helyzettel menti el az eseményt.
 
 \begin{table}[H]
 	\centering
@@ -248,20 +246,13 @@ A szerkesztés gombra kattintva pedig az adott időpillanat, adott helyzetén sz
 
 A szereplőnek lehetnek már meglévő, akkumulált tulajdonságai is mikor az ablakot megnyitjuk. Ezeket értékét megváltozathatjuk, de kitörölni itt nem tudjuk, ugyanis nem itt születtek. De "elfelejthetjük" őket aminek hatására az adott időpillanat után már nem lesz jelen a tulajdonság.
 
-Lehetőség van új tulajdonságok felvitelére is, itt jelennek meg az adott eseményen született tulajdonságok. Ezek törölhetőek mert nem akkumulált adatok. \ref{fig:actor-edit-dialog-edit-forget}
+Lehetőség van új tulajdonságok felvitelére is, itt jelennek meg az adott eseményen született tulajdonságok is. Ezek törölhetőek mert nem akkumulált adatok.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.70\textwidth,scale=1]{actor-edit-dialog-color}
+	\includegraphics[width=0.30\textwidth,scale=1]{actor-edit-dialog-color}
 	\caption{Az szereplő színének megváltoztatása}
 	\label{fig:actor-edit-dialog-color}
-\end{figure}
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.70\textwidth,scale=1]{actor-edit-dialog-edit-forget}
-	\caption{Az szereplő meglévő tulajdonságainak elvesztése, új hozzádása}
-	\label{fig:actor-edit-dialog-edit-forget}
 \end{figure}
 
 

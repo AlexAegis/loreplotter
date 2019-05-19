@@ -132,8 +132,8 @@ export const MIN_FRAME_SIZE = 86400;
 function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 	switch (action.type) {
 		case setFrameTo.type: {
-			let start = action.payload.start || frame.start.base;
-			let end = action.payload.end || frame.end.base;
+			const start = action.payload.start || frame.start.base;
+			const end = action.payload.end || frame.end.base;
 
 			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
 				return frame;
@@ -146,8 +146,8 @@ function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 			}
 		}
 		case setFrameStartTo.type: {
-			let start = action.payload || frame.start.base;
-			let end = frame.end.base;
+			const start = action.payload || frame.start.base;
+			const end = frame.end.base;
 
 			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
 				return frame;
@@ -155,8 +155,8 @@ function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 			return { ...frame, start: { ...frame.start, base: action.payload || frame.start.base } };
 		}
 		case setFrameEndTo.type: {
-			let start = frame.start.base;
-			let end = action.payload || frame.end.base;
+			const start = frame.start.base;
+			const end = action.payload || frame.end.base;
 
 			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
 				return frame;
@@ -194,8 +194,8 @@ function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 			return { ...frame, end: { ...frame.end, base: bakedEnd, delta: undefined } };
 		}
 		case changeFrameBy.type: {
-			let start = (action.payload.start || 0) + frame.start.base;
-			let end = (action.payload.end || 0) + frame.end.base;
+			const start = (action.payload.start || 0) + frame.start.base;
+			const end = (action.payload.end || 0) + frame.end.base;
 
 			if (Math.abs(end - start) <= MIN_FRAME_SIZE || end <= start) {
 				return frame;

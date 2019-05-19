@@ -6,7 +6,8 @@
 	$warn: map-get($theme, warn);
 
 	app-actor-form {
-		background-color: rgba(mat-color($primary, 'darker'), 0.1);
+		// actorDialog
+		background-color: rgba(mat-color($primary, 'darker'), 0.8);
 		color: mat-color($primary, 'darker');
 	}
 }

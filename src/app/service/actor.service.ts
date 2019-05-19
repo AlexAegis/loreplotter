@@ -143,8 +143,10 @@ export class ActorService {
 							for (const [key, value] of node.value.knowledge.entries()) {
 								const prop = propertyMap.get(key);
 								if (prop) {
-									prop.value = value;
-									prop.appearedIn = node;
+									if (value) {
+										prop.value = value;
+										prop.appearedIn = node;
+									}
 								} else {
 									const propField = new AccumulatorField<String>();
 									propField.value = value;

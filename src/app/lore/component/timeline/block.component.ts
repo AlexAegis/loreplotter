@@ -484,7 +484,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 						this.actor.remove().then(() => {
 							this.isSaving = false;
 						});
-
 					}
 				});
 		}

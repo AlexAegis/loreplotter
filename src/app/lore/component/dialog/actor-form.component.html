@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Edit actor</h1>
-<mat-dialog-content>
+<mat-dialog-content class="actorDialog">
 	<form [formGroup]="actorForm">
 		<div>
 			<mat-form-field class="date" floatLabel="never">
@@ -28,11 +28,11 @@
 
 		<mat-label class="colorLabel">Color:</mat-label>
 		<mat-form-field class="color" floatLabel="never" [ngStyle]="{ backgroundColor: color }">
-			<input [(colorPicker)]="color" [style.background]="color" matInput/>
+			<input [(colorPicker)]="color" [cpAlphaChannel]="'disabled'" [style.background]="color" matInput/>
 		</mat-form-field>
 
 		<hr class="divider"/>
-		<h2>Existing knowledge:</h2>
+		<h2>Existing properties:</h2>
 		<app-form-entry
 			[parent]="knowledgeArray"
 			[index]="i"
@@ -42,7 +42,7 @@
 			[existing]="true"
 		>
 		</app-form-entry>
-		<h2>New knowledge:</h2>
+		<h2>New properties:</h2>
 		<app-form-entry
 			[parent]="newKnowledgeArray"
 			[index]="i"
