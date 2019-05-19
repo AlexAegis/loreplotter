@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatSnackBar } from '@angular/material';
 import { removeKeys } from '@app/function/key-remover.function';
 import { DatabaseService, RxCollections } from '@app/service';
@@ -111,6 +111,16 @@ export class ExportComponent implements OnInit {
 			.subscribe();
 	}
 
+	public isValid(): boolean {
+		let validJSON = true;
+		try {
+			JSON.parse(this.textarea.nativeElement.value);
+		} catch (e) {
+			validJSON = false;
+		}
+		return this.textarea.nativeElement.value && validJSON;
+	}
+
 	public downloadTextures(): void {
 		this.databaseService.database$
 			.pipe(
@@ -139,4 +149,15 @@ export class ExportComponent implements OnInit {
 			)
 			.subscribe();
 	}
+
+	@HostListener('keydown', ['$event'])
+	public onKeyDown($event: KeyboardEvent): void {
+		if ($event.key === 'Enter') {
+			$event.preventDefault();
+			if (this.isValid()) {
+				this.importDatabase();
+			}
+		}
+	}
+
 }

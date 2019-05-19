@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 export interface ConfirmData {
@@ -33,5 +33,13 @@ export class ConfirmComponent implements OnInit {
 
 	public onDismiss(): void {
 		this.dialogRef.close(false);
+	}
+
+	@HostListener('keydown', ['$event'])
+	public onKeyDown($event: KeyboardEvent): void {
+		if ($event.key === 'Enter') {
+			$event.preventDefault();
+			this.onConfirm();
+		}
 	}
 }

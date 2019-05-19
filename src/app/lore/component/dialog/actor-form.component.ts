@@ -1,6 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, Inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { Actor } from '@app/model/data';
 import { Accumulator } from '@app/service';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -71,7 +71,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	public knowledgeArray: FormArray = this.actorForm.controls.knowledge as FormArray;
 	public newKnowledgeArray: FormArray = this.actorForm.controls.newKnowledge as FormArray;
 
-	public constructor(@Inject(MAT_DIALOG_DATA) public originalData: Accumulator, private formBuilder: FormBuilder) {
+	public constructor(public dialogRef: MatDialogRef<ActorFormComponent>, @Inject(MAT_DIALOG_DATA) public originalData: Accumulator, private formBuilder: FormBuilder) {
 		this.originalMoment = moment.unix(this.originalData.cursor);
 		this.originalDate = this.originalMoment.format('YYYY-MM-DD');
 		this.originalTime = this.originalMoment.format('HH:mm:ss');
@@ -96,9 +96,17 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 			originalData.accumulator.properties.forEach(property => {
 				if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor) {
-					this.addKnowledge(property.value.key as string, property.value.value as string, this.newKnowledgeArray);
+					this.addKnowledge(
+						property.value.key as string,
+						property.value.value as string,
+						this.newKnowledgeArray
+					);
 				} else {
-					this.addKnowledge(property.value.key as string, property.value.value as string, this.knowledgeArray);
+					this.addKnowledge(
+						property.value.key as string,
+						property.value.value as string,
+						this.knowledgeArray
+					);
 				}
 			});
 		}
@@ -146,6 +154,16 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 	public get newKnowledgeCount(): number {
 		return this.newKnowledgeArray.controls.length - 1;
+	}
+
+	@HostListener('keydown', ['$event'])
+	public onKeyDown($event: KeyboardEvent): void {
+		if ($event.key === 'Enter') {
+			$event.preventDefault();
+			if (this.actorForm.valid) {
+				this.dialogRef.close(this.result);
+			}
+		}
 	}
 
 	public ngOnInit() {}

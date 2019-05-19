@@ -5,7 +5,7 @@
 	$accent: map-get($theme, accent);
 	$warn: map-get($theme, warn);
 
-	app-toolbar {
+	app-toolbar, .menu {
 		background-color: rgba(mat-color($primary, 'lighter'), 0.8);
 
 

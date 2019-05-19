@@ -1,4 +1,4 @@
-<mat-toolbar color="back">
+<mat-toolbar>
 	<mat-toolbar-row id="mainBar">
 		<app-hamburger
 			(openChange)="storeFacade.setSidebarOpen($event)"
@@ -6,7 +6,7 @@
 			@leave
 			[open]="sidebarOpen$ | async"
 		></app-hamburger>
-		<mat-menu #appMenu="matMenu">
+		<mat-menu #appMenu="matMenu" class="menu">
 			<span
 			><button (click)="createLore()" aria-label="Create Project" class="create" color="accent" mat-menu-item>
 					<fa-icon [icon]="plusIcon" size="lg"></fa-icon> Create

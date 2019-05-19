@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
@@ -131,6 +131,16 @@ export class LoreFormComponent extends BaseDirective implements OnInit {
 				)
 			)
 			.subscribe();
+	}
+
+	@HostListener('keydown', ['$event'])
+	public onKeyDown($event: KeyboardEvent): void {
+		if ($event.key === 'Enter') {
+			$event.preventDefault();
+			if (this.loreForm.valid) {
+				this.dialogRef.close(this.loreForm.value);
+			}
+		}
 	}
 
 	public ngOnInit(): void {}

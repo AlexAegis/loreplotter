@@ -22,7 +22,13 @@ pictures, and can be imported back one-by-one in the edit menu of a project.
 	<button aria-label="Copy to clipboard" mat-flat-button color="accent" (click)="copyToClipboard()">
 		Copy to clipboard
 	</button>
-	<button aria-label="Import to database" mat-flat-button color="accent" (click)="importDatabase()">
+	<button
+		(click)="importDatabase()"
+		[disabled]="!isValid()"
+		aria-label="Import to database"
+		color="accent"
+		mat-flat-button
+	>
 		Import
 	</button>
 </mat-dialog-actions>

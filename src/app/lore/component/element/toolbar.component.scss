@@ -60,9 +60,9 @@
 	}
 }
 
-.exportImportButton, .repoButton {
-	width: 90%;
-	margin: auto;
+.exportImportButton,
+.repoButton {
+	width: 93%;
 }
 
 .buttonRow {
@@ -71,7 +71,14 @@
 	grid-template-columns: 3fr 1fr;
 
 	.removeButton {
-		margin-left: auto;
+		margin-left: 1rem;
+	}
+
+	.repoButton {
+		margin: auto;
 	}
 }
 
+.divider {
+	width: 12rem;
+}
