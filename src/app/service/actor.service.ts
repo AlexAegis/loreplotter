@@ -16,8 +16,8 @@ export interface Accumulator {
 	cursor: number;
 	actor: RxDocument<Actor>;
 	accumulator: ActorDeltaAccumulator;
-	firstEvent: Node<UnixWrapper, ActorDelta>,
-	lastEvent: Node<UnixWrapper, ActorDelta>
+	firstEvent: Node<UnixWrapper, ActorDelta>;
+	lastEvent: Node<UnixWrapper, ActorDelta>;
 }
 
 
@@ -248,7 +248,7 @@ export class ActorService {
 						a._states = actor._states;
 						return a;
 					})
-				).pipe(map(actor => actor));
+				).pipe(map(a => actor));
 			}),
 			tap((actor) => refreshBlockOfActor(actor))
 		)
