@@ -1,4 +1,15 @@
 <div *ngIf="selectedActorAccumulatorAtCursor$ | async as acc" [@visibility]="visibility" class="popup">
+	<div class="navigation">
+		First
+		<button (click)="cursorEaseTo(acc.firstEvent.k.unix)" mat-stroked-button>
+			{{ acc.firstEvent.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		</button>
+		Last
+		<button (click)="cursorEaseTo(acc.lastEvent.k.unix)" mat-stroked-button>
+			{{ acc.lastEvent.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		</button>
+	</div>
+
 	<div *ngIf="acc?.accumulator.name as name" class="accumulated">
 		<h1>{{ name.value }}</h1>
 		<button (click)="cursorEaseTo(name.appearedIn?.k.unix)" *ngIf="name.appearedIn" mat-stroked-button>

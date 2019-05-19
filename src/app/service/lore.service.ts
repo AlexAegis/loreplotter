@@ -18,7 +18,7 @@ import { ActorObject } from '@lore/engine/object';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Easing } from '@tweenjs/tween.js';
 import { RxAttachment, RxDocument } from 'rxdb';
-import { BehaviorSubject, combineLatest, EMPTY, from, merge, Observable, of, ReplaySubject, Subject, zip } from 'rxjs';
+import { BehaviorSubject, combineLatest, EMPTY, from, Observable, of, ReplaySubject, Subject, zip } from 'rxjs';
 import { filter, flatMap, map, mergeMap, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Group, Math as ThreeMath, Vector3 } from 'three';
 
@@ -72,26 +72,26 @@ export class LoreService extends BaseDirective {
 				);
 			});
 
-		const eastCursorFromPosToUnixConvert$ = this.easeCursorTo
+		this.teardown = this.easeCursorTo
 			.pipe(
 				filter(to => to !== undefined),
-				withLatestFrom(this.storeFacade.cursor$, this.storeFacade.frame$, this.containerWidth),
-				map(([position, cursor, { start, end }, containerWidth]) => ({
-					from: { cursor: cursor },
-					to: { cursor: ThreeMath.mapLinear(position, 0, containerWidth, start, end) }
-				}))
-			);
-		const eastCursorFromUnixConvert$ = this.easeCursorToUnix
-			.pipe(
-				filter(to => to !== undefined),
-				withLatestFrom(this.storeFacade.cursor$),
-				map(([target, cursor]) => ({
-					from: { cursor: cursor },
-					to: { cursor: target }
-				}))
-			);
+				withLatestFrom(this.storeFacade.frame$, this.containerWidth),
+				map(([position, { start, end }, containerWidth]) =>
+					ThreeMath.mapLinear(position, 0, containerWidth, start, end)
+				)
+			)
+			.subscribe(next => this.easeCursorToUnix.next(next));
 
-		this.teardown = merge(eastCursorFromPosToUnixConvert$, eastCursorFromUnixConvert$) // , eastCursorFromUnixConvert$
+		const eastCursorFromUnixConvert$ = this.easeCursorToUnix.pipe(
+			filter(to => to !== undefined),
+			withLatestFrom(this.storeFacade.cursor$),
+			map(([target, cursor]) => ({
+				from: { cursor: cursor },
+				to: { cursor: target }
+			}))
+		);
+
+		this.teardown = eastCursorFromUnixConvert$ // , eastCursorFromUnixConvert$
 			.pipe(
 				tweenMap({
 					duration: 220,

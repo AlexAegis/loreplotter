@@ -5,7 +5,6 @@
 	margin-top: -40px;
 	margin-left: 10px;
 	width: 26rem;
-	overflow: hidden;
 	h1 {
 		margin: 0;
 	}
@@ -33,18 +32,25 @@
 	}
 
 	.popup {
+		overflow: visible;
 		display: grid;
 		justify-content: center;
-
 		div {
 			display: grid;
 			justify-content: center;
-			grid-template-columns: 13rem 10rem;
+			grid-template-columns: 13rem 9rem;
 			grid-gap: 0.2rem;
 		}
 	}
 
 	.accumulated {
 		margin-bottom: 0.4rem;
+	}
+
+	.navigation {
+		display: grid;
+		grid-gap: 0.2rem;
+		grid-template-columns: 2rem 9rem 2rem 9rem !important;
+		align-items: center;
 	}
 }

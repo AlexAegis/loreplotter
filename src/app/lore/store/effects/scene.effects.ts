@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { refreshBlockOfActor } from '@app/function/refresh-block-component.function';
+import { toUnit } from '@app/function/to-unit.function';
 import { ActorDelta, UnixWrapper } from '@app/model/data';
 import { tweenMap } from '@app/operator';
+import { LoreService } from '@app/service';
 import { FeatureState } from '@lore/store/reducers';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Easing } from '@tweenjs/tween.js';
-import { of, timer } from 'rxjs';
+import { merge, of, timer } from 'rxjs';
 import {
 	auditTime,
 	catchError,
@@ -40,11 +42,47 @@ import {
  */
 @Injectable()
 export class SceneEffects {
-	public constructor(
-		private actions$: Actions<SceneActions>,
-		private store: Store<FeatureState>,
-		private storeFacade: StoreFacade
-	) {}
+	@Effect()
+	public autoFrame = merge(
+		this.loreService.easeCursorToUnix.pipe(map(target => [target, 1, target])),
+		this.doPlay$
+	).pipe(
+		withLatestFrom(this.storeFacade.frame$, this.storeFacade.cursor$),
+		map(([[time, speed, easeTarget], frame, cursor]) => ({
+			frame,
+			progress: ThreeMath.mapLinear(easeTarget !== undefined ? easeTarget : cursor, frame.start, frame.end, 0, 1),
+			targetFrame: {
+				start:
+					easeTarget !== undefined
+						? easeTarget - frame.length * 0.5
+						: frame.start + frame.length * 0.5 * (toUnit(speed) || 1),
+				end:
+					easeTarget !== undefined
+						? easeTarget + frame.length * 0.5
+						: frame.end + frame.length * 0.5 * (toUnit(speed) || 1),
+				length: frame.length
+			}
+		})),
+		filter(({ progress }) => progress < 0.15 || progress > 0.85),
+		throttleTime(500),
+		map(({ frame, targetFrame }) => {
+			return {
+				from: { base: frame.start, length: frame.length },
+				to: {
+					base: targetFrame.start,
+					length: frame.length
+				}
+			};
+		}),
+		tweenMap({
+			duration: 500,
+			easing: Easing.Exponential.Out,
+			pingpongInterrupt: true,
+			pingpongAfterFinish: true
+		}),
+		auditTime(1000 / 60),
+		map(({ base, length }) => setFrameTo({ payload: { start: base, end: base + length } }))
+	);
 
 	@Effect()
 	public setPlay$ = this.actions$.pipe(
@@ -85,43 +123,13 @@ export class SceneEffects {
 	@Effect()
 	public playCursor = this.doPlay$.pipe(map(([time, speed]) => changeCursorBy({ payload: speed })));
 
-	@Effect()
-	public autoFrame = this.doPlay$.pipe(
-		withLatestFrom(this.storeFacade.frame$, this.storeFacade.cursor$),
-		map(([[time, speed], frame, cursor]) => ({
-			frame,
-			speed,
-			progress: ThreeMath.mapLinear(cursor, frame.start, frame.end, 0, 1)
-		})),
-		map(({ frame, speed, progress }) => {
-			if (speed > 0 && progress > 0.85) {
-				return { frame, direction: 1 };
-			} else if (speed < 0 && progress < 0.15) {
-				return { frame, direction: -1 };
-			} else {
-				return undefined;
-			}
-		}),
-		filter(autoJumpDirection => autoJumpDirection !== undefined),
-		throttleTime(500),
-		map(({ frame, direction }) => {
-			return {
-				from: { base: frame.start, length: frame.length },
-				to: {
-					base: frame.start + direction * frame.length * 0.5,
-					length: frame.length
-				}
-			};
-		}),
-		tweenMap({
-			duration: 500,
-			easing: Easing.Exponential.Out,
-			pingpongInterrupt: true,
-			pingpongAfterFinish: true
-		}),
-		auditTime(1000 / 60),
-		map(({ base, length }) => setFrameTo({ payload: { start: base, end: base + length } }))
-	);
+	public constructor(
+		private actions$: Actions<SceneActions>,
+		private store: Store<FeatureState>,
+		private storeFacade: StoreFacade,
+		private loreService: LoreService
+	) {
+	}
 
 	@Effect({ dispatch: false })
 	public spawnOnWorld = this.actions$.pipe(

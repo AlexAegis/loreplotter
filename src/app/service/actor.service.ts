@@ -16,6 +16,8 @@ export interface Accumulator {
 	cursor: number;
 	actor: RxDocument<Actor>;
 	accumulator: ActorDeltaAccumulator;
+	firstEvent: Node<UnixWrapper, ActorDelta>,
+	lastEvent: Node<UnixWrapper, ActorDelta>
 }
 
 
@@ -102,12 +104,20 @@ export class ActorService {
 				map(actor => {
 					const accumulator = new ActorDeltaAccumulator();
 					const propertyMap = new Map<String, AccumulatorField<String>>();
+					let firstEvent: Node<UnixWrapper, ActorDelta>;
+					let lastEvent: Node<UnixWrapper, ActorDelta>;
 
 					accumulator.color.value = Actor.DEFAULT_COLOR;
 					accumulator.maxSpeed.value = Actor.DEFAULT_MAX_SPEED;
 
 					let reached = false;
 					for (const node of actor._states.nodes()) {
+						if (firstEvent === undefined) {
+							firstEvent = node;
+						}
+						lastEvent = node;
+
+
 						if (node.key.unix > cursor) {
 							reached = true;
 						}
@@ -190,7 +200,7 @@ export class ActorService {
 						accumulator.properties.push(accField);
 					}
 
-					return { cursor, actor, accumulator };
+					return { cursor, actor, accumulator, firstEvent, lastEvent };
 				}),
 				toArray()
 			)
