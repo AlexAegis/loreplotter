@@ -69,9 +69,10 @@ export class SceneEffects {
 						? easeTarget + frame.length * 0.5
 						: frame.end + frame.length * 0.5 * (toUnit(speed) || 1),
 				length: frame.length
-			}
+			},
+			speed: easeTarget !== undefined ? easeTarget - cursor : speed
 		})),
-		filter(({ progress }) => progress < 0.15 || progress > 0.85),
+		filter(({ progress, speed }) => (progress < 0.15 && speed < 0) || (progress > 0.85 && speed >= 0)),
 		throttleTime(500),
 		map(({ frame, targetFrame }) => {
 			return {

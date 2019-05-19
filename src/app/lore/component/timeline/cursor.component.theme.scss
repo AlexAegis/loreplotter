@@ -16,7 +16,7 @@
 		}
 
 		> div::after {
-			background-color: mat-color($accent);
+			background-color: rgba(mat-color($accent), 0.8);
 		}
 	}
 

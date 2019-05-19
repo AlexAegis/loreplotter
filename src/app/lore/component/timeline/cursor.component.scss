@@ -22,7 +22,8 @@
 		margin-left: 2px;
 		z-index: -9;
 		position: fixed;
-		transform: perspective(1px) translateX(-50%) translateY(30%) rotate(45deg);
+		transform: perspective(1px) translateX(-600%) translateY(135%) rotate(45deg);
+		clip-path: polygon(0 100%, 100% 100%, 100% 0);
 		width: 1rem;
 		height: 1rem;
 		content: '';
