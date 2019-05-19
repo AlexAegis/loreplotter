@@ -23,6 +23,7 @@
 		<mat-form-field class="speed" floatLabel="never">
 			<mat-label>{{ originalData?.accumulator?.maxSpeed.value }}</mat-label>
 			<input formControlName="maxSpeed" mask="9*" matInput/>
+			<mat-error *ngIf="actorForm.hasError('slow', 'maxSpeed')">Too slow to reach next target!</mat-error>
 		</mat-form-field>
 
 		<mat-label class="colorLabel">Color:</mat-label>

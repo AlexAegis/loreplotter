@@ -1,10 +1,11 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, Inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
-import { Actor } from '@app/model/data';
-import { Accumulator } from '@app/service';
+import { Actor, UnixWrapper } from '@app/model/data';
+import { Accumulator, ActorService } from '@app/service';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FormEntryComponent } from '@lore/component/dialog/form-entry.component';
+import { EngineService } from '@lore/engine';
 import { ActorObject } from '@lore/engine/object/actor-object.class';
 import moment, { Moment } from 'moment';
 import { RxDocument } from 'rxdb';
@@ -46,6 +47,14 @@ export interface ActorFormResultData {
 export class ActorFormComponent implements OnInit, AfterViewInit {
 	public plusIcon = faPlus;
 	private _color: string;
+	public actorForm = this.formBuilder.group({
+		name: this.formBuilder.control(''),
+		date: this.formBuilder.control(''),
+		time: this.formBuilder.control(''),
+		maxSpeed: this.formBuilder.control('', [ctrl => (this.canDo(ctrl.value) ? undefined : { slow: true })]),
+		knowledge: this.formBuilder.array([]),
+		newKnowledge: this.formBuilder.array([])
+	});
 
 	public set color(color: string) {
 		this._color = color;
@@ -55,14 +64,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		return this._color;
 	}
 
-	public actorForm = this.formBuilder.group({
-		name: this.formBuilder.control(''),
-		date: this.formBuilder.control(''),
-		time: this.formBuilder.control(''),
-		maxSpeed: this.formBuilder.control(''),
-		knowledge: this.formBuilder.array([]),
-		newKnowledge: this.formBuilder.array([])
-	});
+	private afterViewInit: boolean;
 
 	public originalMoment: Moment;
 	public originalDate: string;
@@ -74,7 +76,9 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	public constructor(
 		public dialogRef: MatDialogRef<ActorFormComponent>,
 		@Inject(MAT_DIALOG_DATA) public originalData: Accumulator,
-		private formBuilder: FormBuilder
+		private formBuilder: FormBuilder,
+		private actorService: ActorService,
+		private engineService: EngineService
 	) {
 		this.originalMoment = moment.unix(this.originalData.cursor);
 		this.originalDate = this.originalMoment.format('YYYY-MM-DD');
@@ -118,11 +122,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 	public get result(): ActorFormResultData {
 		const maxSpeed = this.actorForm.controls['maxSpeed'].value;
-		const time = this.actorForm.controls['time'].value || this.originalTime;
-		const finalDatetime =
-			((this.actorForm.controls['date'].value as Moment) || this.originalMoment).format('YYYY-MM-DD') +
-			'T' +
-			time;
+		const finalDatetime = this.finalTime();
 		return {
 			date: moment(finalDatetime),
 			name: this.actorForm.controls['name'].value,
@@ -132,6 +132,33 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 			actor: this.originalData.actor,
 			color: this.color
 		};
+	}
+
+	public canDo(speed: number): boolean {
+		if (this.afterViewInit && speed !== undefined) {
+			const unix = moment(this.finalTime()).unix() + 1;
+			const enclosing = this.originalData.actor._states.enclosingNodes(
+				new UnixWrapper(unix) // (unix === this.originalData.cursor ? 1 : 0)
+			);
+			let canDo = true;
+			if (enclosing.last) {
+				const finalPosition = this.actorService.actorPositionAt(this.originalData.actor, unix);
+				const reachInTime = this.engineService.canReach(
+					finalPosition,
+					enclosing.last.value.position,
+					speed,
+					Math.abs(enclosing.last.key.unix - unix)
+				);
+				canDo = reachInTime === undefined;
+			}
+			return canDo;
+		} else {
+			return true;
+		}
+	}
+
+	public ngAfterViewInit() {
+		this.afterViewInit = true;
 	}
 
 	public addKnowledge(key?: string, value?: string, to?: FormArray): FormGroup {
@@ -172,5 +199,16 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 	public ngOnInit() {}
 
-	public ngAfterViewInit() {}
+	private finalTime(): string {
+		if (this.afterViewInit) {
+			const time = this.actorForm.controls['time'].value || this.originalTime;
+			return (
+				((this.actorForm.controls['date'].value as Moment) || this.originalMoment).format('YYYY-MM-DD') +
+				'T' +
+				time
+			);
+		} else {
+			return undefined;
+		}
+	}
 }

@@ -132,7 +132,7 @@ export class EngineService {
 			_from.copy(fr as Vector3);
 			_to.copy(to as Vector3);
 			const radius = this.globe ? this.globe.radius : Planet.DEFAULT_RADIUS;
-			const timeToDoDist = ((_from.angleTo(_to) * radius) / withSpeed) * 3600;
+			const timeToDoDist = Math.floor(((_from.angleTo(_to) * radius) / withSpeed) * 3600);
 			return timeToDoDist <= inTime ? undefined : timeToDoDist;
 		};
 	})();
