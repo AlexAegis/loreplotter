@@ -45,11 +45,14 @@ export class DatabaseService {
 				serializeActor(actor);
 			}, true);
 		}),
-		delayWhen(db => this.initData(db)),
+		// delayWhen(db => this.initData(db)),
 		shareReplay(1)
 	);
 
-	public currentLore$ = combineLatest([this.storeFacade.selectedLore$, this.database$]).pipe(
+	public currentLore$ = combineLatest([
+		this.storeFacade.selectedLore$.pipe(filter(id => id !== undefined)),
+		this.database$
+	]).pipe(
 		switchMap(([selected, conn]) => conn.lore.findOne({ id: selected.id }).$),
 		filter(lore => !!lore),
 		shareReplay(1)

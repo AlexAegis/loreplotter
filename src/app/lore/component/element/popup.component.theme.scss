@@ -4,4 +4,13 @@
 	$primary: map-get($theme, primary);
 	$accent: map-get($theme, accent);
 	$warn: map-get($theme, warn);
+
+	app-popup {
+		div, div::after {
+			background-color: rgba(mat-color($primary, 'lighter'), 0.9);
+		}
+
+
+		color: mat-color($primary, 'darker');
+	}
 }

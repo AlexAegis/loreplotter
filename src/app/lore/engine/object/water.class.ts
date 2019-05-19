@@ -7,7 +7,7 @@ export class Water extends Basic {
 	public texture: Texture;
 
 	public constructor(public radius: number = Water.NATURAL_LEVEL_RATIO) {
-		super(new SphereBufferGeometry(radius, 512, 512), undefined);
+		super(new SphereBufferGeometry(radius, 128, 128), undefined);
 
 		// new VideoTexture();
 		(this.geometry as any).computeFaceNormals();
@@ -17,15 +17,15 @@ export class Water extends Basic {
 
 		// (this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 		this.material = new MeshPhysicalMaterial({
-			color: new Color('#0e43ff'), // 63acff
+			color: new Color('#4985ff'), // 63acff 4985ff
 			emissive: new Color('#63acff'), // 2863a3
 			emissiveIntensity: 0.001,
-			opacity: 0.7,
+			opacity: 0.6,
 			transparent: true,
-			//  alphaMap: this.texture,
-			// blendEquationAlpha: 0.6,
+			blendEquationAlpha: 0.6,
 			blending: AdditiveBlending,
 			roughness: 0.9
+
 		});
 
 		this.frustumCulled = false;

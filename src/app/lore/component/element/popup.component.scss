@@ -1,9 +1,6 @@
 :host {
 	position: absolute;
 	z-index: 100;
-
-	// pointer-events: none;
-	color: #222222;
 	transform-origin: top left;
 	margin-top: -40px;
 	margin-left: 10px;
@@ -11,9 +8,7 @@
 		pointer-events: all;
 		border-radius: 15px;
 		flex-direction: column;
-		background-color: whitesmoke;
 		padding: 10px;
-		//
 		position: relative;
 
 		display: grid;
@@ -22,7 +17,6 @@
 	}
 
 	div::after {
-		background-color: whitesmoke;
 		position: absolute;
 		top: 30px;
 		left: -6px;

@@ -6,7 +6,7 @@
 	$warn: map-get($theme, warn);
 
 	app-scene-controls {
-		color: mat-color($primary);
+		color: mat-color($primary, 'darker');
 		.active {
 			background-color: mat-color($accent);
 		}

@@ -3,28 +3,21 @@
 	top: 0;
 	display: grid;
 	grid-template-rows: 1fr 1fr;
-	grid-template-columns: 1fr;
-	margin-left: 0.5rem;
+	grid-template-columns: 6rem 6rem 14rem 6rem 14rem;
+	margin-top: 0.5rem;
+	grid-gap: 0.5rem;
+	justify-items: end;
+	align-items: center;
 
-	> div {
-		> * {
-			margin-right: 0.4rem;
-			float: left;
-			line-height: 2rem;
-		}
 
-		> span {
-			display: inline-block;
-			vertical-align: middle;
-		}
+	> * {
+		margin-right: 0.4rem;
+		float: left;
+		transition: background-color 0.1s;
+	}
 
-		span,
-		button {
-			margin-top: 1rem;
-		}
-
-		.slider {
-			margin-top: 0.6rem;
-		}
+	> span {
+		display: inline-block;
+		vertical-align: middle;
 	}
 }

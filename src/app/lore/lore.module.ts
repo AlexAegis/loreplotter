@@ -8,6 +8,7 @@ import { FocusDirective, RepeatDirective } from '@app/directive';
 import { VarDirective } from '@app/directive/var.directive';
 import { EngineComponent, EngineService } from '@app/lore/engine';
 import { MathRoundPipe } from '@app/pipe';
+import { MathAbsPipe } from '@app/pipe/math-abs.pipe';
 import { ActorService, DatabaseService, LoreService } from '@app/service';
 import { MaterialModule, SharedModule } from '@app/shared';
 import {
@@ -58,7 +59,8 @@ import { LoreComponent } from './lore.component';
 		ExportComponent,
 		ConfirmComponent,
 		ToolbarComponent,
-		MathRoundPipe
+		MathRoundPipe,
+		MathAbsPipe
 	],
 	imports: [
 		LoreStoreModule,

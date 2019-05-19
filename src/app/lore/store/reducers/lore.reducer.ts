@@ -40,7 +40,7 @@ export const loreAdapter: EntityAdapter<Partial<Lore>> = createEntityAdapter<Par
  */
 export const initialLoreState: LoreState = loreAdapter.getInitialState({
 	loading: false,
-	selected: '0'
+	selected: undefined
 });
 
 /**

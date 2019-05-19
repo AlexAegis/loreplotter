@@ -1,13 +1,25 @@
 <div class="inlineFromRight">
-	<button aria-label="Set speed to 1" mat-mini-fab color="basic" (click)="setSpeed(1)">1X</button>
-	<button aria-label="Set speed to 2" mat-mini-fab color="basic" (click)="setSpeed(2)">2X</button>
-	<button aria-label="Set speed to 8" mat-mini-fab color="basic" (click)="setSpeed(8)">8X</button>
-	<button aria-label="Set speed to 100" mat-mini-fab color="basic" (click)="setSpeed(100)">100X</button>
-	<button aria-label="Set speed to 1000" mat-mini-fab color="basic" (click)="setSpeed(1000)">1000X</button>
+	<button (click)="changeDirection()" aria-label="Reverse" color="basic" mat-mini-fab>REV</button>
+	<button (click)="setSpeed(1)" [ngClass]="{ active: (speed$ | async | mathAbs)  === 1}" aria-label="Set speed to 1"
+			color="basic" mat-mini-fab>1X
+	</button>
+	<button (click)="setSpeed(2)" [ngClass]="{ active: (speed$ | async | mathAbs) === 2}" aria-label="Set speed to 2"
+			color="basic" mat-mini-fab>2X
+	</button>
+	<button (click)="setSpeed(8)" [ngClass]="{ active: (speed$ | async | mathAbs) === 8}" aria-label="Set speed to 8"
+			color="basic" mat-mini-fab>8X
+	</button>
+	<button (click)="setSpeed(100)" [ngClass]="{ active: (speed$ | async | mathAbs) === 100}"
+			aria-label="Set speed to 100" color="basic" mat-mini-fab>100X
+	</button>
+	<button (click)="setSpeed(1000)" [ngClass]="{ active: (speed$ | async | mathAbs) === 1000}"
+			aria-label="Set speed to 1000" color="basic" mat-mini-fab>1000X
+	</button>
 </div>
 <div class="inlineFromRight">
 	<app-play></app-play>
 	<div class="slider">
-		<ng5-slider [value]="speed$ | async" (valueChange)="setSpeed($event)" [options]="sliderOptions"></ng5-slider>
+		<ng5-slider (valueChange)="setSpeed($event, false)" [options]="sliderOptions"
+					[value]="speed$ | async"></ng5-slider>
 	</div>
 </div>

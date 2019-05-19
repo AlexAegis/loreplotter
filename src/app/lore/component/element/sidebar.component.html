@@ -14,9 +14,9 @@
 				matTooltip="Click here then to the planet to create an actor. You can also drag this button to the planet and drop it!"
 				(click)="storeFacade.toggleActorCreateMode()"
 				[dragSource]="actorSource"
-				[ngStyle]="{ backgroundColor: (storeFacade.isActorCreateMode$ | async) ? '#77c04e' : '' }"
+				[ngClass]="{ active: (storeFacade.isActorCreateMode$ | async) }"
 				aria-label="Create Actor, drag it to the scene"
-				mat-raised-button
+				mat-stroked-button
 			>
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon> Actor
 			</button>
@@ -25,7 +25,7 @@
 		<div class="grid">
 			<button
 				aria-label="Select Actor"
-				mat-raised-button
+				mat-stroked-button
 				*ngFor="let actor of currentLoreActors$ | async"
 				(click)="select($event, actor)"
 				[ngStyle]="{ backgroundColor: (actorService.accumulatorOf(actor) | async)?.accumulator.color }"
@@ -37,9 +37,9 @@
 		<div class="tools grid">
 			<button
 				(click)="storeFacade.toggleDebugMode()"
-				[ngStyle]="{ backgroundColor: (storeFacade.isDebugMode$ | async) ? '#77c04e' : '' }"
+				[ngClass]="{ active: (storeFacade.isDebugMode$ | async) }"
 				aria-label="Set Debug Mode"
-				mat-raised-button
+				mat-stroked-button
 			>
 				Debug Mode
 			</button>

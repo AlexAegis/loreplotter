@@ -234,7 +234,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				}
 			}
 		}
-		const speedToNext = speedFromPrevious || node.value.maxSpeed; // If the dragged node modifies the speed, use that
+		const speedToNext = node.value.maxSpeed !== undefined ? node.value.maxSpeed : speedFromPrevious; // If the dragged node modifies the speed, use that
 
 		let closestCorrectUnixToReachPrevious = rescaledUnix;
 		if (prevNodeNow) {
@@ -252,8 +252,8 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		let closestCorrectUnixToReachNext = rescaledUnix;
 		if (nextNodeNow) {
 			const correctedTime = this.engineService.canReach(
-				nextNodeNow.value.position,
 				node.value.position,
+				nextNodeNow.value.position,
 				speedToNext,
 				Math.abs(node.key.unix - nextNodeNow.key.unix)
 			);

@@ -1,19 +1,15 @@
 @import '~@angular/material/theming';
 
-@mixin sidebar-component-theme($theme) {
+@mixin speed-control-component-theme($theme) {
 	$primary: map-get($theme, primary);
 	$accent: map-get($theme, accent);
 	$warn: map-get($theme, warn);
 
-	app-sidebar {
-
-		.mat-drawer {
-			background-color: rgba(mat-color($primary, 'lighter'), 0.8);
-		}
+	app-speed-control {
+		color: mat-color($primary, 'darker');
 
 		.active {
 			background-color: mat-color($accent);
 		}
 	}
-
 }

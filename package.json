@@ -1,6 +1,6 @@
 {
 	"name": "loreplotter",
-	"version": "0.9.0",
+	"version": "0.9.1",
 	"author": {
 		"name": "Alex Aegis",
 		"email": "alexaegis@gmail.com",
@@ -18,7 +18,7 @@
 		"ng": "ng",
 		"start": "ng serve --aot --sourceMap=true",
 		"build": "ng build --prod --aot --stats-json --base-href \"/loreplotter/\"",
-		"start:prod": "http-server ./dist/ -c-1 --gzip -o http://localhost:8080/loreplotter",
+		"start:prod": "http-server ./dist/ -c-1 --gzip -o http://127.0.0.1:8080/loreplotter",
 		"test": "ng test",
 		"test:headless": "ng test --watch=false --browsers=ChromeHeadless",
 		"lint": "ng lint",

@@ -25,6 +25,7 @@
 @import '../lore/component/dialog/actor-form.component.theme';
 @import '../lore/component/dialog/lore-form.component.theme';
 @import '../lore/component/control/scene-controls.component.theme';
+@import '../lore/component/control/speed-control.component.theme';
 
 @mixin custom-components-theme($theme) {
 	@include app-component-theme($theme);
@@ -39,6 +40,7 @@
 	@include actor-form-component-theme($theme);
 	@include lore-form-component-theme($theme);
 	@include scene-controls-component-theme($theme);
+	@include speed-control-component-theme($theme);
 
 	* {
 		transition: background-color 1s;
@@ -131,7 +133,7 @@ mat-dialog-actions {
 }
 
 .slider {
-	width: 12rem;
+	width: 14rem;
 	> .ng5-slider .ng5-slider-bar {
 		background: #ffe4d1;
 		height: 2px;

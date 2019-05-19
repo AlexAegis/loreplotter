@@ -28,11 +28,7 @@
 			class="channel"
 		>
 			<div [ngStyle]="{ color: (hovered$ | async)?.name === actor.id ? '#368fd4' : '' }" class="name">
-				{{
-				(actorService.accumulatorOf(actor) | async)?.accumulator.name
-					? (actorService.accumulatorOf(actor) | async)?.accumulator.name
-					: (actorService.accumulatorOf(actor) | async)?.actor.id
-				}}
+				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name }}
 			</div>
 
 			<app-block

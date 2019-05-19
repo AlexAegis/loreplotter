@@ -1,11 +1,12 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { ChangeDetectionStrategy, Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
+import { BaseDirective } from '@app/component/base-component.class';
 import { ActorAccumulator, ActorService } from '@app/service/actor.service';
 import { ActorFormComponent, ActorFormComponentData, ActorFormResultData } from '@lore/component/dialog/actor-form.component';
 import { EngineService } from '@lore/engine/engine.service';
 import { Observable } from 'rxjs';
-import { map, switchMap, take, withLatestFrom } from 'rxjs/operators';
+import { filter, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { Vector2 } from 'three';
 
 @Component({
@@ -22,7 +23,7 @@ import { Vector2 } from 'three';
 		])
 	]
 })
-export class PopupComponent implements OnInit, OnDestroy {
+export class PopupComponent extends BaseDirective implements OnInit {
 	@Input()
 	@HostBinding('style.top.px')
 	public top: number;
@@ -34,6 +35,7 @@ export class PopupComponent implements OnInit, OnDestroy {
 	public visibility = 'hidden';
 
 	private _pos = new Vector2(0, 0);
+	private resetPos = new Vector2(-10000, -10000); // yeet
 
 	@Input()
 	public set pos(vector: Vector2) {
@@ -57,6 +59,10 @@ export class PopupComponent implements OnInit, OnDestroy {
 		private engineService: EngineService,
 		private dialog: MatDialog
 	) {
+		super();
+		this.teardown = this.engineService.selected
+			.pipe(filter(a => a === undefined))
+			.subscribe(next => (this.pos = this.resetPos));
 		this.selectedActorAccumulatorAtCursor$ = this.actorService.selectedActorAccumulatorAtCursor$;
 	}
 
@@ -84,6 +90,4 @@ export class PopupComponent implements OnInit, OnDestroy {
 	}
 
 	public ngOnInit(): void {}
-
-	public ngOnDestroy(): void {}
 }

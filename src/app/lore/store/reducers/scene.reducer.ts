@@ -188,13 +188,25 @@ function frameReducer(frame: FrameState, action: SceneActions): FrameState {
 export function sceneReducer(state: SceneState = initialSceneState, action: SceneActions): SceneState {
 	switch (action.type) {
 		case setPlaySpeed.type: {
-			return { ...state, playSpeed: action.payload };
+			return {
+				...state,
+				playSpeed: action.payload.retainDirection
+					? Math.abs(action.payload.speed) * (toUnit(state.playSpeed) || 1)
+					: action.payload.speed
+			};
 		}
 		case changePlaySpeed.type: {
-			return { ...state, playSpeed: state.playSpeed + toUnit(state.playSpeed) * action.payload };
+			const target = state.playSpeed + (toUnit(state.playSpeed) || 1) * action.payload;
+			return {
+				...state,
+				playSpeed: toUnit(state.playSpeed) === toUnit(target) || state.playSpeed === 0 ? target : 0
+			};
 		}
 		case changePlayDirection.type: {
-			return { ...state, playSpeed: action.payload * Math.abs(state.playSpeed) };
+			return {
+				...state,
+				playSpeed: (action.payload || -toUnit(state.playSpeed)) * Math.abs(state.playSpeed)
+			};
 		}
 		case setPlaying.type: {
 			return { ...state, loading: true };

@@ -1,4 +1,7 @@
 :host {
+	button {
+		transition: background-color 0.1s;
+	}
 	.spacer {
 		flex: 1 1 auto;
 	}

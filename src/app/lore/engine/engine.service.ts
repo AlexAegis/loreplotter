@@ -67,7 +67,6 @@ Mesh.prototype.raycast = acceleratedRaycast;
 
 @Injectable()
 export class EngineService {
-
 	/**
 	 * These subscriptions are for ensuring the side effects are happening always, even when there are no other subscirbers end the listeners
 	 * (Since they are shared, side effects will only happen once)
@@ -133,7 +132,7 @@ export class EngineService {
 			_from.copy(fr as Vector3);
 			_to.copy(to as Vector3);
 			const radius = this.globe ? this.globe.radius : Planet.DEFAULT_RADIUS;
-			const timeToDoDist = _from.angleTo(_to) * radius / withSpeed * 3600;
+			const timeToDoDist = ((_from.angleTo(_to) * radius) / withSpeed) * 3600;
 			return timeToDoDist <= inTime ? undefined : timeToDoDist;
 		};
 	})();
@@ -184,7 +183,10 @@ export class EngineService {
 		distinctUntilChanged(),
 		withTeardown(
 			item => this.selectOutlineEffect.setSelection([item]),
-			item => () => this.selectOutlineEffect.deselectObject(item) // clearSelection() // deselectObject(item)
+			item => () => {
+				this.selectOutlineEffect.deselectObject(item);
+
+			} // clearSelection() // deselectObject(item)
 		),
 		tap(() => this.refreshPopupPosition()),
 		shareReplay(1)
@@ -300,9 +302,9 @@ export class EngineService {
 		// this.add(new IndicatorLight('indicator_to'));
 		const glowMaterial = new ShaderMaterial({
 			uniforms: {
-				c: { type: 'f', value: 0.5 },
-				p: { type: 'f', value: 12 },
-				glowColor: { type: 'c', value: new Color('#256cc3') },
+				c: { type: 'f', value: 0.46 },
+				p: { type: 'f', value: 20 },
+				glowColor: { type: 'c', value: new Color('#547ec3') },
 				viewVector: { type: 'v3', value: this.stage.camera.position }
 			},
 			vertexShader: atmosphereShader.vertexShader,
@@ -353,7 +355,7 @@ export class EngineService {
 			blendFunction: BlendFunction.SCREEN,
 			kernelSize: KernelSize.LARGE,
 			resolutionScale: 0.5,
-			distinction: 1.2
+			distinction: 1.15
 		});
 
 		this.vignetteEffect = new VignetteEffect({

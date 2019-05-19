@@ -53,9 +53,9 @@ export class Globe extends Basic {
 		this.displacementTexture = new DynamicTexture(undefined, '#747474', canvas, this);
 
 		this.material = new MeshStandardMaterial({
-			color: '#666666',
+			color: '#ffffff',
 			emissive: '#ffffff',
-			emissiveIntensity: 0.023,
+			emissiveIntensity: 0.033,
 			displacementMap: this.displacementTexture,
 			emissiveMap: this.displacementTexture,
 			metalnessMap: this.displacementTexture,

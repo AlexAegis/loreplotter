@@ -130,34 +130,34 @@ export class LoreComponent extends BaseDirective implements AfterViewInit, OnIni
 					break;
 				case 'Digit0':
 				case 'Backquote':
-					this.storeFacade.setPlaySpeed(1);
+					this.storeFacade.setPlaySpeed(1, true);
 					break;
 				case 'Digit1':
-					this.storeFacade.setPlaySpeed(2);
+					this.storeFacade.setPlaySpeed(2, true);
 					break;
 				case 'Digit2':
-					this.storeFacade.setPlaySpeed(4);
+					this.storeFacade.setPlaySpeed(4, true);
 					break;
 				case 'Digit3':
-					this.storeFacade.setPlaySpeed(8);
+					this.storeFacade.setPlaySpeed(8, true);
 					break;
 				case 'Digit4':
-					this.storeFacade.setPlaySpeed(16);
+					this.storeFacade.setPlaySpeed(16, true);
 					break;
 				case 'Digit5':
-					this.storeFacade.setPlaySpeed(32);
+					this.storeFacade.setPlaySpeed(32, true);
 					break;
 				case 'Digit6':
-					this.storeFacade.setPlaySpeed(64);
+					this.storeFacade.setPlaySpeed(64, true);
 					break;
 				case 'Digit7':
-					this.storeFacade.setPlaySpeed(128);
+					this.storeFacade.setPlaySpeed(128, true);
 					break;
 				case 'Digit8':
-					this.storeFacade.setPlaySpeed(256);
+					this.storeFacade.setPlaySpeed(256, true);
 					break;
 				case 'Digit9':
-					this.storeFacade.setPlaySpeed(512);
+					this.storeFacade.setPlaySpeed(512, true);
 					break;
 				case 'ArrowDown':
 				case 'NumpadSubtract':

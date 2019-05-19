@@ -127,15 +127,15 @@ export class StoreFacade {
 		this.store$.dispatch(changeSelectedLore({ payload: lore.id }));
 	}
 
-	public setPlaySpeed(speed: number): void {
-		this.store$.dispatch(setPlaySpeed({ payload: speed }));
+	public setPlaySpeed(speed: number, retainDirection: boolean = false): void {
+		this.store$.dispatch(setPlaySpeed({ payload: { speed, retainDirection } }));
 	}
 
 	public changePlaySpeed(speed: number): void {
 		this.store$.dispatch(changePlaySpeed({ payload: speed }));
 	}
 
-	public changePlayDirection(scalar: number): void {
+	public changePlayDirection(scalar?: number): void {
 		this.store$.dispatch(changePlayDirection({ payload: scalar }));
 	}
 
