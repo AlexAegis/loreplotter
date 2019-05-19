@@ -473,6 +473,18 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 							});
 					}
 				});
+		} else {
+			this.dialog
+				.open(ConfirmComponent)
+				.afterClosed()
+				.subscribe(result => {
+					if (result) {
+						this.isSaving = true;
+						this.actor.remove().then(() => {
+							this.isSaving = false;
+						});
+					}
+				});
 		}
 	}
 
