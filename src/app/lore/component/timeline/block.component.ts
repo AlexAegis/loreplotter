@@ -24,7 +24,7 @@ import { BlockService } from '@lore/service';
 import { StoreFacade } from '@lore/store/store-facade.service';
 import { RxDocument } from 'rxdb';
 import { Observable } from 'rxjs';
-import { Math as ThreeMath } from 'three';
+import { Math as ThreeMath, Vector3 } from 'three';
 
 @Component({
 	selector: 'app-block',
@@ -33,6 +33,9 @@ import { Math as ThreeMath } from 'three';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
+	private _v1 = new Vector3();
+	private _v2 = new Vector3();
+
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;
@@ -174,6 +177,28 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			: 0;
 	}
 
+	public surroundAndSpeed(
+		node: Node<UnixWrapper, ActorDelta>
+	): { prev: Node<UnixWrapper, ActorDelta>; next: Node<UnixWrapper, ActorDelta>; speed: number } {
+		let prevNodeNow: Node<UnixWrapper, ActorDelta>;
+		let nextNodeNow: Node<UnixWrapper, ActorDelta>;
+		let speedFromPrevious = Actor.DEFAULT_MAX_SPEED;
+
+		for (const n of this.actor._states.nodes()) {
+			if (n.key.unix > node.key.unix) {
+				nextNodeNow = n;
+				break;
+			}
+			if (n.key.unix < node.key.unix) {
+				prevNodeNow = n;
+				if (n.value.maxSpeed !== undefined) {
+					speedFromPrevious = n.value.maxSpeed;
+				}
+			}
+		}
+		return { prev: prevNodeNow, next: nextNodeNow, speed: speedFromPrevious };
+	}
+
 	/**
 	 * This method is for moving the nodes in a block to change the time of an event.
 	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
@@ -217,50 +242,33 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		);
 
 		// VALIDATION START
-
-		let prevNodeNow: Node<UnixWrapper, ActorDelta>;
-		let nextNodeNow: Node<UnixWrapper, ActorDelta>;
-		let speedFromPrevious = Actor.DEFAULT_MAX_SPEED;
-
-		for (const n of this.actor._states.nodes()) {
-			if (n.key.unix > node.key.unix) {
-				nextNodeNow = n;
-				break;
-			}
-			if (n.key.unix < node.key.unix) {
-				prevNodeNow = n;
-				if (n.value.maxSpeed !== undefined) {
-					speedFromPrevious = n.value.maxSpeed;
-				}
-			}
-		}
-
+		const { prev, next, speed } = this.surroundAndSpeed(node);
 		// If the dragged node modifies the speed, use that
-		const speedToNext = node.value.maxSpeed !== undefined ? node.value.maxSpeed : speedFromPrevious;
+		const speedToNext = node.value.maxSpeed !== undefined ? node.value.maxSpeed : speed;
 
 		let closestCorrectUnixToReachPrevious = rescaledUnix;
-		if (prevNodeNow) {
+		if (prev) {
 			const correctedTime = this.engineService.canReach(
-				prevNodeNow.value.position,
+				prev.value.position,
 				node.value.position,
-				speedFromPrevious,
-				Math.abs(node.key.unix - prevNodeNow.key.unix)
+				speed,
+				Math.abs(node.key.unix - prev.key.unix)
 			);
 			if (correctedTime !== undefined) {
-				closestCorrectUnixToReachPrevious = prevNodeNow.key.unix + correctedTime;
+				closestCorrectUnixToReachPrevious = prev.key.unix + correctedTime;
 			}
 		}
 
 		let closestCorrectUnixToReachNext = rescaledUnix;
-		if (nextNodeNow) {
+		if (next) {
 			const correctedTime = this.engineService.canReach(
 				node.value.position,
-				nextNodeNow.value.position,
+				next.value.position,
 				speedToNext,
-				Math.abs(node.key.unix - nextNodeNow.key.unix)
+				Math.abs(node.key.unix - next.key.unix)
 			);
 			if (correctedTime !== undefined) {
-				closestCorrectUnixToReachNext = nextNodeNow.key.unix - correctedTime;
+				closestCorrectUnixToReachNext = next.key.unix - correctedTime;
 			}
 		}
 
@@ -436,61 +444,73 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		this.selection = node;
 		this.jump.next(this.nodePosition(node.key.unix) + this.left);
 		this.engineService.selectedByActor.next(this.actor);
-		this.cd.detectChanges();
+		this.cd.markForCheck();
 	}
 
 	public deselect(): void {
 		this.selection = undefined;
-		this.cd.detectChanges();
+		this.cd.markForCheck();
 	}
 
-	public remove($event: any, node: Node<UnixWrapper, ActorDelta>): void {
-		if (!this.isAtMostOneLeft) {
-			//  TODO: Make hammer not ignore the disabled setting on buttons
+	public canRemove(node: Node<UnixWrapper, ActorDelta>): boolean {
+		const { prev, next, speed } = this.surroundAndSpeed(node);
+		let canDo = true;
+		if (prev && next) {
+			const diff = this.engineService.canReach(
+				prev.value.position,
+				next.value.position,
+				speed,
+				Math.abs(prev.key.unix - next.key.unix)
+			);
+			canDo = diff === undefined;
+		}
+		this.cd.markForCheck();
+		return canDo;
+	}
 
+	public remove(node: Node<UnixWrapper, ActorDelta>, isDisabled: boolean): void {
+		if (!isDisabled) {
+			if (!this.isAtMostOneLeft) {
+				this.dialog
+					.open(ConfirmComponent)
+					.afterClosed()
+					.subscribe(result => {
+						if (result) {
+							this.blockService.selection.next(undefined);
+							this.isSaving = true;
+							this.actor._states.remove(node.key);
 
-			// TODO: CHECK IF CAN BE REMOVED OR NOT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+							if (this.blockEnd.value === node.key.unix) {
+								this.blockEnd.override = this.actor._states.last().key.unix;
+								this.blockEnd.bake();
+							} else if (this.blockStart.value === node.key.unix) {
+								this.blockStart.override = this.actor._states.first().key.unix;
+								this.blockStart.bake();
+							}
 
-
-			this.dialog
-				.open(ConfirmComponent)
-				.afterClosed()
-				.subscribe(result => {
-					if (result) {
-						this.blockService.selection.next(undefined);
-						this.isSaving = true;
-						this.actor._states.remove(node.key);
-
-						if (this.blockEnd.value === node.key.unix) {
-							this.blockEnd.override = this.actor._states.last().key.unix;
-							this.blockEnd.bake();
-						} else if (this.blockStart.value === node.key.unix) {
-							this.blockStart.override = this.actor._states.first().key.unix;
-							this.blockStart.bake();
+							this.cd.detectChanges();
+							this.actor
+								.atomicUpdate(a => (a._states = this.actor._states) && a)
+								.then(() => {
+									this.isSaving = false;
+									this.update();
+								});
 						}
-
-						this.cd.detectChanges();
-						this.actor
-							.atomicUpdate(a => (a._states = this.actor._states) && a)
-							.then(() => {
+					});
+			} else {
+				this.dialog
+					.open(ConfirmComponent)
+					.afterClosed()
+					.subscribe(result => {
+						if (result) {
+							this.isSaving = true;
+							this.engineService.globe.removeActor(this.actor);
+							this.actor.remove().then(() => {
 								this.isSaving = false;
-								this.update();
 							});
-					}
-				});
-		} else {
-			this.dialog
-				.open(ConfirmComponent)
-				.afterClosed()
-				.subscribe(result => {
-					if (result) {
-						this.isSaving = true;
-						this.engineService.globe.removeActor(this.actor);
-						this.actor.remove().then(() => {
-							this.isSaving = false;
-						});
-					}
-				});
+						}
+					});
+			}
 		}
 	}
 

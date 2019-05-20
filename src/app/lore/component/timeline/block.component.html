@@ -14,11 +14,14 @@
 	<button
 		aria-label="Remove Node from Block"
 		class="remove"
+		#removeButton
 		mat-icon-button
 		*ngIf="node === selection"
-		(tap)="remove($event, node)"
-		(click)="remove($event, node)"
-		[disabled]="isAtMostOneLeft"
+		(tap)="remove(node, removeButton.disabled)"
+		[disabled]="!canRemove(node)"
+		[matTooltip]="
+			'Remove this event. When disabled that means that the previous event would not reach the next one.'
+		"
 	>
 		<fa-icon [icon]="faTrash" [size]="'lg'"></fa-icon>
 	</button>

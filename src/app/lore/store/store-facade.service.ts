@@ -55,7 +55,7 @@ import {
 	updateLoreFailure,
 	updateLoreSuccess
 } from './actions';
-import { AppState, InteractionMode } from './reducers';
+import { AppState, initialSceneState, InteractionMode } from './reducers';
 import { loreQuery, sceneQuery } from './selectors';
 
 @Injectable()
@@ -213,6 +213,14 @@ export class StoreFacade {
 
 	public toggleDebugMode(): void {
 		this.store$.dispatch(toggleDebugMode());
+	}
+
+	public resetFrame(): void {
+		this.store$.dispatch(
+			setFrameTo({
+				payload: { start: initialSceneState.frame.start.base, end: initialSceneState.frame.end.base }
+			})
+		);
 	}
 
 	public setDrawSize(size: number): void {

@@ -58,7 +58,6 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 	}
 
 	public ngOnInit(): void {
-
 		if (!this.control) {
 			this.control = FormEntryComponent.create(this.formBuilder);
 			this.parent.push(this.control);
