@@ -1070,6 +1070,29 @@ $$\overrightarrow{M_1N_1} := \overrightarrow{M_1} - \overrightarrow{N_1}$$
 \label{fig:arc-differentiation}
 \end{figure}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Azt viszont még meg kell állapítani, hogy a nagyobb vagy a kisebb körív e az ami a metszethez tartozik.
 
 Határozzuk meg azt az esetet ami fordulópontnak számít a két eset közt. Legyen $\overrightarrow{i}$ az $\overrightarrow{A}$ és $\overrightarrow{B}$ vektorok amit az \ref{src:arcIntersect} függvény számol ki.
@@ -1086,36 +1109,34 @@ function ai(p1: Vector3, pe1: Vector3, p2: Vector3, pe2: Vector3) {
 }
 \end{lstlisting}
 
-
 Ha $\overrightarrow{i} × \overrightarrow{M_1} = 0$ és az elemeiknek az előjeleik is megegyeznek akkor biztosan pontosan ugyanabba az irányba néznek azaz $\angle (\overrightarrow{M_1} - \overrightarrow{i}, \overrightarrow{M_1} - \overrightarrow{M_2}) = 90°$. Ebben a különleges esetben a két körív hossza megegyezik. Ebben az esetben az $\angle (\overrightarrow{M_1}, \overrightarrow{P_1})$ és az $\angle (\overrightarrow{M_2}, \overrightarrow{P_1})$ közti különbségre hagyatkozunk. Ha éppen $\overrightarrow{M_1}$-et vizsgáljuk és vele áll fent ez a helyet, akkor ha ő van közelebb, akkor $\overrightarrow{N_1}$ semmiképpen sem lehet megoldás, ugyanis ilyen helyzet csak akkor állhat fenn ha $c_1$ a kisebb. (Nagyobb nem lehet, ha meg megegyeznek akkor végtelensok metszéspontjuk lenne.)
 
-A másik két esetben már egyszerűbb dolgunk van. Ha $\overrightarrow{M_1}$, $\overrightarrow{P_1}$-hez közelebbi pont esetén, $\overrightarrow{i}$ még közelebb van, akkor a nagyobb körív a helyes. távolságok mérése helyett pontosabb ha az $\angle(\overrightarrow{M_1} - \overrightarrow{i}, \overrightarrow{M_1} - \overrightarrow{M_2})$ szöget vizsgáljuk. Ha nagyobb mint $90°$ akkor a nagyobb körív a helyes, ha kisebb akkor a kisebbik.
+A másik két esetben már egyszerűbb dolgunk van. Ha az $\angle(\overrightarrow{M_1} - \overrightarrow{i}, \overrightarrow{M_1} - \overrightarrow{M_2})$ szöget vizsgáljuk. Ha nagyobb mint $90°$ akkor a nagyobb körív a helyes, ha kisebb akkor a kisebbik. A legközelebbi pont $(\overrightarrow{x})$ megtalálása innen már triviális.
+
+\[
+	d\overrightarrow{P_1}\overrightarrow{N_1} :=
+\begin{cases}
+    \angle(\overrightarrow{P_1}, \overrightarrow{N_1}),& \text{ha }  \overrightarrow{N_1} \text{ jó köríven van} \\
+    \infty,              & \text{ha nem}
+\end{cases}
+\]
+\[
+	d\overrightarrow{P_1}\overrightarrow{N_2} :=
+\begin{cases}
+    \angle(\overrightarrow{P_1}, \overrightarrow{N_2}),& \text{ha }  \overrightarrow{N_2} \text{ jó köríven van} \\
+    \infty,              & \text{ha nem}
+\end{cases}
+\]
+$$d\overrightarrow{P_1}\overrightarrow{A} :=  \angle(\overrightarrow{P_1}, \overrightarrow{A})$$
+$$d\overrightarrow{P_1}\overrightarrow{B} :=  \angle(\overrightarrow{P_1}, \overrightarrow{B})$$
+
+$$\overrightarrow{x} :=  \min{\{d\overrightarrow{P_1}\overrightarrow{N_1}, d\overrightarrow{P_1}\overrightarrow{N_2}, d\overrightarrow{P_1}\overrightarrow{A}, d\overrightarrow{P_1}\overrightarrow{B}\}} \text{ távolsághoz tartozó vektor}$$
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Ha vesszük az $m_1, m_2, A$ és $B$ pontok és $P$ pont közti távolságot, akkor ezek alaján már meghatározhatjuk, hogy végül melyik pontot válasszuk.
 
 
 

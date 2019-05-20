@@ -10,6 +10,7 @@ import { auditTime, scan } from 'rxjs/operators';
 import {
 	ArrowHelper,
 	BufferGeometry,
+	DoubleSide,
 	Group,
 	Line,
 	LineBasicMaterial,
@@ -63,7 +64,8 @@ export class Globe extends Basic {
 			map: this.displacementTexture,
 			displacementScale: this.displacementScale,
 			displacementBias: this.displacementBias,
-			bumpScale: 0.008
+			bumpScale: 0.008,
+			side: DoubleSide
 		});
 
 		this.geometry = new SphereBufferGeometry(radius, 512, 512);

@@ -105,6 +105,23 @@ Ez alatt az elkészített karakterek listája van, mellette az összes karakter 
 
 A szereplőtár legalján van a 'Debug mód' gomb is amivel bekapcsolhatunk a színtéren azon vektorok vizualizációját amik az események távolságainak metszetét számolják és tartják az éppen manipulált szereplőt a metszetben.
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth,scale=1]{debug}
+	\caption{A debug toolt bekapcsolva láthatjuk akció közben ezeket a számításhoz használt vekotorokat.}
+	\label{fig:debug}
+\end{figure}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth,scale=1]{debug2}
+	\caption{Egy másik szögből jól látszik ahogy}
+	\label{fig:debug2}
+\end{figure}
+
+
+
+
+\pagebreak
 \subsection{Az Idővonal} \label{section:ui-timeline}
 
 A idővonalat elsősorban három elemre tudjuk bontani:
@@ -123,7 +140,7 @@ Minden karakter saját sávval rendelkezik. Bal oldalt a sávhoz tartozó karakt
 
 Egy blokk az alábbi interakciós lehetőségeket nyújtja:
 \begin{enumerate}
-	\item Egy eseményre kattintva a kurzor arra az időpontra ugrik és az esemény kiválasztásra kerül. Kiválasztás után lehetőség van kitörölni az adott eseményt egy megerősítést követően. Emellett kiválasztásra kerül a hozzá tartozó szereplő is a színtéren.
+	\item Egy eseményre kattintva a kurzor arra az időpontra ugrik és az esemény kiválasztásra kerül. Kiválasztás után lehetőség van kitörölni az adott eseményt egy megerősítést követően. Emellett kiválasztásra kerül a hozzá tartozó szereplő is a színtéren. Eseményt törölni csak akkor lehet ha törlést követően az előző esemény helyéről még elérhető a következő.
 	\item Egy esemény fogd-és-vidd módon áthelyezhetünk bárhova az idővonalon. A művelet érvénytelen ha az környező események megengedett sebességei és távolsága alapján a szereplő már nem tudná teljesíteni az adott utat. Ha ez sérül akkor a művelet érvénytelen és az esemény visszaugrik eredeti pozíciójára. Figyeljünk oda, hogy ha a jövőben egy esemény függ ettől, és egy annál későbbi időpontra helyezzük, akkor ez a függőség sérül. Ez viszont már nincs ellenőrizve.
 	\item A blokk egészét is mozgathatjuk fogd és vidd módon, ezzel az összes esemény párhuzamosan fog elmozdulni. Figyeljünk oda, hogy ha egy másik szereplő egy vagy több eseménye függ a mozgatott szereplő eseményeitől, akkor ezek a függőségek sérülhetnek. Ez nincs ellenőrizve.
 	\item Az egeret a karakter sávja felett tartva a színtéren a hozzá tartozó objektum körül egy körvonal jelenik meg a gyors azonosításért. Ez akkor is látszik ha a szereplő a bolygó másik oldalán van.
@@ -267,3 +284,15 @@ Lehetőség van új tulajdonságok felvitelére is, itt jelennek meg az adott es
 \end{figure}
 
 
+\subsection{Az import/export eszköz} \label{section:ui-import-export}
+
+Lehetőség van az adatbázist szöveges formában kimenteni, beolvasni. Ezt a menü (\ref{fig:create-project-button}) Export gombjával nyithatjuk meg.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth,scale=1]{ui-import-export}
+	\caption{Az import/export ablak}
+	\label{fig:ui-import-export}
+\end{figure}
+
+Az itt megjelenő JSON \cite{JSON} reprezentálja a teljes adatbázist amit az alkalmazás használ éppen. A 'Copy to clipboard' gomb egy kattintással a vágólapra helyezi a kiexportált szöveget. Ugyanide visszamásolva, majd az import gombra nyomva, egy megerősítést követően a jelenlegi adatbázist teljesen felülírja. Figyelem, a szöveg nem tartalmazza a projektek textúráit! Ezeket külön lehet letölteni a 'Download all textures' gombbal.
