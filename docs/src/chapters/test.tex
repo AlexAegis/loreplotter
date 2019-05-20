@@ -261,54 +261,6 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 
 
 
-\begin{table}[H]
-	\centering
-	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
-		\hline
-		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. A színtéren elérhető helyen van. A kurzor a szereplő egy meglévő eseményén áll. \\
-		\hline
-		\emph{Eredmény} & Összesen ugyanannyi eseménye lesz mint volt, a szerkesztett időponton lévő adatai megmaradnak, csak a pozíciója változik meg. \\
-		\hline
-		\hline
-		\emph{Események} &
-
-		\begin{enumerate}[itemsep=-1ex]
-			\item A felhasználó rákattint a szereplő objektumára és lenyomva tartja az egérgombot. Ekkor megjelennek az éppen kiválasztott esemény előtti és utáni eseményekhez tartozó távolság indikátorok (ha vannak) amik jelzik, hogy maximum mennyire távolodhatunk el tőlük a szerkesztés időpillanatában.
-			\item A felhasználó egy tetszőleges hely felé húzza a kiválasztott objektumot. Az indikátorokon kívülre nem fogja engedni húzni az alkalmazás őket.
-			\item Az egérgombot elengedve a pozíció rögzítésre kerül. A folyamat sikeres eredménnyel zár.
-		\end{enumerate}
-		\\
-		\hline
-	\end{tabular}
-	\caption{Sztori: Szereplő mozgatása meglévő eseményen állva.}
-	\label{tab:story-actor-move-on-event}
-\end{table}
-
-
-\begin{table}[H]
-	\centering
-	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
-		\hline
-		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. A színtéren elérhető helyen van. A kurzor nem áll a szereplő egy meglévő eseményén. \\
-		\hline
-		\emph{Eredmény} & Összesen eggyel több eseménye lesz mint volt, a szerkesztett időponton egy új esemény, adatok nélkül jön létre, csak a pozíciója kerül elmentésre. \\
-		\hline
-		\hline
-		\emph{Események} &
-
-		\begin{enumerate}[itemsep=-1ex]
-			\item A felhasználó rákattint a szereplő objektumára és lenyomva tartja az egérgombot. Ekkor megjelenik az előző esemény és a következő eseményekhez tartozó távolság indikátorai (ha vannak) amik jelzi, hogy maximum mennyire távolodhatunk el tőlük a szerkesztés időpillanatában.
-			\item A felhasználó egy tetszőleges hely felé húzza a kiválasztott objektumot. Az indikátorokon kívülre nem fogja engedni húzni az alkalmazás őket.
-			\item Az egérgombot elengedve a pozíció rögzítésre kerül. A folyamat sikeres eredménnyel zár.
-		\end{enumerate}
-		\\
-		\hline
-	\end{tabular}
-	\caption{Sztori: Szereplő mozgatása nem egy meglévő eseményen állva.}
-	\label{tab:story-actor-move-not-on-event}
-\end{table}
-
-
 
 \section{Idővonal interakciók}
 
@@ -425,4 +377,276 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 	\end{tabular}
 	\caption{Sztori: Az időabalak nyjtása, zsugorítása.}
 	\label{tab:story-timeline-zoom}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, egy eseménnyel.\\
+		\hline
+		\emph{Eredmény} & A szereplő egyetlen eseményének időpontja megváltozik. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó egy tetszőleges pozícióra húzza az eseményt.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő egyetlen eseményének mozgatása.}
+	\label{tab:story-timeline-pan-actor-single-event}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, több mint egy eseménnyel.\\
+		\hline
+		\emph{Eredmény} & A szereplő eseményének ideje megváltozik. \\
+		\hline
+		\emph{Sikertelen Eredmény} & A szereplő eseménye nem változik meg, visszaugrik eredeti pozíciójára. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó egy tetszőleges időpontra húzza a szereplő kiválasztott eseményét, majd elengedi az egeret.
+			\item Ha voltak környező eseményei, és a mozgatás célpontja kívülesett ezeken. És az eredetileg környező két esemény már nem tudná elérni egymást akkor a folyamat sikertelen eredménnyel zár.
+			\item Ha a mozgatás célponján, ha van előző esemény és az nem tudja elérni a mozgatott eseményt, vagy ha van következő esemény és a mozgatott esemény azt nem tudja elérni, akkor a folyamaz sikertelen eredménnyel zár.
+			\item Egyébként a folyamat sikeres.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Több eseménnyel rendelkező szereplő egy eseményének mozgatása.}
+	\label{tab:story-timeline-pan-actor-more-event}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, több mint egy eseménnyel.\\
+		\hline
+		\emph{Eredmény} & A szereplő összes eseményének ideje megváltozik egyenlő mértékben. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó egy tetszőleges időpontra húzza a szereplő blokkját, majd elengedi az egeret.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Több eseménnyel rendelkező szereplő összes eseményének mozgatása.}
+	\label{tab:story-timeline-pan-actor-more-event-at-once}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, egy eseménnyel.\\
+		\hline
+		\emph{Eredmény} & A szereplő kitörlődik. \\
+		\hline
+		\emph{Sikertelen Eredmény} & A szereplő nem törlődik ki. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó kiválasztja a szereplő egyetlen eseményét.
+			\item A megjelenő kuka gombra kattint.
+			\item Megerősíti a döntését azzal, hogy a 'Confirm' gombra kattint vagy lenyomja az 'Enter' billentyűt. Ekkor a folyamat sikeres eredménnyel zár.
+			\item  Megszakítja a döntését azzal, hogy a 'Cancel' gombra, vagy a dialóguson kívülre kattint vagy lenyomja az 'Esc' billentyűt. Ekkor a folyamat sikertelen eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő egyetlen eseményének törlése.}
+	\label{tab:story-timeline-remove-actor-single-event}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, több eseménnyel.\\
+		\hline
+		\emph{Eredmény} & A szereplőnek egyel kevesebb eseménye lesz mint volt. \\
+		\hline
+		\emph{Sikertelen Eredmény} & Az esemény nem törlődik ki. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó kiválasztja a szereplő egy eseményét.
+			\item A megjelenő kuka gombra kattint.
+			\item Megerősíti a döntését azzal, hogy a 'Confirm' gombra kattint vagy lenyomja az 'Enter' billentyűt. Ekkor a folyamat sikeres eredménnyel zár.
+			\item  Megszakítja a döntését azzal, hogy a 'Cancel' gombra, vagy a dialóguson kívülre kattint vagy lenyomja az 'Esc' billentyűt. Ekkor a folyamat sikertelen eredménnyel zár.
+			\item Ha a kiválasztott eseménynek van előtte és utána lévő eseménye is. És ezek a törlést követően már nem érnék el egymást, úgy a törlés nem megengedett. A folyamat sikertelen eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő egy eseményének mozgatása.}
+	\label{tab:story-timeline-remove-actor-more-event}
+\end{table}
+
+\section{Színtér interakciók}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy textúra be van töltve, hogy lássuk a bolygó mozgását. A színtér mozgatás módban van. \\
+		\hline
+		\emph{Eredmény} & A bolygó egy új pozícióból tekinthető meg. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a bolygó egy pontjára ahol nincsen más objektum és az egeret húzva elforgatja a kamerát.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: A kamera mozgatása.}
+	\label{tab:story-planet-pan}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt ki van választva. \\
+		\hline
+		\emph{Eredmény} & A bolygó egy új közelségből tekinthető meg \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó az egerét a színtér felett tartva görget.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: A kamera közelítése és távolítása.}
+	\label{tab:story-planet-pan}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt ki van választva. A színtér festés módban van. \\
+		\hline
+		\emph{Eredmény} & A bolygó új textúrája az adatbázisba mentésre kerül. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó kiválaszt egy tetszőleges ecsetméretet és erősséget.
+			\item a bolygó felületére rajzol az egérrel.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: A bolygó felületének módosítása.}
+	\label{tab:story-terraforming}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. A színtéren elérhető helyen van. A kurzor a szereplő egy meglévő eseményén áll. \\
+		\hline
+		\emph{Eredmény} & Összesen ugyanannyi eseménye lesz mint volt, a szerkesztett időponton lévő adatai megmaradnak, csak a pozíciója változik meg. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a szereplő objektumára és lenyomva tartja az egérgombot. Ekkor megjelennek az éppen kiválasztott esemény előtti és utáni eseményekhez tartozó távolság indikátorok (ha vannak) amik jelzik, hogy maximum mennyire távolodhatunk el tőlük a szerkesztés időpillanatában.
+			\item A felhasználó egy tetszőleges hely felé húzza a kiválasztott objektumot. Az indikátorokon kívülre nem fogja engedni húzni az alkalmazás őket.
+			\item Az egérgombot elengedve a pozíció rögzítésre kerül. A folyamat sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő mozgatása meglévő eseményen állva.}
+	\label{tab:story-actor-move-on-event}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. A színtéren elérhető helyen van. A kurzor nem áll a szereplő egy meglévő eseményén. \\
+		\hline
+		\emph{Eredmény} & Összesen eggyel több eseménye lesz mint volt, a szerkesztett időponton egy új esemény, adatok nélkül jön létre, csak a pozíciója kerül elmentésre. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a szereplő objektumára és lenyomva tartja az egérgombot. Ekkor megjelenik az előző esemény és a következő eseményekhez tartozó távolság indikátorai (ha vannak) amik jelzi, hogy maximum mennyire távolodhatunk el tőlük a szerkesztés időpillanatában.
+			\item A felhasználó egy tetszőleges hely felé húzza a kiválasztott objektumot. Az indikátorokon kívülre nem fogja engedni húzni az alkalmazás őket.
+			\item Az egérgombot elengedve a pozíció rögzítésre kerül. A folyamat sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő mozgatása nem egy meglévő eseményen állva.}
+	\label{tab:story-actor-move-not-on-event}
+\end{table}
+
+\section{Idő interakciók}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. Több, eltérő helyen lévő eseménnyel. \\
+		\hline
+		\emph{Eredmény} & A kurzor pozíciója folyamatosan változik a beállított sebesség függvényében. Ha eléri az időablak utolsó vagy első 15\%-át akkor az időablak a kurzor irányába ugrik. A szereplő eseményei közötti átmeneteket megtekinthetjük. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó kiválaszt egy sebességet valamilyen módon:
+			\begin{enumerate}[itemsep=-1ex]
+				\item A szám billentyűkkel (0-9).
+				\item A szám gombokkal a sebességcsúszka felett.
+				\item A sebességcsúszkával.
+				\item A fel és le nyilakkal.
+			\end{enumerate}
+			\item Akár a lejátszás irányát is megváltoztathatja.
+			\begin{enumerate}[itemsep=-1ex]
+				\item A REV gombal.
+				\item A jobbra és balra gombokkal.
+			\end{enumerate}
+			\item Elindítja a lejátszást.
+			\begin{enumerate}[itemsep=-1ex]
+				\item A Play gombal.
+				\item A szóköz billentyűvel.
+			\end{enumerate}
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: A lejátszás elindítása egy tetszőleges sebességgel.}
+	\label{tab:story-play}
 \end{table}
