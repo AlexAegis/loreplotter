@@ -312,15 +312,15 @@ export class ActorService {
 			const progress = enclosingProgress(enclosing, unix);
 			let worldPos: Vector3Serializable;
 
-			if(enclosing.last) {
+			if (enclosing.last) {
 				worldPos = enclosing.last.value.position;
 			}
 
-			if(enclosing.first) {
+			if (enclosing.first) {
 				worldPos = enclosing.first.value.position;
 			}
 
-			if(enclosing.last && enclosing.first) {
+			if (enclosing.last && enclosing.first) {
 				worldPos = this.lookAtInterpolated(
 					enclosing.last.value.position,
 					enclosing.first.value.position,

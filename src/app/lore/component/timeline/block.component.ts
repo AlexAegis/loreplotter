@@ -33,7 +33,6 @@ import { Math as ThreeMath, Vector3 } from 'three';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
-	private _w = new UnixWrapper(0);
 
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
@@ -90,20 +89,9 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		return this._frameEnd;
 	}
 
-	public invalidNodeForPan: Node<UnixWrapper, ActorDelta>;
-	public closestCorrectUnixToTarget: number;
-
 	public get isAtMostOneLeft(): boolean {
 		return this.actor._states.length <= 1;
 	}
-
-	@Input()
-	public containerWidthListener: Observable<number>;
-
-	public isDestroyed = false;
-	public faTrash = faTrash; // Node remove icon
-	public isPanning = false;
-	public isSaving = false;
 
 	constructor(
 		public loreService: LoreService,
@@ -115,6 +103,18 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	) {
 		super();
 	}
+	private _w = new UnixWrapper(0);
+
+	public invalidNodeForPan: Node<UnixWrapper, ActorDelta>;
+	public closestCorrectUnixToTarget: number;
+
+	@Input()
+	public containerWidthListener: Observable<number>;
+
+	public isDestroyed = false;
+	public faTrash = faTrash; // Node remove icon
+	public isPanning = false;
+	public isSaving = false;
 	public selection: Node<UnixWrapper, ActorDelta>;
 
 	@Output()
@@ -141,6 +141,13 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	// So the block will never be smaller then it should
 	private _afterFirstUnix: number;
 	private _beforeLastUnix: number;
+
+	private _couldRemoveForPan: boolean;
+	private _couldRemoveForPanEnclosing: {
+		prev: Node<UnixWrapper, ActorDelta>;
+		next: Node<UnixWrapper, ActorDelta>;
+		speed: number;
+	};
 
 	public update(): void {
 		if (
@@ -197,13 +204,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		}
 		return { prev: prevNodeNow, next: nextNodeNow, speed: speedFromPrevious };
 	}
-
-	private _couldRemoveForPan: boolean;
-	private _couldRemoveForPanEnclosing: {
-		prev: Node<UnixWrapper, ActorDelta>;
-		next: Node<UnixWrapper, ActorDelta>;
-		speed: number;
-	};
 	/**
 	 * This method is for moving the nodes in a block to change the time of an event.
 	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
