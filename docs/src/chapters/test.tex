@@ -498,6 +498,30 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 	\label{tab:story-timeline-remove-actor-more-event}
 \end{table}
 
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva.\\
+		\hline
+		\emph{Eredmény} & A szereplőnek egyel több eseménye lesz mint volt. Ezen az eseményen ugyanaz a pozíció lesz rögzítve mint ahol amúgy is lett volna a szereplő lejátszáskor. \\
+		\hline
+		\emph{Sikertelen Eredmény} & Új esemény létrehozása helyett egy meglévő választódik ki. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó a szereplő sávján belül egy tetszőleges pontra kattint.
+			\item Ha nem volt ott esemény, sikeres eredménnyel zárunk.
+			\item Ha volt ott már esemény, sikertelen eredménnyel zárunk.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Üres esemény létrehozása.}
+	\label{tab:story-timeline-create-event}
+\end{table}
+
 \section{Színtér interakciók}
 
 
