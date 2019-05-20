@@ -77,7 +77,7 @@ export class LoreService extends BaseDirective {
 				filter(to => to !== undefined),
 				withLatestFrom(this.storeFacade.frame$, this.containerWidth),
 				map(([position, { start, end }, containerWidth]) =>
-					ThreeMath.mapLinear(position, 0, containerWidth, start, end)
+					Math.floor(ThreeMath.mapLinear(position, 0, containerWidth, start, end))
 				)
 			)
 			.subscribe(next => this.easeCursorToUnix.next(next));

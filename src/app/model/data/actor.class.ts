@@ -17,6 +17,9 @@ export class Actor {
 export function serializeActor(actor: Actor): Actor {
 	if (actor !== undefined && actor !== null) {
 		if (actor._states) {
+			for (let node of actor._states.nodes()) {
+				node.key.unix = Math.floor(node.key.unix);
+			}
 			actor.states = actor._states.stringify();
 			delete actor._states;
 		}

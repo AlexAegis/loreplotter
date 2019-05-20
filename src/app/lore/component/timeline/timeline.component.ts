@@ -281,7 +281,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 			.pipe(withLatestFrom(this.storeFacade.frame$, this.loreService.containerWidth))
 			.subscribe(([shift, frame, containerWidth]) => {
 				if (shift !== undefined) {
-					this.storeFacade.setFrameDelta(-ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length));
+					this.storeFacade.setFrameDelta(-Math.floor(ThreeMath.mapLinear(shift, 0, containerWidth, 0, frame.length)));
 				} else {
 					this.storeFacade.bakeFrame();
 				}

@@ -85,7 +85,7 @@ export class CursorComponent extends BaseDirective implements OnInit, AfterViewI
 				), // Out of bounds check
 				withLatestFrom(this.frame$),
 				map(([[pos, containerWidth], frame]) => {
-					return ThreeMath.mapLinear(this.panStartPosition + pos, 0, containerWidth, frame.start, frame.end);
+					return Math.floor(ThreeMath.mapLinear(this.panStartPosition + pos, 0, containerWidth, frame.start, frame.end));
 				})
 			)
 			.subscribe(cursoroverride => {

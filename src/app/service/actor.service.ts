@@ -49,6 +49,7 @@ export class ActorService {
 	public slerperHelper: Group;
 	public latestSlerpsWorldPositionHolder: Vector3;
 	public pseudoPoint: Group;
+	private _w = new UnixWrapper(0);
 	/**
 	 * rotates the position t'th way between the enclosure
 	 * Returns a new worldPosition at radius 1
@@ -295,8 +296,8 @@ export class ActorService {
 
 	public actorPositionAt(actor: RxDocument<Actor>, unix: number): Vector3Serializable {
 		let finalPosition: Vector3Serializable;
-		const wrapper = new UnixWrapper(unix);
-		const enclosing = actor._states.enclosingNodes(wrapper);
+		this._w.unix = unix;
+		const enclosing = actor._states.enclosingNodes(this._w);
 		if (enclosing.first === undefined || enclosing.last === undefined) {
 			let node = enclosing.first;
 			if (!node) {
@@ -309,11 +310,23 @@ export class ActorService {
 			};
 		} else {
 			const progress = enclosingProgress(enclosing, unix);
-			const worldPos = this.lookAtInterpolated(
-				enclosing.last.value.position,
-				enclosing.first.value.position,
-				progress
-			);
+			let worldPos: Vector3Serializable;
+
+			if(enclosing.last) {
+				worldPos = enclosing.last.value.position;
+			}
+
+			if(enclosing.first) {
+				worldPos = enclosing.first.value.position;
+			}
+
+			if(enclosing.last && enclosing.first) {
+				worldPos = this.lookAtInterpolated(
+					enclosing.last.value.position,
+					enclosing.first.value.position,
+					progress
+				);
+			}
 			finalPosition = { x: worldPos.x, y: worldPos.y, z: worldPos.z };
 		}
 		return finalPosition;

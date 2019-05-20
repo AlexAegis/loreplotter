@@ -291,7 +291,7 @@
 \makenomenclature
 % ------------------------------
 % \RequirePackage[cache=false]{minted}
-
+\usepackage{enumitem}
 
 % ------------------------------
 % Algoritmusok és kódblokkok írása

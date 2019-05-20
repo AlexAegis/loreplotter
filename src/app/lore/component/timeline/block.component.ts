@@ -1,4 +1,4 @@
-import { Node } from '@alexaegis/avl';
+import { Enclosing, Node } from '@alexaegis/avl';
 import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
@@ -33,8 +33,7 @@ import { Math as ThreeMath, Vector3 } from 'three';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
-	private _v1 = new Vector3();
-	private _v2 = new Vector3();
+	private _w = new UnixWrapper(0);
 
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
@@ -199,6 +198,12 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 		return { prev: prevNodeNow, next: nextNodeNow, speed: speedFromPrevious };
 	}
 
+	private _couldRemoveForPan: boolean;
+	private _couldRemoveForPanEnclosing: {
+		prev: Node<UnixWrapper, ActorDelta>;
+		next: Node<UnixWrapper, ActorDelta>;
+		speed: number;
+	};
 	/**
 	 * This method is for moving the nodes in a block to change the time of an event.
 	 * To avoid unnecessary writes and reads from the database, during the pan, this is only an override
@@ -228,17 +233,16 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			} else {
 				this._beforeLastUnix = last.value.key.unix;
 			}
+
+			this._couldRemoveForPan = this.canRemove(node);
+			this._couldRemoveForPanEnclosing = this.surroundAndSpeed(node);
 		}
 
 		const ogUnix = this._originalUnixesForPan.get(node);
 		const previous = node.key.unix;
 		const pos = this.nodePosition(ogUnix) + this.left;
-		const rescaledUnix = ThreeMath.mapLinear(
-			pos + $event.deltaX,
-			0,
-			this.containerWidth,
-			this.frameStart,
-			this.frameEnd
+		const rescaledUnix = Math.floor(
+			ThreeMath.mapLinear(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd)
 		);
 
 		// VALIDATION START
@@ -278,10 +282,24 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				? closestCorrectUnixToReachPrevious
 				: closestCorrectUnixToReachNext;
 
+		let couldRemove = true;
+		if (
+			(this._couldRemoveForPanEnclosing.next && rescaledUnix >= this._couldRemoveForPanEnclosing.next.key.unix) ||
+			(this._couldRemoveForPanEnclosing.prev && rescaledUnix <= this._couldRemoveForPanEnclosing.prev.key.unix)
+		) {
+			couldRemove = this._couldRemoveForPan;
+		}
+		this._w.unix = rescaledUnix;
+
+		// const conflictingNode = this.actor._states.get(this._w); // TODO: It finds itself
+
 		this.invalidNodeForPan =
-			closestCorrectUnixToReachPrevious === rescaledUnix && closestCorrectUnixToReachNext === rescaledUnix
+			closestCorrectUnixToReachPrevious === rescaledUnix &&
+			closestCorrectUnixToReachNext === rescaledUnix &&
+			couldRemove
 				? undefined
 				: node;
+
 		this.cd.markForCheck();
 		// VALIDATION END
 
@@ -366,12 +384,8 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 
 		const ogFirstUnix = this._originalUnixesForPan.get(this.actor._states.nodes().next().value);
 		const pos = this.nodePosition(ogFirstUnix) + this.left;
-		const rescaledUnix = ThreeMath.mapLinear(
-			pos + $event.deltaX,
-			0,
-			this.containerWidth,
-			this.frameStart,
-			this.frameEnd
+		const rescaledUnix = Math.floor(
+			ThreeMath.mapLinear(pos + $event.deltaX, 0, this.containerWidth, this.frameStart, this.frameEnd)
 		);
 
 		const diff = rescaledUnix - ogFirstUnix;
@@ -422,10 +436,18 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				return a;
 			})
 			.then(actor => {
-				this.loreService.overrideNodePosition.next(undefined);
-				this._originalUnixesForPan.clear();
-				this.isSaving = false;
+
+				// this._originalUnixesForPan.clear();
+
 				this.actor = actor;
+
+				this.loreService.overrideNodePosition.next(undefined);
+				this.isSaving = false;
+			})
+			.finally(() => {
+				setTimeout(() => {
+					this.actor = this.actor;
+				}, 20);
 			});
 	}
 

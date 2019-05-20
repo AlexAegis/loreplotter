@@ -9,29 +9,29 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
 		\hline
-		\emph{Előfeltétel} & Az alkalmazás elindult  \\
+		\emph{Előfeltétel} & Az alkalmazás elindult.  \\
 		\hline
-		\emph{Kiváltja} & A felhasználó a jobb fent található lenyíló menüben rákattint a 'Create' gombra \\
+		\emph{Kiváltja} & A felhasználó a jobb fent található lenyíló menüben rákattint a 'Create' gombra. \\
 		\hline
-		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra  \\
+		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra.  \\
 		\hline
 		\emph{Sikertelen Eredmény} & Az előzőleg kiválasztott projekt marad megnyitva. Új adat nem kerül mentésre.  \\
 		\hline
 		\hline
 		\emph{Események} &
 
-		\begin{enumerate}
-			\item Megjelenik a projekt készítő form
-			\item A kötelező név mezőt kitölti
-			\begin{enumerate}
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
+		\begin{enumerate}[itemsep=-1ex]
+			\item Megjelenik a projekt készítő form.
+			\item A kötelező név mezőt kitölti.
+			\begin{enumerate}[itemsep=-1ex]
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
-			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre (sugár minimum 500)
-			\item A 'Create' gombra kattint.
-			\begin{enumerate}
+			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre. (sugár minimum 500)
+			\item A 'Create' gombra kattint, vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár
+			\begin{enumerate}[itemsep=-1ex]
 				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
 			\end{enumerate}
 		\end{enumerate}
@@ -39,36 +39,36 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Projekt készítése textúra nélkül}
+	\caption{Sztori: Projekt készítése textúra nélkül.}
 	\label{tab:story-project-create}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
 		\hline
-		\emph{Előfeltétel} & Az alkalmazás elindult  \\
+		\emph{Előfeltétel} & Az alkalmazás elindult.  \\
 		\hline
-		\emph{Kiváltja} & A felhasználó a jobb fent található lenyíló menüben rákattint a 'Create' gombra \\
+		\emph{Kiváltja} & A felhasználó a jobb fent található lenyíló menüben rákattint a 'Create' gombra. \\
 		\hline
-		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra textúrával  \\
+		\emph{Eredmény} & Új projekt kerül létrehozásra és megnyitásra textúrával.  \\
 		\hline
 		\emph{Sikertelen Eredmény} & Az előzőleg kiválasztott projekt marad megnyitva. Új adat nem kerül mentésre.  \\
 		\hline
 		\hline
 		\emph{Események} &
 
-		\begin{enumerate}
-			\item Megjelenik a projekt készítő form
-			\item A kötelező név mezőt kitölti
-			\begin{enumerate}
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
+		\begin{enumerate}[itemsep=-1ex]
+			\item Megjelenik a projekt készítő form.
+			\item A kötelező név mezőt kitölti.
+			\begin{enumerate}[itemsep=-1ex]
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
-			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre (sugár minimum 500)
-			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
-			\item A 'Create' gombra kattint
-			\begin{enumerate}
+			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre. (sugár minimum 500)
+			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek.
+			\item A 'Create' gombra kattint, vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár
+			\begin{enumerate}[itemsep=-1ex]
 				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
 			\end{enumerate}
 		\end{enumerate}
@@ -76,38 +76,38 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Projekt készítése textúrával}
+	\caption{Sztori: Projekt készítése textúrával.}
 	\label{tab:story-project-create-texture}
 \end{table}
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
 		\hline
-		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
+		\emph{Előfeltétel} & Egy projekt meg van nyitva.  \\
 		\hline
-		\emph{Kiváltja} & A felhasználó a jobb fent található projekt gombra kattint \\
+		\emph{Kiváltja} & A felhasználó a jobb fent található projekt gombra kattint. \\
 		\hline
-		\emph{Eredmény} & A projekt adatai megváltoznak. Ha töltött fel textúrát akkor a bolygó magasságtérképe is megváltozik    \\
+		\emph{Eredmény} & A projekt adatai megváltoznak. Ha töltött fel textúrát akkor a bolygó magasságtérképe is megváltozik.    \\
 		\hline
 		\emph{Sikertelen Eredmény} & Nem történik változás.  \\
 		\hline
 		\hline
 		\emph{Események} &
 
-		\begin{enumerate}
-			\item Megjelenik a projekt szerkesztő form
-			\item Módosításokat hajt végre
-			\begin{enumerate}
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg
+		\begin{enumerate}[itemsep=-1ex]
+			\item Megjelenik a projekt szerkesztő form.
+			\item Módosításokat hajt végre.
+			\begin{enumerate}[itemsep=-1ex]
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
-			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
-			\item A 'Create' gombra kattint
-			\begin{enumerate}
+			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek.
+			\item A 'Create' gombra kattint, vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár
+			\begin{enumerate}[itemsep=-1ex]
 				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
 			\end{enumerate}
 		\end{enumerate}
@@ -115,18 +115,18 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Projekt Szerkesztése}
+	\caption{Sztori: Projekt Szerkesztése.}
 	\label{tab:story-project-edit}
 \end{table}
 
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
 		\hline
-		\emph{Előfeltétel} & Egy projekt meg van nyitva  \\
+		\emph{Előfeltétel} & Egy projekt meg van nyitva.  \\
 		\hline
-		\emph{Kiváltja} & A felhasználó a jobb fent található projekt gombra kattint \\
+		\emph{Kiváltja} & A felhasználó a jobb fent található projekt gombra kattint. \\
 		\hline
 		\emph{Eredmény} & A bolygó felülete az alapértelmezett föld felületre változik. \\
 		\hline
@@ -135,20 +135,19 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\hline
 		\emph{Események} &
 
-		\begin{enumerate}
-			\item
-			\item Megjelenik a projekt szerkesztő form
-			\item Módosításokat hajt végre
-			\begin{enumerate}
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg
-				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg
-				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg
+		\begin{enumerate}[itemsep=-1ex]
+			\item Megjelenik a projekt szerkesztő form.
+			\item Módosításokat hajt végre.
+			\begin{enumerate}[itemsep=-1ex]
+				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
-			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek
-			\item A 'Create' gombra kattint
-			\begin{enumerate}
+			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek.
+			\item A 'Create' gombra kattint, vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár
+			\begin{enumerate}[itemsep=-1ex]
 				\item A 'Cancel' gombra, vagy a dialógusablakon kívülre kattintva a folyamat véget ér és sikertelen eredménnyel zár.
 			\end{enumerate}
 		\end{enumerate}
@@ -156,7 +155,7 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Alapértelmezett Föld textúra visszaállítása}
+	\caption{Sztori: Alapértelmezett Föld textúra visszaállítása.}
 	\label{tab:story-project-edit-earth-texture}
 \end{table}
 
@@ -164,9 +163,9 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ | m{0.20\textwidth} | m{0.80\textwidth} | }
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
 		\hline
-		\emph{Előfeltétel} & Egy projekt meg van nyitva, az oldalsáv látszik  \\
+		\emph{Előfeltétel} & Egy projekt meg van nyitva, az oldalsáv látszik.  \\
 		\hline
 		\emph{Eredmény} & A bolygó felületén az egér alatt a szereplő megjelnik. Az idővonalon a szereplő sávja megjelenik 1 eseménnyel.   \\
 		\hline
@@ -175,10 +174,10 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\hline
 		\emph{Események} &
 
-		\begin{enumerate}
-			\item A felhasználó az oldalsáv 'Actor' gombját fogd és vidd módon ráhúzza a bolygó egy pontjára
-			\item Vagy rákattint az 'Actor' gombra majd a bolygó egy pontjára
-			\item Ha nem a bolygó egy pontjára kattint vagy dob, akkor sikertelen eredménnyel zár
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó az oldalsáv 'Actor' gombját fogd és vidd módon ráhúzza a bolygó egy pontjára.
+			\item Vagy rákattint az 'Actor' gombra majd a bolygó egy pontjára.
+			\item Ha nem a bolygó egy pontjára kattint vagy dob, akkor sikertelen eredménnyel zár.
 		\end{enumerate}
 
 		\\
@@ -188,7 +187,242 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 	\label{tab:story-actor-create}
 \end{table}
 
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva.  \\
+		\hline
+		\emph{Eredmény} & A színtéren a szereplő mellett megjelenik az információs buborék.   \\
+		\hline
+		\hline
+		\emph{Események} &
 
-\section{Szereplő interakciók}
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó az oldalsávban rákattint egy szereplőnek egy gombjára.
+			\item Vagy a színtérben rákattint egy szereplő objektumára.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő kiválasztása}
+	\label{tab:story-actor-create}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. Ki van választva, a kurzor pontosan egy eseményén áll a szereplőnek. Szerkesztés dialógusa meg van nyitva. Szerkesztés közben az időpontot nem változtatja meg. \\
+		\hline
+		\emph{Eredmény} & Összesen ugyanannyi eseménye marad mint volt, a szerkesztett időponton lévő adatai megváltoznak. Csak azok amiknek a mezőit nem hagytuk üresen.    \\
+		\hline
+		\emph{Sikertelen Eredmény} & Nem történik változtatás.  \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó kitölti a megváltoztatandó adatokat.
+			\item Lehetősége van kitörölni az eseményen korábban elkészített tulajdonságokat.
+			\item A mentés gombra kattint vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár. Ha más módon zárja be az ablakot a folyamaz sikertelen eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő szerkesztése meglévő eseményen.}
+	\label{tab:story-actor-edit-on-event}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. Ki van választva, a kurzor nem egy eseményén áll a szereplőnek. Szerkesztés dialógusa meg van nyitva. \\
+		\hline
+		\emph{Eredmény} & Összesen eggyel több eseménye lesz mint volt, a szerkesztett időponton lévő adatai létrejönnek, és csak azok amik ki lettek töltve. A pozíciója nem változik meg mint ahol lett volna a végleges időponton. \\
+		\hline
+		\emph{Sikertelen Eredmény} & Nem történik változtatás.  \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó kitölti a megváltoztatandó adatokat.
+			\item Lehetősége van kitörölni az eseményen korábban elkészített tulajdonságokat.
+			\item A mentés gombra kattint vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár. Ha más módon zárja be az ablakot a folyamaz sikertelen eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő szerkesztése nem meglévő eseményen állva.}
+	\label{tab:story-actor-edit-not-on-event}
+\end{table}
+
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. A színtéren elérhető helyen van. A kurzor a szereplő egy meglévő eseményén áll. \\
+		\hline
+		\emph{Eredmény} & Összesen ugyanannyi eseménye lesz mint volt, a szerkesztett időponton lévő adatai megmaradnak, csak a pozíciója változik meg. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a szereplő objektumára és lenyomva tartja az egérgombot. Ekkor megjelennek az éppen kiválasztott esemény előtti és utáni eseményekhez tartozó távolság indikátorok (ha vannak) amik jelzik, hogy maximum mennyire távolodhatunk el tőlük a szerkesztés időpillanatában.
+			\item A felhasználó egy tetszőleges hely felé húzza a kiválasztott objektumot. Az indikátorokon kívülre nem fogja engedni húzni az alkalmazás őket.
+			\item Az egérgombot elengedve a pozíció rögzítésre kerül. A folyamat sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő mozgatása meglévő eseményen állva.}
+	\label{tab:story-actor-move-on-event}
+\end{table}
+
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva. A színtéren elérhető helyen van. A kurzor nem áll a szereplő egy meglévő eseményén. \\
+		\hline
+		\emph{Eredmény} & Összesen eggyel több eseménye lesz mint volt, a szerkesztett időponton egy új esemény, adatok nélkül jön létre, csak a pozíciója kerül elmentésre. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a szereplő objektumára és lenyomva tartja az egérgombot. Ekkor megjelenik az előző esemény és a következő eseményekhez tartozó távolság indikátorai (ha vannak) amik jelzi, hogy maximum mennyire távolodhatunk el tőlük a szerkesztés időpillanatában.
+			\item A felhasználó egy tetszőleges hely felé húzza a kiválasztott objektumot. Az indikátorokon kívülre nem fogja engedni húzni az alkalmazás őket.
+			\item Az egérgombot elengedve a pozíció rögzítésre kerül. A folyamat sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Szereplő mozgatása nem egy meglévő eseményen állva.}
+	\label{tab:story-actor-move-not-on-event}
+\end{table}
+
+
 
 \section{Idővonal interakciók}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt meg van nyitva. \\
+		\hline
+		\emph{Eredmény} & A kurzor annyit csúszik előre vagy hátra amennyit a felhasználó mozdított az egerén. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a kurzor egy pontjára és lenyomva tartja az egeret.
+			\item Az egeret egy tetszőleges mértékben balra vagy jobbra elmozdítja.
+			\item Elengedéskor a folyamat sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: A kurzor kézi pásztázása.}
+	\label{tab:story-timeline-manual-pan-cursor}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy projekt meg van nyitva. A lejátszás szünetel. \\
+		\hline
+		\emph{Eredmény} & A kurzor a megadott időpontra ugrik. Ha szükséges (Nem a jelenlegi időablak belső 70\%-n van a cél időpont) akkor az időablak is odaugrik, hogy a kurzor látszódjon.  \\
+		\hline
+		\emph{Sikertelen Eredmény} & Nem történik változtatás.  \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint a kurzoron a dátumra.
+			\item Majd átszerkeszti az időt egy tetszőleges, a moment csomag által értelmezhető formátumra. (Nagyon megengedő formátumok terén)
+			\item Ha valami más olyan esemény ami a kurzor idejének megváltozását idézi elő bekövetkezik, akkor az megszakítja a folyamatot és az sikertelen eredménnyel zár.
+			\item Ha nem ismeri fel a formátumot a folyamat sikertelen eredménnyel zár.
+			\item Ha felismeri a folyamaz sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: A kurzor szövegesen megadott időpontra ugratása.}
+	\label{tab:story-timeline-manual-jump-cursor}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, hogy lássuk az idővonalon a mozgását. \\
+		\hline
+		\emph{Eredmény} & Az időablak annyit csúszik előre vagy hátra amennyit a felhasználó mozdított az egerén. \\
+		\hline
+		\hline
+		\emph{Események} &
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint az idővonal vonalzójának egy pontjára és lenyomva tartja az egeret.
+			\item Az egeret egy tetszőleges mértékben balra vagy jobbra elmozdítja.
+			\item Elengedéskor a folyamat sikeres eredménnyel zár.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Az időabalak kézi pásztázása.}
+	\label{tab:story-timeline-manual-pan-timeframe}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, hogy lássuk az idővonalon a mozgását.\\
+		\hline
+		\emph{Eredmény} & Az időablak annyit ugrik előre vagy hátra, hogy a kurzor középen legyen. \\
+		\hline
+		\emph{Sikertelen Eredmény} & A kurzor helyzete megváltozik de az időablak nem.  \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó rákattint az idővonal vonalzójának egy pontjára.
+			\item Ha ez a pont az első vagy az utolsó 15\%-ában volt a teljes vonalzónak, akkor a folyamat sikeres eredménnyel zár. Ha nem, akkor sikertelennel.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Az időabalak kézi ugratása.}
+	\label{tab:story-timeline-manual-jump}
+\end{table}
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ | m{0.14\textwidth} | m{0.86\textwidth} | }
+		\hline
+		\emph{Előfeltétel} & Egy szereplő legalább létre van hozva, hogy lássuk az idővonalon a mozgását.\\
+		\hline
+		\emph{Eredmény} & Az időablak zsugorodik és nyúlik azon időponttól el/időpont felé ami felett az egér áll. \\
+		\hline
+		\hline
+		\emph{Események} &
+
+		\begin{enumerate}[itemsep=-1ex]
+			\item A felhasználó a vonalzó felett görgeti az egerét.
+		\end{enumerate}
+		\\
+		\hline
+	\end{tabular}
+	\caption{Sztori: Az időabalak nyjtása, zsugorítása.}
+	\label{tab:story-timeline-zoom}
+\end{table}
