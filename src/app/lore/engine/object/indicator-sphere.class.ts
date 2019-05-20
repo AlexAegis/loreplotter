@@ -45,7 +45,7 @@ export class IndicatorSphere extends Basic {
 	}
 
 	public setTargetRadian(radian: number): void {
-		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, radian);
+		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, Math.min(radian, Math.PI));
 	}
 }
 

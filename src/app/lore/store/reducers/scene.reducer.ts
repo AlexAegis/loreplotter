@@ -107,15 +107,19 @@ export const initialSceneState: SceneState = {
 function cursorReducer(cursor: CursorState, action: SceneActions): CursorState {
 	switch (action.type) {
 		case changeCursorBy.type: {
-			return { ...cursor, unix: { ...cursor.unix, original: cursor.unix.original + action.payload } };
+			return { ...cursor, unix: { ...cursor.unix, original: Math.floor(cursor.unix.original + action.payload) } };
 		}
 		case changeCursorOverrideTo.type: {
-			return { ...cursor, unix: { ...cursor.unix, override: action.payload } };
+			return { ...cursor, unix: { ...cursor.unix, override: Math.floor(action.payload) } };
 		}
 		case bakeCursorOverride.type: {
 			return {
 				...cursor,
-				unix: { ...cursor.unix, original: cursor.unix.override || cursor.unix.original, override: undefined }
+				unix: {
+					...cursor.unix,
+					original: Math.floor(cursor.unix.override || cursor.unix.original),
+					override: undefined
+				}
 			};
 		}
 		case clearCursorOverride.type: {

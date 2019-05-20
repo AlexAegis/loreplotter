@@ -213,7 +213,7 @@ export class ActorObject extends Basic {
 	public geometry: SphereBufferGeometry;
 	public material: MeshBasicMaterial;
 	public lastWorldPosition = new Vector3();
-	public baseHeight = 1.025;
+	public baseHeight = 1.02;
 	private scalarScale = 1;
 	private scalarScaleBias = 0;
 	// panning/distance restriction

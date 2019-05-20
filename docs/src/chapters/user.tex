@@ -53,7 +53,7 @@ Minden projekt\cref{fig:basic-project-structure} három fő elemből áll, ezek 
 		\hline
 		\emph{Bolygó név} & Szöveg & Kötelező. Alapértelmezett értéke: "Earth" \\
 		\hline
-		\emph{Bolygó méret} & Szám & Kötelező. Alapértelmezett értéke: "6371". (A föld sugara kilóméterben)  \\
+		\emph{Bolygó méret} & Szám & Kötelező. Alapértelmezett értéke: "6371". (A föld sugara kilóméterben). Minimum 500.  \\
 		\hline
 		\emph{Magasságtérkép} & Kép & Opcionális. Egy tetszőleges kezdeti magasságtérkép  \\
 		\hline
@@ -62,8 +62,19 @@ Minden projekt\cref{fig:basic-project-structure} három fő elemből áll, ezek 
 	\label{tab:create-project-form}
 \end{table}
 
+Meglévő projektet szerkeszteni a menü gomb mellett a projekt nevére kattintva lehet. Itt lehetőség van megváltoztatni a készítéskor megadott adatokat, új textúrát felölteni, esetleg betölteni az alapértelmezett föld textúrát. Szerkesztéskor bejön a képbe egy új megszorítás. Mivel a szereplőinknek meg kell tudniuk tenni bármely két esemény között a távot a saját sebességüknek megfelelően így itt limitálva van a bolygó maximális mérete aszerint, hogy ez a feltétel még ne sérüljön.
 
-\section{Kezelőfelület} \label{section:ui}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth,scale=1]{edit-project-form}
+	\caption{
+		Projekt szerkesztése dialógus}
+	\label{fig:create-project-form}
+\end{figure}
+
+\pagebreak
+
+\section{A Kezelőfelület} \label{section:ui}
 
 \begin{figure}[h!]
 	\centering
@@ -80,7 +91,7 @@ A kezelőfelület az alábbi elemeket tartalmazza:
 	\item Alul az idővonal\cref{section:ui-timeline} látható ahol a jelenlegi időt és a szereplők eseményeit tudjuk megváltoztatni.
 \end{itemize}
 
-\subsection{Szereplőtár} \label{section:ui-actor-tool}
+\subsection{A Szereplőtár} \label{section:ui-actor-tool}
 
 A szereplőtár legfelső elemével lehet újabb szereplőket hozzáadni a színtérhez. A gombot fogd-és-vidd módon lehet a bolygó bármely pontjára ráhúzni, ami majd a karakter kiindulási pontja lesz. Ez akármikor megváltoztatható, amíg egyedül van pedig korlátok nélkül.
 
@@ -92,7 +103,9 @@ Ez alatt az elkészített karakterek listája van, mellette az összes karakter 
 	\item Összes esemény száma
 \end{itemize}
 
-\subsection{Idővonal} \label{section:ui-timeline}
+A szereplőtár legalján van a 'Debug mód' gomb is amivel bekapcsolhatunk a színtéren azon vektorok vizualizációját amik az események távolságainak metszetét számolják és tartják az éppen manipulált szereplőt a metszetben.
+
+\subsection{Az Idővonal} \label{section:ui-timeline}
 
 A idővonalat elsősorban három elemre tudjuk bontani:
 
@@ -142,7 +155,6 @@ A ceruza ikonnal ellátott gombbal rajzolás módba válthatunk, a mellette lév
 
 A tengely ikonnal ellátott gombbal az alap, színtér mozgatáshoz szükséges módba térhetünk vissza. A mellette lévő csúszka a szereplőket reprezentáló gömbök méretét állítja. A gömbök mérete ettől, és a közelítés mértékétől is függ.
 
-
 \subsubsection{Az fény eszköztár}
 
 \begin{figure}[h!]
@@ -165,7 +177,6 @@ Sötét módban a kezelőfelület teljes egésze sötétre vált, ahogy a színt
 \paragraph{Automata mód}
 
 Automata módban alapértelmezetten a sötét mód aktív de túl közeli zoomnál, vagy akkor ha az idő túl gyorsan telik automatikusan a világos mód kapcsol be.
-
 
 \subsubsection{Az idő eszköztár}
 

@@ -227,14 +227,23 @@ export class LoreService extends BaseDirective {
 				withLatestFrom(this.storeFacade.cursor$),
 				switchMap(async ([{ point, position }, cursor]) => {
 					point.applyQuaternion(this.engineService.globe.quaternion.clone().inverse());
-					point.actor._states.set(
-						new UnixWrapper(Math.floor(cursor)),
-						new ActorDelta(undefined, {
-							x: position.x,
-							y: position.y,
-							z: position.z
-						})
-					);
+					const wrapper = new UnixWrapper(Math.floor(cursor));
+					const existingDelta = point.actor._states.get(wrapper);
+
+					if (existingDelta) {
+						existingDelta.position.x = position.x;
+						existingDelta.position.y = position.y;
+						existingDelta.position.z = position.z;
+					} else {
+						point.actor._states.set(
+							wrapper,
+							new ActorDelta(undefined, {
+								x: position.x,
+								y: position.y,
+								z: position.z
+							})
+						);
+					}
 					const updatedActor = await point.actor.atomicUpdate(a => (a._states = point.actor._states) && a);
 					point.parent.userData.override = false;
 					refreshBlockOfActor(point.actor);

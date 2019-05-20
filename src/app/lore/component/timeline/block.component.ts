@@ -447,6 +447,11 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public remove($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		if (!this.isAtMostOneLeft) {
 			//  TODO: Make hammer not ignore the disabled setting on buttons
+
+
+			// TODO: CHECK IF CAN BE REMOVED OR NOT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 			this.dialog
 				.open(ConfirmComponent)
 				.afterClosed()

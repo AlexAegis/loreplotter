@@ -29,7 +29,7 @@
 				<mat-error *ngIf="loreForm.hasError('required', 'planet.radius')">Required</mat-error>
 			</mat-form-field>
 			<ng-container *ngIf="originalData.id">
-				Max possible radius right now: {{ maxPossiblePlanetRadius$ | async | mathRound }}
+				Max radius: {{ maxPossiblePlanetRadius$ | async | mathRound }}
 			</ng-container>
 		</div>
 	</form>

@@ -5,9 +5,9 @@ Az alkalmazás a könnyű megközelíthetőség miatt web alapúan kerül megval
 
 \section{Megoldási terv}
 
-Az alkalmazás fő eleme a projekt amit Lore-nak nevezünk, ennek an egy aznosítója mivel dokumentum szintű objektumról van szó, egy neve és ebben tároljuk a világ adatait melyek annak mérete és neve. Valamint ehhez a dokumentumhoz tartozik a világ textúrája is.
+Az alkalmazás fő eleme a projekt amit Lore-nak nevezünk, ennek van egy azonosítója mivel dokumentum szintű objektumról van szó, egy neve és ebben tároljuk a világ adatait a nevét és méretét. Valamint ehhez a dokumentumhoz tartozik a világ textúrája is, bináris csatolmányként.
 
-Egy projecthez tartoznak még szereplők amik szintén dokumentum szintű objektumok, saját kollekcióval. Ebben tároljuk a szereplő állapotait egy AVL fában \cite{AVL} amiben a kulcs az idő, ezzel biztosítva, hogy minden esemény időben sorban legyen, és gyorsan elérhetőek legyenek. Szükség lesz ehhez a fához néhány segédeljárásra, szerencsére ezen TypeScript implementációja az AVL fának az enyém így ezeket könnyedén hozzáadhatom. A fő motiváló ereje ennek a segédcsomagnak a létrehozására épp az volt, hogy az alapvető implementáció mellé egy gazdag API-t biztosítsak.
+Egy projekthez tartoznak még szereplők amik szintén dokumentum szintű objektumok, saját kollekcióval. Ebben tároljuk a szereplő állapotait egy AVL fában \cite{AVL} amiben a kulcs az idő, ezzel biztosítva, hogy minden esemény idő szerint rendezett legyen, és gyorsan elérhetőek legyenek. Szükség lesz ehhez a fához néhány segédeljárásra. (Az alkalmazásban saját, gazdag API-val ellátott AVL fa implementáció használok ami NPM-en van közzétéve.)
 
 Egy állapotdelta csak az előző állapotdeltákhoz viszonyított különbséget tartja nyilván, kivéve a pozíciót, ami minden esetben kötelező. Ezeket a deltákat a szereplők és a jelenlegi idő csöveinek összevezetésével egy aggregátoreljárás értékeli ki. Erre feliratkozva bármi azonnal hozzáférhet a legfrissebb adatokhoz ami csak egy helyen, egyszer van emiatt kiszámolva.
 
@@ -45,7 +45,6 @@ class Node {
 	value: ActorDelta
 }
 
-note left of ActorDelta: Egy AVL\nfában helyezkednek el
 interface ActorDelta {
 	position: Vec3
 	name?: string
@@ -69,7 +68,7 @@ Lore -- Planet
 Lore --o Actor
 Actor -- Tree
 Tree --* Node
-Node -- ActorDelta
+Node -left- ActorDelta
 
 ActorDelta --* Property
 ActorDelta -- Vec3
@@ -81,32 +80,9 @@ ActorDelta -- Vec3
 
 \pagebreak
 
-Az alkalmazás induláskor az adatbázis modelljeit tároló kollekiókat inicializáljuk.
-
-\begin{plantuml}
-	@startuml
-	hide empty description
-	skinparam monochrome true
-
-	state DatabaseBootstrap {
-		[*] --> InitializeCollections
-		InitializeCollections : Lore
-		InitializeCollections : Actor
-		InitializeCollections : ActorDelta
-		InitializeCollections --> InitializeExample
-		InitializeExample --> [*]
-		note right of InitializeCollections : Ez a folyamat csak akkor\nhozza létre a kollekciókat\nha szükség van rá
-		note right of InitializeExample : Az alap project létrehozása
-	}
-
-	DatabaseBootstrap --> DatabaseBootstrap : On Fail
-
-	@enduml
-\end{plantuml}
-
 \subsection{Reaktív elemek}
 
-Az alkalmazás jelentős részében reaktív komponenseket használunk amik alapjául az RxJS \cite{RxJS} csomag szolgál. Ez azt jelenti, hogy klasszikus adattagok helyett, adatforrásokat, megfigyelhető objektumokat (Lásd Megfigyelő programtervezési minta \cite{ObserverPattern}), függvényhívások helyett pedig mellékhatásokat használunk.
+Az alkalmazás jelentős részében reaktív komponenseket használunk amik alapjául az RxJS \cite{RxJS} csomag szolgál. Ez azt jelenti, hogy klasszikus adattagok helyett, javarészt adatforrásokat, megfigyelhető objektumokat (Lásd Megfigyelő programtervezési minta \cite{ObserverPattern}), függvényhívások helyett pedig mellékhatásokat használunk.
 
 Ez a minta lehetőséget ad arra, hogy bármilyen nézet a böngészőben ami felhasznál valamilyen adatot, azonnal frissüljön mikor a forrása megváltozik.
 
@@ -136,9 +112,9 @@ Ez a minta lehetőséget ad arra, hogy bármilyen nézet a böngészőben ami fe
 
 Kétfajta adatot különböztetünk meg, perzisztens és temporális. Perzisztens adatnak minősül minden ami egy projekthez tartozik. Temporális meg az amiket az előbbi manipulálásakor használunk fel. Például projekthez tartozó adat az, hogy egy szereplőnk egy adott időpillanatban hol tartózkodik, de az nem, hogy a kurzor épp ezen az időpillanaton áll.
 
-A perzisztens a böngészők beépített noSQL adatbázisában, az IndexedDB-ben kerülnek perzisztálásra, dokumentumok formájában. Az adatbázis elérésehez, és ezzel az alkalmazás reaktív modelljének alapkövének RxDB-t \cite{RxDB} használunk.
+A perzisztens adatok a böngészők beépített IndexedDB (noSQL) adatbázisában kerülnek tárolásra, dokumentumok formájában. Az adatbázis elérésehez, és ezzel az alkalmazás reaktív modelljének alapkövének RxDB-t \cite{RxDB} használunk.
 
-Ez a csomag lehetővé teszi, hogy adatok beszúrásakor/módosításakor/törlésekor ezek a folyamatok igéretekként (Lásd Promise \cite{Promise}) jelenjenek meg melyek teljesüléséről értesítést kapunk. Ezzel lehetővé téve olyan featureöket mint, hogy jelezni a felhasználónak, hogy egy adott elem adatainak forrása éppen mentés alatt áll, és a szerkesztését letiltani. A legfőbb előnye viszont az, hogy bármilyen adatbázis kollekciót, lekérdezést megfigyelhetünk. És amint változás történik az adatbázisban, ezek a megfigyelhető Query-k újra jeleznek, frissítve minden mást ami rájuk épül.
+Ez a csomag lehetővé teszi, hogy adatok beszúrásakor/módosításakor/törlésekor ezek a folyamatok igéretekként (Lásd Promise \cite{Promise}) jelenjenek meg melyek teljesüléséről értesítést kapunk. Ezzel elérhetővé téve olyan lehetőségeket mint, hogy jelezni a felhasználónak, hogy egy adott elem adatainak forrása éppen mentés alatt áll, és a szerkesztését letiltani. A legfőbb előnye viszont az, hogy bármilyen adatbázis kollekciót, lekérdezést megfigyelhetünk. És amint változás történik az adatbázisban, ezek a megfigyelhető Query-k újra jeleznek, frissítve minden mást ami rájuk épül.
 
 A temporális adatokat viszont felesleges adatbázisban tárolni csak azért, hogy reaktív módon kezelhessük őket. Lehetőség van minden ilyen adatnak egy saját forrást (Subject) biztosítani. De mi van ha két adat függ egymástól? Csöveken keresztül futtassuk őket össze, válasszuk szét majd az így keletkező csöveket használjuk ezentúl? Mi van ha erre a változtatásra később kerül sor? Mi van ha valamit elfelejtünk átállítani, hogy a direkt-forrás helyett a transzformált csövet használják? Ezek a problémák és még sok más megoldására jön képbe az NgRX \cite{NgRx} csomag és a Redux (\cite{Redux}) architektúra amit implementál.
 
@@ -170,7 +146,7 @@ Ezt egy központi Store service-ből tudjuk elérni, a könnyebb interakció mia
 
 \section{Alkalmazás Architektúra}
 
-Egy Angular alkalmazás modulokra van bontva. Minden modul saját Injection Scope-al rendelkezik, a felhasznált Service-ek pedig egyediek Injection Scope-onként. Mivel ez az alkalmazás csupán egy funkciót lát el megelégedhetnénk egy modullal is, de jobb felhasználói élményt érhetünk el ha az első töltést felgyorsítjuk azzal, hogy az applikációnk első töltési pontját kiürítjük, a tényleges applikációt pedig a gyökér routing pont mögé tesszük. Ez lusta módon \cite{LazyLoad} fogja betölteni a tényleges tartalommal rendelkező modult, nem blokkolva az alap modul tartalmának festését a DOM-ba. Az alap modul így taralmazhat egy egyszerű töltési animációt amit csak addig jelenítünk meg amíg a router tölti az almodult.
+Minden Angular alkalmazás modulokra van bontva. Minden modul saját Injection Scope-al rendelkezik, a felhasznált Service-ek pedig egyediek Injection Scope-onként. Mivel ez az alkalmazás csupán egy funkciót lát el megelégedhetnénk egy modullal is, de jobb felhasználói élményt érhetünk el ha az első töltést felgyorsítjuk azzal, hogy az applikációnk első töltési pontját kiürítjük, a tényleges applikációt pedig a gyökér routing pont mögé tesszük. Ez lusta módon \cite{LazyLoad} fogja betölteni a tényleges tartalommal rendelkező modult, nem blokkolva az alap modul tartalmának festését a DOM-ba. Az alap modul így taralmazhat egy egyszerű töltési animációt amit csak addig jelenítünk meg amíg a router tölti az almodult.
 
 \begin{figure}[h!]
 	\centering
@@ -320,18 +296,20 @@ Nézeteinket komponensekben definiáljuk, ezek az adataikat pedig kizárólag a 
 	\label{fig:global-state-bootstrap}
 \end{figure}
 
+\pagebreak
 
 \subsection{Timeline}
 
-Az idő az egész alkalmazásban epoch \cite{Epoch} formában van jelen, egy egyszerű számként, az egység a másodperc. Így könnyű egyszerű arithmetikai műveleteket végezni rajta.
+Az idő az alkalmazásban epoch \cite{Epoch} formában van jelen, egy egyszerű számként, az egység a másodperc. Így könnyű egyszerű aritmetikai műveleteket végezni rajta. Minden művelet után ezt lefele kerekítjük
 
 Az idővonalat két időpont határoz meg, az eleje és a vége. A nézet szélességét figyelembe véve ezekből ki lehet számolni a vonalzó beosztásait. A beosztásokat napokban mérjük, az albeosztásokat pedig órában.
 
 \subsubsection{Megjelenítés}
 
-A beosztások mennyiségét és pozícióit ki kell számolnunk. Előbbit úgy kapjuk meg ha vesszük a megjelenített időablak hosszát és leosztjuk egy nappal ($86400s$). Az egészrésze lesz a kiférő beosztások száma. Viszont az albeosztások megjelenítésére is figyelnünk kell. Ezek fixen a tőle balra álló nagy beosztástól fognak elhelyezkedni. Ahhoz, hogy az idővonal legelején is lehessenek albeosztások -- az első látszódó beosztás előtt -- el kell tolnunk balra egy egységgel az idővonalat, és a végére még kettőt hozzáadni. Egy beosztás hosszát így kaphatjuk meg:
+A beosztások mennyiségét és pozícióit ki kell számolnunk. Előbbit úgy kapjuk meg ha vesszük a megjelenített időablak hosszát és leosztjuk egy nappal ($86400s$). Az egészrésze lesz a kiférő beosztások száma. Viszont az albeosztások megjelenítésére is figyelnünk kell. Ezek fixen a tőle balra álló nagy beosztástól fognak elhelyezkedni. Ahhoz, hogy az idővonal legelején is lehessenek albeosztások -- az első látszódó beosztás előtt -- el kell tolnunk balra egy egységgel az idővonalat, és a végére még kettőt hozzáadni. Egy beosztás hosszát az alábbi módon kaphatjuk meg:
 
 \begin{tabular}{@{}ll@{}}
+	& \\
 	\textbf{Jel} & \textbf{Leírás} \\
 	$a$ & Időablak kezdete \\
 	$b$ & Időablak vége \\
@@ -345,7 +323,7 @@ A beosztások pozícióinak kiszámolásához, ahelyett, hogy minden beosztás h
 
 Az első távolság kiszámolásához viszont tudnunk kell, hogy melyik az a pont a kiválaszott időablakban ami egy napfordulót jelent:
 
-$$ x \in \{[a, a+l] | x \% b = 0\} $$
+$$x \in \{ y | y \in [a, a+l], y \equiv 0 \mod b\}$$
 
 Ehhez csak hozzá kell adni a beosztás hossza és a kezdeti érték maradékát a kezdeti értékhez miután kivontuk a beosztás hosszából:
 
@@ -357,6 +335,7 @@ Az albeosztásokat már tudjuk, hogy $24 - 1$ darab fog kelleni, kezdeti pozíci
 A két tartomány között lineárisan váltunk. A főbeosztások esetén a kezdeti tartomány az időablak, a céltartomány pedig a $[0, w]$ ahol $w$ a komponens szélessége. Az albeosztások esetén pedig $[0, 86400]$ ból váltunk $[0, d']$ be ahol $d'$ a beosztás hossza pixelben.
 
 \begin{tabular}{@{}ll@{}}
+	& \\
 	\textbf{Jel} & \textbf{Leírás} \\
 	$x$ & A transzformálandó érték \\
 	$a1$ & A forrás tartomány kezdete \\
@@ -367,13 +346,13 @@ A két tartomány között lineárisan váltunk. A főbeosztások esetén a kezd
 
 $$ f(x) = b1 + ( x - a1 ) * ( b2 - b1 ) / ( a2 - a1 )$$
 
-A beosztások mostmár helyesen helyezkedenek el minden időablak esetében.
+A beosztások így helyesen helyezkedenek el minden időablak esetében.
 
 \subsubsection{Manipulálás}
 
-\paragraph{Folytonos manipuláláskor} mint például mikor pásztázunk az egerünkkel a kapott eseményben csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az elsolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig \lstinline[columns=fixed]{undefined}.
+\paragraph{Folytonos manipuláláskor} mint például mikor pásztázunk az egerünkkel, a kapott eseményben (a módosítás eseménye, Hammer Event) csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az eltolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig \lstinline[columns=fixed]{undefined}.
 
-Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű (\lstinline[columns=fixed]{override | original}). Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyagyúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
+Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű (\lstinline[columns=fixed]{override || original}). Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyagyúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
 
 A folytonos manipuláció végén pedig az \lstinline[columns=fixed]{override} értékét beleírjuk az eredeti változóba majd kiürítjük.
 
@@ -387,29 +366,60 @@ A megjelenített időablakot kétféle módon manipulálhatjuk:
 
 \paragraph{Eltolásnál} csak egyenlő időmennyiséget vonunk ki vagy adunk hozzá az időablak mindkét végéhez
 
-\paragraph{Affinitáshoz} pedig elég lenne ha nyújtásnál a kezdeti pontból kivonnánk, összenyomásnál pedig hozzáadnánk, a végpontból meg fordítva. Ezzel viszont mindig az időablak közepe lenne a sarkpontunk. A felhasználói élmény miatt ez a sarkpont mindig az egér pozíciója lesz. Szélsőséges esetekben, mikor az egész a komponens legelején helyezkedik el ez azt jeleti, hogy zoom-olásnál csak az időablak vége változik.
+\paragraph{Affinitáshoz} pedig elég lenne ha nyújtásnál a kezdeti pontból kivonnánk, összenyomásnál pedig hozzáadnánk egy fix mennyiséget, a végpontból meg fordítva. Ezzel viszont mindig az időablak közepe lenne a sarkpontunk. A felhasználói élmény miatt ez a sarkpont mindig az egér pozíciója lesz. Szélsőséges esetekben, mikor az egész a komponens legelején helyezkedik el ez azt jeleti, hogy zoom-olásnál csak az időablak vége változik.
 
-Ehhez a két vég módosítását súlyoznunk kell az egér pozíciója szerint. A pozíciót a böngésző belső ablakához relatív kapjuk meg, így a lineáris váltás kezdeti tartománya ${ta, ta + w}$ ahol $ta$ a timeline pozíciója horizontálisan, a céltartomány pedig $[0, 1]$. A kezeti pozíció súlya ez a szám lesz, a végéé pedig ehhez fordítottan arányos.
+Ehhez a két vég módosítását súlyoznunk kell az egér pozíciója szerint. A pozíciót a böngésző belső ablakához relatív kapjuk meg, így a lineáris váltás kezdeti tartománya ${ta, ta + w}$ ahol $ta$ a timeline pozíciója horizontálisan, a céltartomány pedig $[0, 1]$. A kezeti pozíció súlya ez a szám lesz, a végéé pedig a céltartomány szerint fordítottan arányos.
 
 \subsubsection{A kurzor}
 
-A kurzor egy időpontot jelöl. A színtérben, és a viewben minden aggregált adat ennek függvényében jelenik meg. Pozícióját hasonlóan az eddigikhez lineáris mappeléssel kapjuk meg. Manipulásakor pedig ugyanez történik visszafele.
+A kurzor egy időpontot jelöl. A színtérben, és a viewben minden aggregált adat ennek függvényében jelenik meg. Pozícióját hasonlóan az eddigikhez lineáris mappeléssel kapjuk meg. Manipulásakor pedig ugyanez történik visszafele. A kurzor bármilyen manipulálásakor egy segédeljárás számolja az utolsó változások alapján az idő sebességét. Mikor a kurzor nem mozog ez az eljárás szimulál saját magának pontosan annyi $0$ mértékű kurzorváltozás amivel a csillapított sebesség amit számol elérheti a $0$-át. Ez a csillapított sebesség van felhasználva a színtér fényességének vezérlésénél.
+
+\lstset{caption={Csillapított sebesség számolása kurzorpozíció alapján. \protect\footnotemark }, label=src:max-possible-radius}
+\begin{lstlisting}[language={JavaScript}]
+dampenedSpeed$ = merge(cursor$, dampen$).pipe(scan((a, c) => {
+			if (a.current === undefined) a.current = c;
+			if (a.avg === undefined) a.avg = c;
+			a.cache.push(Math.abs(a.current - c));
+			if (a.cache.length > 20) a.cache.shift();
+			const na = a.cache.reduce((a, n) => a + n, 0) / a.cache.length;
+			a.vel = Math.abs(na - a.avg);
+			a.avg = na;
+			a.current = c;
+			return a;
+		}, { current: undefined, avg: undefined, vel: 0, cache: [0] }
+	),
+	map(({ avg }) => avg),
+	shareReplay(1)
+);
+\end{lstlisting}
+\footnotetext{A példa formázása nem reprezentálja a forráskódban találhatóét. A helytakarékosság érdekében tömörítve lett.}
+
+
+\lstset{caption={Mozdulatlanság időbeli szimulációja.}, label=src:max-possible-radius}
+\begin{lstlisting}[language={JavaScript}]
+dampen$ = cursor$.pipe(
+	debounceTime(120),
+	mergeMap(unix => of(unix).pipe(
+			delay(1000 / 60),
+			repeat(20)
+	)));
+\end{lstlisting}
 
 \subsubsection{A blokkok}
 
-Az idővonal sávjaiban a szereplő egy blokként jelenik meg. Egy blokknak -- hasonlóan az idővonalhoz -- van egy eleje és egy vége. Ezen belül pedig az események elemei helyezkednek el. A blokk eleje és vége mindig az első és az utolsó esemény ideje. Az események pozíciói a blokk elejének pozíciójához mérjük relatív.
+Az idővonal sávjaiban a szereplő egy blokként jelenik meg. Egy blokknak -- hasonlóan az idővonalhoz -- van egy eleje és egy vége időpontban meghatározva. Ezen belül pedig az események elemei helyezkednek el. A blokk eleje és vége mindig az első és az utolsó esemény ideje. Az események pozíciói a blokk elejének pozíciójához mérjük relatív.
 
-Egy esemény idejének felülírásakor (Fogd-és-vidd ideje alatt) a gyakori változás miatt a fa-szerkezetet amiben az események vannak tárolva nem módosítjuk. Ehelyett egy felülírt esemény eseményt küldünk amiben leírjuk, hogy idő szerint melyik esemény hova került át. A színtér ezt az információt figyelembevéve módosítás közben is helyes adatokat tud kirajzolni.
+Egy esemény idejének felülírásakor (Fogd-és-vidd ideje alatt) a gyakori változás miatt a fa-szerkezetet amiben az események vannak tárolva nem módosítjuk. Ehelyett egy 'felülírás' eseményt küldünk amiben leírjuk, hogy idő szerint melyik esemény hova került át. A színtér ezt az információt figyelembevéve módosítás közben is helyes adatokat tud kirajzolni.
 
 \section{A színtér}
 
-A 3D színtér komponensén két elem található: A canvas elem amire fest a Three.js és a buborékmenü ami a kijelölt szereplők felett helyezkedik el ha van ilyen. Erre a canvas elemre van felcsatolva az összes EventListener amivel interakcióba lehet lépni a színtérrel. Logikája annyiból áll, hogy ezeket az eseményekből kinyeri a hasznos információt, a pozíciót normalizálja a $[0-1]$ intervallumba, majd továbbítja az EngineService-nek ami aztán ezeket kezeli. Valamint megjelenítés után létrehozza a színtér modelljét és elindítja az animációs loopot.
+A 3D színtér komponensén két elem található: A canvas elem amire fest a Three.js és a buborékmenü ami a kijelölt szereplők felett helyezkedik el ha van ilyen. Erre a canvas elemre van felcsatolva az összes EventListener amivel interakcióba lehet lépni a színtérrel. Logikája annyiból áll, hogy ezeket az eseményekből kinyeri a hasznos információt, a pozíciót normalizálja mindkét dimenziójában a $[0-1]$ intervallumba, majd továbbítja az EngineService-nek ami aztán ezeket kezeli. Valamint megjelenítés után létrehozza a színtér modelljét és elindítja az animációs loopot.
 
 \subsection{A színpad felépítése}
 
-A színpad fő eleme a bolygó, egy fix $1$ sugarú gömb melyhez kapcsolódik egy másik, kisebb -- $0.98$ sugarú -- gömb ami a vízszintet reprezentálja. A gömb felszíne magas felbontású poligonok terén ($512×512$), hogy a displacement map \cite{Displacement} pontosabb eredeményt adjon.
+A színpad fő eleme a bolygó, egy fixen egységsugarú gömb melyhez kapcsolódik egy másik, kisebb -- $0.98$ sugarú -- gömb ami a vízszintet reprezentálja. A gömb felszíne magas felbontású poligonok terén ($512×512$), hogy a displacement map \cite{Displacement} pontosabb eredeményt adjon.
 
-Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt a raycasting \cite{Raycast} rendkívül lassú a Three.js alap implementációjában. (Raycastingot akkor használunk amikor kiszámoljuk, hogy a színtér épp melyik objektumának melyik pontja felett áll az egér.) Szerencsére létezik gyorsabb eljárás. A Bounding Volume Hierarchy \cite{BVH} fa struktúrába helyezi az objektumok részeit elhelyezésük alapján, jelentősen lecsökkentve azokat a háromszögeket amiket a raycastingnak egyszerre meg kell vizsgálnia.
+Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt a raycasting \cite{Raycast} rendkívül lassú a Three.js alap implementációjában. (Raycastingot akkor használunk amikor kiszámoljuk, hogy a színtér épp melyik objektumának melyik pontja felett áll az egér.) Szerencsére létezik gyorsabb eljárás. A Bounding Volume Hierarchy \cite{BVH} fa struktúrába helyezi az objektumok partícionált részeit elhelyezkedésük alapján, jelentősen lecsökkentve azokat a háromszögeket amiket a raycastingnak egyszerre meg kell vizsgálnia.
 
 \begin{figure}[h!]
 	\centering
@@ -452,17 +462,17 @@ Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt 
 	% Text Node
 	\draw (579,204) node  [align=left] {Sun};
 	% Text Node
-	\draw (361,178) node  [align=left] {20};
+	\draw (361,178) node  [align=left] {$40$};
 	% Text Node
-	\draw (169,126) node  [align=left] {1};
+	\draw (169,126) node  [align=left] {$1$};
 	% Text Node
-	\draw (112,125) node  [align=left] {.98};
+	\draw (112,125) node  [align=left] {$0.98$};
 	% Text Node
 	\draw (112,109) node  [align=left] {Water};
 	% Text Node
 	\draw (446.5,63) node  [align=left] {Camera};
 	% Text Node
-	\draw (377,61) node  [align=left] {120°};
+	\draw (377,61) node  [align=left] {$120°$};
 	% Text Node
 	\draw (279,245) node  [align=left] {Displacement Range};
 
@@ -476,17 +486,15 @@ Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt 
 
 \subsubsection{A felszín}
 
-A felszín displacement mapja egy memóriában található canvas objektum amit textúraként használunk. A jobb hatás érdekében ezt bumb-mapként \cite{Bump} is használjuk. Egy project betöltésekor és minden további módosításkor ez a textúra az adatbázisból újra betöltődik. Mivel a textúránk egy canvas objektumon létezik, könnyen elérhetjük egy canvas összes rajzfunkcióját, hogy egyszerűen, valós időben módosítsuk a térképet. A projekt szerkesztés menüjében lehetőségünk van bármikor betölteni bármilyen képet amit aztán ilyen textúraként fog használni az alkalmazás. Szerkesztésnél, minden, a bolygó felületén elhelyezkedő objektum megvizsgálja, hogy milyen magasan fog alatta a displacement megjelenni. Ehhez lehetne használni raycastingot, a kamera helyett az adott objektumból a gömb közepe felé vetítve, de sokkal egyszerűbb ha eleve a textúra fényességét vizsgáljuk meg, ugyanúgy ahogy azt a renderer is fogja tenni. Ezzel biztosítva van, hogy minden felszíni elem látszik akkor is ha a displacement alapból eltakarná.
+A felszín displacement mapja egy memóriában található canvas objektum amit textúraként használunk. A jobb hatás érdekében ezt bumb-mapként \cite{Bump} is használjuk. Egy projekt betöltésekor és minden további módosításkor ez a textúra az adatbázisból újra betöltődik. Mivel a textúránk egy canvas objektumon létezik, könnyen elérhetjük a canvas összes rajzfunkcióját, hogy egyszerűen, valós időben módosítsuk a térképet. A projekt szerkesztés menüjében lehetőségünk van bármikor betölteni bármilyen képet amit aztán ilyen textúraként fog használni az alkalmazás. Szerkesztésnél, minden, a bolygó felületén elhelyezkedő objektum megvizsgálja, hogy milyen magasan fog alatta vagy felette a displacement megjelenni. Ehhez is raycasting használunk, ahol a kemera helyett az adott objektumból a gömb közepe felé vetítünk egy sugarat. Ez a sugárvetés megmutatja, hogy a felület milyen $(u, v)$ pontján áll az adott objektum. Ezen ponton a textúra fényességét meg tudjuk vizsgálni, és kiszámolni az eltolás mértékét, ugyanúgy ahogy azt a renderer is fogja tenni. Ezzel biztosítva van, hogy minden felszíni elem látszik akkor is ha a displacement alapból eltakarná.
 
 \subsubsection{A szereplők}
 
-A felszíni objektumok nagyrészt szereplőkből állnak. Ők szintén gömbök, saját emisszív felülettel, hogy a bolygó sötét oldalán is látszódjanak. Rendelkeznek még egy körvonallal is ha az egér felettük helyezkedik el, vagy ki vannak választva.
-
-Elhelyezésüknél az egyszerű kezelés volt a fő szempont. Ezért a szereplők nem közvetlenül a bolygó objektumhoz vannak csatolva hanem egy -- szereplőnként egyedi -- csoporthoz vannak rendelve ami fixen a bolygó közepén helyezkedik el. Ez a csoport már a bolygóhoz van csatolva. Egy szereplő relatív pozíciója így mindíg $(0, 0, r + d)$ ahol $r = 1$, a bolygó felszínének sugara, $d$ pedig a displacement map magassága a szereplő objektum végleges helyén. Egy szereplőt elmozdítani így csak annyiba kerül, hogy a szülőjét -- a csoportot -- elforgatjuk.
+A felszíni objektumok nagyrészt szereplőkből állnak. Ők szintén gömbök, saját emisszív felülettel, hogy a bolygó sötét oldalán is könnyen látszódjanak. Rendelkeznek még két fajta körvonallal is ha az egér felettük helyezkedik el (vagy a hozzá tartozó, idővonalbeli sávja felett), vagy ki vannak választva.
 
 Egy szereplő pontos pozíciójának meghatározásához a deltáit kell figyelembe vennünk. Az AVL fa implementáció amiben ezek el vannak helyezve rendelkezik olyan eljárással amivel nem fontos olyan kulcsot keresni ami tényleg létezik, mert a kulcshoz mindkét irányban legközelebb álló csomópontokkal fog visszatérni. Pontos egyezés esetén így mindkét csomópont ugyanaz lenne mint ha a hagyományos módon kértük volna le a kulcson található értéket.
 
-A már meglévő csővezetékeink közzül a, szereplők, a jelenlegi idő és az esetlegesen felülírt pozíciók csövét összevezetjük a \lstinline[columns=fixed]{combineLatest} operátorral. Emiatt a pozíciókat kiszámoló eljárás mindig le fog futni, ha a három közzül bármelyik is megváltozik, a másik kettő utolsó eredményével. A felülírás csupán a jelenlegi idő alapján
+A már meglévő csővezetékeink közzül a szereplők, a jelenlegi idő és az esetlegesen felülírt pozíciók csövét összevezetjük a \lstinline[columns=fixed]{combineLatest} operátorral. Emiatt a pozíciókat kiszámoló eljárás mindig le fog futni, ha a három közzül bármelyik is megváltozik, a másik kettő utolsó eredményével.
 
 Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél kiszámolni minden színész csoportjának kvaternióit\cite{Quaternion}, hogy megfelelően legyenek elforgatva.
 
@@ -498,34 +506,32 @@ Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél k
 	\STATE $e$ := $C$ körüli delták.
 
 	\IF[Ha vannak felülírások]{$O$}
-		\FOR[A színész összes deltájára]{$d : A$.deltas}
+		\FOR[A színész összes deltájára]{$d : A.deltas$}
 			\FOR{$o : O$}
 				\IF[Ha ehhez tartozik]{$d.time = o.time$}
-					\STATE $d.time$ := $d.newTime$
+					\STATE $d.time := d.newTime$
 				\ENDIF
 			\ENDFOR
 
 			\IF{$d.time >= e[0].time \wedge d.time <= C$}
-				\STATE $e[0]$ := $d$
+				\STATE $e[0] := d$
 			\ENDIF
 			\IF{$d.time <= e[1].time \wedge d.time >= C$}
-				\STATE $e[1]$ := $d$
+				\STATE $e[1] := d$
 			\ENDIF
 
 		\ENDFOR
 	\ENDIF
 
-	\STATE $t$ := mapLinear($C$, $e[0]$.time, $e[1]$.time, 0, 1)
-	\STATE $g$ := A színész objektumának csoportja a színtéren.  \COMMENT{ID alapján}
-	\IF[Ha nem létezik, akkor itt létrehozzuk.]{!$g$}
-		\STATE $g$ := Új színész objektumának csoportja
+	\STATE $t := mapLinear(C, e[0].time, e[1].time, 0, 1)$
+	\STATE $a := $A színész objektuma a színtéren.  \COMMENT{ID alapján.}
+	\IF[Ha nem létezik, akkor itt létrehozzuk.]{!$a$}
+		\STATE $a$ := Új színész objektum. \COMMENT{A színtérre is felkerül.}
 	\ENDIF
-	\STATE $q0$ := $g$.lookAt($e[0]$.pos).q \COMMENT{Az első világpozícióhoz tartozó elforgatás}
-	\STATE $q1$ := $g$.lookAt($e[1]$.pos).q \COMMENT{Az második világpozícióhoz tartozó elforgatás}
-	\IF[Ha $t$ nem ugyanaz a két pont közé lett skálázva]{$t$}
-		\STATE Compute $slerp(q0, q1, g.q, t)$ \COMMENT{Spherical Linear Interpolation}
-	\ENDIF  \COMMENT{Honnan, hova, mit, mennyire}
-	\STATE $A$.updateHeight() \COMMENT{Az eljárás során a cél $g.q$ megváltozása}
+	\STATE $angle := \angle(a.\overrightarrow{from}, a.\overrightarrow{to})$ \COMMENT{A cél és a forrás közötti távolság radiánban.}
+	\STATE $\overrightarrow{norm} := a.\overrightarrow{from} × a.\overrightarrow{to}$ \COMMENT{A cél és a forrás normálvektora.}
+	\STATE $\overrightarrow{result} := a.\overrightarrow{from}.applyAxisAngle(\overrightarrow{norm}, t * angle) $
+	\STATE $a$.updateHeight() \COMMENT{A magasság korrigálása}
 	\end{algorithmic}
 \end{algorithm}
 
@@ -574,9 +580,9 @@ Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfel�
 	\draw   (409.76,297.86) .. controls (413.71,300.35) and (416.93,299.63) .. (419.42,295.69) -- (476.43,205.57) .. controls (480,199.94) and (483.75,198.37) .. (487.7,200.86) .. controls (483.75,198.37) and (483.56,194.3) .. (487.13,188.67)(485.52,191.2) -- (534.78,113.35) .. controls (537.27,109.41) and (536.55,106.19) .. (532.6,103.69) ;
 
 	% Text Node
-	\draw (203.71,174) node  [align=left] {$M_1$};
+	\draw (203.71,174) node  [align=left] {$\overrightarrow{M_1}$};
 	% Text Node
-	\draw (338.44,274.05) node  [align=left] {$M_2$};
+	\draw (338.44,274.05) node  [align=left] {$\overrightarrow{M_2}$};
 	% Text Node
 	\draw (230.48,118.73) node  [align=left] {$r_1$};
 	% Text Node
@@ -586,19 +592,19 @@ Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfel�
 	% Text Node
 	\draw (336.44,369.17) node  [align=left] {$c_2$};
 	% Text Node
-	\draw (463.26,99.73) node  [align=left] {$P_1$};
+	\draw (463.26,99.73) node  [align=left] {$\overrightarrow{P_1}$};
 	% Text Node
 	\draw (282.96,18.5) node  [align=left] {$D_1$};
 	% Text Node
 	\draw (522.7,230.5) node  [align=left] {$D_2$};
 	% Text Node
-	\draw (286.48,109.73) node  [align=left] {$N_1$};
+	\draw (286.48,109.73) node  [align=left] {$\overrightarrow{N_1}$};
 	% Text Node
-	\draw (413.48,172.73) node  [align=left] {$N_2$};
+	\draw (413.48,172.73) node  [align=left] {$\overrightarrow{N_2}$};
 	% Text Node
-	\draw (290.48,195.73) node  [align=left] {$A$};
+	\draw (290.48,195.73) node  [align=left] {$\overrightarrow{A}$};
 	% Text Node
-	\draw (256.48,235.73) node  [align=left] {$B$};
+	\draw (256.48,235.73) node  [align=left] {$\overrightarrow{B}$};
 
 	\draw   (279.42, 181.3) circle [x radius= 5, y radius= 5]   ;
 	\draw   (247.72, 223.44) circle [x radius= 5, y radius= 5]   ;
@@ -611,31 +617,31 @@ Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfel�
 
 \begin{tabular}{@{}ll@{}}
 	\textbf{Jel} & \textbf{Leírás} \\
-	$M_1$ & Előző pozíció \\
-	$M_2$ & Következő pozíció \\
-	$r_1$ & A jelenlegi időpont és $M_1$ időpontja között maximálisan megtehető út \\
-	$r_2$ & A jelenlegi időpont és $M_2$ időpontja között maximálisan megtehető út \\
-	$c_1$ & $M_1$ és $r_1$ által alkotott kör a gömbfelületen \\
-	$c_2$ & $M_2$ és $r_2$ által alkotott kör a gömbfelületen \\
-	$P_1$ & A felhasználó által kiválaszott célpozíció \\
-	$D_1$ & A gömbfelületen vett távolság $P_1$ és $M_1$ között \\
-	$D_2$ & A gömbfelületen vett távolság $P_1$ és $M_2$ között \\
-	$N_1$ & A gömbfelület $M_1$ és $P_1$ pont által meghatározott \\
-	& főkörén az a pont amely pontosan $r_1$ távolságra van $M_1$-től \\
-	$N_2$ & A gömbfelület $M_2$ és $P_1$ pont által meghatározott \\
-	& főkörén az a pont amely pontosan $r_2$ távolságra van $M_2$-től \\
-	$A$ & $c_1$ és $c_2$ kör egyik metszéspontja \\
-	$B$ & $c_1$ és $c_2$ kör másik metszéspontja \\
+	$\overrightarrow{M_1}$ & Előző pozíció \\
+	$\overrightarrow{M_2}$ & Következő pozíció \\
+	$r_1$ & A jelenlegi időpont és $\overrightarrow{M_1}$ időpontja között maximálisan megtehető út \\
+	$r_2$ & A jelenlegi időpont és $\overrightarrow{M_2}$ időpontja között maximálisan megtehető út \\
+	$\overrightarrow{c_1}$ & $\overrightarrow{M_1}$ és $r_1$ által alkotott kör a gömbfelületen \\
+	$\overrightarrow{c_2}$ & $\overrightarrow{M_2}$ és $r_2$ által alkotott kör a gömbfelületen \\
+	$\overrightarrow{P_1}$ & A felhasználó által kiválaszott célpozíció \\
+	$D_1$ & A gömbfelületen vett távolság $\overrightarrow{P_1}$ és $\overrightarrow{M_1}$ között \\
+	$D_2$ & A gömbfelületen vett távolság $\overrightarrow{P_1}$ és $\overrightarrow{M_2}$ között \\
+	$\overrightarrow{N_1}$ & A gömbfelület $\overrightarrow{M_1}$ és $\overrightarrow{P_1}$ pont által meghatározott \\
+	& főkörén az a pont amely pontosan $r_1$ távolságra van $\overrightarrow{M_1}$-től \\
+	$\overrightarrow{N_2}$ & A gömbfelület $\overrightarrow{M_2}$ és $\overrightarrow{P_1}$ pont által meghatározott \\
+	& főkörén az a pont amely pontosan $r_2$ távolságra van $\overrightarrow{M_2}$-től \\
+	$\overrightarrow{A}$ & $c_1$ és $c_2$ kör egyik metszéspontja \\
+	$\overrightarrow{B}$ & $c_1$ és $c_2$ kör másik metszéspontja \\
 	& \\
 \end{tabular}
 
-Ebben az esetben a szereplő nem teljes sebességgel haladt a két pont között ezért ha félúton manipuláljuk, azt látjuk, hogy amellett, hogy mindkét ponthoz még eltudunk jutni, még van egy kis mozgásterünk ahol ugyanúgy eljutna a megadott időn belül $M_2$-be, képességeinek megfelelően. Meg kell határoznunk manipulálás közben, hogy $c_1$ és $c_2$ metszetében melyik pont van $P_1$ ponthoz a legközelebb.
+Ebben (\ref{fig:spherical-sphere-intersection}) az esetben a szereplő nem teljes sebességgel haladt a két pont között ezért ha félúton manipuláljuk, azt látjuk, hogy amellett, hogy mindkét ponthoz még eltudunk jutni, még van egy kis mozgásterünk ahol ugyanúgy eljutna a megadott időn belül $\overrightarrow{M_1}$-be és $\overrightarrow{M_2}$-be is képességeinek megfelelően. Meg kell határoznunk manipulálás közben, hogy $c_1$ és $c_2$ metszetében melyik pont van $\overrightarrow{P_1}$ ponthoz a legközelebb.
 
-Manipulálás kezdetekor válnak elérhetővé a kellő információk $c_1$ és $c_2$ adatainak a kiszámolásához. Ekkor számoljuk ki $A$ és $B$ pontot is. Ezt manipulálásonként csak egyszer számoljuk ki. Ekkor helyezzük el a két indikátor gömbcikket. A végén pedig el lesznek rejtve. Manipulálás közben pedig folyamatosan számljuk a legközelebbi pont függvényét.
+Manipulálás kezdetekor válnak elérhetővé a kellő információk $c_1$ és $c_2$ adatainak a kiszámolásához. Ekkor számoljuk ki $\overrightarrow{A}$ és $\overrightarrow{B}$ pontot is. Ezt manipulálásonként csak egyszer számoljuk ki. Ekkor helyezzük el a két indikátor gömbcikket. A végén pedig el lesznek rejtve. Manipulálás közben pedig folyamatosan számljuk a legközelebbi pont függvényét. A két gömbcikk overdraw módban kerül rajzolásra így el lehet őket helyezni pontosan a bolygó eredeti 1 sugarú felületére és úgy is mindig látszódni fognak. Sajnos nagyon eltérő displacement és alacsony szögből való megtekintés esetén kicsit csalóka lehet a grafika mivel a szereplők objektuma az eltolást figyelembe veszik. Ez viszont nem bizonyult túl zavarónak tesztelés közben.
 
-\subsubsection{Két kör metszéspontjai gömbfelületen}
+\subsubsection{Azonos sugarú gömbcikkek metszésponjai}
 
-$M_1$ és $M_2$ világ pozíciók, és mivel a bolygó centruma a $(0, 0, 0)$ pontban helyetkedik el, ezért ezek egyben geocentrikus pontok is. A két kör metszéspontját gömbfelületen problémát átfogalmazhatjuk egy egyszerűbb problémává. Ha keresünk az $M_1$ és az origó által meghatározott vonalon egy pontot -- legyen $a$ -- és sugarat amivel egy akkora gömböt képez ami pontosan a $c_1$ körön metszi a bolygó gömbjét, és analóg módon $M_2$-höz egy $b$ pontot és sugarat. Akkor $a$ pont $c_1$ körrel és $b$ pont $c_2$ körrel egy-egy síkot határoznak meg, melyek metszésvonalán fog elhelyezkedni $A$ és $B$ pont is. Így a problémánk egy kör és egy egyenes metszetére redukálódott le.
+$\overrightarrow{M_1}$ és $\overrightarrow{M_2}$ világ pozíciók, és mivel a bolygó centruma a $(0, 0, 0)$ pontban helyezkedik el, ezért ezek egyben geocentrikus pontok is. A problémát átfogalmazhatjuk egy egyszerűbb problémává. Ha keresünk az $\overrightarrow{M_1}$ és az origó által meghatározott vonalon egy pontot -- legyen $\overrightarrow{a}$ -- és sugarat amivel egy akkora gömböt képez ami pontosan a $c_1$ körön metszi a bolygó gömbjét, és analóg módon $\overrightarrow{M_2}$-höz egy $\overrightarrow{b}$ pontot és sugarat. Akkor az $\overrightarrow{a}$ pont $c_1$ körrel és $\overrightarrow{b}$ pont $c_2$ körrel egy-egy síkot határoznak meg, melyek metszésvonalán fog elhelyezkedni $\overrightarrow{A}$ és $\overrightarrow{B}$ pont is. Így a problémánk egy kör és egy egyenes metszetére redukálódott le.
 
 \begin{figure}[h!]
 	\centering
@@ -672,24 +678,18 @@ $M_1$ és $M_2$ világ pozíciók, és mivel a bolygó centruma a $(0, 0, 0)$ po
 	\draw   (216.72,179.07) .. controls (213.7,177.11) and (212.85,173.06) .. (214.81,170.05) .. controls (216.78,167.03) and (220.82,166.18) .. (223.84,168.15) .. controls (226.86,170.11) and (227.71,174.15) .. (225.74,177.17) .. controls (223.77,180.19) and (219.73,181.04) .. (216.72,179.07) -- cycle ; \draw   (216.72,179.07) -- (223.84,168.15) ; \draw   (214.81,170.05) -- (225.74,177.17) ;
 
 	% Text Node
-	\draw (259,110.25) node  [align=left] {$M_1$};
+	\draw (259,110.25) node  [align=left] {$\overrightarrow{M_1}$};
 	% Text Node
-	\draw (183,218.25) node  [align=left] {$M_2$};
+	\draw (183,218.25) node  [align=left] {$\overrightarrow{M_2}$};
 	% Text Node
-	\draw (276,157.25) node  [align=left] {$a$};
+	\draw (276,157.25) node  [align=left] {$\overrightarrow{a}$};
 	% Text Node
-	\draw (225,210.25) node  [align=left] {$b$};
+	\draw (225,210.25) node  [align=left] {$\overrightarrow{b}$};
 	% Text Node
-	\draw (244,187.25) node  [align=left] {$A$ és $B$};
-
+	\draw (244,187.25) node  [align=left] {$\overrightarrow{A}$ és $\overrightarrow{B}$};
 
 	\end{tikzpicture}
-
-
-
-
-
-\caption{Átfogalmazott példa}
+\caption{Az átfogalmazott példa, a két egyenes egy egy síkot jelölnek.}
 \label{fig:three-sphere-intersection}
 \end{figure}
 
@@ -698,42 +698,42 @@ $M_1$ és $M_2$ világ pozíciók, és mivel a bolygó centruma a $(0, 0, 0)$ po
 \begin{algorithm}[H]
 	\caption{Két kör metszéspontjai gömbfelületen}
 	\label{alg:intersection}
-	\textbf{\underline{Function}} intersection($M_1, M_2, r_1, r_2, R$) ahol $R$ a bolygó sugara kilóméterben
+	\textbf{\underline{Function}} intersection($\overrightarrow{M_1}, \overrightarrow{M_2}, r_1, r_2, R$) ahol $R$ a bolygó sugara kilóméterben
 	\begin{algorithmic}[1]
-	\STATE $x_1 := M_1$ normalizálva \COMMENT{Valójában $M_1$ és $M_2$ vektor hossza már eleve 1}
-	\STATE $x_2 := M_2$ normalizálva
+	\STATE $\overrightarrow{x_1} := \overrightarrow{M_1}$ normalizálva \COMMENT{Valójában $\overrightarrow{M_1}$ és $\overrightarrow{M_2}$ vektor hossza már eleve 1}
+	\STATE $\overrightarrow{x_2} := \overrightarrow{M_2}$ normalizálva
 	\STATE $rad_1 := r_1 / R$ \COMMENT{Átváltás radiánba}
 	\STATE $rad_2 := r_2 / R$
-	\STATE $q := x_1 \bullet x_2$ \COMMENT{A két vektor skaláris szorzata}
+	\STATE $q := \overrightarrow{x_1} \bullet \overrightarrow{x_2}$ \COMMENT{A két vektor skaláris szorzata}
 	\IF{$q^2 = 1$}
-		\STATE return \COMMENT{A két kör nem metszheti egymást mert $M_1 = M_2$  vagy $M_1$ és $M_2$ a centrumhoz képest a szemközti oldalon állnak. Ebben az esetben vagy a körök minden pontja metszi egymást, vagy egy sem.}
+		\STATE return \COMMENT{A két kör nem metszheti egymást mert $\overrightarrow{M_1} = \overrightarrow{M_2}$  vagy $\overrightarrow{M_1}$ és $\overrightarrow{M_2}$ a centrumhoz képest a szemközti oldalon állnak. Ebben az esetben vagy a körök minden pontja metszi egymást, vagy egy sem.}
 	\ENDIF
 	\STATE $a := \frac{cos(rad_1) - q \cdot cos(rad_2)}{1 - q^2}$
 	\STATE $b := \frac{cos(rad_2) - q \cdot cos(rad_1)}{1 - q^2}$
-	\STATE $x_0 := x_1 \cdot a + x_2 \cdot b$
-	\IF{$x_0^2 > 1$}
+	\STATE $\overrightarrow{x_0} := \overrightarrow{x_1} \cdot a + \overrightarrow{x_2} \cdot b$
+	\IF{$\overrightarrow{x_0}^2 > 1$}
 		\STATE return \COMMENT{A két kör nem érintkezik.}
 	\ENDIF
-	\STATE $n := x_1 × x_2$
-	\IF{$n^2 = 0$}
+	\STATE $\overrightarrow{n} := \overrightarrow{x_1} × \overrightarrow{x_2}$
+	\IF{$\overrightarrow{n}^2 = 0$}
 		\STATE return \COMMENT{A két kör középpontja vagy megegyezik vagy szemközt állnak.}
 	\ENDIF
-	\STATE $t := \sqrt{ \frac{1 - x_0 \bullet x_0}{n^2}}$
-	\STATE $i_0 := x_0 + n \cdot t$
+	\STATE $t := \sqrt{ \frac{1 - \overrightarrow{x_0} \bullet \overrightarrow{x_0}}{\overrightarrow{n}^2}}$
+	\STATE $\overrightarrow{i_0} := \overrightarrow{x_0} + \overrightarrow{n} \cdot t$
 	\IF[Több eredmény csak pozitív $t$ esetén lehetséges]{$t > 0$}
-		\STATE $i_1 := x_0 + n \cdot -t$
-		\STATE return [$i_0$, $i_1$]
+		\STATE $\overrightarrow{i_1} := \overrightarrow{x_0} + \overrightarrow{n} \cdot -t$
+		\STATE return [$\overrightarrow{i_0}$, $\overrightarrow{i_1}$]
 	\ELSE
-		\STATE return [$i_0$]
+		\STATE return [$\overrightarrow{i_0}$]
 	\ENDIF
 	\end{algorithmic}
 \end{algorithm}
 
 \subsubsection{Körívek metszete gömbfelületen}
 
-A legközelebbi pontok lehetnek $N_1$, $N_2$, $A$ és $B$. $N_1$ és $N_2$ viszont nem feltétlen helyezkednek el a metszés körívén. $N_1$ és $N_2$ akkor lesz érvényes, ha az adott $M$ és $P$ pont által meghatározott körív metszi az $A$ és $B$ által rajzolt körívet.
+A legközelebbi pontok lehetnek $\overrightarrow{N_1}$, $\overrightarrow{N_2}$, $\overrightarrow{A}$ és $\overrightarrow{B}$. $\overrightarrow{N_1}$ és $\overrightarrow{N_2}$ viszont nem feltétlen helyezkednek el a metszés körívén. $\overrightarrow{N_1}$ és $\overrightarrow{N_2}$ akkor lesz érvényes, ha az adott $\overrightarrow{M}$ és $\overrightarrow{P}$ pont által meghatározott körív metszi az $\overrightarrow{A}$ és $\overrightarrow{B}$ által rajzolt körívet.
 
-A \ref{fig:nearest-circle-intersection-examples}-es ábrán a $P_0$ szerű pontok megfelelnek mindkét kitételnek így további dolgunk nincs velük. A $P_1$ szerű pontok csak egy feltételnek felelnek meg. Az ő esetükben csak a másik kör középpontja felé kell interpolálnunk a szereplő pozícióját. A $P_2$ és $P_3$ pontok közötti különbség, hogy $P_2$-nél a legközelebbi pont maga a metszés mert se $N_1$ sem pedig $N_2$ nem a megfelelő köríven helyezkedik el.
+A \ref{fig:nearest-circle-intersection-examples}-es ábrán a $\overrightarrow{P_0}$ szerű pontok megfelelnek mindkét kitételnek -- mindkét ponthoz szükséges távolságon belül állnak -- így további dolgunk nincs velük. A $\overrightarrow{P_1}$ szerű pontok csak egy feltételnek felelnek meg. Az ő esetükben csak a másik kör középpontja felé forgatnunk a pozícióját, az $\overrightarrow{M_1} × \overrightarrow{P_1}$ tengelyen. A $\overrightarrow{P_2}$ és $\overrightarrow{P_3}$ pontok közötti különbség, hogy $\overrightarrow{P_2}$-nél a legközelebbi pont maga a metszés mert se $\overrightarrow{N_1}$ sem pedig $\overrightarrow{N_2}$ nem a megfelelő köríven helyezkedik el ilyen esetben.
 
 \begin{figure}[h!]
 	\centering
@@ -796,21 +796,21 @@ A \ref{fig:nearest-circle-intersection-examples}-es ábrán a $P_0$ szerű ponto
 	\draw   (209,236.17) .. controls (209,234.23) and (210.57,232.67) .. (212.5,232.67) .. controls (214.43,232.67) and (216,234.23) .. (216,236.17) .. controls (216,238.1) and (214.43,239.67) .. (212.5,239.67) .. controls (210.57,239.67) and (209,238.1) .. (209,236.17) -- cycle ;
 
 	% Text Node
-	\draw (305,148.33) node  [align=left] {$A$};
+	\draw (305,148.33) node  [align=left] {$\overrightarrow{A}$};
 	% Text Node
-	\draw (240,317.33) node  [align=left] {$B$};
+	\draw (240,317.33) node  [align=left] {$\overrightarrow{B}$};
 	% Text Node
-	\draw (236,213.33) node  [align=left] {$M_1$};
+	\draw (236,213.33) node  [align=left] {$\overrightarrow{M_1}$};
 	% Text Node
-	\draw (311,245.33) node  [align=left] {$M_2$};
+	\draw (311,245.33) node  [align=left] {$\overrightarrow{M_2}$};
 	% Text Node
-	\draw (343,29.33) node  [align=left] {$P_2$};
+	\draw (343,29.33) node  [align=left] {$\overrightarrow{P_2}$};
 	% Text Node
-	\draw (496,276.33) node  [align=left] {$P_3$};
+	\draw (496,276.33) node  [align=left] {$\overrightarrow{P_3}$};
 	% Text Node
-	\draw (256,272.33) node  [align=left] {$P_0$};
+	\draw (256,272.33) node  [align=left] {$\overrightarrow{P_0}$};
 	% Text Node
-	\draw (179,252.33) node  [align=left] {$P_1$};
+	\draw (179,252.33) node  [align=left] {$\overrightarrow{P_1}$};
 
 	\draw   (307.33, 134.42) circle [x radius= 4, y radius= 4]   ;
 	\draw   (239.09, 300.77) circle [x radius= 4, y radius= 4]   ;
@@ -822,85 +822,298 @@ A \ref{fig:nearest-circle-intersection-examples}-es ábrán a $P_0$ szerű ponto
 
 \pagebreak
 
-Először is meg kell határoznunk ezeket a metszéspontokat. Nevezzük $M_1$ és $P$ által meghatározott főkör és az $A$ és $B$ által meghatározott főkör metszetét $m_1$-nek. A hasonlóan $M_2$-höz tartozó metszetet pedig $m_2$-nek.
+Miután megvan $\overrightarrow{A}$, $\overrightarrow{B}$, $\overrightarrow{N_1}$ és $\overrightarrow{N_2}$, el kell tudnunk dönteni, hogy $\overrightarrow{N_1}$ és $\overrightarrow{N_2}$ a megfelelő köríven vannak e. A three.js könyvtár egyszerű eszközöket ad arra, hogy két vektor bezárt szögét kiszámoljuk.
+
+$$\overrightarrow{M_1A} := \overrightarrow{M_1} - \overrightarrow{A}$$
+$$\overrightarrow{M_1B} := \overrightarrow{M_1} - \overrightarrow{B}$$
+$$\overrightarrow{M_1N_1} := \overrightarrow{M_1} - \overrightarrow{N_1}$$
+
+ Ha $\angle(\overrightarrow{M_1A}, \overrightarrow{M_1B}) - \angle(\overrightarrow{M_1A}, \overrightarrow{M_1N_1}) + \angle(\overrightarrow{M_1B}, \overrightarrow{M_1N_1}) \ge 0$ akkor tudjuk, hogy a nagyobb köríven áll $\overrightarrow{N_1}$.
 
 \begin{figure}[h!]
 	\centering
 
 	\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
-	%uncomment if require: \path (0,468); %set diagram left start at 0, and has height of 468
+	%uncomment if require: \path (0,1036.3333435058594); %set diagram left start at 0, and has height of 1036.3333435058594
 
-	%Shape: Circle [id:dp8166187689889921]
-	\draw   (134.91,201.6) .. controls (134.91,146.76) and (179.37,102.3) .. (234.21,102.3) .. controls (289.05,102.3) and (333.5,146.76) .. (333.5,201.6) .. controls (333.5,256.43) and (289.05,300.89) .. (234.21,300.89) .. controls (179.37,300.89) and (134.91,256.43) .. (134.91,201.6) -- cycle ;
-	%Shape: Circle [id:dp6909695032298264]
-	\draw   (212.91,233.6) .. controls (212.91,178.76) and (257.37,134.3) .. (312.21,134.3) .. controls (367.05,134.3) and (411.5,178.76) .. (411.5,233.6) .. controls (411.5,288.43) and (367.05,332.89) .. (312.21,332.89) .. controls (257.37,332.89) and (212.91,288.43) .. (212.91,233.6) -- cycle ;
-	%Flowchart: Summing Junction [id:dp5476818076821499]
-	\draw   (248,27.5) .. controls (248,24.19) and (250.69,21.5) .. (254,21.5) .. controls (257.31,21.5) and (260,24.19) .. (260,27.5) .. controls (260,30.81) and (257.31,33.5) .. (254,33.5) .. controls (250.69,33.5) and (248,30.81) .. (248,27.5) -- cycle ; \draw   (249.76,23.26) -- (258.24,31.74) ; \draw   (258.24,23.26) -- (249.76,31.74) ;
-	%Straight Lines [id:da49460456729427316]
-	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (254,27.5) -- (214,376.5) ;
+	%Shape: Circle [id:dp7147274460574649]
+	\draw   (71.91,135.85) .. controls (71.91,70.93) and (124.54,18.3) .. (189.46,18.3) .. controls (254.37,18.3) and (307,70.93) .. (307,135.85) .. controls (307,200.76) and (254.37,253.39) .. (189.46,253.39) .. controls (124.54,253.39) and (71.91,200.76) .. (71.91,135.85) -- cycle ;
+	%Shape: Circle [id:dp10982270342140565]
+	\draw   (237.91,184.44) .. controls (237.91,138.08) and (275.5,100.5) .. (321.86,100.5) .. controls (368.22,100.5) and (405.8,138.08) .. (405.8,184.44) .. controls (405.8,230.81) and (368.22,268.39) .. (321.86,268.39) .. controls (275.5,268.39) and (237.91,230.81) .. (237.91,184.44) -- cycle ;
+	%Straight Lines [id:da14970762671387594]
+	\draw    (189.46,135.85) -- (321.86,184.44) ;
 
 
-	%Straight Lines [id:da9864649930793872]
-	\draw    (254,27.5) -- (312.21,233.6) ;
+	%Straight Lines [id:da5018657633210779]
+	\draw    (189.46,135.85) -- (301.08,103.06) ;
+	\draw [shift={(303,102.5)}, rotate = 523.63] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+	%Straight Lines [id:da8787252418767009]
+	\draw    (189.46,135.85) -- (252.9,231.83) ;
+	\draw [shift={(254,233.5)}, rotate = 236.54] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+	%Straight Lines [id:da334184052442988]
+	\draw    (303.45,104.45) -- (321.86,184.44) ;
+
+	\draw [shift={(303,102.5)}, rotate = 77.04] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+	%Straight Lines [id:da5281291307703042]
+	\draw    (255.62,232.33) -- (321.86,184.44) ;
+
+	\draw [shift={(254,233.5)}, rotate = 324.14] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+	%Shape: Circle [id:dp8204009048923462]
+	\draw   (143.91,432.85) .. controls (143.91,367.93) and (196.54,315.3) .. (261.46,315.3) .. controls (326.37,315.3) and (379,367.93) .. (379,432.85) .. controls (379,497.76) and (326.37,550.39) .. (261.46,550.39) .. controls (196.54,550.39) and (143.91,497.76) .. (143.91,432.85) -- cycle ;
+	%Shape: Circle [id:dp5891184045449915]
+	\draw   (245.91,462.44) .. controls (245.91,416.08) and (283.5,378.5) .. (329.86,378.5) .. controls (376.22,378.5) and (413.8,416.08) .. (413.8,462.44) .. controls (413.8,508.81) and (376.22,546.39) .. (329.86,546.39) .. controls (283.5,546.39) and (245.91,508.81) .. (245.91,462.44) -- cycle ;
+	%Straight Lines [id:da7300207606590179]
+	\draw    (261.46,432.85) -- (338.5,465.67) ;
 
 
-	%Straight Lines [id:da1538944910181792]
-	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (254,27.5) -- (316,151.5) ;
+	%Straight Lines [id:da7866363401157963]
+	\draw    (261.46,432.85) -- (367.65,389.42) ;
+	\draw [shift={(369.5,388.67)}, rotate = 517.76] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+	%Straight Lines [id:da5973975562618397]
+	\draw    (261.46,432.85) -- (303.76,539.81) ;
+	\draw [shift={(304.5,541.67)}, rotate = 248.42000000000002] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+	%Straight Lines [id:da44579030739359893]
+	\draw    (368.55,390.43) -- (329.86,462.44) ;
+
+	\draw [shift={(369.5,388.67)}, rotate = 118.25] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+	%Straight Lines [id:da42826623065586467]
+	\draw    (305.11,539.76) -- (329.86,462.44) ;
+
+	\draw [shift={(304.5,541.67)}, rotate = 287.75] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+	%Shape: Arc [id:dp2161098265865362]
+	\draw  [draw opacity=0] (289.03,421.01) .. controls (290.59,424.64) and (291.46,428.64) .. (291.46,432.85) .. controls (291.46,445.31) and (283.85,456) .. (273.03,460.53) -- (261.46,432.85) -- cycle ; \draw   (289.03,421.01) .. controls (290.59,424.64) and (291.46,428.64) .. (291.46,432.85) .. controls (291.46,445.31) and (283.85,456) .. (273.03,460.53) ;
+	%Shape: Arc [id:dp37186414101113785]
+	\draw  [draw opacity=0] (298.2,202.89) .. controls (294.23,197.81) and (291.86,191.4) .. (291.86,184.44) .. controls (291.86,170.06) and (301.98,158.05) .. (315.48,155.12) -- (321.86,184.44) -- cycle ; \draw   (298.2,202.89) .. controls (294.23,197.81) and (291.86,191.4) .. (291.86,184.44) .. controls (291.86,170.06) and (301.98,158.05) .. (315.48,155.12) ;
+	%Shape: Arc [id:dp04823721441577189]
+	\draw  [draw opacity=0] (217.97,126.49) .. controls (218.93,129.43) and (219.46,132.58) .. (219.46,135.85) .. controls (219.46,146.42) and (213.99,155.71) .. (205.73,161.05) -- (189.46,135.85) -- cycle ; \draw   (217.97,126.49) .. controls (218.93,129.43) and (219.46,132.58) .. (219.46,135.85) .. controls (219.46,146.42) and (213.99,155.71) .. (205.73,161.05) ;
+	%Shape: Arc [id:dp042640094861197575]
+	\draw  [draw opacity=0] (344.01,435.98) .. controls (353.44,441.04) and (359.86,450.99) .. (359.86,462.44) .. controls (359.86,479.01) and (346.43,492.44) .. (329.86,492.44) .. controls (326.65,492.44) and (323.55,491.94) .. (320.65,491) -- (329.86,462.44) -- cycle ; \draw   (344.01,435.98) .. controls (353.44,441.04) and (359.86,450.99) .. (359.86,462.44) .. controls (359.86,479.01) and (346.43,492.44) .. (329.86,492.44) .. controls (326.65,492.44) and (323.55,491.94) .. (320.65,491) ;
+	%Shape: Arc [id:dp9248388600757733]
+	\draw  [draw opacity=0] (356.08,415.5) .. controls (349.49,412.2) and (344.29,406.55) .. (341.57,399.64) -- (369.5,388.67) -- cycle ; \draw   (356.08,415.5) .. controls (349.49,412.2) and (344.29,406.55) .. (341.57,399.64) ;
+	%Shape: Arc [id:dp41002706463293626]
+	\draw  [draw opacity=0] (293.18,513.88) .. controls (296.67,512.45) and (300.49,511.67) .. (304.5,511.67) .. controls (308.07,511.67) and (311.49,512.29) .. (314.66,513.43) -- (304.5,541.67) -- cycle ; \draw   (293.18,513.88) .. controls (296.67,512.45) and (300.49,511.67) .. (304.5,511.67) .. controls (308.07,511.67) and (311.49,512.29) .. (314.66,513.43) ;
+	%Shape: Arc [id:dp8752990656024138]
+	\draw  [draw opacity=0] (310.47,131.56) .. controls (308.08,132.17) and (305.58,132.5) .. (303,132.5) .. controls (288.87,132.5) and (277.02,122.73) .. (273.84,109.58) -- (303,102.5) -- cycle ; \draw   (310.47,131.56) .. controls (308.08,132.17) and (305.58,132.5) .. (303,132.5) .. controls (288.87,132.5) and (277.02,122.73) .. (273.84,109.58) ;
+	%Shape: Arc [id:dp28711268284746105]
+	\draw  [draw opacity=0] (237.17,208.66) .. controls (241.97,205.4) and (247.76,203.5) .. (254,203.5) .. controls (264.59,203.5) and (273.89,208.98) .. (279.23,217.26) -- (254,233.5) -- cycle ; \draw   (237.17,208.66) .. controls (241.97,205.4) and (247.76,203.5) .. (254,203.5) .. controls (264.59,203.5) and (273.89,208.98) .. (279.23,217.26) ;
+	%Straight Lines [id:da8581155038948594]
+	\draw  [dash pattern={on 0.84pt off 2.51pt}]  (290.5,575.33) -- (400.5,319.33) ;
 
 
-	%Flowchart: Connector [id:dp7527304205187331]
-	\draw   (281,138.17) .. controls (281,136.23) and (282.57,134.67) .. (284.5,134.67) .. controls (286.43,134.67) and (288,136.23) .. (288,138.17) .. controls (288,140.1) and (286.43,141.67) .. (284.5,141.67) .. controls (282.57,141.67) and (281,140.1) .. (281,138.17) -- cycle ;
-	%Flowchart: Connector [id:dp27712539160217364]
-	\draw   (242,102.17) .. controls (242,100.23) and (243.57,98.67) .. (245.5,98.67) .. controls (247.43,98.67) and (249,100.23) .. (249,102.17) .. controls (249,104.1) and (247.43,105.67) .. (245.5,105.67) .. controls (243.57,105.67) and (242,104.1) .. (242,102.17) -- cycle ;
-	\draw  [dash pattern={on 0.84pt off 2.51pt}] (78.79,137.36) -- (467.29,298.6)(353.66,23.73) -- (192.42,412.23) ;
-	%Flowchart: Connector [id:dp6649804334905414]
-	\draw   (290,168.17) .. controls (290,166.23) and (291.57,164.67) .. (293.5,164.67) .. controls (295.43,164.67) and (297,166.23) .. (297,168.17) .. controls (297,170.1) and (295.43,171.67) .. (293.5,171.67) .. controls (291.57,171.67) and (290,170.1) .. (290,168.17) -- cycle ;
-	%Flowchart: Connector [id:dp289603407901041]
-	\draw   (213,354.17) .. controls (213,352.23) and (214.57,350.67) .. (216.5,350.67) .. controls (218.43,350.67) and (220,352.23) .. (220,354.17) .. controls (220,356.1) and (218.43,357.67) .. (216.5,357.67) .. controls (214.57,357.67) and (213,356.1) .. (213,354.17) -- cycle ;
-	%Flowchart: Summing Junction [id:dp5805131421835337]
-	\draw   (229.21,201.6) .. controls (229.21,198.83) and (231.45,196.6) .. (234.21,196.6) .. controls (236.97,196.6) and (239.21,198.83) .. (239.21,201.6) .. controls (239.21,204.36) and (236.97,206.6) .. (234.21,206.6) .. controls (231.45,206.6) and (229.21,204.36) .. (229.21,201.6) -- cycle ; \draw   (230.67,198.06) -- (237.74,205.13) ; \draw   (237.74,198.06) -- (230.67,205.13) ;
-	%Flowchart: Summing Junction [id:dp23947035784845427]
-	\draw   (307.21,233.6) .. controls (307.21,230.83) and (309.45,228.6) .. (312.21,228.6) .. controls (314.97,228.6) and (317.21,230.83) .. (317.21,233.6) .. controls (317.21,236.36) and (314.97,238.6) .. (312.21,238.6) .. controls (309.45,238.6) and (307.21,236.36) .. (307.21,233.6) -- cycle ; \draw   (308.67,230.06) -- (315.74,237.13) ; \draw   (315.74,230.06) -- (308.67,237.13) ;
+	%Straight Lines [id:da15918858586723683]
+	\draw  [dash pattern={on 0.84pt off 2.51pt}]  (228.5,302.33) -- (332.5,22.33) ;
+
+
+	%Straight Lines [id:da4671700638713707]
+	\draw    (450.5,379.67) -- (594.5,361.67) ;
+
+
+	%Straight Lines [id:da9663586449825898]
+	\draw    (450.5,379.67) -- (565.5,379.67) ;
+
+
+	%Straight Lines [id:da09006323507800906]
+	\draw    (565.5,379.67) -- (594.5,361.67) ;
+
+
+	%Straight Lines [id:da5016325768256922]
+	\draw    (434.5,216.67) -- (578.5,216.67) ;
+
+
+	%Straight Lines [id:da5551159943906354]
+	\draw    (434.5,216.67) -- (523.5,189.67) ;
+
+
+	%Straight Lines [id:da0662180899659146]
+	\draw    (578.5,216.67) -- (523.5,189.67) ;
+
+
+	%Shape: Arc [id:dp3220960824986723]
+	\draw  [draw opacity=0] (554.07,379.67) .. controls (554.07,379.67) and (554.07,379.67) .. (554.07,379.67) .. controls (554.07,373.93) and (559.19,369.28) .. (565.5,369.28) .. controls (569.28,369.28) and (572.64,370.95) .. (574.72,373.52) -- (565.5,379.67) -- cycle ; \draw   (554.07,379.67) .. controls (554.07,379.67) and (554.07,379.67) .. (554.07,379.67) .. controls (554.07,373.93) and (559.19,369.28) .. (565.5,369.28) .. controls (569.28,369.28) and (572.64,370.95) .. (574.72,373.52) ;
+	%Shape: Arc [id:dp6762487245531796]
+	\draw  [draw opacity=0] (461.79,378.05) .. controls (461.88,378.58) and (461.93,379.12) .. (461.93,379.67) .. controls (461.93,379.67) and (461.93,379.67) .. (461.93,379.67) -- (450.5,379.67) -- cycle ; \draw   (461.79,378.05) .. controls (461.88,378.58) and (461.93,379.12) .. (461.93,379.67) .. controls (461.93,379.67) and (461.93,379.67) .. (461.93,379.67) ;
+	%Shape: Arc [id:dp39152408705446007]
+	\draw  [draw opacity=0] (445.28,213.22) .. controls (445.7,214.3) and (445.93,215.46) .. (445.93,216.67) .. controls (445.93,216.89) and (445.92,217.12) .. (445.91,217.34) -- (434.5,216.67) -- cycle ; \draw   (445.28,213.22) .. controls (445.7,214.3) and (445.93,215.46) .. (445.93,216.67) .. controls (445.93,216.89) and (445.92,217.12) .. (445.91,217.34) ;
+	%Shape: Arc [id:dp2341014064769369]
+	\draw  [draw opacity=0] (567.07,216.67) .. controls (567.07,216.67) and (567.07,216.67) .. (567.07,216.67) .. controls (567.07,215) and (567.5,213.42) .. (568.28,212.02) -- (578.5,216.67) -- cycle ; \draw   (567.07,216.67) .. controls (567.07,216.67) and (567.07,216.67) .. (567.07,216.67) .. controls (567.07,215) and (567.5,213.42) .. (568.28,212.02) ;
+	%Straight Lines [id:da5267852686206813]
+	\draw  [dash pattern={on 0.84pt off 2.51pt}]  (163.5,582.67) -- (172.5,293.67) ;
+
+
+	%Shape: Circle [id:dp20277759229241954]
+	\draw   (97.83,430.5) .. controls (97.83,390.83) and (129.99,358.67) .. (169.67,358.67) .. controls (209.34,358.67) and (241.5,390.83) .. (241.5,430.5) .. controls (241.5,470.17) and (209.34,502.33) .. (169.67,502.33) .. controls (129.99,502.33) and (97.83,470.17) .. (97.83,430.5) -- cycle ;
+	%Straight Lines [id:da06338212668139187]
+	\draw    (261.46,432.85) -- (169.67,430.5) ;
+
+
+	%Straight Lines [id:da12439124523713763]
+	\draw    (261.46,432.85) -- (171.22,359.92) ;
+	\draw [shift={(169.67,358.67)}, rotate = 398.94] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+	%Straight Lines [id:da4660182773236943]
+	\draw    (261.46,432.85) -- (171.26,501.13) ;
+	\draw [shift={(169.67,502.33)}, rotate = 322.87] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle    ;
+
+	%Straight Lines [id:da054969251073351266]
+	\draw    (457.5,496.67) -- (458.5,472.67) ;
+
+
+	%Straight Lines [id:da9129204827738224]
+	\draw    (457.5,496.67) -- (572.5,496.67) ;
+
+
+	%Straight Lines [id:da7998194896642117]
+	\draw    (572.5,496.67) -- (458.5,472.67) ;
+
+
+	%Shape: Arc [id:dp01834382199726803]
+	\draw  [draw opacity=0] (561.07,496.67) .. controls (561.07,496.67) and (561.07,496.67) .. (561.07,496.67) .. controls (561.07,495.76) and (561.2,494.89) .. (561.44,494.05) -- (572.5,496.67) -- cycle ; \draw   (561.07,496.67) .. controls (561.07,496.67) and (561.07,496.67) .. (561.07,496.67) .. controls (561.07,495.76) and (561.2,494.89) .. (561.44,494.05) ;
+	%Shape: Right Angle [id:dp8511161176682245]
+	\draw   (458,484.67) -- (470,484.67) -- (470,496.67) ;
+	%Flowchart: Summing Junction [id:dp1511795714448616]
+	\draw   (482,97.67) .. controls (482,94.54) and (484.54,92) .. (487.67,92) .. controls (490.8,92) and (493.33,94.54) .. (493.33,97.67) .. controls (493.33,100.8) and (490.8,103.33) .. (487.67,103.33) .. controls (484.54,103.33) and (482,100.8) .. (482,97.67) -- cycle ; \draw   (483.66,93.66) -- (491.67,101.67) ; \draw   (491.67,93.66) -- (483.66,101.67) ;
+	%Straight Lines [id:da8545623245813687]
+	\draw    (189.46,135.85) -- (487.67,97.67) ;
+
+
+	%Straight Lines [id:da5660792298818036]
+	\draw  [dash pattern={on 4.5pt off 4.5pt}]  (321.86,184.44) -- (487.67,97.67) ;
+
+
+	%Shape: Circle [id:dp07482689623687366]
+	\draw   (302.33,120.67) .. controls (302.33,118.27) and (304.27,116.33) .. (306.67,116.33) .. controls (309.06,116.33) and (311,118.27) .. (311,120.67) .. controls (311,123.06) and (309.06,125) .. (306.67,125) .. controls (304.27,125) and (302.33,123.06) .. (302.33,120.67) -- cycle ;
+	%Straight Lines [id:da8770718698211055]
+	\draw    (304.68,120.92) -- (189.46,135.85) ;
+
+	\draw [shift={(306.67,120.67)}, rotate = 172.62] [fill={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=0.75]  [draw opacity=0] (8.93,-4.29) -- (0,0) -- (8.93,4.29) -- cycle ;
+
+	\draw   (302.29, 102.79) circle [x radius= 4, y radius= 4]   ;
+	\draw   (254.11, 234.02) circle [x radius= 4, y radius= 4]   ;
+	\draw   (370.55, 389.01) circle [x radius= 4, y radius= 4]   ;
+	\draw   (304.17, 542.39) circle [x radius= 4, y radius= 4]   ;
+	\draw   (170.27, 358.67) circle [x radius= 4, y radius= 4]   ;
+	\draw   (166.6, 502.27) circle [x radius= 4, y radius= 4]   ;
+
+
 
 	% Text Node
-	\draw (305,148.33) node  [align=left] {$A$};
+	\draw (259,459.67) node  [align=left] {$ \overrightarrow{M_1}$};
 	% Text Node
-	\draw (240,317.33) node  [align=left] {$B$};
+	\draw (322,200.67) node  [align=left] {$ \overrightarrow{M_2}$};
 	% Text Node
-	\draw (236,213.33) node  [align=left] {$M_1$};
+	\draw (270,176.67) node  [align=left] {$ \overrightarrow{i}$};
 	% Text Node
-	\draw (311,245.33) node  [align=left] {$M_2$};
+	\draw (437,194.67) node  [align=left] { $ < 90°\ $ };
 	% Text Node
-	\draw (254,14.33) node  [align=left] {$P_1$};
+	\draw (328,447.67) node  [align=left] {$ \overrightarrow{M_2}$};
 	% Text Node
-	\draw (232,361.33) node  [align=left] {$m_1$};
+	\draw (449,395.67) node  [align=left] {$ \overrightarrow{M_1}$};
 	% Text Node
-	\draw (312,171.33) node  [align=left] {$m_2$};
+	\draw (441,233.67) node  [align=left] {$ \overrightarrow{M_1}$};
+	% Text Node
+	\draw (179,149.67) node  [align=left] {$ \overrightarrow{M_1}$};
+	% Text Node
+	\draw (524,175.67) node  [align=left] {$ \overrightarrow{i}$};
+	% Text Node
+	\draw (606,352.67) node  [align=left] {$ \overrightarrow{i}$};
+	% Text Node
+	\draw (561,350.67) node  [align=left] { $ > 90°$ };
+	% Text Node
+	\draw (574,233.67) node  [align=left] {$ \overrightarrow{M_2}$};
+	% Text Node
+	\draw (571,396.67) node  [align=left] {$ \overrightarrow{M_2}$};
+	% Text Node
+	\draw (343,474.67) node  [align=left] {$ \overrightarrow{i}$};
+	% Text Node
+	\draw (186,447.67) node  [align=left] {$ \overrightarrow{M_3}$};
+	% Text Node
+	\draw (456,511.67) node  [align=left] {$ \overrightarrow{M_3}$};
+	% Text Node
+	\draw (454,459.67) node  [align=left] {$ \overrightarrow{i}$};
+	% Text Node
+	\draw (578,513.67) node  [align=left] {$ \overrightarrow{M_1}$};
+	% Text Node
+	\draw (253,256.67) node  [align=left] {$ \overrightarrow{A}$};
+	% Text Node
+	\draw (319,86.67) node  [align=left] {$ \overrightarrow{B}$};
+	% Text Node
+	\draw (158,345.67) node  [align=left] {$ \overrightarrow{B}$};
+	% Text Node
+	\draw (389,380.67) node  [align=left] {$ \overrightarrow{B}$};
+	% Text Node
+	\draw (153,522.67) node  [align=left] {$ \overrightarrow{A}$};
+	% Text Node
+	\draw (310,560.67) node  [align=left] {$ \overrightarrow{A}$};
+	% Text Node
+	\draw (490,117.67) node  [align=left] {$ \overrightarrow{P_1}$};
+	% Text Node
+	\draw (330,133.67) node  [align=left] {$ \overrightarrow{N_1}$};
+	% Text Node
+	\draw (573,194.67) node  [align=left] { $ < 90°\ $ };
+	% Text Node
+	\draw (450,350.67) node  [align=left] { $ < 90°\ $ };
+	% Text Node
+	\draw (160,429.67) node  [align=left] {$\overrightarrow{i}$};
+	% Text Node
+	\draw (460,439.67) node  [align=left] { $ = 90°\ $ };
+	% Text Node
+	\draw (566,439.67) node  [align=left] { $ > 90°\ $ };
 
-	\draw   (307.33, 134.42) circle [x radius= 4, y radius= 4]   ;
-	\draw   (239.09, 300.77) circle [x radius= 4, y radius= 4]   ;
-	\end{tikzpicture}
+\end{tikzpicture}
 
-\caption{Körívek metszete gömbfelületen}
-\label{fig:arc-intersection}
+
+\caption{Különböző esetek a szükséges körív megállapítására}
+\label{fig:arc-differentiation}
 \end{figure}
 
-\lstset{caption={Pontok által meghatározott körívek metszete}, label=src:arcIntersect}
-\begin{lstlisting}[language={JavaScript}]
-import { Vector3 } from 'three';
+Azt viszont még meg kell állapítani, hogy a nagyobb vagy a kisebb körív e az ami a metszethez tartozik.
 
-export function arcIntersection(p1: Vector3, pe1: Vector3, p2: Vector3, pe2: Vector3): Vector3 {
+Határozzuk meg azt az esetet ami fordulópontnak számít a két eset közt. Legyen $\overrightarrow{i}$ az $\overrightarrow{A}$ és $\overrightarrow{B}$ vektorok amit az \ref{src:arcIntersect} függvény számol ki.
+
+\lstset{caption={Vektorok által meghatározott körívek metszete}, label=src:arcIntersect}
+\begin{lstlisting}[language={JavaScript}]
+function ai(p1: Vector3, pe1: Vector3, p2: Vector3, pe2: Vector3) {
 	const c1 = p1.clone().cross(pe1);
 	const c2 = p2.clone().cross(pe2);
 	const i1 = c1.clone().cross(c2);
 	const i2 = c2.clone().cross(c1);
-	const mid = p1.clone()
-		.add(p2)
-		.add(pe1)
-		.add(pe2);
+	const mid = p1.clone().add(p2).add(pe1).add(pe2);
 	return mid.dot(i1) > 0 ? i1 : i2;
 }
 \end{lstlisting}
+
+
+Ha $\overrightarrow{i} × \overrightarrow{M_1} = 0$ és az elemeiknek az előjeleik is megegyeznek akkor biztosan pontosan ugyanabba az irányba néznek azaz $\angle (\overrightarrow{M_1} - \overrightarrow{i}, \overrightarrow{M_1} - \overrightarrow{M_2}) = 90°$. Ebben a különleges esetben a két körív hossza megegyezik. Ebben az esetben az $\angle (\overrightarrow{M_1}, \overrightarrow{P_1})$ és az $\angle (\overrightarrow{M_2}, \overrightarrow{P_1})$ közti különbségre hagyatkozunk. Ha éppen $\overrightarrow{M_1}$-et vizsgáljuk és vele áll fent ez a helyet, akkor ha ő van közelebb, akkor $\overrightarrow{N_1}$ semmiképpen sem lehet megoldás, ugyanis ilyen helyzet csak akkor állhat fenn ha $c_1$ a kisebb. (Nagyobb nem lehet, ha meg megegyeznek akkor végtelensok metszéspontjuk lenne.)
+
+A másik két esetben már egyszerűbb dolgunk van. Ha $\overrightarrow{M_1}$, $\overrightarrow{P_1}$-hez közelebbi pont esetén, $\overrightarrow{i}$ még közelebb van, akkor a nagyobb körív a helyes. távolságok mérése helyett pontosabb ha az $\angle(\overrightarrow{M_1} - \overrightarrow{i}, \overrightarrow{M_1} - \overrightarrow{M_2})$ szöget vizsgáljuk. Ha nagyobb mint $90°$ akkor a nagyobb körív a helyes, ha kisebb akkor a kisebbik.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Ha vesszük az $m_1, m_2, A$ és $B$ pontok és $P$ pont közti távolságot, akkor ezek alaján már meghatározhatjuk, hogy végül melyik pontot válasszuk.
 
