@@ -1,7 +1,8 @@
 import { RxJsonSchema } from 'rxdb';
 import { planetSchema } from './planet.schema';
+import { Lore } from '../data';
 
-export const loreSchema: RxJsonSchema = {
+export const loreSchema: RxJsonSchema<Lore> = {
 	title: 'Lore',
 	description: 'Project object',
 	version: 0,

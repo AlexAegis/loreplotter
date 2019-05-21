@@ -90,7 +90,7 @@ export class EngineService {
 				withLatestFrom(this.databaseService.database$),
 				switchMap(([lore, database]) => database.lore.findOne({ id: lore.id }).$.pipe(take(1))),
 				switchMap(lore =>
-					of((lore.getAttachment('texture') as any) as RxAttachment<Lore>).pipe(
+					of(lore.getAttachment('texture')).pipe(
 						mergeMap(att => (att ? att.getData() : of(undefined))),
 						map(att => ({ lore, att }))
 					)
@@ -302,7 +302,6 @@ export class EngineService {
 		this.globe.indicatorFrom = new IndicatorSphere('indicator_from', this.globe);
 		this.globe.indicatorTo = new IndicatorSphere('indicator_to', this.globe);
 
-		// this.add(new IndicatorLight('indicator_to'));
 		const glowMaterial = new ShaderMaterial({
 			uniforms: {
 				c: { type: 'f', value: 0.46 },

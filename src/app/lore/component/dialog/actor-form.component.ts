@@ -99,26 +99,27 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 			) {
 				this.actorForm.controls['maxSpeed'].setValue(originalData.accumulator.maxSpeed.value);
 			}
-
-			originalData.accumulator.properties.forEach(property => {
-				if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor) {
-					this.addProperty(
-						property.value.key as string,
-						property.value.value as string,
-						property.value.value as string,
-						this.newProperties
-					);
-				} else {
-					if (property.value.value) {
+			if (originalData.accumulator.properties) {
+				originalData.accumulator.properties.forEach(property => {
+					if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor) {
 						this.addProperty(
 							property.value.key as string,
-							undefined,
 							property.value.value as string,
-							this.properties
+							property.value.value as string,
+							this.newProperties
 						);
+					} else {
+						if (property.value.value) {
+							this.addProperty(
+								property.value.key as string,
+								undefined,
+								property.value.value as string,
+								this.properties
+							);
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 	}
 

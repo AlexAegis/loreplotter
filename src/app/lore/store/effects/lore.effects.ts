@@ -191,43 +191,6 @@ export class LoreEffects {
 	);
 
 	/**
-	 * This handles what happens when a lore has been deleted
-	 * If the deleted one is the one that was selected, switch to an existing one. If there is no more existing ones
-	 * create one
-
-	@Effect()
-	public deletedLore$ = this.actions$.pipe(
-		ofType(deleteLoreSuccess.type),
-		withLatestFrom(this.storeFacade.selectedLore$), // For checking if the user deleted the selected project or not
-		mergeMap(([payload, selected]) =>
-			iif(
-				() => payload.payload === selected.id, // if they do
-				this.databaseService.database$.pipe(
-					switchMap(db => db.lore.find().$),
-					take(1),
-					flatMap(lores => lores),
-					filter(l => l.id !== selected.id),
-	 endWith(undefined as {}), // making sure that one element will be inside the stream
-					take(1),
-					mergeMap(lore =>
-						iif(
-	 () => lore !== undefined, // if there is something remaining
-	 of(changeSelectedLore({ payload: (lore as Lore).id })).pipe(take(1),tap(a => console.log(a))), // the side effect is to select that
-							this.databaseService.database$.pipe(
-								// else, the side effect is to select create a new example and select it
-								take(1),
-								switchMap(db => this.databaseService.initData(db)),
-								mapTo(voidOperation())
-							)
-						)
-					)
-				),
-				of(voidOperation()) // if its not the selected project, do nothing
-			)
-		)
-	);
-	 */
-	/**
 	 * Also makes sure that all the actors are deleted too.
 	 */
 	@Effect()

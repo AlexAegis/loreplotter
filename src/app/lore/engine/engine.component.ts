@@ -73,7 +73,6 @@ export class EngineComponent extends BaseDirective implements AfterViewInit {
 	}
 
 	public contextmenu($event: any): boolean {
-		console.log($event);
 		let pos;
 		if ($event.type === 'press') {
 			// Hammer press event

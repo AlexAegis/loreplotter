@@ -10,6 +10,7 @@ import RxDB, { RxCollection, RxDatabase, RxDocument } from 'rxdb';
 import { combineLatest, from, Observable, zip } from 'rxjs';
 import { delayWhen, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { LoreCollectionMethods, LoreDocumentMethods, RxCollections } from './database';
+import { environment } from '@env/environment';
 
 @Injectable()
 export class DatabaseService {
@@ -111,11 +112,41 @@ export class DatabaseService {
 
 	public static actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
 		if (actor.states) {
-			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
+			let parsedStates = actor.states;
+			if (environment.production) {
+				parsedStates = parsedStates.replace(
+					new RegExp(`"__type":"ActorDelta"`, 'g'),
+					`"__type":"${ActorDelta.name}"`
+				);
+				parsedStates = parsedStates.replace(
+					new RegExp(`"__type":"UnixWrapper"`, 'g'),
+					`"__type":"${UnixWrapper.name}"`
+				);
+			} else {
+				parsedStates = parsedStates.replace(
+					new RegExp(`"__type":"${ActorDelta.name}"`, 'g'),
+					'"__type":"ActorDelta"'
+				);
+				parsedStates = parsedStates.replace(
+					new RegExp(`"__type":"${UnixWrapper.name}"`, 'g'),
+					'"__type":"UnixWrapper"'
+				);
+			}
+			try {
+				actor._states = Tree.parse<UnixWrapper, ActorDelta>(parsedStates, UnixWrapper, ActorDelta);
+			} catch (e) {
+				console.log(e);
+			}
+
 			if (actor._states) {
 				for (const node of actor._states.nodes()) {
 					node.key.unix = Math.floor(node.key.unix);
+					if (typeof node.value.properties === 'string') {
+						node.value.properties = JSON.parse(node.value.properties); // Manual deserialization
+					}
 				}
+			} else {
+				actor._states = new Tree<UnixWrapper, ActorDelta>();
 			}
 
 			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted

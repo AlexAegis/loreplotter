@@ -48,20 +48,3 @@ export class IndicatorSphere extends Basic {
 		this.geometry = new SphereBufferGeometry(1, 64, 64, 0, Math.PI * 2, 0, Math.min(radian, Math.PI));
 	}
 }
-
-/***
-
- old constructor for spotlight experiment
- super(0xe6561a);
- console.log('indicator crafted');
- // this.type = 'Indicator';
- this.position.set(0, 0, 2);
- this.intensity = 2;
- this.penumbra = 0;
- this.distance = 1000000000;
- this.decay = 0;
- this.castShadow = false;
- // (this.geometry as any).computeBoundsTree(); // Use
-
- }
- */

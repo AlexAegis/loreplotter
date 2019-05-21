@@ -137,20 +137,22 @@ export class ActorService {
 								accumulator.position.value = node.value.position;
 								accumulator.position.appearedIn = node;
 							}
-							node.value.properties.forEach(({ key, value }) => {
-								const prop = propertyMap.get(key);
-								if (prop) {
-									if (value) {
-										prop.value = value;
-										prop.appearedIn = node;
+							if (node.value.properties) {
+								node.value.properties.forEach(({ key, value }) => {
+									const prop = propertyMap.get(key);
+									if (prop) {
+										if (value) {
+											prop.value = value;
+											prop.appearedIn = node;
+										}
+									} else {
+										const propField = new AccumulatorField<string>();
+										propField.value = value;
+										propField.appearedIn = node;
+										propertyMap.set(key, propField);
 									}
-								} else {
-									const propField = new AccumulatorField<string>();
-									propField.value = value;
-									propField.appearedIn = node;
-									propertyMap.set(key, propField);
-								}
-							});
+								});
+							}
 						} else {
 							if (node.key.unix !== undefined && accumulator.unix.nextAppearance === undefined) {
 								accumulator.unix.nextValue = node.key.unix;
@@ -178,20 +180,22 @@ export class ActorService {
 								accumulator.position.nextValue = node.value.position;
 								accumulator.position.nextAppearance = node;
 							}
-							node.value.properties.forEach(({ key, value }) => {
-								const prop = propertyMap.get(key);
-								if (prop) {
-									if (value !== undefined && prop.nextAppearance === undefined) {
-										prop.nextValue = value;
-										prop.nextAppearance = node;
+							if (node.value.properties) {
+								node.value.properties.forEach(({ key, value }) => {
+									const prop = propertyMap.get(key);
+									if (prop) {
+										if (value !== undefined && prop.nextAppearance === undefined) {
+											prop.nextValue = value;
+											prop.nextAppearance = node;
+										}
+									} else {
+										const propField = new AccumulatorField<string>();
+										propField.nextValue = value;
+										propField.nextAppearance = node;
+										propertyMap.set(key, propField);
 									}
-								} else {
-									const propField = new AccumulatorField<string>();
-									propField.nextValue = value;
-									propField.nextAppearance = node;
-									propertyMap.set(key, propField);
-								}
-							});
+								});
+							}
 						}
 					}
 					for (const [key, value] of propertyMap.entries()) {

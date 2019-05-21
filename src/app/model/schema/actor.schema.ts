@@ -1,6 +1,7 @@
 import { RxJsonSchema } from 'rxdb';
+import { Actor } from '../data';
 
-export const actorSchema: RxJsonSchema = {
+export const actorSchema: RxJsonSchema<Partial<Actor>> = {
 	title: 'Actor',
 	description: 'Actor Object, describes a series of events',
 	version: 0,

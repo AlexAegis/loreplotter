@@ -614,7 +614,6 @@ export class ActorObject extends Basic {
 		const engineService = this.stage.engineService;
 		const globe = this.parent.parent as Globe;
 		const worldPos = this.getWorldPosition(this.lastWorldPosition);
-		// console.log(worldPos);
 		worldPos.multiplyScalar(1.1); // Look start further away;
 		const toCenter = worldPos
 			.clone()
@@ -622,7 +621,6 @@ export class ActorObject extends Basic {
 			.normalize();
 		engineService.raycaster.set(worldPos, toCenter);
 
-		// engineService.raycaster.setFromCamera(Axis.center, engineService.stage.camera);
 		const i = engineService.raycaster.intersectObject(globe)[0];
 		if (i) {
 			//  but there's always be an intersection as the globe is spherical

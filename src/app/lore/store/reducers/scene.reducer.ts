@@ -100,8 +100,8 @@ export const initialSceneState: SceneState = {
 	manualLight: true,
 	debugMode: false,
 	manualLightAlwaysOn: false,
-	sidebarOpen: false, // Will be set correctly on application startup
-	mediaLarge: false // Will be set correctly on application startup
+	sidebarOpen: window.innerHeight / window.innerHeight >= 1.8,
+	mediaLarge: window.innerHeight / window.innerHeight >= 1.8
 };
 
 function cursorReducer(cursor: CursorState, action: SceneActions): CursorState {

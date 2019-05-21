@@ -129,13 +129,11 @@ export class SceneEffects {
 		private store: Store<FeatureState>,
 		private storeFacade: StoreFacade,
 		private loreService: LoreService
-	) {
-	}
+	) {}
 
 	@Effect({ dispatch: false })
 	public spawnOnWorld = this.actions$.pipe(
 		ofType(actorSpawnOnWorld.type),
-		tap(e => console.log(e)),
 		withLatestFrom(this.storeFacade.cursor$),
 		switchMap(async ([{ payload }, cursor]) => {
 			payload.actorObject.applyQuaternion(payload.actorObject.globe.quaternion.clone().inverse());

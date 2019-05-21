@@ -1,8 +1,32 @@
 # [LorePlotter](https://alexaegis.github.io/loreplotter/)
 
-[![Build Status](https://travis-ci.com/AlexAegis/loreplotter.svg?branch=master)](https://travis-ci.com/AlexAegis/loreplotter) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9b155010806741a897cc8420898f4e84)](https://www.codacy.com/app/AlexAegis/loreplotter?utm_source=github.com&utm_medium=referral&utm_content=AlexAegis/loreplotter&utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/maintainability)](https://codeclimate.com/github/AlexAegis/loreplotter/maintainability) [![Test Coverage](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/test_coverage)](https://codeclimate.com/github/AlexAegis/loreplotter/test_coverage) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![Greenkeeper badge](https://badges.greenkeeper.io/AlexAegis/loreplotter.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.com/AlexAegis/loreplotter.svg?branch=master)](https://travis-ci.com/AlexAegis/loreplotter) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9b155010806741a897cc8420898f4e84)](https://www.codacy.com/app/AlexAegis/loreplotter?utm_source=github.com&utm_medium=referral&utm_content=AlexAegis/loreplotter&utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/maintainability)](https://codeclimate.com/github/AlexAegis/loreplotter/maintainability) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![Greenkeeper badge](https://badges.greenkeeper.io/AlexAegis/loreplotter.svg)](https://greenkeeper.io/)
 
----
+## Contributing
+
+To install all required dependencies
+
+```bash
+npm install
+```
+
+To start a dev server
+
+```bash
+npm run start
+```
+
+To build the project
+
+```bash
+npm run build
+```
+
+To open the built project in a local http-server
+
+```bash
+npm run start:prod
+```
 
 Check bundle sizes
 
@@ -15,10 +39,6 @@ webpack-bundle-analyzer dist/loreplotter/stats-es2015.json
 ### [Angular 8](https://angular.io/)
 
 > **Frontend** framework
-
-### [Node 10](https://nodejs.org/en/)
-
-> **JavaScript** runtime
 
 ### [NPM](https://www.npmjs.com/)
 

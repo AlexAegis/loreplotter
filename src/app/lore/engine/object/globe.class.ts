@@ -90,8 +90,7 @@ export class Globe extends Basic {
 
 		this.add(this.water);
 
-		this.zoomSubject /*.pipe(tap(z => console.log(`z: ${z}`)))*/
-			.subscribe(this.pointUpdateAudit);
+		this.zoomSubject.subscribe(this.pointUpdateAudit);
 
 		this.pointUpdateAudit
 			.pipe(

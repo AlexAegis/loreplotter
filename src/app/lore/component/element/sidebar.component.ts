@@ -1,5 +1,13 @@
 import { SkyhookDndService } from '@angular-skyhook/core';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, Input, OnInit } from '@angular/core';
+import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	HostListener,
+	Input,
+	OnInit
+} from '@angular/core';
 import { BaseDirective } from '@app/component/base-component.class';
 import { Actor } from '@app/model/data/actor.class';
 import { Accumulator, ActorService, DatabaseService } from '@app/service';

@@ -1,5 +1,5 @@
 import { Vector3Serializable } from '@app/model/data';
-import { jsonMember, jsonObject, toJson, jsonArrayMember } from 'typedjson';
+import { jsonMember, jsonObject, toJson, jsonArrayMember, TypedJSON } from 'typedjson';
 import { Property } from './property.class';
 
 @jsonObject
@@ -10,10 +10,9 @@ export class ActorDelta {
 	@jsonMember
 	public position: Vector3Serializable;
 	@jsonArrayMember(() => new Property(), {
-		emitDefaultValue: true,
 		isRequired: true,
-		serializer: (m: Array<Property>) => JSON.stringify(m),
-		deserializer: (m: string) => JSON.parse(m)
+		serializer: (m: Array<Property>) => TypedJSON.stringifyAsArray(m, Property),
+		deserializer: (m: string) => TypedJSON.parseAsArray(m, Property)
 	})
 	public properties: Array<Property> = [];
 	@jsonMember
