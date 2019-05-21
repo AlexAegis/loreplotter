@@ -11,6 +11,7 @@ import { RxDocument } from 'rxdb';
 import { combineLatest, from, Observable, of, Subject } from 'rxjs';
 import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMap, tap, toArray } from 'rxjs/operators';
 import { Group, Vector3 } from 'three';
+import { Property } from '@app/model/data/property.class';
 
 export interface Accumulator {
 	cursor: number;
@@ -27,11 +28,6 @@ export class AccumulatorField<T> {
 	nextAppearance: Node<UnixWrapper, ActorDelta>;
 }
 
-export class Property<T> {
-	key: T;
-	value: T;
-}
-
 export class ActorDeltaAccumulator {
 	id = new AccumulatorField<string>();
 	unix = new AccumulatorField<number>();
@@ -39,7 +35,7 @@ export class ActorDeltaAccumulator {
 	maxSpeed = new AccumulatorField<number>();
 	color = new AccumulatorField<string>();
 	position = new AccumulatorField<Vector3Serializable>();
-	properties: Array<AccumulatorField<Property<String>>> = [];
+	properties: Array<AccumulatorField<Property>> = [];
 }
 
 @Injectable()
@@ -103,7 +99,7 @@ export class ActorService {
 			of(...actors).pipe(
 				map(actor => {
 					const accumulator = new ActorDeltaAccumulator();
-					const propertyMap = new Map<String, AccumulatorField<String>>();
+					const propertyMap = new Map<string, AccumulatorField<string>>();
 					let firstEvent: Node<UnixWrapper, ActorDelta>;
 					let lastEvent: Node<UnixWrapper, ActorDelta>;
 
@@ -141,7 +137,7 @@ export class ActorService {
 								accumulator.position.value = node.value.position;
 								accumulator.position.appearedIn = node;
 							}
-							for (const [key, value] of node.value.knowledge.entries()) {
+							node.value.properties.forEach(({ key, value }) => {
 								const prop = propertyMap.get(key);
 								if (prop) {
 									if (value) {
@@ -149,12 +145,12 @@ export class ActorService {
 										prop.appearedIn = node;
 									}
 								} else {
-									const propField = new AccumulatorField<String>();
+									const propField = new AccumulatorField<string>();
 									propField.value = value;
 									propField.appearedIn = node;
 									propertyMap.set(key, propField);
 								}
-							}
+							});
 						} else {
 							if (node.key.unix !== undefined && accumulator.unix.nextAppearance === undefined) {
 								accumulator.unix.nextValue = node.key.unix;
@@ -182,7 +178,7 @@ export class ActorService {
 								accumulator.position.nextValue = node.value.position;
 								accumulator.position.nextAppearance = node;
 							}
-							for (const [key, value] of node.value.knowledge.entries()) {
+							node.value.properties.forEach(({ key, value }) => {
 								const prop = propertyMap.get(key);
 								if (prop) {
 									if (value !== undefined && prop.nextAppearance === undefined) {
@@ -190,16 +186,16 @@ export class ActorService {
 										prop.nextAppearance = node;
 									}
 								} else {
-									const propField = new AccumulatorField<String>();
+									const propField = new AccumulatorField<string>();
 									propField.nextValue = value;
 									propField.nextAppearance = node;
 									propertyMap.set(key, propField);
 								}
-							}
+							});
 						}
 					}
 					for (const [key, value] of propertyMap.entries()) {
-						const accField = new AccumulatorField<Property<String>>();
+						const accField = new AccumulatorField<Property>();
 						accField.nextValue = { key, value: value.nextValue };
 						accField.nextAppearance = value.nextAppearance;
 						accField.appearedIn = value.appearedIn;
@@ -231,11 +227,11 @@ export class ActorService {
 	public actorDialogSubscription = this.actorFormSave
 		.pipe(
 			filter(data => data !== undefined),
-			switchMap(({ actor, name, maxSpeed, date, knowledge, newKnowledge, color }) => {
+			switchMap(({ actor, name, maxSpeed, date, properties, newProperties, color }) => {
 				const wrapper = new UnixWrapper(Math.floor(date.unix()));
 				const finalPosition = this.actorPositionAt(actor, wrapper.unix);
-				const knowledgeMap = new Map<String, String | undefined>();
-				knowledge
+				const propertyMap = new Map<string, string | undefined>();
+				properties
 					.filter(e => e.value || e.forget)
 					.map(k => {
 						if (k.forget) {
@@ -243,9 +239,15 @@ export class ActorService {
 						}
 						return k;
 					})
-					.forEach(({ key, value }) => knowledgeMap.set(key, value));
-				newKnowledge.filter(({ value }) => !!value).forEach(({ key, value }) => knowledgeMap.set(key, value));
-				const delta = new ActorDelta(name ? name : undefined, finalPosition, knowledgeMap, maxSpeed, color);
+					.forEach(({ key, value }) => propertyMap.set(key, value));
+				newProperties.filter(({ value }) => !!value).forEach(({ key, value }) => propertyMap.set(key, value));
+
+				const finalProperties: Array<Property> = [];
+				for (const [key, value] of propertyMap.entries()) {
+					finalProperties.push(new Property(key, value));
+				}
+
+				const delta = new ActorDelta(name ? name : undefined, finalPosition, finalProperties, maxSpeed, color);
 
 				actor._states.set(wrapper, delta);
 

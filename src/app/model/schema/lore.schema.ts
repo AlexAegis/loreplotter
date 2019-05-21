@@ -3,7 +3,7 @@ import { planetSchema } from './planet.schema';
 
 export const loreSchema: RxJsonSchema = {
 	title: 'Lore',
-	description: 'Project object, contains actors and the texture of the planet and such',
+	description: 'Project object',
 	version: 0,
 	keyCompression: true,
 	type: 'object',
@@ -16,14 +16,6 @@ export const loreSchema: RxJsonSchema = {
 		name: {
 			type: 'string',
 			uniqueItems: true
-		},
-		locations: {
-			type: 'array',
-			uniqueItems: true,
-			default: [],
-			items: {
-				type: 'string'
-			}
 		},
 		planet: planetSchema
 	},

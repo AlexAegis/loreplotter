@@ -2,13 +2,14 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { ChangeDetectionStrategy, Component, HostBinding, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { BaseDirective } from '@app/component/base-component.class';
-import { AccumulatorField, LoreService, Property } from '@app/service';
+import { AccumulatorField, LoreService } from '@app/service';
 import { Accumulator, ActorService } from '@app/service/actor.service';
 import { ActorFormComponent, ActorFormResultData } from '@lore/component/dialog/actor-form.component';
 import { EngineService } from '@lore/engine/engine.service';
 import { Observable } from 'rxjs';
 import { filter, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { Vector2 } from 'three';
+import { Property } from '@app/model/data/property.class';
 
 @Component({
 	selector: 'app-popup',
@@ -89,7 +90,7 @@ export class PopupComponent extends BaseDirective implements OnInit {
 
 	public ngOnInit(): void {}
 
-	public nonEmpty(properties: Array<AccumulatorField<Property<String>>>) {
+	public nonEmpty(properties: Array<AccumulatorField<Property>>) {
 		return properties.filter(property => property.value.value !== undefined);
 	}
 }

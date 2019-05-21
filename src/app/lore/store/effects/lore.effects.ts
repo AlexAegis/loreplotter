@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Lore } from '@app/model/data';
+import { Lore, Planet } from '@app/model/data';
 import { DatabaseService } from '@app/service/database.service';
 import { LoreService } from '@app/service/lore.service';
 import { Payload } from '@lore/store/actions/payload.interface';
@@ -52,17 +52,7 @@ export class LoreEffects {
 	 */
 	private initialLores$ = this.databaseService.database$.pipe(
 		switchMap(db => db.lore.find().$.pipe(take(1))),
-		map(lores =>
-			lores.map(
-				lore =>
-					({
-						name: lore.name,
-						id: lore.id,
-						planet: { radius: lore.planet.radius, name: lore.planet.name },
-						locations: lore.locations
-					} as Lore)
-			)
-		),
+		map(lores => lores.map(lore => new Lore(lore.id, lore.name, new Planet(lore.planet.name, lore.planet.radius)))),
 		map(lores => loadLoresSuccess({ payload: lores })),
 		catchError(error => of(loadLoresFailure({ payload: error })))
 	);
@@ -110,7 +100,7 @@ export class LoreEffects {
 		ofType(createLore.type),
 		switchMap((
 			{ payload }: Payload<{ tex: Blob } & Lore> //
-			) =>
+		) =>
 			this.loreService.create(payload).pipe(
 				delayWhen(lore => {
 					if (payload.tex) {

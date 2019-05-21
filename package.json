@@ -71,6 +71,7 @@
 		"postprocessing": "^6.4.0",
 		"pouchdb-adapter-idb": "^7.0.0",
 		"propagating-hammerjs": "^1.4.6",
+		"reflect-metadata": "^0.1.13",
 		"resize-observer-polyfill": "^1.5.1",
 		"rxdb": "^8.1.0",
 		"rxjs": "~6.5.2",

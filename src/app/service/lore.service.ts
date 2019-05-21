@@ -126,7 +126,9 @@ export class LoreService extends BaseDirective {
 				)
 			)
 			.subscribe(({ actor, cursor, overrideNodePositions }) => {
-				const enclosure = actor._states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<Node<UnixWrapper, ActorDelta>>;
+				const enclosure = actor._states.enclosingNodes(new UnixWrapper(cursor)) as Enclosing<
+					Node<UnixWrapper, ActorDelta>
+				>;
 				if (enclosure.last === undefined && enclosure.first !== undefined) {
 					enclosure.last = enclosure.first;
 				} else if (enclosure.first === undefined && enclosure.last !== undefined) {
@@ -282,7 +284,7 @@ export class LoreService extends BaseDirective {
 		return zip(this.databaseService.database$, this.databaseService.nextLoreId$).pipe(
 			map(([connection, nextId]) => ({
 				connection,
-				json: new Lore(nextId, lore.name, lore.locations, new Planet(lore.planet.name, lore.planet.radius))
+				json: new Lore(nextId, lore.name, new Planet(lore.planet.name, lore.planet.radius))
 			})),
 			switchMap(({ connection, json }) => connection.lore.insert(json))
 		);
@@ -296,7 +298,7 @@ export class LoreService extends BaseDirective {
 		return this.databaseService.database$.pipe(
 			map(connection => ({
 				connection,
-				json: new Lore(lore.id, lore.name, lore.locations, new Planet(lore.planet.name, lore.planet.radius))
+				json: new Lore(lore.id, lore.name, new Planet(lore.planet.name, lore.planet.radius))
 			})),
 			switchMap(({ connection, json }) => connection.lore.upsert(json))
 		);

@@ -112,9 +112,12 @@ export class DatabaseService {
 	public static actorStateMapper(actor: RxDocument<Actor> | Actor): RxDocument<Actor> | Actor {
 		if (actor.states) {
 			actor._states = Tree.parse<UnixWrapper, ActorDelta>(actor.states, UnixWrapper, ActorDelta);
-			for (const node of actor._states.nodes()) {
-				node.key.unix = Math.floor(node.key.unix);
+			if (actor._states) {
+				for (const node of actor._states.nodes()) {
+					node.key.unix = Math.floor(node.key.unix);
+				}
 			}
+
 			delete actor.states; // Making it undefined triggers an RxError that the set of a field can't be setted
 		} else if (!actor._states) {
 			actor._states = new Tree<UnixWrapper, ActorDelta>();

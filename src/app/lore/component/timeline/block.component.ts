@@ -33,7 +33,6 @@ import { Math as ThreeMath, Vector3 } from 'three';
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
-
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
 		return this.isSaving ? 0.5 : 1;
@@ -60,8 +59,10 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public set actor(actor: RxDocument<Actor>) {
 		this._actor = actor;
 		this._actor._userdata = { block: this };
-		this.blockStart.original = this.blockStart.override = this._actor._states.first().key.unix;
-		this.blockEnd.original = this.blockEnd.override = this._actor._states.last().key.unix;
+		if (this._actor._states) {
+			this.blockStart.original = this.blockStart.override = this._actor._states.first().key.unix;
+			this.blockEnd.original = this.blockEnd.override = this._actor._states.last().key.unix;
+		}
 		this.update();
 	}
 
@@ -436,7 +437,6 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				return a;
 			})
 			.then(actor => {
-
 				// this._originalUnixesForPan.clear();
 
 				this.actor = actor;

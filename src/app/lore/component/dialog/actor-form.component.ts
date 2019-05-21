@@ -15,8 +15,8 @@ import { RxDocument } from 'rxdb';
  */
 export interface ActorFormComponentData {
 	name: string;
-	/** Most recent knowledge at the time of opening */
-	knowledge: Array<{ key: String; value: String }>;
+	/** Most recent properties at the time of opening */
+	properties: Array<{ key: string; value: string }>;
 	/** Cursor position at the time of opening the dialog */
 	selected: ActorObject;
 	cursor: number;
@@ -32,8 +32,8 @@ export interface ActorFormResultData {
 	name: string;
 	date: Moment;
 	maxSpeed: number;
-	knowledge: Array<{ key: String; value: String; forget: boolean }>;
-	newKnowledge: Array<{ key: String; value: String }>;
+	properties: Array<{ key: string; value: string; forget: boolean }>;
+	newProperties: Array<{ key: string; value: string }>;
 	actor: RxDocument<Actor>;
 	color: string;
 }
@@ -52,8 +52,8 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		date: this.formBuilder.control(''),
 		time: this.formBuilder.control(''),
 		maxSpeed: this.formBuilder.control('', [ctrl => (this.canDo(ctrl.value) ? undefined : { slow: true })]),
-		knowledge: this.formBuilder.array([]),
-		newKnowledge: this.formBuilder.array([])
+		properties: this.formBuilder.array([]),
+		newProperties: this.formBuilder.array([])
 	});
 
 	public set color(color: string) {
@@ -70,8 +70,8 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	public originalDate: string;
 	public originalTime: string;
 
-	public knowledgeArray: FormArray = this.actorForm.controls.knowledge as FormArray;
-	public newKnowledgeArray: FormArray = this.actorForm.controls.newKnowledge as FormArray;
+	public properties: FormArray = this.actorForm.controls.properties as FormArray;
+	public newProperties: FormArray = this.actorForm.controls.newProperties as FormArray;
 
 	public constructor(
 		public dialogRef: MatDialogRef<ActorFormComponent>,
@@ -102,19 +102,19 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 
 			originalData.accumulator.properties.forEach(property => {
 				if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor) {
-					this.addKnowledge(
+					this.addProperty(
 						property.value.key as string,
 						property.value.value as string,
 						property.value.value as string,
-						this.newKnowledgeArray
+						this.newProperties
 					);
 				} else {
 					if (property.value.value) {
-						this.addKnowledge(
+						this.addProperty(
 							property.value.key as string,
 							undefined,
 							property.value.value as string,
-							this.knowledgeArray
+							this.properties
 						);
 					}
 				}
@@ -129,8 +129,8 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 			date: moment(finalDatetime),
 			name: this.actorForm.controls['name'].value,
 			maxSpeed: maxSpeed ? parseFloat(maxSpeed) : undefined,
-			knowledge: this.actorForm.controls['knowledge'].value,
-			newKnowledge: this.actorForm.controls['newKnowledge'].value,
+			properties: this.actorForm.controls['properties'].value,
+			newProperties: this.actorForm.controls['newProperties'].value,
 			actor: this.originalData.actor,
 			color: this.color
 		};
@@ -163,7 +163,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.afterViewInit = true;
 	}
 
-	public addKnowledge(key?: string, value?: string, valuePlaceholder?: string, to?: FormArray): FormGroup {
+	public addProperty(key?: string, value?: string, valuePlaceholder?: string, to?: FormArray): FormGroup {
 		const control = FormEntryComponent.create(this.formBuilder);
 		if (key) {
 			control.controls['key'].setValue(key);
@@ -180,16 +180,16 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		return control;
 	}
 
-	public addNewKnowledge(): FormGroup {
-		return this.addKnowledge(undefined, undefined, undefined, this.newKnowledgeArray);
+	public addNewProperty(): FormGroup {
+		return this.addProperty(undefined, undefined, undefined, this.newProperties);
 	}
 
-	public get filledNewKnowledgeCount(): number {
-		return this.newKnowledgeArray.controls.filter(control => !!(control as FormGroup).controls['key'].value).length;
+	public get filledNewPropertyCount(): number {
+		return this.newProperties.controls.filter(control => !!(control as FormGroup).controls['key'].value).length;
 	}
 
-	public get newKnowledgeCount(): number {
-		return this.newKnowledgeArray.controls.length - 1;
+	public get newPropertyCount(): number {
+		return this.newProperties.controls.length - 1;
 	}
 
 	@HostListener('keydown', ['$event'])
