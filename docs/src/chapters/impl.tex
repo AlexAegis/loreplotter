@@ -112,7 +112,7 @@ Ez a minta lehetőséget ad arra, hogy bármilyen nézet a böngészőben ami fe
 
 Kétfajta adatot különböztetünk meg, perzisztens és temporális. Perzisztens adatnak minősül minden ami egy projekthez tartozik. Temporális meg az amiket az előbbi manipulálásakor használunk fel. Például projekthez tartozó adat az, hogy egy szereplőnk egy adott időpillanatban hol tartózkodik, de az nem, hogy a kurzor épp ezen az időpillanaton áll.
 
-A perzisztens adatok a böngészők beépített IndexedDB (noSQL) adatbázisában kerülnek tárolásra, dokumentumok formájában. Az adatbázis elérésehez, és ezzel az alkalmazás reaktív modelljének alapkövének RxDB-t \cite{RxDB} használunk.
+A perzisztens adatok a böngészők beépített IndexedDB (noSQL) adatbázisában kerülnek tárolásra, dokumentumok formájában. Az adatbázis eléréséhez, és ezzel az alkalmazás reaktív modelljének alapkövének RxDB-t \cite{RxDB} használunk.
 
 Ez a csomag lehetővé teszi, hogy adatok beszúrásakor/módosításakor/törlésekor ezek a folyamatok igéretekként (Lásd Promise \cite{Promise}) jelenjenek meg melyek teljesüléséről értesítést kapunk. Ezzel elérhetővé téve olyan lehetőségeket mint, hogy jelezni a felhasználónak, hogy egy adott elem adatainak forrása éppen mentés alatt áll, és a szerkesztését letiltani. A legfőbb előnye viszont az, hogy bármilyen adatbázis kollekciót, lekérdezést megfigyelhetünk. És amint változás történik az adatbázisban, ezek a megfigyelhető Query-k újra jeleznek, frissítve minden mást ami rájuk épül.
 
@@ -321,7 +321,7 @@ $$d' = \frac{w}{(b - a) / d}$$
 
 A beosztások pozícióinak kiszámolásához, ahelyett, hogy minden beosztás helyét egyenként kiszámolnánk, csupán az első helyét számoljuk ki, a többit pedig ahhoz mérten, fix távolságban eltoljuk. Ezt azért tehetjük meg mert a beosztások egyenlő közönként vannak az idővonal egészén. Elég egyszer kiszámolni, hogy a $86400$ másodperc éppen mekkora távolságot jelent pixelben a képernyőn. Azután elég ennek a többszöröseit hozzáadni az első távolságához, minden egyes beosztásnál.
 
-Az első távolság kiszámolásához viszont tudnunk kell, hogy melyik az a pont a kiválaszott időablakban ami egy napfordulót jelent:
+Az első távolság kiszámolásához viszont tudnunk kell, hogy melyik az a pont a kiválasztott időablakban ami egy napfordulót jelent:
 
 $$x \in \{ y | y \in [a, a+l], y \equiv 0 \mod b\}$$
 
@@ -352,7 +352,7 @@ A beosztások így helyesen helyezkedenek el minden időablak esetében.
 
 \paragraph{Folytonos manipuláláskor} mint például mikor pásztázunk az egerünkkel, a kapott eseményben (a módosítás eseménye, Hammer Event) csak az eltolás mértékét kapjuk meg pixelben, ahhoz a pozícióhoz képest, ahol az eltolás kezdetekor az egér volt. A legtöbb ilyen esethez ezért definiálunk egy módszert amiben egy ilyen módon manipulálható adat mellé egy felülíró adattagot is definiálunk. Ez az adattag amikor nem történik esemény mindig \lstinline[columns=fixed]{undefined}.
 
-Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű (\lstinline[columns=fixed]{override || original}). Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyagyúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
+Kiolvasni az adatpárost emiatt rövidzár kiértékeléssel egyszerű (\lstinline[columns=fixed]{override || original}). Fontos megjegyezni, hogy számok lévén, és mivel itt nem az adattag létezését vizsgáljuk hanem azt, hogy truthy e vagy sem, ha az \lstinline[columns=fixed]{override} értéke $0$ lenne, akkor ugyanúgy az \lstinline[columns=fixed]{original} értékkel térne vissza a kifejezés. Mivel a $0$ az falsy. Így ezt csak akkor alkalmazzuk, ha tudjuk hogy ez az érték sosem lesz $0$. A másik megjegyzendő dolog, hogy miért nem egy osztályt definiálunk ennek a viselkedésnek a kezelésére. A válasz az, hogy ezek az adatok az állapot részét képezik, az állandó szérializálás és deszérializálás pedig túl sok extra komplexitást adna egy egyébként egyszerű feladathoz.
 
 A folytonos manipuláció végén pedig az \lstinline[columns=fixed]{override} értékét beleírjuk az eredeti változóba majd kiürítjük.
 
@@ -372,7 +372,7 @@ Ehhez a két vég módosítását súlyoznunk kell az egér pozíciója szerint.
 
 \subsubsection{A kurzor}
 
-A kurzor egy időpontot jelöl. A színtérben, és a viewben minden aggregált adat ennek függvényében jelenik meg. Pozícióját hasonlóan az eddigikhez lineáris mappeléssel kapjuk meg. Manipulásakor pedig ugyanez történik visszafele. A kurzor bármilyen manipulálásakor egy segédeljárás számolja az utolsó változások alapján az idő sebességét. Mikor a kurzor nem mozog ez az eljárás szimulál saját magának pontosan annyi $0$ mértékű kurzorváltozás amivel a csillapított sebesség amit számol elérheti a $0$-át. Ez a csillapított sebesség van felhasználva a színtér fényességének vezérlésénél.
+A kurzor egy időpontot jelöl. A színtérben, és a viewben minden aggregált adat ennek függvényében jelenik meg. Pozícióját hasonlóan az eddigiekhez lineáris mappeléssel kapjuk meg. Manipulálásakor pedig ugyanez történik visszafele. A kurzor bármilyen manipulálásakor egy segédeljárás számolja az utolsó változások alapján az idő sebességét. Mikor a kurzor nem mozog ez az eljárás szimulál saját magának pontosan annyi $0$ mértékű kurzorváltozás amivel a csillapított sebesség amit számol elérheti a $0$-át. Ez a csillapított sebesség van felhasználva a színtér fényességének vezérlésénél.
 
 \lstset{caption={Csillapított sebesség számolása kurzorpozíció alapján. \protect\footnotemark }, label=src:max-possible-radius}
 \begin{lstlisting}[language={JavaScript}]
@@ -417,7 +417,7 @@ A 3D színtér komponensén két elem található: A canvas elem amire fest a Th
 
 \subsection{A színpad felépítése}
 
-A színpad fő eleme a bolygó, egy fixen egységsugarú gömb melyhez kapcsolódik egy másik, kisebb -- $0.98$ sugarú -- gömb ami a vízszintet reprezentálja. A gömb felszíne magas felbontású poligonok terén ($512×512$), hogy a displacement map \cite{Displacement} pontosabb eredeményt adjon.
+A színpad fő eleme a bolygó, egy fixen egységsugarú gömb melyhez kapcsolódik egy másik, kisebb -- $0.98$ sugarú -- gömb ami a vízszintet reprezentálja. A gömb felszíne magas felbontású poligonok terén ($512×512$), hogy a displacement map \cite{Displacement} pontosabb eredményt adjon.
 
 Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt a raycasting \cite{Raycast} rendkívül lassú a Three.js alap implementációjában. (Raycastingot akkor használunk amikor kiszámoljuk, hogy a színtér épp melyik objektumának melyik pontja felett áll az egér.) Szerencsére létezik gyorsabb eljárás. A Bounding Volume Hierarchy \cite{BVH} fa struktúrába helyezi az objektumok partícionált részeit elhelyezkedésük alapján, jelentősen lecsökkentve azokat a háromszögeket amiket a raycastingnak egyszerre meg kell vizsgálnia.
 
@@ -486,7 +486,7 @@ Ekkora felbontásnál, az egy objektumon található rengeteg háromszög miatt 
 
 \subsubsection{A felszín}
 
-A felszín displacement mapja egy memóriában található canvas objektum amit textúraként használunk. A jobb hatás érdekében ezt bumb-mapként \cite{Bump} is használjuk. Egy projekt betöltésekor és minden további módosításkor ez a textúra az adatbázisból újra betöltődik. Mivel a textúránk egy canvas objektumon létezik, könnyen elérhetjük a canvas összes rajzfunkcióját, hogy egyszerűen, valós időben módosítsuk a térképet. A projekt szerkesztés menüjében lehetőségünk van bármikor betölteni bármilyen képet amit aztán ilyen textúraként fog használni az alkalmazás. Szerkesztésnél, minden, a bolygó felületén elhelyezkedő objektum megvizsgálja, hogy milyen magasan fog alatta vagy felette a displacement megjelenni. Ehhez is raycasting használunk, ahol a kemera helyett az adott objektumból a gömb közepe felé vetítünk egy sugarat. Ez a sugárvetés megmutatja, hogy a felület milyen $(u, v)$ pontján áll az adott objektum. Ezen ponton a textúra fényességét meg tudjuk vizsgálni, és kiszámolni az eltolás mértékét, ugyanúgy ahogy azt a renderer is fogja tenni. Ezzel biztosítva van, hogy minden felszíni elem látszik akkor is ha a displacement alapból eltakarná.
+A felszín displacement mapja egy memóriában található canvas objektum amit textúraként használunk. A jobb hatás érdekében ezt bumb-mapként \cite{Bump} is használjuk. Egy projekt betöltésekor és minden további módosításkor ez a textúra az adatbázisból újra betöltődik. Mivel a textúránk egy canvas objektumon létezik, könnyen elérhetjük a canvas összes rajzfunkcióját, hogy egyszerűen, valós időben módosítsuk a térképet. A projekt szerkesztés menüjében lehetőségünk van bármikor betölteni bármilyen képet amit aztán ilyen textúraként fog használni az alkalmazás. Szerkesztésnél, minden, a bolygó felületén elhelyezkedő objektum megvizsgálja, hogy milyen magasan fog alatta vagy felette a displacement megjelenni. Ehhez is raycasting használunk, ahol a kamera helyett az adott objektumból a gömb közepe felé vetítünk egy sugarat. Ez a sugárvetés megmutatja, hogy a felület milyen $(u, v)$ pontján áll az adott objektum. Ezen ponton a textúra fényességét meg tudjuk vizsgálni, és kiszámolni az eltolás mértékét, ugyanúgy ahogy azt a renderer is fogja tenni. Ezzel biztosítva van, hogy minden felszíni elem látszik akkor is ha a displacement alapból eltakarná.
 
 \subsubsection{A szereplők}
 
@@ -494,7 +494,7 @@ A felszíni objektumok nagyrészt szereplőkből állnak. Ők szintén gömbök,
 
 Egy szereplő pontos pozíciójának meghatározásához a deltáit kell figyelembe vennünk. Az AVL fa implementáció amiben ezek el vannak helyezve rendelkezik olyan eljárással amivel nem fontos olyan kulcsot keresni ami tényleg létezik, mert a kulcshoz mindkét irányban legközelebb álló csomópontokkal fog visszatérni. Pontos egyezés esetén így mindkét csomópont ugyanaz lenne mint ha a hagyományos módon kértük volna le a kulcson található értéket.
 
-A már meglévő csővezetékeink közzül a szereplők, a jelenlegi idő és az esetlegesen felülírt pozíciók csövét összevezetjük a \lstinline[columns=fixed]{combineLatest} operátorral. Emiatt a pozíciókat kiszámoló eljárás mindig le fog futni, ha a három közzül bármelyik is megváltozik, a másik kettő utolsó eredményével.
+A már meglévő csővezetékeink közül a szereplők, a jelenlegi idő és az esetlegesen felülírt pozíciók csövét összevezetjük a \lstinline[columns=fixed]{combineLatest} operátorral. Emiatt a pozíciókat kiszámoló eljárás mindig le fog futni, ha a három közül bármelyik is megváltozik, a másik kettő utolsó eredményével.
 
 Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél kiszámolni minden színész csoportjának kvaternióit\cite{Quaternion}, hogy megfelelően legyenek elforgatva.
 
@@ -540,7 +540,7 @@ Az eljárás minden szereplőre, aszinkron módon történik egyszerre. A cél k
 
 A szereplők pozícióját itt a színtéren lehet megváltoztatni, viszont meg kell felelnünk egy nagyon fontos megszorításnak. A szereplő helyzete soha nem lehet olyan távol az előző és a következő helyzettől, hogy azt már képességeinek megfelelően ne tudja elérni.
 
-Ahhoz hogy mindig a megfelelő területen tartsuk a szereplőt, azokban az esetekben amikor vagy a jövőben, vagy a múltban már nincs több esemény, elég az egyetlen környező esemény megengedett távolságán belül tartalni a szereplőt. Ha a kért pozíció távolsága kisebb mint a megengedett, a pozíciót rögzítjük. Ha nem, a legközelebb lévő pozíció lesz rögzítve ami még megengedett.
+Ahhoz hogy mindig a megfelelő területen tartsuk a szereplőt, azokban az esetekben amikor vagy a jövőben, vagy a múltban már nincs több esemény, elég az egyetlen környező esemény megengedett távolságán belül tartani a szereplőt. Ha a kért pozíció távolsága kisebb mint a megengedett, a pozíciót rögzítjük. Ha nem, a legközelebb lévő pozíció lesz rögzítve ami még megengedett.
 
 Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfelületen található kör metszetében keressük a legközelebbi pontot.
 
@@ -623,7 +623,7 @@ Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfel�
 	$r_2$ & A jelenlegi időpont és $\overrightarrow{M_2}$ időpontja között maximálisan megtehető út \\
 	$\overrightarrow{c_1}$ & $\overrightarrow{M_1}$ és $r_1$ által alkotott kör a gömbfelületen \\
 	$\overrightarrow{c_2}$ & $\overrightarrow{M_2}$ és $r_2$ által alkotott kör a gömbfelületen \\
-	$\overrightarrow{P_1}$ & A felhasználó által kiválaszott célpozíció \\
+	$\overrightarrow{P_1}$ & A felhasználó által kiválasztott célpozíció \\
 	$D_1$ & A gömbfelületen vett távolság $\overrightarrow{P_1}$ és $\overrightarrow{M_1}$ között \\
 	$D_2$ & A gömbfelületen vett távolság $\overrightarrow{P_1}$ és $\overrightarrow{M_2}$ között \\
 	$\overrightarrow{N_1}$ & A gömbfelület $\overrightarrow{M_1}$ és $\overrightarrow{P_1}$ pont által meghatározott \\
@@ -637,7 +637,7 @@ Abban az esetben ha két környező esemény van gyakorlatilag két, a gömbfel�
 
 Ebben (\ref{fig:spherical-sphere-intersection}) az esetben a szereplő nem teljes sebességgel haladt a két pont között ezért ha félúton manipuláljuk, azt látjuk, hogy amellett, hogy mindkét ponthoz még eltudunk jutni, még van egy kis mozgásterünk ahol ugyanúgy eljutna a megadott időn belül $\overrightarrow{M_1}$-be és $\overrightarrow{M_2}$-be is képességeinek megfelelően. Meg kell határoznunk manipulálás közben, hogy $c_1$ és $c_2$ metszetében melyik pont van $\overrightarrow{P_1}$ ponthoz a legközelebb.
 
-Manipulálás kezdetekor válnak elérhetővé a kellő információk $c_1$ és $c_2$ adatainak a kiszámolásához. Ekkor számoljuk ki $\overrightarrow{A}$ és $\overrightarrow{B}$ pontot is. Ezt manipulálásonként csak egyszer számoljuk ki. Ekkor helyezzük el a két indikátor gömbcikket. A végén pedig el lesznek rejtve. Manipulálás közben pedig folyamatosan számljuk a legközelebbi pont függvényét. A két gömbcikk overdraw módban kerül rajzolásra így el lehet őket helyezni pontosan a bolygó eredeti 1 sugarú felületére és úgy is mindig látszódni fognak. Sajnos nagyon eltérő displacement és alacsony szögből való megtekintés esetén kicsit csalóka lehet a grafika mivel a szereplők objektuma az eltolást figyelembe veszik. Ez viszont nem bizonyult túl zavarónak tesztelés közben.
+Manipulálás kezdetekor válnak elérhetővé a kellő információk $c_1$ és $c_2$ adatainak a kiszámolásához. Ekkor számoljuk ki $\overrightarrow{A}$ és $\overrightarrow{B}$ pontot is. Ezt manipulálásonként csak egyszer számoljuk ki. Ekkor helyezzük el a két indikátor gömbcikket. A végén pedig el lesznek rejtve. Manipulálás közben pedig folyamatosan számoljuk a legközelebbi pont függvényét. A két gömbcikk overdraw módban kerül rajzolásra így el lehet őket helyezni pontosan a bolygó eredeti 1 sugarú felületére és úgy is mindig látszódni fognak. Sajnos nagyon eltérő displacement és alacsony szögből való megtekintés esetén kicsit csalóka lehet a grafika mivel a szereplők objektuma az eltolást figyelembe veszik. Ez viszont nem bizonyult túl zavarónak tesztelés közben.
 
 \subsubsection{Azonos sugarú gömbcikkek metszésponjai}
 
@@ -698,7 +698,7 @@ $\overrightarrow{M_1}$ és $\overrightarrow{M_2}$ világ pozíciók, és mivel a
 \begin{algorithm}[H]
 	\caption{Két kör metszéspontjai gömbfelületen}
 	\label{alg:intersection}
-	\textbf{\underline{Function}} intersection($\overrightarrow{M_1}, \overrightarrow{M_2}, r_1, r_2, R$) ahol $R$ a bolygó sugara kilóméterben
+	\textbf{\underline{Function}} intersection($\overrightarrow{M_1}, \overrightarrow{M_2}, r_1, r_2, R$) ahol $R$ a bolygó sugara kilométerben
 	\begin{algorithmic}[1]
 	\STATE $\overrightarrow{x_1} := \overrightarrow{M_1}$ normalizálva \COMMENT{Valójában $\overrightarrow{M_1}$ és $\overrightarrow{M_2}$ vektor hossza már eleve 1}
 	\STATE $\overrightarrow{x_2} := \overrightarrow{M_2}$ normalizálva

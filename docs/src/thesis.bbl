@@ -1,0 +1,484 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.0 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global}
+  \entry{JSON}{online}{}
+    \name{author}{1}{}{%
+      {{hash=j}{%
+         family={json},
+         familyi={j\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{j1}
+    \strng{fullhash}{j1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{JavaScript Object Notation}
+    \verb{url}
+    \verb https://www.json.org/
+    \endverb
+    \field{urlday}{07}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{PWA}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W1}
+    \strng{fullhash}{W1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{{PWA} Progressive web applications}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Progressive_web_applications
+    \endverb
+    \field{year}{2019}
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{AVL}{online}{}
+    \name{author}{2}{}{%
+      {{hash=AV}{%
+         family={Adelson-Velsky},
+         familyi={A\bibinithyphendelim V\bibinitperiod},
+      }}%
+      {{hash=L}{%
+         family={Landis},
+         familyi={L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AVL1}
+    \strng{fullhash}{AVL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{AVL Fa}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/AVL_tree
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{RxJS}{online}{}
+    \name{author}{1}{}{%
+      {{hash=r}{%
+         family={rxjs},
+         familyi={r\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{r1}
+    \strng{fullhash}{r1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{RxJS}
+    \verb{url}
+    \verb http://reactivex.io/
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{ObserverPattern}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={WikiPedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W2}
+    \strng{fullhash}{W2}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Megfigyelő programtervezési minta}
+    \verb{url}
+    \verb https://hu.wikipedia.org/wiki/Megfigyel%C5%91_programtervez%C3%A9si_m
+    \verb inta
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{RxDB}{online}{}
+    \name{author}{1}{}{%
+      {{hash=p}{%
+         family={pubkey},
+         familyi={p\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{p1}
+    \strng{fullhash}{p1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{RxDB}
+    \verb{url}
+    \verb https://rxdb.info/
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Promise}{online}{}
+    \name{author}{1}{}{%
+      {{hash=t}{%
+         family={tc39},
+         familyi={t\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{t1}
+    \strng{fullhash}{t1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{ECMAScript - The Promise Object}
+    \verb{url}
+    \verb https://tc39.github.io/ecma262/#sec-promise-objects
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{NgRx}{online}{}
+    \field{labeltitlesource}{title}
+    \field{title}{NgRx}
+    \verb{url}
+    \verb https://ngrx.io/
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Redux}{online}{}
+    \name{author}{1}{}{%
+      {{hash=t}{%
+         family={tc39},
+         familyi={t\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{t1}
+    \strng{fullhash}{t1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{A Redux architectúra}
+    \verb{url}
+    \verb https://redux.js.org/
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Facade}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{A Homlokzat programtervezési minta}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Facade_pattern
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{LazyLoad}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Lusta betöltés}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Lazy_loading
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Displacement}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Displacement map}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Displacement_mapping
+    \endverb
+    \field{urlday}{05}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Raycast}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Raycasting}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Ray_casting
+    \endverb
+    \field{urlday}{05}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{BVH}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Bounding Volume Hierarchy}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Bounding_volume_hierarchy
+    \endverb
+    \field{urlday}{05}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Bump}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Bump map}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Bump_mapping
+    \endverb
+    \field{urlday}{05}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Quaternion}{online}{}
+    \name{author}{1}{}{%
+      {{hash=W}{%
+         family={Wikipedia},
+         familyi={W\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{W3}
+    \strng{fullhash}{W3}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Quaternion}
+    \verb{url}
+    \verb https://en.wikipedia.org/wiki/Quaternion
+    \endverb
+    \field{urlday}{05}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Angular}{online}{}
+    \name{author}{1}{}{%
+      {{hash=G}{%
+         family={Google},
+         familyi={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{G1}
+    \strng{fullhash}{G1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Angular}
+    \verb{url}
+    \verb https://angular.io/
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Three}{online}{}
+    \field{labeltitlesource}{title}
+    \field{title}{Three.js}
+    \verb{url}
+    \verb https://threejs.org/)
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Tween}{online}{}
+    \field{labeltitlesource}{title}
+    \field{title}{Tween.js}
+    \verb{url}
+    \verb https://github.com/tweenjs/tween.js/
+    \endverb
+    \field{year}{2016}
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{FontAwesome}{online}{}
+    \field{labeltitlesource}{title}
+    \field{title}{FontAwesome}
+    \verb{url}
+    \verb https://fontawesome.com/
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{TypeScript}{online}{}
+    \name{author}{1}{}{%
+      {{hash=M}{%
+         family={Microsoft},
+         familyi={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{M1}
+    \strng{fullhash}{M1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{TypeScript}
+    \verb{url}
+    \verb https://www.typescriptlang.org/
+    \endverb
+    \field{urlday}{03}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Sass}{online}{}
+    \field{labeltitlesource}{title}
+    \field{title}{Sass}
+    \verb{url}
+    \verb https://sass-lang.com/
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{NPM}{online}{}
+    \name{author}{1}{}{%
+      {{hash=IN}{%
+         family={Inc.},
+         familyi={I\bibinitperiod},
+         given={NPM},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{IN1}
+    \strng{fullhash}{IN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{NPM}
+    \verb{url}
+    \verb https://www.npmjs.com/)
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Github}{online}{}
+    \name{author}{1}{}{%
+      {{hash=M}{%
+         family={Microsoft},
+         familyi={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{M1}
+    \strng{fullhash}{M1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Github}
+    \verb{url}
+    \verb https://www.github.com/)
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+
+  \entry{Travis}{online}{}
+    \name{author}{1}{}{%
+      {{hash=T}{%
+         family={Travis},
+         familyi={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{T1}
+    \strng{fullhash}{T1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Travis-CI}
+    \verb{url}
+    \verb https://www.travis-ci.com/)
+    \endverb
+    \field{urlday}{04}
+    \field{urlmonth}{05}
+    \field{urlyear}{2019}
+  \endentry
+\enddatalist
+\endinput

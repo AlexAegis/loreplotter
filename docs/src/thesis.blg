@@ -1,0 +1,66 @@
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: thesis.aux
+The style file: biblatex.bst
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=20001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Database file #1: thesis-blx.bib
+Database file #2: thesis.bib
+Warning--I didn't find a database entry for "Epoch"
+Biblatex version: 3.11
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+You've used 26 entries,
+            6304 wiz_defined-function locations,
+            1289 strings with 10316 characters,
+and the built_in function-call counts, 105627 in all, are:
+= -- 3664
+> -- 8266
+< -- 749
++ -- 6823
+- -- 6308
+* -- 4408
+:= -- 11959
+add.period$ -- 0
+call.type$ -- 26
+change.case$ -- 132
+chr.to.int$ -- 634
+cite$ -- 50
+duplicate$ -- 9968
+empty$ -- 9140
+format.name$ -- 939
+if$ -- 17801
+int.to.chr$ -- 0
+int.to.str$ -- 65
+missing$ -- 0
+newline$ -- 484
+num.names$ -- 820
+pop$ -- 8178
+preamble$ -- 1
+purify$ -- 195
+quote$ -- 0
+skip$ -- 3681
+stack$ -- 0
+substring$ -- 5338
+swap$ -- 2866
+text.length$ -- 660
+text.prefix$ -- 0
+top$ -- 1
+type$ -- 872
+warning$ -- 0
+while$ -- 1140
+width$ -- 0
+write$ -- 459
+(There was 1 warning)

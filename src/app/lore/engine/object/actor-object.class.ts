@@ -266,8 +266,6 @@ export class ActorObject extends Basic {
 		 * while panning
 		 * Time is divided by 3600 because the unix is in seconds and the speed is in km/h
 		 *
-		 * TODO: You have to distanceProtect Not just while panning, but while block/node panning
-		 *
 		 * TODO: The first/last thing is switched, fix it in the AVL repo
 		 */
 		this.addEventListener('pan', event => {

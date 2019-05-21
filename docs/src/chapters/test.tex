@@ -26,8 +26,8 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 			\item Megjelenik a projekt készítő form.
 			\item A kötelező név mezőt kitölti.
 			\begin{enumerate}[itemsep=-1ex]
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Foglalt név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetén a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
 			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre. (sugár minimum 500)
 			\item A 'Create' gombra kattint, vagy lenyomja az 'Enter' billentyűt, ekkor a folyamat sikeres eseménnyel zár
@@ -62,8 +62,8 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 			\item Megjelenik a projekt készítő form.
 			\item A kötelező név mezőt kitölti.
 			\begin{enumerate}[itemsep=-1ex]
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Foglalt név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetén a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
 			\item Opcionálisan átszerkeszti a bolygó adatait is bármilyen nem üres értékre. (sugár minimum 500)
 			\item A fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek.
@@ -99,10 +99,10 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 			\item Megjelenik a projekt szerkesztő form.
 			\item Módosításokat hajt végre.
 			\begin{enumerate}[itemsep=-1ex]
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Foglalt név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres bolygó név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item 500-nál kisebb bolygó sugár esetén a form invalid, erről hibaüzenet jelenik meg.
 				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
 			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek.
@@ -139,10 +139,10 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 			\item Megjelenik a projekt szerkesztő form.
 			\item Módosításokat hajt végre.
 			\begin{enumerate}[itemsep=-1ex]
-				\item Foglalt név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item Üres név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item Üres bolygó név esetény a form invalid, erről hibaüzenet jelenik meg.
-				\item 500-nál kisebb bolygó sugár esetény a form invalid, erről hibaüzenet jelenik meg.
+				\item Foglalt név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item Üres bolygó név esetén a form invalid, erről hibaüzenet jelenik meg.
+				\item 500-nál kisebb bolygó sugár esetén a form invalid, erről hibaüzenet jelenik meg.
 				\item Ha a bolygó sugár nagyobb mint ami esetén bármely szereplő már ne tudná megtenni egy útját, akkor a form invalid, erről hibaüzenet jelenik meg.
 			\end{enumerate}
 			\item Opcionálisan a fájlfeltöltés eszközzel feltölt egy tetszőleges textúrát magasságtérképnek.
@@ -330,7 +330,7 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Az időabalak kézi pásztázása.}
+	\caption{Sztori: Az időablak kézi pásztázása.}
 	\label{tab:story-timeline-manual-pan-timeframe}
 \end{table}
 
@@ -354,7 +354,7 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Az időabalak kézi ugratása.}
+	\caption{Sztori: Az időablak kézi ugratása.}
 	\label{tab:story-timeline-manual-jump}
 \end{table}
 
@@ -375,7 +375,7 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\\
 		\hline
 	\end{tabular}
-	\caption{Sztori: Az időabalak nyjtása, zsugorítása.}
+	\caption{Sztori: Az időablak nyújtása, zsugorítása.}
 	\label{tab:story-timeline-zoom}
 \end{table}
 
@@ -415,8 +415,8 @@ Az alkalmazáson az alábbi manuális teszt sztorikat érdemes végigjátszani, 
 		\emph{Események} &
 		\begin{enumerate}[itemsep=-1ex]
 			\item A felhasználó egy tetszőleges időpontra húzza a szereplő kiválasztott eseményét, majd elengedi az egeret.
-			\item Ha voltak környező eseményei, és a mozgatás célpontja kívülesett ezeken. És az eredetileg környező két esemény már nem tudná elérni egymást akkor a folyamat sikertelen eredménnyel zár.
-			\item Ha a mozgatás célponján, ha van előző esemény és az nem tudja elérni a mozgatott eseményt, vagy ha van következő esemény és a mozgatott esemény azt nem tudja elérni, akkor a folyamaz sikertelen eredménnyel zár.
+			\item Ha voltak környező eseményei, és a mozgatás célpontja kívül esett ezeken. És az eredetileg környező két esemény már nem tudná elérni egymást akkor a folyamat sikertelen eredménnyel zár.
+			\item Ha a mozgatás célpontján, ha van előző esemény és az nem tudja elérni a mozgatott eseményt, vagy ha van következő esemény és a mozgatott esemény azt nem tudja elérni, akkor a folyamaz sikertelen eredménnyel zár.
 			\item Egyébként a folyamat sikeres.
 		\end{enumerate}
 		\\
