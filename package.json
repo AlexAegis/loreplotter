@@ -17,8 +17,8 @@
 	"scripts": {
 		"ng": "ng",
 		"start": "ng serve --aot --sourceMap=true",
-		"build": "ng build --prod --aot --stats-json --base-href \"/loreplotter/\"",
-		"start:prod": "http-server ./dist/ -c-1 --gzip -o http://127.0.0.1:8080/loreplotter",
+		"build": "ng build --prod --aot",
+		"start:prod": "http-server ./dist/loreplotter/ -c-1 -i --gzip -o",
 		"test": "ng test",
 		"test:headless": "ng test --watch=false --browsers=ChromeHeadless",
 		"lint": "ng lint",
@@ -98,6 +98,7 @@
 		"@types/webpack": "^4.4.31",
 		"codelyzer": "~5.0.1",
 		"compression-webpack-plugin": "^2.0.0",
+		"ecstatic": "3.0.0",
 		"http-server": "^0.11.1",
 		"jasmine-core": "~3.4.0",
 		"jasmine-spec-reporter": "~4.2.1",
