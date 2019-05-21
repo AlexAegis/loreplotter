@@ -2,7 +2,13 @@
 
 [![Build Status](https://travis-ci.com/AlexAegis/loreplotter.svg?branch=master)](https://travis-ci.com/AlexAegis/loreplotter) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9b155010806741a897cc8420898f4e84)](https://www.codacy.com/app/AlexAegis/loreplotter?utm_source=github.com&utm_medium=referral&utm_content=AlexAegis/loreplotter&utm_campaign=Badge_Grade) [![Maintainability](https://api.codeclimate.com/v1/badges/9f9e5eb2c8a3ccd58f22/maintainability)](https://codeclimate.com/github/AlexAegis/loreplotter/maintainability) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier) [![Greenkeeper badge](https://badges.greenkeeper.io/AlexAegis/loreplotter.svg)](https://greenkeeper.io/)
 
-## Contributing
+This project is a prototype tool for writers to ensure consistency in their work. It maps `actor` entities into a `globe`, and enforcing the laws of physics while doing so. Each one has a maximum possible speed which can be changed in an `event` of said `actor`. Based on this, the time difference between neighbouring events, their positions and the size of the planet, the application ensures that every actor, no matter what can reach from one event the next. It also tracks arbitrary properties in key-value pairs over time aswell. These are propagated down the timeline. If you inspect an actor at any given time you'll always see the latest values for every existing property of that actor. You can play back these scenarios to see these changes over-time. All the checks and constrainst work over-time, if you try to move an actor while playing you can essentially track that actors every possible position it could've possibly go over that period of time. The property handling is useful to evaluate what could happen when two actors meet, so you can see what each of them know, and figure out what would change.
+
+Clicking on the title of the project or the link in the repositories description will take you to the application. It has a permament `Example` project for you to try out.
+
+> A hungarian documentation is also available under the releases section as a `pdf`.
+
+## Project usage
 
 To install all required dependencies
 
