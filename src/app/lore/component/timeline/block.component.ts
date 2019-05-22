@@ -119,7 +119,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public selection: Node<UnixWrapper, ActorDelta>;
 
 	@Output()
-	public jump = new EventEmitter<number>();
+	public jumpToUnix = new EventEmitter<number>();
 
 	public _containerWidth: number;
 
@@ -456,13 +456,14 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 
 	public tap($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
+		$event.preventDefault();
 		this.blockService.selection.next({ block: this, node: node });
 		this.cd.markForCheck();
 	}
 
 	public select(node: Node<UnixWrapper, ActorDelta>): void {
 		this.selection = node;
-		this.jump.next(this.nodePosition(node.key.unix) + this.left);
+		this.jumpToUnix.next(node.key.unix);
 		this.engineService.selectedByActor.next(this.actor);
 		this.cd.markForCheck();
 	}

@@ -32,7 +32,7 @@
 			<app-block
 				#block
 				[actor]="actor"
-				(jump)="loreService.easeCursorTo.next($event)"
+				(jumpToUnix)="loreService.easeCursorToUnix.next($event)"
 				[containerWidthListener]="loreService.containerWidth"
 			>
 			</app-block>

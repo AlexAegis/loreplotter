@@ -5,9 +5,10 @@ import { withTeardown } from '@app/operator';
 import { BlockComponent } from '@lore/component';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { distinctUntilChanged, share } from 'rxjs/operators';
+import { BaseDirective } from '@app/component/base-component.class';
 
 @Injectable()
-export class BlockService implements OnDestroy {
+export class BlockService extends BaseDirective {
 	public selection = new BehaviorSubject<{ block: BlockComponent; node: Node<UnixWrapper, ActorDelta> }>(undefined);
 
 	public selection$ = this.selection.pipe(
@@ -19,12 +20,8 @@ export class BlockService implements OnDestroy {
 		share()
 	);
 
-	private sideEffectSubscription: Subscription;
-	constructor() {
-		this.sideEffectSubscription = this.selection$.subscribe();
-	}
-
-	public ngOnDestroy(): void {
-		this.sideEffectSubscription.unsubscribe();
+	public constructor() {
+		super();
+		this.teardown = this.selection$.subscribe();
 	}
 }
