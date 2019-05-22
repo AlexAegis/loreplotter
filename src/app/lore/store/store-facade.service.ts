@@ -71,6 +71,7 @@ export class StoreFacade {
 		filter(selected => selected !== undefined)
 	);
 	public loadLoresSuccess$ = this.actions$.pipe(ofType(loadLoresSuccess.type));
+	public changeSelectedLore$ = this.actions$.pipe(ofType(changeSelectedLore.type));
 	public loadLoresFail$ = this.actions$.pipe(ofType(loadLoresFailure.type));
 	public createLoresSuccess$ = this.actions$.pipe(ofType(createLoreSuccess.type));
 	public createLoresFail$ = this.actions$.pipe(ofType(createLoreFailure.type));

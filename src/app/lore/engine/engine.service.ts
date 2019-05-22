@@ -84,6 +84,10 @@ export class EngineService {
 			}
 		});
 
+		this.storeFacade.changeSelectedLore$.subscribe(() => {
+			this.selected.next(undefined);
+		});
+
 		this.storeFacade.selectedLore$
 			.pipe(
 				distinctUntilChanged((a, b) => a.id === b.id),
@@ -165,7 +169,7 @@ export class EngineService {
 	public atmosphere: Mesh;
 
 	// Selection
-	public popupTarget = new BehaviorSubject<Vector2>(null);
+	public popupTarget = new BehaviorSubject<Vector2>(undefined);
 	public refreshPopupPositionQueue = new BehaviorSubject<boolean>(undefined);
 	public refreshPopupPositionExecutor = this.refreshPopupPositionQueue
 		.pipe(
