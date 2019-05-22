@@ -13,6 +13,7 @@ import { filter, map, mergeMap, mergeScan, pairwise, scan, shareReplay, switchMa
 import { Group, Vector3 } from 'three';
 import { Property } from '@app/model/data/property.class';
 
+export const FORGET_TOKEN = '__FORGET__';
 export interface Accumulator {
 	cursor: number;
 	actor: RxDocument<Actor>;
@@ -142,7 +143,11 @@ export class ActorService {
 									const prop = propertyMap.get(key);
 									if (prop) {
 										if (value) {
-											prop.value = value;
+											if (value === FORGET_TOKEN) {
+												prop.value = `${FORGET_TOKEN}.${prop.value}`;
+											} else {
+												prop.value = value;
+											}
 											prop.appearedIn = node;
 										}
 									} else {
@@ -234,12 +239,12 @@ export class ActorService {
 			switchMap(({ actor, name, maxSpeed, date, properties, newProperties, color }) => {
 				const wrapper = new UnixWrapper(Math.floor(date.unix()));
 				const finalPosition = this.actorPositionAt(actor, wrapper.unix);
-				const propertyMap = new Map<string, string | undefined>();
+				const propertyMap = new Map<string, string>();
 				properties
 					.filter(e => e.value || e.forget)
 					.map(k => {
 						if (k.forget) {
-							k.value = '';
+							k.value = FORGET_TOKEN;
 						}
 						return k;
 					})

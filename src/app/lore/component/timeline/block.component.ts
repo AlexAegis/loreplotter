@@ -35,7 +35,7 @@ import { Math as ThreeMath, Vector3 } from 'three';
 export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, AfterViewInit {
 	@HostBinding('style.opacity')
 	public get isSavingOpacity(): number {
-		return this.isSaving ? 0.5 : 1;
+		return this.isSaving ? 0.75 : 1;
 	}
 	/**
 	 * Pointer events are disabled while saving
@@ -175,7 +175,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 			this.width = right - this.left;
 		}
 		this.cd.markForCheck();
-		this.cd.detectChanges();
+		// this.cd.detectChanges();
 	}
 
 	public nodePosition(unix: number): number {
@@ -437,10 +437,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 				return a;
 			})
 			.then(actor => {
-				// this._originalUnixesForPan.clear();
-
 				this.actor = actor;
-
 				this.loreService.overrideNodePosition.next(undefined);
 				this.isSaving = false;
 			})
@@ -460,6 +457,7 @@ export class BlockComponent extends BaseDirective implements OnInit, OnDestroy, 
 	public tap($event: any, node: Node<UnixWrapper, ActorDelta>): void {
 		$event.stopPropagation();
 		this.blockService.selection.next({ block: this, node: node });
+		this.cd.markForCheck();
 	}
 
 	public select(node: Node<UnixWrapper, ActorDelta>): void {

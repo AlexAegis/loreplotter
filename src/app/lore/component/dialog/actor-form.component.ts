@@ -2,7 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, Inject
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { Actor, UnixWrapper } from '@app/model/data';
-import { Accumulator, ActorService } from '@app/service';
+import { Accumulator, ActorService, FORGET_TOKEN } from '@app/service';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FormEntryComponent } from '@lore/component/dialog/form-entry.component';
 import { EngineService } from '@lore/engine';
@@ -101,21 +101,27 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 			}
 			if (originalData.accumulator.properties) {
 				originalData.accumulator.properties.forEach(property => {
-					if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor) {
+					let isForget = false;
+					if (property.value.value) {
+						isForget = property.value.value.startsWith(FORGET_TOKEN);
+					}
+
+					let forgetWhat = property.value.value;
+					if (property.value.value && property.value.value.indexOf('.') > 0) {
+						forgetWhat = property.value.value.split(/\.(.+)/)[1];
+					}
+
+					if (property.appearedIn && property.appearedIn.key.unix === originalData.cursor && !isForget) {
 						this.addProperty(
-							property.value.key as string,
-							property.value.value as string,
-							property.value.value as string,
+							property.value.key,
+							property.value.value,
+							property.value.value,
+							undefined,
 							this.newProperties
 						);
 					} else {
 						if (property.value.value) {
-							this.addProperty(
-								property.value.key as string,
-								undefined,
-								property.value.value as string,
-								this.properties
-							);
+							this.addProperty(property.value.key, undefined, forgetWhat, isForget, this.properties);
 						}
 					}
 				});
@@ -164,7 +170,13 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		this.afterViewInit = true;
 	}
 
-	public addProperty(key?: string, value?: string, valuePlaceholder?: string, to?: FormArray): FormGroup {
+	public addProperty(
+		key?: string,
+		value?: string,
+		valuePlaceholder?: string,
+		isForget?: boolean,
+		to?: FormArray
+	): FormGroup {
 		const control = FormEntryComponent.create(this.formBuilder);
 		if (key) {
 			control.controls['key'].setValue(key);
@@ -175,6 +187,9 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		if (valuePlaceholder) {
 			control.controls['valuePlaceholder'].setValue(valuePlaceholder);
 		}
+		if (isForget) {
+			control.controls['forget'].setValue(true);
+		}
 		if (to) {
 			to.push(control);
 		}
@@ -182,7 +197,7 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 	}
 
 	public addNewProperty(): FormGroup {
-		return this.addProperty(undefined, undefined, undefined, this.newProperties);
+		return this.addProperty(undefined, undefined, undefined, undefined, this.newProperties);
 	}
 
 	public get filledNewPropertyCount(): number {

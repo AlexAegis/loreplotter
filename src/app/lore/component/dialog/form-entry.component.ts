@@ -66,6 +66,11 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 			this.originalKey = this.control.controls['key'].value;
 			this.originalValue = this.control.controls['value'].value;
 		}
+		if (this.control.controls['forget'].value) {
+			this.hiddenValue = (this.control.controls['valuePlaceholder'] as FormControl).value;
+			(this.control.controls['value'] as FormControl).setValue(undefined);
+			(this.control.controls['value'] as FormControl).disable();
+		}
 		this.originalValue = (this.control.controls['valuePlaceholder'] as FormControl).value;
 	}
 
