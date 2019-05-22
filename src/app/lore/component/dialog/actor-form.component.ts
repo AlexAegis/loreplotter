@@ -50,7 +50,7 @@ export interface ActorFormResultData {
 	selector: 'app-actor-form',
 	templateUrl: './actor-form.component.html',
 	styleUrls: ['./actor-form.component.scss'],
-	changeDetection: ChangeDetectionStrategy.Default
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ActorFormComponent implements OnInit, AfterViewInit {
 	public plusIcon = faPlus;

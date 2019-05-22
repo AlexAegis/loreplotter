@@ -218,11 +218,11 @@ export class EngineService {
 	// Light Control
 
 	public dampen$ = this.storeFacade.cursor$.pipe(
-		debounceTime(120),
+		debounceTime(200),
 		mergeMap(unix =>
 			of(unix).pipe(
 				delay(1000 / 60),
-				repeat(20)
+				repeat(40)
 			)
 		)
 	);

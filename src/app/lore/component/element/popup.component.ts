@@ -76,7 +76,8 @@ export class PopupComponent extends BaseDirective implements OnInit {
 				withLatestFrom(this.engineService.selection$),
 				map(([payload, selection]) => {
 					return this.dialog.open(ActorFormComponent, {
-						data: payload
+						data: payload,
+						maxWidth: '48rem'
 					});
 				}),
 				switchMap(dialog => dialog.afterClosed())

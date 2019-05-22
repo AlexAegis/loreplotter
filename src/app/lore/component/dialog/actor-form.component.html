@@ -1,35 +1,54 @@
 <h1 mat-dialog-title>Edit actor</h1>
 <mat-dialog-content class="actorDialog">
 	<form [formGroup]="actorForm">
-		<div>
-			<mat-form-field class="date" floatLabel="never">
-				<mat-label>{{ originalDate | amDateFormat: 'YYYY-MM-DD' }}</mat-label>
-				<input [matDatepicker]="date" formControlName="date" id="dateInput" matInput />
-				<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
-				<mat-datepicker #date></mat-datepicker>
+		<div class="main">
+			<mat-label class="nameLabel">Name:</mat-label>
+			<mat-form-field class="name" floatLabel="never">
+				<mat-label>{{ originalData?.accumulator?.name.value }}</mat-label>
+				<input formControlName="name" matInput />
 			</mat-form-field>
-			<mat-form-field class="time" floatLabel="never">
-				<mat-label>{{ originalTime }}</mat-label>
-				<input [dropSpecialCharacters]="false" formControlName="time" mask="Hh:m0:s0" matInput />
+			<div>
+				<mat-form-field class="date" floatLabel="never">
+					<mat-label>{{ originalDate | amDateFormat: 'YYYY-MM-DD' }}</mat-label>
+					<input
+						[matDatepicker]="date"
+						formControlName="date"
+						[matTooltip]="'Date of event'"
+						id="dateInput"
+						matInput
+					/>
+					<mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+					<mat-datepicker #date></mat-datepicker>
+				</mat-form-field>
+				<mat-form-field class="time" floatLabel="never">
+					<mat-label>{{ originalTime }}</mat-label>
+					<input
+						[dropSpecialCharacters]="false"
+						[matTooltip]="'Time of the event'"
+						formControlName="time"
+						mask="Hh:m0:s0"
+						matInput
+					/>
+				</mat-form-field>
+			</div>
+
+			<mat-label class="maxSpeedLabel" [matTooltip]="'km/h'">Max Speed:</mat-label>
+			<mat-form-field class="speed" floatLabel="never">
+				<mat-label>{{ originalData?.accumulator?.maxSpeed.value }}</mat-label>
+				<input [matTooltip]="'km/h'" formControlName="maxSpeed" mask="9*" matInput />
+				<mat-error *ngIf="actorForm.hasError('slow', 'maxSpeed')">Too slow to reach next target!</mat-error>
+			</mat-form-field>
+
+			<mat-form-field class="color" floatLabel="never" [ngStyle]="{ backgroundColor: color }">
+				<input
+					[(colorPicker)]="color"
+					[cpAlphaChannel]="'disabled'"
+					[matTooltip]="'Color, click for color picker'"
+					[style.background]="color"
+					matInput
+				/>
 			</mat-form-field>
 		</div>
-		<mat-label class="nameLabel">Name:</mat-label>
-		<mat-form-field class="name" floatLabel="never">
-			<mat-label>{{ originalData?.accumulator?.name.value }}</mat-label>
-			<input formControlName="name" matInput />
-		</mat-form-field>
-
-		<mat-label class="maxSpeedLabel">Max Speed (km/h):</mat-label>
-		<mat-form-field class="speed" floatLabel="never">
-			<mat-label>{{ originalData?.accumulator?.maxSpeed.value }}</mat-label>
-			<input formControlName="maxSpeed" mask="9*" matInput />
-			<mat-error *ngIf="actorForm.hasError('slow', 'maxSpeed')">Too slow to reach next target!</mat-error>
-		</mat-form-field>
-
-		<mat-label class="colorLabel">Color:</mat-label>
-		<mat-form-field class="color" floatLabel="never" [ngStyle]="{ backgroundColor: color }">
-			<input [(colorPicker)]="color" [cpAlphaChannel]="'disabled'" [style.background]="color" matInput />
-		</mat-form-field>
 
 		<hr class="divider" />
 		<h2>Existing properties:</h2>
