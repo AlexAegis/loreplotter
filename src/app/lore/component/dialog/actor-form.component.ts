@@ -1,5 +1,13 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, HostListener, Inject, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
+	Component,
+	HostListener,
+	Inject,
+	OnInit,
+	ChangeDetectorRef
+} from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { Actor, UnixWrapper } from '@app/model/data';
 import { Accumulator, ActorService, FORGET_TOKEN } from '@app/service';
@@ -42,7 +50,7 @@ export interface ActorFormResultData {
 	selector: 'app-actor-form',
 	templateUrl: './actor-form.component.html',
 	styleUrls: ['./actor-form.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush
+	changeDetection: ChangeDetectionStrategy.Default
 })
 export class ActorFormComponent implements OnInit, AfterViewInit {
 	public plusIcon = faPlus;
@@ -53,7 +61,34 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		time: this.formBuilder.control(''),
 		maxSpeed: this.formBuilder.control('', [ctrl => (this.canDo(ctrl.value) ? undefined : { slow: true })]),
 		properties: this.formBuilder.array([]),
-		newProperties: this.formBuilder.array([])
+		newProperties: this.formBuilder.array([], (ctrl: FormArray) => {
+			const dups = new Map<string, Array<FormGroup>>();
+			if (this.properties) {
+				this.properties.controls.forEach((propctrl: FormGroup) => {
+					const key = (propctrl as FormGroup).controls['key'].value;
+					dups.set(key, [propctrl as FormGroup]);
+				});
+			}
+			const ctrlGroupWithSameKey = ctrl.controls.forEach(child => {
+				const key = (child as FormGroup).controls['key'].value;
+				const existing = dups.get(key);
+				if (existing) {
+					existing.push(child as FormGroup);
+				} else {
+					dups.set(key, [child as FormGroup]);
+				}
+			});
+			let valid = true;
+			ctrl.setErrors({ duplicates: dups }); // Setting the 'errors' preliminary as a payload to query for the children
+			for (const [key, value] of dups.entries()) {
+				valid = valid && value.length < 2;
+				value.forEach(keyControl => {
+					keyControl.controls['key'].updateValueAndValidity({ onlySelf: true, emitEvent: true }); // The preliminary errors will be used here
+				});
+			}
+			this.cd.markForCheck();
+			return valid ? undefined : { duplicates: dups }; // The preliminary errors will be cleared here
+		})
 	});
 
 	public set color(color: string) {
@@ -78,7 +113,8 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		@Inject(MAT_DIALOG_DATA) public originalData: Accumulator,
 		private formBuilder: FormBuilder,
 		private actorService: ActorService,
-		private engineService: EngineService
+		private engineService: EngineService,
+		private cd: ChangeDetectorRef
 	) {
 		this.originalMoment = moment.unix(this.originalData.cursor);
 		this.originalDate = this.originalMoment.format('YYYY-MM-DD');

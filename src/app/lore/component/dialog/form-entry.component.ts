@@ -30,7 +30,24 @@ export class FormEntryComponent implements OnInit, AfterViewInit {
 
 	public static create(formBuilder: FormBuilder): FormGroup {
 		return formBuilder.group({
-			key: ['', [Validators.required]],
+			key: [
+				'',
+				[
+					Validators.required,
+					(ctrl: FormControl) => {
+						if (ctrl.parent && ctrl.parent.parent && (ctrl.parent.parent as FormArray).errors) {
+							const dups = ctrl.parent.parent.errors['duplicates'] as Map<string, Array<FormGroup>>;
+							const isMeValue = dups.get(ctrl.value);
+							if (isMeValue && isMeValue.length > 1) {
+								ctrl.markAsTouched();
+								ctrl.markAsDirty();
+								return { duplicate: true };
+							}
+						}
+						return undefined;
+					}
+				]
+			],
 			value: [''],
 			forget: [''],
 			valuePlaceholder: ['']

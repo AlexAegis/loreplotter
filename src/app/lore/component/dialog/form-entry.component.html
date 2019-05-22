@@ -1,10 +1,12 @@
 <div [formGroup]="control" [ngClass]="{ existing: existing }" class="group">
 	<mat-form-field hideRequiredMarker *ngIf="!existing" floatLabel="never" required>
 		<input matInput formControlName="key" type="text" />
+		<mat-error *ngIf="control.controls['key']?.hasError('required')">Required</mat-error>
+		<mat-error *ngIf="control.controls['key']?.hasError('duplicate')">Duplicate</mat-error>
 	</mat-form-field>
 	<mat-label *ngIf="existing">{{ originalKey }}</mat-label>
 	<mat-form-field floatLabel="never">
-		<input [placeholder]="originalValue" formControlName="value" matInput type="text"/>
+		<input [placeholder]="originalValue" formControlName="value" matInput type="text" />
 	</mat-form-field>
 	<button
 		aria-label="Toggle Forget Entry"
