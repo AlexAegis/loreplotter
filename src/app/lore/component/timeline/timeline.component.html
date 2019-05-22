@@ -2,7 +2,7 @@
 	<app-cursor #cursor [containerWidth]="loreService.containerWidth" id="cursor"></app-cursor>
 	<div #divisorContainer class="divisorContainer" (tap)="tap($event)">
 		<div
-			*appRepeat="let c; from: unitsBetween + 5"
+			*appRepeat="let c; from: unitsBetween + 8"
 			class="divisor"
 			[ngStyle]="{ left: toPx((firstDist$ | async) + deltaDist(c)) }"
 		>

@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { filter, map, switchMap, take, withLatestFrom } from 'rxjs/operators';
 import { Vector2 } from 'three';
 import { Property } from '@app/model/data/property.class';
+import { faCaretLeft, faCaretRight, faStepBackward, faStepForward } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
 	selector: 'app-popup',
@@ -33,6 +34,11 @@ export class PopupComponent extends BaseDirective implements OnInit {
 	@Input()
 	@HostBinding('style.left.px')
 	public left: number;
+
+	public firstIcon = faStepBackward;
+	public previousIcon = faCaretLeft;
+	public nextIcon = faCaretRight;
+	public lastIcon = faStepForward;
 
 	public visibility = 'hidden';
 

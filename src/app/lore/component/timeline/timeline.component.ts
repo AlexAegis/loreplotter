@@ -146,7 +146,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 			const time = nextWhole(frame.start, this.currentUnitSeconds);
 			return (
 				ThreeMath.mapLinear(time, frame.start, frame.end, 0, containerWidth) -
-				this.distanceBetweenUnits -
+				this.distanceBetweenUnits * 4 -
 				this.distanceBetweenUnits / 12
 				// TODO: I don't know why but it's shifted by exactly two hours
 			);

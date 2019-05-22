@@ -1,16 +1,20 @@
 <div *ngIf="selectedActorAccumulatorAtCursor$ | async as acc" [@visibility]="visibility" class="popup">
 	<div class="navigation">
-		First
-		<button (click)="cursorEaseTo(acc.firstEvent.k.unix)" mat-stroked-button>
-			{{ acc.firstEvent.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		<button (click)="cursorEaseTo(acc.firstEvent?.k.unix)" [disabled]="!acc.firstEvent" mat-stroked-button>
+			<fa-icon [icon]="firstIcon"></fa-icon>
 		</button>
-		Last
-		<button (click)="cursorEaseTo(acc.lastEvent.k.unix)" mat-stroked-button>
-			{{ acc.lastEvent.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}
+		<button (click)="cursorEaseTo(acc.previousEvent?.k.unix)" [disabled]="!acc.previousEvent" mat-stroked-button>
+			<fa-icon [icon]="previousIcon" [size]="'lg'"></fa-icon>
+		</button>
+		<button (click)="cursorEaseTo(acc.nextEvent?.k.unix)" [disabled]="!acc.nextEvent" mat-stroked-button>
+			<fa-icon [icon]="nextIcon" [size]="'lg'"></fa-icon>
+		</button>
+		<button (click)="cursorEaseTo(acc.lastEvent?.k.unix)" [disabled]="!acc.lastEvent" mat-stroked-button>
+			<fa-icon [icon]="lastIcon"></fa-icon>
 		</button>
 	</div>
 
-	<div *ngIf="acc?.accumulator.name as name" class="accumulated">
+	<div *ngIf="acc?.accumulator.name as name" class="accumulated name">
 		<h1>{{ name.value }}</h1>
 		<button (click)="cursorEaseTo(name.appearedIn?.k.unix)" *ngIf="name.appearedIn" mat-stroked-button>
 			{{ name.appearedIn?.k.unix | amFromUnix | amDateFormat: 'YYYY-MM-DD HH:mm' }}

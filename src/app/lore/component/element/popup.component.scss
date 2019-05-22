@@ -5,6 +5,7 @@
 	margin-top: -40px;
 	margin-left: 10px;
 	width: 26rem;
+
 	h1 {
 		margin: 0;
 	}
@@ -35,6 +36,11 @@
 		overflow: visible;
 		// display: grid;
 		justify-content: center;
+
+		.name {
+			margin-top: 1rem;
+		}
+
 		.accumulated {
 			display: grid;
 			justify-content: center;
@@ -53,7 +59,7 @@
 	.navigation {
 		display: grid;
 		grid-gap: 0.275rem;
-		grid-template-columns: 2rem 9rem 2rem 9rem !important;
+		grid-template-columns: 1fr 1fr 1fr 1fr !important;
 		align-items: center;
 	}
 }

@@ -20,6 +20,8 @@ export interface Accumulator {
 	accumulator: ActorDeltaAccumulator;
 	firstEvent: Node<UnixWrapper, ActorDelta>;
 	lastEvent: Node<UnixWrapper, ActorDelta>;
+	previousEvent: Node<UnixWrapper, ActorDelta>;
+	nextEvent: Node<UnixWrapper, ActorDelta>;
 }
 
 export class AccumulatorField<T> {
@@ -102,6 +104,8 @@ export class ActorService {
 					const accumulator = new ActorDeltaAccumulator();
 					const propertyMap = new Map<string, AccumulatorField<string>>();
 					let firstEvent: Node<UnixWrapper, ActorDelta>;
+					let previousEvent: Node<UnixWrapper, ActorDelta>;
+					let nextEvent: Node<UnixWrapper, ActorDelta>;
 					let lastEvent: Node<UnixWrapper, ActorDelta>;
 
 					accumulator.color.value = Actor.DEFAULT_COLOR;
@@ -112,10 +116,16 @@ export class ActorService {
 						if (firstEvent === undefined) {
 							firstEvent = node;
 						}
+						if (node.key.unix < cursor) {
+							previousEvent = node;
+						}
 						lastEvent = node;
 
 						if (node.key.unix > cursor) {
 							reached = true;
+							if (nextEvent === undefined) {
+								nextEvent = node;
+							}
 						}
 						if (!reached) {
 							if (node.key.unix !== undefined) {
@@ -212,7 +222,7 @@ export class ActorService {
 						accumulator.properties.push(accField);
 					}
 
-					return { cursor, actor, accumulator, firstEvent, lastEvent };
+					return { cursor, actor, accumulator, firstEvent, lastEvent, previousEvent, nextEvent };
 				}),
 				toArray()
 			)
