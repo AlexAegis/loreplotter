@@ -154,7 +154,9 @@ export class ActorService {
 									if (prop) {
 										if (value) {
 											if (value === FORGET_TOKEN) {
-												prop.value = `${FORGET_TOKEN}.${prop.value}`;
+												if (!prop.value.startsWith(FORGET_TOKEN)) {
+													prop.value = `${FORGET_TOKEN}.${prop.value}`;
+												}
 											} else {
 												prop.value = value;
 											}
