@@ -33,23 +33,26 @@
 
 	.popup {
 		overflow: visible;
-		display: grid;
+		// display: grid;
 		justify-content: center;
-		div {
+		.accumulated {
 			display: grid;
 			justify-content: center;
 			grid-template-columns: 13rem 9rem;
 			grid-gap: 0.2rem;
+			margin-bottom: 0.4rem;
 		}
-	}
 
-	.accumulated {
-		margin-bottom: 0.4rem;
+		.propertiesContainer {
+			overflow: hidden;
+			height: 10rem;
+			grid-column: 1 / -1;
+		}
 	}
 
 	.navigation {
 		display: grid;
-		grid-gap: 0.2rem;
+		grid-gap: 0.275rem;
 		grid-template-columns: 2rem 9rem 2rem 9rem !important;
 		align-items: center;
 	}
