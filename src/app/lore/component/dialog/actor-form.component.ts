@@ -179,6 +179,9 @@ export class ActorFormComponent implements OnInit, AfterViewInit {
 		};
 	}
 
+	/**
+	 * TODO: Check all the subsequent pairs until a maxSpeed is set.
+	 */
 	public canDo(speed: number): boolean {
 		if (this.afterViewInit && speed !== undefined) {
 			const unix = moment(this.finalTime()).unix() + 1;
