@@ -36,6 +36,7 @@ import { ConfirmComponent } from './component/dialog/confirm.component';
 import { ExportComponent } from './component/dialog/export.component';
 import { ToolbarComponent } from './component/element/toolbar.component';
 import { LoreComponent } from './lore.component';
+import { TruncatePipe } from '@app/pipe/truncate.pipe';
 
 @NgModule({
 	declarations: [
@@ -62,7 +63,8 @@ import { LoreComponent } from './lore.component';
 		ToolbarComponent,
 		MathRoundPipe,
 		ToStringPipe,
-		MathAbsPipe
+		MathAbsPipe,
+		TruncatePipe
 	],
 	imports: [
 		LoreStoreModule,

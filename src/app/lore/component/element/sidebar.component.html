@@ -28,10 +28,13 @@
 				mat-stroked-button
 				*ngFor="let actor of currentLoreActors$ | async"
 				(click)="select($event, actor)"
+				[matTooltip]="(actorService.accumulatorOf(actor) | async)?.accumulator.name.value + ' (' + actor?._states?.length + ')'"
 				[ngStyle]="{ backgroundColor: (actorService.accumulatorOf(actor) | async)?.accumulator.color.value }"
 			>
 				<fa-icon [icon]="maleIcon" [size]="maleIconSize"></fa-icon>
-				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name.value }} ({{ actor?._states?.length }})
+				{{ (actorService.accumulatorOf(actor) | async)?.accumulator.name.value }} ({{
+					actor?._states?.length
+				}})
 			</button>
 		</div>
 		<div class="tools grid">
