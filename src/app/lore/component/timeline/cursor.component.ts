@@ -33,10 +33,10 @@ export class CursorComponent extends BaseDirective implements OnInit, AfterViewI
 	@Input()
 	public containerWidth: Subject<number>;
 
-	@ViewChild('formField')
+	@ViewChild('formField', { static: true })
 	public cursorInputFormField: MatFormField;
 
-	@ViewChild('cursorInput')
+	@ViewChild('cursorInput', { static: true })
 	public cursorInput: ElementRef;
 
 	public frame$: Observable<{ start: number; end: number; length: number }>;
@@ -85,7 +85,9 @@ export class CursorComponent extends BaseDirective implements OnInit, AfterViewI
 				), // Out of bounds check
 				withLatestFrom(this.frame$),
 				map(([[pos, containerWidth], frame]) => {
-					return Math.floor(ThreeMath.mapLinear(this.panStartPosition + pos, 0, containerWidth, frame.start, frame.end));
+					return Math.floor(
+						ThreeMath.mapLinear(this.panStartPosition + pos, 0, containerWidth, frame.start, frame.end)
+					);
 				})
 			)
 			.subscribe(cursoroverride => {
@@ -98,8 +100,7 @@ export class CursorComponent extends BaseDirective implements OnInit, AfterViewI
 			try {
 				const unix = moment(this.cursorInput.nativeElement.value).unix();
 				this.loreService.easeCursorToUnix.next(unix);
-			} catch (e) {
-			}
+			} catch (e) {}
 		} else if ($event.key === ' ') {
 			this.cursorInput.nativeElement.blur();
 		}

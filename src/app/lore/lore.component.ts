@@ -81,9 +81,9 @@ import { StoreFacade } from '@lore/store/store-facade.service';
 	]
 })
 export class LoreComponent extends BaseDirective implements AfterViewInit, OnInit {
-	@ViewChild('container')
+	@ViewChild('container', { static: true })
 	private container: ElementRef;
-	@ViewChild('timeline')
+	@ViewChild('timeline', { static: true })
 	private timeline: TimelineComponent;
 	@HostBinding('class')
 	public theme = 'dark';

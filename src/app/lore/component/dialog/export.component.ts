@@ -18,10 +18,10 @@ export interface ExportData {
 	styleUrls: ['./export.component.scss']
 })
 export class ExportComponent implements OnInit {
-	@ViewChild('textarea')
+	@ViewChild('textarea', { static: true })
 	private textarea: ElementRef;
 
-	@ViewChild('downloadHelper')
+	@ViewChild('downloadHelper', { static: true })
 	private downloadHelper: ElementRef;
 
 	constructor(
@@ -30,11 +30,9 @@ export class ExportComponent implements OnInit {
 		private dialog: MatDialog,
 		private databaseService: DatabaseService,
 		private storeFacade: StoreFacade
-	) {
-	}
+	) {}
 
-	ngOnInit() {
-	}
+	ngOnInit() {}
 
 	public copyToClipboard(): void {
 		this.textarea.nativeElement.select();

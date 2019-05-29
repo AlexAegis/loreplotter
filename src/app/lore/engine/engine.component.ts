@@ -18,7 +18,7 @@ import { Vector2 } from 'three';
 export class EngineComponent extends BaseDirective implements AfterViewInit {
 	private tapSubject = new Subject<HammerInput>();
 
-	@ViewChild('canvas')
+	@ViewChild('canvas', { static: true })
 	public canvas: ElementRef;
 
 	public drop = this.dnd.dropTarget('Actor', {

@@ -111,5 +111,6 @@
 			"args": ["%DOCFILE%"],
 			"env": {}
 		}
-	]
+	],
+	"workbench.colorTheme": "Material Theme Darker High Contrast"
 }

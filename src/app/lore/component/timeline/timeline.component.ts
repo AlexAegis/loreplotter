@@ -117,10 +117,10 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		{ unitName: 'year', frame: 12, seconds: moment.duration(1, 'year').asSeconds() }
 	];
 
-	@ViewChild('divisorContainer')
+	@ViewChild('divisorContainer', { static: true })
 	public divisorContainer: ElementRef;
 
-	@ViewChild('cursor')
+	@ViewChild('cursor', { static: true })
 	public cursor: CursorComponent;
 
 	public actors$ = this.databaseService.currentLoreActors$.pipe(
@@ -132,7 +132,7 @@ export class TimelineComponent extends BaseDirective implements OnInit, AfterVie
 		})
 	); // reference of the actor query pipeline
 
-	@ViewChild(NgScrollbar)
+	@ViewChild(NgScrollbar, { static: true })
 	private scrollRef: NgScrollbar;
 
 	private scrollOnStart: number;

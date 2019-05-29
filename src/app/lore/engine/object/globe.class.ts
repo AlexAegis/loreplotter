@@ -74,7 +74,7 @@ export class Globe extends Basic {
 		this.geometry.computeVertexNormals();
 		this.geometry.computeBoundingSphere();
 		this.geometry.normalizeNormals();
-		(this.geometry as any).computeBoundsTree(); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
+		(this.geometry as any).computeBoundsTree({ maxDepth: 140, maxLeafTris: 20 }); // Use the injected method end enable fast raycasting, only works with Buffered Geometries
 		this.addEventListener('click', (event: ClickEvent) => {
 			this.stage.engineService.selected.next(undefined);
 		});
