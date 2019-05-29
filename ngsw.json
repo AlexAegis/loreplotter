@@ -1,0 +1,96 @@
+{
+  "configVersion": 1,
+  "timestamp": 1559141986497,
+  "index": "/loreplotter/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "urls": [
+        "/loreplotter/5-es2015.a555a4648fa0be128f55.js",
+        "/loreplotter/5-es5.e0048e4b2e7218e27f88.js",
+        "/loreplotter/index.html",
+        "/loreplotter/main-es2015.1e58dc14c937ac6a0752.js",
+        "/loreplotter/main-es5.ad120feb0982089dbd42.js",
+        "/loreplotter/polyfills-es2015.ed54f4135d914ec22cd1.js",
+        "/loreplotter/polyfills-es5.707e6955fecffbbd3402.js",
+        "/loreplotter/runtime-es2015.49aa902bd85c1e65b864.js",
+        "/loreplotter/runtime-es5.e86a8409a85baf1e2f96.js",
+        "/loreplotter/styles.ee2daee5632088962886.css",
+        "/loreplotter/vendor-es2015.71c171195d78e265de6a.js",
+        "/loreplotter/vendor-es5.8b2beda04dd278dc3cd3.js"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "urls": [
+        "/loreplotter/assets/elev_bump_8k.jpg",
+        "/loreplotter/assets/favicon-alt.ico",
+        "/loreplotter/assets/favicon-alt.ico.gz",
+        "/loreplotter/assets/favicon.ico",
+        "/loreplotter/assets/favicon.ico.gz",
+        "/loreplotter/assets/icons/icon-128x128.png",
+        "/loreplotter/assets/icons/icon-144x144.png",
+        "/loreplotter/assets/icons/icon-152x152.png",
+        "/loreplotter/assets/icons/icon-192x192.png",
+        "/loreplotter/assets/icons/icon-384x384.png",
+        "/loreplotter/assets/icons/icon-512x512.png",
+        "/loreplotter/assets/icons/icon-72x72.png",
+        "/loreplotter/assets/icons/icon-96x96.png",
+        "/loreplotter/assets/loading.gif"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/loreplotter/5-es2015.a555a4648fa0be128f55.js": "6fef29deb7eff6d375cf5a42a3589d3bf2bdd802",
+    "/loreplotter/5-es5.e0048e4b2e7218e27f88.js": "bef648fd16a9abbcd7cfb2b7e1d4f42f7882d19a",
+    "/loreplotter/assets/elev_bump_8k.jpg": "fc34170297f927f4b00113285148d920ad6f4ccc",
+    "/loreplotter/assets/favicon-alt.ico": "80668098478d3559a455917cd8a232d629efc936",
+    "/loreplotter/assets/favicon-alt.ico.gz": "84bf1257d043db4957b7bb8f2df3165789222a0c",
+    "/loreplotter/assets/favicon.ico": "568c31e6ed5a4948d0d440589a0c796e6c420c33",
+    "/loreplotter/assets/favicon.ico.gz": "4797369aca261f2457889226475a1e0b8c532f81",
+    "/loreplotter/assets/icons/icon-128x128.png": "a1e7a4f6d24a6af3a3be7281f6293284013d8279",
+    "/loreplotter/assets/icons/icon-144x144.png": "b8fb53050a350407c8a489a4c387c17cdd50649b",
+    "/loreplotter/assets/icons/icon-152x152.png": "e6894c4a413c66fd9f32c2f92521172bfe3e51c6",
+    "/loreplotter/assets/icons/icon-192x192.png": "e14f92499b96aabf40b4224bffbec491462801a0",
+    "/loreplotter/assets/icons/icon-384x384.png": "dff958f279952ae2ba8a24ed985dc5862e92fcb5",
+    "/loreplotter/assets/icons/icon-512x512.png": "9a805135373e38d57f02f4d720c983bf4de1fbe4",
+    "/loreplotter/assets/icons/icon-72x72.png": "657ef60aef9a01b242d942828f700d465efc5775",
+    "/loreplotter/assets/icons/icon-96x96.png": "d7b5eb9262ea47b7b4bdd0fb5e7006f87f577eb4",
+    "/loreplotter/assets/loading.gif": "50c31586046171e65d3376c5ad2f07dcb566de69",
+    "/loreplotter/index.html": "334436bbe3c553530a9e239abd9d66ce6ebd41f7",
+    "/loreplotter/main-es2015.1e58dc14c937ac6a0752.js": "1ddb273bb4bb275362e306b0564aaaa72fbff964",
+    "/loreplotter/main-es5.ad120feb0982089dbd42.js": "2e21c31a2ca7e5497201c3f61d1c5fcc2cfb0291",
+    "/loreplotter/polyfills-es2015.ed54f4135d914ec22cd1.js": "2f2b92348e16f85c979480e4b846c6288a2874fc",
+    "/loreplotter/polyfills-es5.707e6955fecffbbd3402.js": "ef9b037964f8199d4e15bf8f0e1c87e2b7f8b55f",
+    "/loreplotter/runtime-es2015.49aa902bd85c1e65b864.js": "bf3f05d8b0b08c8ded9f459b718e58a6a814fd13",
+    "/loreplotter/runtime-es5.e86a8409a85baf1e2f96.js": "5651724fc0be1912d42bd61c13f8fcea2f784294",
+    "/loreplotter/styles.ee2daee5632088962886.css": "b6b2e7904e2b4578fc25cdcfe9f28e083b3ef8ac",
+    "/loreplotter/vendor-es2015.71c171195d78e265de6a.js": "4dc8f0e8fe55619df71df7c6533edb23eac2f05d",
+    "/loreplotter/vendor-es5.8b2beda04dd278dc3cd3.js": "21570490f1b9f38c0a0da3df808d95856a90e59f"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ]
+}
