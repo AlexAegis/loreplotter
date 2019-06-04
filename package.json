@@ -52,7 +52,7 @@
 		"@fortawesome/angular-fontawesome": "^0.4.0",
 		"@fortawesome/fontawesome-svg-core": "^1.2.19",
 		"@fortawesome/free-brands-svg-icons": "^5.8.2",
-		"@fortawesome/free-solid-svg-icons": "^5.8.2",
+		"@fortawesome/free-solid-svg-icons": "^5.9.0",
 		"@ngrx/data": "8.0.0-beta.2",
 		"@ngrx/effects": "8.0.0-beta.2",
 		"@ngrx/entity": "8.0.0-beta.2",
