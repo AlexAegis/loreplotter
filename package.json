@@ -98,7 +98,7 @@
 		"@types/tween.js": "^17.2.0",
 		"codelyzer": "~5.0.1",
 		"compression-webpack-plugin": "^2.0.0",
-		"ecstatic": "3.0.0",
+		"ecstatic": "3.3.2",
 		"http-server": "^0.11.1",
 		"jasmine-core": "~3.4.0",
 		"jasmine-spec-reporter": "~4.2.1",
