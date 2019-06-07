@@ -88,7 +88,7 @@
 		"@angular/compiler-cli": "8.0.0",
 		"@angular/language-service": "8.0.0",
 		"@ngrx/schematics": "8.0.0-beta.2",
-		"@ngrx/store-devtools": "8.0.0-beta.2",
+		"@ngrx/store-devtools": "8.0.0",
 		"@types/compression-webpack-plugin": "^2.0.0",
 		"@types/dat.gui": "^0.7.2",
 		"@types/hammerjs": "^2.0.36",
