@@ -57,7 +57,7 @@
 		"@ngrx/effects": "8.0.0-beta.2",
 		"@ngrx/entity": "8.0.0-beta.2",
 		"@ngrx/router-store": "8.0.0-beta.2",
-		"@ngrx/store": "8.0.0-beta.2",
+		"@ngrx/store": "8.0.1",
 		"@tweenjs/tween.js": "^17.4.0",
 		"core-js": "^3.1.3",
 		"hammerjs": "^2.0.8",
