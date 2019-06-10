@@ -55,7 +55,7 @@
 		"@fortawesome/free-solid-svg-icons": "^5.8.2",
 		"@ngrx/data": "8.0.0-beta.2",
 		"@ngrx/effects": "8.0.0-beta.2",
-		"@ngrx/entity": "8.0.0-beta.2",
+		"@ngrx/entity": "8.0.1",
 		"@ngrx/router-store": "8.0.0-beta.2",
 		"@ngrx/store": "8.0.0-beta.2",
 		"@tweenjs/tween.js": "^17.4.0",
