@@ -65,7 +65,7 @@
 		"ng5-slider": "^1.1.14",
 		"ngrx-store-localstorage": "^7.0.0",
 		"ngx-color-picker": "^7.5.0",
-		"ngx-mask": "^7.9.9",
+		"ngx-mask": "^7.9.10",
 		"ngx-moment": "^3.4.0",
 		"ngx-scrollbar": "^4.2.0",
 		"postprocessing": "^6.4.0",
