@@ -69,7 +69,7 @@
 		"ngx-moment": "^3.4.0",
 		"ngx-scrollbar": "^4.2.0",
 		"postprocessing": "^6.4.0",
-		"pouchdb-adapter-idb": "^7.0.0",
+		"pouchdb-adapter-idb": "^7.1.1",
 		"propagating-hammerjs": "^1.4.6",
 		"reflect-metadata": "^0.1.13",
 		"resize-observer-polyfill": "^1.5.1",
