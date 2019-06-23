@@ -33,7 +33,7 @@
 	"private": true,
 	"dependencies": {
 		"@alexaegis/avl": "1.6.1",
-		"@angular-mdc/web": "^1.0.3",
+		"@angular-mdc/web": "^2.0.0",
 		"@angular-skyhook/core": "^1.1.1",
 		"@angular-skyhook/multi-backend": "^1.1.1",
 		"@angular/animations": "8.0.0",
