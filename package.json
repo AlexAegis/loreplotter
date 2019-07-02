@@ -43,7 +43,7 @@
 		"@angular/core": "8.0.0",
 		"@angular/forms": "8.0.0",
 		"@angular/material": "8.0.2",
-		"@angular/material-moment-adapter": "8.0.0",
+		"@angular/material-moment-adapter": "8.0.2",
 		"@angular/platform-browser": "8.0.0",
 		"@angular/platform-browser-dynamic": "8.0.0",
 		"@angular/pwa": "0.800.0",
